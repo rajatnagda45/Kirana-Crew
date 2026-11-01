@@ -1,0 +1,109 @@
+.seat-manager.dev-mode {
+  grid-template-columns: minmax(0, 1fr);
+}
+.dev-mode__body {
+  overflow-y: auto;
+  display: grid;
+  gap: 16px;
+  padding-right: 4px;
+}
+.dev-mode__section {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--pixel-border);
+  border-radius: 12px;
+  background: var(--ui-surface);
+}
+.dev-mode__section h2 {
+  font-size: 0.95rem;
+  color: var(--pixel-text);
+}
+.dev-mode__section textarea,
+.dev-mode__section input,
+.dev-mode__section select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--pixel-border-light);
+  border-radius: 8px;
+  background: var(--pixel-panel);
+  color: var(--pixel-text);
+  font: inherit;
+}
+.dev-mode__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+.dev-mode__grid label,
+.dev-mode__row label {
+  display: grid;
+  gap: 4px;
+  color: var(--pixel-muted);
+  font-size: 0.8rem;
+}
+.dev-mode__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+}
+.dev-mode__row > label,
+.dev-mode__row > input {
+  flex: 1 1 220px;
+}
+.dev-mode__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+.dev-mode__table th,
+.dev-mode__table td {
+  padding: 6px;
+  border-bottom: 1px solid var(--pixel-border);
+  text-align: left;
+  vertical-align: top;
+}
+.dev-mode__table em,
+.dev-mode__status p {
+  color: var(--pixel-muted);
+}
+.dev-mode__pill {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--pixel-border-light);
+  white-space: nowrap;
+}
+.dev-mode__pill--available,
+.dev-mode__pill--existing {
+  border-color: var(--pixel-accent);
+  color: var(--pixel-accent);
+}
+.dev-mode__pill--unavailable,
+.dev-mode__pill--unsupported,
+.dev-mode__pill--high_risk {
+  border-color: #e5484d;
+  color: #e5484d;
+}
+.dev-mode__decide {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.dev-mode__status {
+  margin: 0;
+  font-size: 0.85rem;
+}
+.dev-mode__status--blocked,
+.dev-mode__status--failed,
+.dev-mode__error {
+  color: #e5484d;
+}
+@media (max-width: 640px) {
+  .dev-mode__table {
+    display: block;
+    overflow-x: auto;
+  }
+}

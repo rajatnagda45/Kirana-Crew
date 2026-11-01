@@ -25,10 +25,12 @@ interface SpecialistActivity {
 export default function WorkerPanel({
   seats,
   onOpenManager,
+  onOpenDeveloper,
   onInspect,
 }: {
   seats: SeatState[];
   onOpenManager: () => void;
+  onOpenDeveloper?: () => void;
   onInspect?: (seatId: string) => void;
 }) {
   const [specialists, setSpecialists] = useState<SpecialistActivity[]>([]);
@@ -79,13 +81,20 @@ export default function WorkerPanel({
       title="Employees"
       subtitle="Your people, their roles, and live assignments"
       headerAction={
-        <button
-          type="button"
-          className="pixel-button pixel-button--primary"
-          onClick={onOpenManager}
-        >
-          Manage Seats
-        </button>
+        <>
+          {onOpenDeveloper ? (
+            <button type="button" className="pixel-button" onClick={onOpenDeveloper}>
+              Developer Mode
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className="pixel-button pixel-button--primary"
+            onClick={onOpenManager}
+          >
+            Manage Seats
+          </button>
+        </>
       }
     >
       <div className="team-directory">

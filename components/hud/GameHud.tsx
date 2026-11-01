@@ -18,6 +18,7 @@ import ChatPanel from "./ChatPanel";
 import TaskPanel from "./TaskPanel";
 import WorkerPanel from "./WorkerPanel";
 import SeatManagerModal from "./SeatManagerModal";
+import DeveloperModeModal from "./DeveloperModeModal";
 import MusicControls from "./MusicControls";
 import OnboardingOverlay from "./OnboardingOverlay";
 import AgentDetailPanel from "./AgentDetailPanel";
@@ -31,6 +32,7 @@ export default function GameHud() {
   const workspace = useWorkspaceView()!;
   const { openPanel, setOpenPanel, observingSeatId, setObservingSeatId } = workspace;
   const [seatManagerOpen, setSeatManagerOpen] = useState(false);
+  const [developerOpen, setDeveloperOpen] = useState(false);
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     const seat = query.get("seat");
@@ -227,6 +229,7 @@ export default function GameHud() {
                   seats={state.seats}
                   onInspect={handleSeatClick}
                   onOpenManager={() => setSeatManagerOpen(true)}
+                  onOpenDeveloper={() => setDeveloperOpen(true)}
                 />
               ) : null}
             </>
@@ -291,6 +294,12 @@ export default function GameHud() {
       <SeatManagerModal
         open={seatManagerOpen}
         onClose={() => setSeatManagerOpen(false)}
+        seats={state.seats}
+      />
+
+      <DeveloperModeModal
+        open={developerOpen}
+        onClose={() => setDeveloperOpen(false)}
         seats={state.seats}
       />
 
