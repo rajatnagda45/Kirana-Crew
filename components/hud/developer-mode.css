@@ -1,5 +1,20 @@
 .seat-manager.dev-mode {
   grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+.dev-mode__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.dev-mode__schema {
+  max-height: 240px;
+  overflow: auto;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--pixel-panel);
+  font-size: 0.75rem;
+  white-space: pre-wrap;
 }
 .dev-mode__body {
   overflow-y: auto;
@@ -80,9 +95,20 @@
   border-color: var(--pixel-accent);
   color: var(--pixel-accent);
 }
+.dev-mode__pill--connected,
+.dev-mode__pill--completed,
+.dev-mode__pill--approved {
+  border-color: var(--pixel-accent);
+  color: var(--pixel-accent);
+}
 .dev-mode__pill--unavailable,
 .dev-mode__pill--unsupported,
-.dev-mode__pill--high_risk {
+.dev-mode__pill--high_risk,
+.dev-mode__pill--unreachable,
+.dev-mode__pill--denied,
+.dev-mode__pill--removed,
+.dev-mode__pill--invalid_schema,
+.dev-mode__pill--uncertain {
   border-color: #e5484d;
   color: #e5484d;
 }

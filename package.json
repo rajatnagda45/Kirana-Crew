@@ -64,6 +64,7 @@
   ],
   "dependencies": {
     "@google/genai": "^2.31.0",
+    "@modelcontextprotocol/sdk": "1.32.1",
     "ajv": "8.20.0",
     "three": "^0.186.1",
     "ws": "^8.22.0"
