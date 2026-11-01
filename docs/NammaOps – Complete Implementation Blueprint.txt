@@ -1,0 +1,1119 @@
+NammaOps – Complete Implementation Blueprint
+
+Recommended architecture
+ Hackathon MVP
+
+We're going to build NammaOps as an extension of your completed Agent Town project, using:
+- Agent Town: Existing autonomous-agent environment and orchestration.
+- ERPNext: Real kirana business backend.
+- ERPNext MCP: Standardised access to inventory, sales and purchasing.
+- Gnani Prisma v2.5: Voice-to-text.
+- Gnani Timbre v2.5: Text-to-voice.
+- Five specialised agents: Coordinating the shop's operations.
+The target is three complete, demonstrable workflows, not a huge unfinished ERP implementation.
+
+
+
+
+
+
+
+app.storeking.in
+
+
+The product promise:
+
+"Run your kirana store by speaking naturally. Your AI workforce checks stock, prepares purchases and reports business performance."
+1. Final system architecture
+This is the architecture I recommend implementing.
+System architecture
+NammaOps Web App
+Existing Agent Town UI + Voice Command Center
+
+Gnani Voice Gateway
+Prisma STT → intent → Timbre TTS
+
+Agent Town Orchestrator
+Intent routing • Task planning • Agent coordination
+
+Inventory Agent
+
+Sales Agent
+
+Procurement Agent
+
+Finance Agent
+
+Manager Agent
+
+
+
+NammaOps MCP Gateway
+Tool allowlist • Input validation • Approval policy • Audit logging
+
+ERPNext MCP Server
+Inventory • Sales • Purchasing • Accounting
+
+ERPNext + MariaDB
+Actual business records and transactions
+The NammaOps gateway is important: agents should not receive unrestricted access to the underlying ERPNext MCP server.
+2. ERPNext demo deployment
+You selected demo deployment. I recommend a disposable local Docker ERPNext environment for development and testing.
+
+There are two approaches:
+Option	Recommendation
+Public Frappe demo	Quick exploration only
+Local Docker demo	Recommended  Controlled test data and API credentials
+
+ERPNext's own README explicitly describes its pwd.yml setup as disposable, for quick evaluation, and says custom apps cannot be installed in that environment. That's okay because our MCP server runs externally and connects through the API. 
+
+GitHub+1
+
+Step 1: Start ERPNext
+Requirements:
+- Docker
+- Docker Compose v2
+- Git
+Run:
+git clone https://github.com/frappe/frappe_docker
+cd frappe_docker
+
+docker compose -f pwd.yml up -d
+
+
+Wait for the site creation process to finish.
+
+Open:
+http://localhost:8080
+
+
+The README documents the evaluation login:
+Username: Administrator
+Password: admin
+
+
+Change the default credentials if you retain the instance beyond a disposable local evaluation. Do not expose it publicly. 
+
+GitHub+1
+
+Step 2: Configure your kirana company
+Create a fictional business:
+Field	Example
+Company	Namma Kirana
+Currency	INR
+Country	India
+Warehouse	Main Store
+Customer	Walk-in Customer
+Supplier	Bengaluru Wholesale Traders
+
+Create these product records:
+Product	Unit	Opening stock	Reorder level
+Milk packet	Nos	8	20
+Rice	Kg	5	25
+Cooking oil	Bottle	2	10
+Sugar	Kg	30	10
+Biscuits	Pack	50	15
+
+These are synthetic demo values.
+
+Also create:
+- Three suppliers.
+- Five to ten customers.
+- At least 15 products.
+- A few purchase invoices.
+- Several sales/POS invoices.
+- Appropriate opening stock entries.
+Important: ERPNext requires master records and valid stock/accounting configuration before transaction workflows can work. Don't just create products and assume stock balances will appear.
+Step 3: Create an API user
+Inside ERPNext:
+1. Open Users.
+2. Create a dedicated nammaops.api user.
+3. Assign only the roles required for your three workflows.
+4. Generate API credentials under API Access.
+5. Save them in your backend environment.
+Use this authentication format:
+Authorization: token API_KEY:API_SECRET
+
+
+Frappe executes each API request under the authenticated user and applies that user's permissions. 
+
+Frappe Documentation+1
+
+Do not use the Administrator account for the running application.
+
+3. Connect the ERPNext MCP server
+
+Selected integration
+ @hvgllc/hvgerp-mcp
+Repository: GitHub – ERPNext MCP
+
+The current repository documentation advertises 135 tools across 16 categories, including inventory, purchasing, sales, accounting and analytics. It requires Node.js 20 or newer. 
+
+GitHub+1
+
+Step 1: Check Node
+node --version
+npm --version
+
+
+Use Node 20+.
+Step 2: Configure the MCP server
+Create a development MCP configuration:
+{
+  "mcpServers": {
+    "erpnext": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@hvgllc/hvgerp-mcp",
+        "--categories=sales,inventory,purchasing,accounting"
+      ],
+      "env": {
+        "ERPNEXT_URL": "http://localhost:8000",
+        "ERPNEXT_API_KEY": "YOUR_API_KEY",
+        "ERPNEXT_API_SECRET": "YOUR_API_SECRET"
+      }
+    }
+  }
+}
+
+
+Important: The URL must point to the actual ERPNext site URL, not automatically port 8000. The pwd.yml setup exposes the browser on port 8080; verify the internal or host-accessible API URL and connectivity before configuring MCP. For example, the API might be reachable at http://localhost:8080.
+
+The package documents category filtering, and the credentials above follow its documented configuration. 
+
+GitHub+1
+
+Step 3: Discover tools rather than guessing
+Your backend must connect to the MCP server and request its available tools.
+
+The important inventory capabilities include:
+- Item listing.
+- Stock balance.
+- Warehouse listing.
+- Stock entries.
+- Stock ledger.
+Purchasing includes:
+- Supplier listing.
+- Purchase orders.
+- Purchase receipts.
+- Supplier quotations.
+Sales includes:
+- Customer records.
+- Sales orders.
+- Sales invoices.
+- Quotations.
+The repository describes these tool groups; consult its live tool reference for exact names and parameters. 
+
+GitHub
+
+For your application, build a small adapter so that changes in the third-party MCP tool names do not require rewriting the agents.
+4. NammaOps MCP integration code
+I recommend a dedicated Node.js backend service.
+
+Install:
+npm install @modelcontextprotocol/sdk zod dotenv
+
+
+The following is the integration pattern. It is a starting implementation, not a complete drop-in replacement for your existing Agent Town gateway.
+
+integrations/erpnext/mcp-client.ts
+
+import "dotenv/config";
+
+import {
+  Client
+} from "@modelcontextprotocol/sdk/client/index.js";
+
+import {
+  StdioClientTransport
+} from "@modelcontextprotocol/sdk/client/stdio.js";
+
+const transport = new StdioClientTransport({
+  command: "npx",
+  args: [
+    "-y",
+    "@hvgllc/hvgerp-mcp",
+    "--categories=sales,inventory,purchasing,accounting"
+  ],
+  env: {
+    ...process.env,
+    ERPNEXT_URL: process.env.ERPNEXT_URL!,
+    ERPNEXT_API_KEY: process.env.ERPNEXT_API_KEY!,
+    ERPNEXT_API_SECRET: process.env.ERPNEXT_API_SECRET!
+  }
+});
+
+export const erpClient = new Client({
+  name: "nammaops-gateway",
+  version: "1.0.0"
+});
+
+export async function connectERP() {
+  await erpClient.connect(transport);
+
+  const result = await erpClient.listTools();
+
+  console.log(
+    "ERPNext MCP connected",
+    result.tools.map(tool => tool.name)
+  );
+
+  return result.tools;
+}
+
+export async function callERPTool(
+  name: string,
+  args: Record<string, unknown>
+) {
+  return erpClient.callTool({
+    name,
+    arguments: args
+  });
+}
+
+
+
+This lets your existing orchestration backend discover and invoke ERPNext MCP tools.
+
+For production, add timeouts, error classification, input validation, retry rules for safe reads, and a controlled shutdown handler.
+5. Agent definitions and permissions
+This is one of the most important design decisions.
+
+Do not let every agent access every ERPNext operation.
+
+Give each agent a restricted set of tools and responsibilities.
+Agent 1 – Inventory Agent
+
+
+
+
+
+
+
+
+
+Purpose: Understand the current stock situation.
+Read-only
+
+
+Allowed MCP capabilities:
+- Item list.
+- Stock balance.
+- Warehouse list.
+- Stock ledger.
+- Product details.
+Forbidden:
+- Deleting products.
+- Changing stock quantities.
+- Submitting stock adjustments.
+- Creating purchase orders.
+Example system instruction:
+You are the NammaOps Inventory Agent.
+
+Your responsibility is to inspect inventory.
+
+1. Read product stock balances.
+2. Compare stock against configured reorder levels.
+3. Identify low-stock and expiry-risk products.
+4. Report quantities and warehouse locations.
+5. Never modify inventory directly.
+6. Never invent stock quantities.
+7. Report unavailable data explicitly.
+
+Return structured results to the Manager Agent.
+
+
+Agent 2 – Sales Agent
+
+
+
+
+
+
+
+
+
+Purpose: Understand sales performance.
+Read-only
+
+
+Allowed:
+- Sales invoice list.
+- POS invoice list.
+- Customer list.
+- Sales reports.
+- Product sales analysis.
+Example output:
+{
+  "date": "2026-10-31",
+  "total_sales": 8500,
+  "transaction_count": 67,
+  "top_products": [
+    "Milk",
+    "Rice",
+    "Cooking Oil"
+  ]
+}
+
+
+Use real ERPNext results in the application; this JSON is illustrative.
+Agent 3 – Procurement Agent
+
+
+
+
+
+
+
+
+
+Purpose: Prepare purchase recommendations.
+Approval required
+
+
+Allowed:
+- Read supplier list.
+- Read supplier quotations.
+- Read item prices.
+- Create draft purchase orders.
+Restricted:
+- Submit purchase orders.
+- Create purchase receipts.
+- Cancel purchase documents.
+The agent can prepare an order but cannot finalise it without owner approval.
+Agent 4 – Finance Agent
+
+
+
+
+
+
+
+
+
+Purpose: Produce business summaries.
+Read-only
+
+
+Allowed:
+- Sales summaries.
+- Purchase invoice reports.
+- General ledger reports.
+- Profit and loss reports.
+- Payment summaries.
+Do not calculate profit by simply subtracting purchase orders from sales. Use posted accounting records and an appropriate accounting report.
+Agent 5 – Manager Agent
+
+
+
+
+
+
+
+
+
+Purpose: Coordinate the workforce.
+Orchestrator
+
+
+Responsibilities:
+- Understand owner intent.
+- Delegate tasks.
+- Combine agent results.
+- Detect inconsistent reports.
+- Request owner approval.
+- Generate the final spoken response.
+The Manager should not have unrestricted access to ERPNext either. It should only invoke explicitly approved workflow operations.
+Permission matrix
+Operation	Inventory	Sales	Procurement	Finance	Manager
+Read stock	Yes	No	Yes	No	Via agent
+Read sales	No	Yes	No	Yes	Via agent
+Read suppliers	No	No	Yes	No	Via agent
+Create draft PO	No	No	Yes	No	Workflow
+Submit PO	No	No	Approval	No	Approval gate
+Stock adjustment	No	No	No	No	Approval gate
+
+Implement these permissions in your own backend gateway, not just in the LLM system prompts.
+
+6. The three complete workflows
+These are the three workflows I would build for the actual hackathon demonstration.
+Workflow 1
+Voice-based inventory intelligence
+
+
+
+
+
+
+
+thedailystar.net
+
+
+Owner says:
+"Check the stock of milk, rice and cooking oil. Tell me what we need to buy tomorrow."
+
+Execution:
+1. Prisma transcribes the voice.
+2. Manager Agent identifies the stock-check intent.
+3. Inventory Agent queries ERPNext through MCP.
+4. Inventory Agent compares quantities against reorder levels.
+5. Procurement Agent estimates replenishment needs.
+6. Manager Agent generates a report.
+7. Timbre speaks the response.
+Example:
+Product	Current stock	Reorder level	Result
+Milk	8	20	Reorder
+Rice	5 kg	25 kg	Reorder
+Oil	2	10	Reorder
+
+Expected output
+3 products need attention
+ERPNext data-backed
+"Anna, milk, rice and cooking oil are below their minimum stock levels. I've prepared the replenishment recommendations."
+
+Acceptance test: Change the stock quantity inside ERPNext and rerun the voice command. NammaOps must report the updated quantity.
+
+This proves that the application is connected to real ERP records rather than hardcoded values.
+
+Workflow 2
+Intelligent reorder and supplier purchase
+
+
+
+
+
+
+
+livemint.com
+
+
+Owner says:
+"Prepare an order for the products that are running low. Choose the cheapest suitable supplier."
+
+Execution:
+1. Inventory Agent finds products below reorder level.
+2. Procurement Agent checks suppliers and quotations.
+3. It compares unit prices and availability.
+4. It calculates the recommended purchase quantities.
+5. It creates a draft purchase order through MCP.
+6. Manager displays the purchase order for approval.
+7. Owner confirms.
+8. The order is submitted to ERPNext.
+9. Timbre announces the result.
+Example purchase recommendation:
+Product	Quantity	Unit price	Amount
+Milk	30	₹28	₹840
+Rice	25 kg	₹60	₹1,500
+Oil	10	₹120	₹1,200
+Total			₹3,540
+
+Purchase approval
+₹3,540
+Awaiting owner approval
+Illustrative synthetic purchase order
+Supplier
+
+Bengaluru Wholesale Traders
+
+Items
+
+3
+
+ERPNext document
+
+Draft Purchase Order
+
+
+Acceptance test: Before approval, verify that the order is only a draft. After approval, verify that ERPNext shows a submitted purchase order.
+
+One subtle but important point: cheapest is not always best. The agent should compare availability, quality, delivery time and price, and disclose its selection criteria.
+
+Workflow 3
+Daily sales and business intelligence
+
+
+
+
+
+
+
+linkedin.com
+
+
+Owner says:
+"Tell me how much business I did today, what sold the most and how much profit I made."
+
+Execution:
+1. Sales Agent retrieves sales invoices and POS records.
+2. Finance Agent retrieves relevant posted accounting reports.
+3. Manager checks reporting period and reconciles totals.
+4. The dashboard displays KPIs and trends.
+5. Timbre provides the spoken summary.
+Example dashboard:
+Today's sales₹8,500
+
+Transactions67
+
+Top-selling productMilk
+
+Net profitFrom P&L
+
+
+Acceptance test: Create additional sales transactions in ERPNext and confirm that NammaOps updates the sales summary. Profit must come from actual accounting data, not an invented estimate.
+
+7. How to implement the workflows in code
+Keep the agents independent of individual ERPNext MCP tool names.
+
+Create your own business-level service functions.
+
+Suggested structure:
+nammaops/
+│
+├── apps/
+│   └── web/
+│       ├── components/
+│       │   ├── VoiceCommandCenter/
+│       │   ├── AgentTown/
+│       │   ├── InventoryDashboard/
+│       │   ├── SalesDashboard/
+│       │   └── ApprovalPanel/
+│       │
+│       └── pages/
+│
+├── backend/
+│   ├── voice/
+│   │   ├── prisma.ts
+│   │   └── timbre.ts
+│   │
+│   ├── mcp/
+│   │   ├── client.ts
+│   │   ├── discovery.ts
+│   │   ├── tool-registry.ts
+│   │   └── permissions.ts
+│   │
+│   ├── agents/
+│   │   ├── inventory.ts
+│   │   ├── sales.ts
+│   │   ├── procurement.ts
+│   │   ├── finance.ts
+│   │   └── manager.ts
+│   │
+│   ├── workflows/
+│   │   ├── stock-intelligence.ts
+│   │   ├── purchase-reorder.ts
+│   │   └── daily-business-report.ts
+│   │
+│   └── services/
+│       ├── approvals.ts
+│       ├── audit.ts
+│       └── event-bus.ts
+│
+└── shared/
+    ├── schemas/
+    └── types/
+
+
+This is an additive layout. Keep your current Agent Town files and adapt these modules to its existing conventions.
+A. Define structured intent
+shared/schemas/intent.ts
+
+import { z } from "zod";
+
+export const IntentSchema = z.discriminatedUnion(
+  "action",
+  [
+    z.object({
+      action: z.literal("stock_check"),
+      products: z.array(z.string()).default([]),
+      language: z.string()
+    }),
+
+    z.object({
+      action: z.literal("prepare_reorder"),
+      products: z.array(z.string()).default([]),
+      language: z.string()
+    }),
+
+    z.object({
+      action: z.literal("daily_report"),
+      date: z.string(),
+      language: z.string()
+    })
+  ]
+);
+
+export type Intent = z.infer<typeof IntentSchema>;
+
+
+
+This prevents the voice model from inventing arbitrary operations.
+B. Create a business tool registry
+backend/mcp/tool-registry.ts
+
+export const toolRegistry = {
+  inventory: {
+    readTools: [
+      "DISCOVERED_ITEM_LIST_TOOL",
+      "DISCOVERED_STOCK_BALANCE_TOOL",
+      "DISCOVERED_WAREHOUSE_TOOL",
+      "DISCOVERED_STOCK_LEDGER_TOOL"
+    ],
+    writeTools: []
+  },
+
+  sales: {
+    readTools: [
+      "DISCOVERED_SALES_INVOICE_LIST_TOOL",
+      "DISCOVERED_POS_INVOICE_LIST_TOOL"
+    ],
+    writeTools: []
+  },
+
+  procurement: {
+    readTools: [
+      "DISCOVERED_SUPPLIER_LIST_TOOL",
+      "DISCOVERED_QUOTATION_LIST_TOOL"
+    ],
+    writeTools: [
+      "DISCOVERED_CREATE_DRAFT_PO_TOOL",
+      "DISCOVERED_SUBMIT_PO_TOOL"
+    ]
+  },
+
+  finance: {
+    readTools: [
+      "DISCOVERED_FINANCIAL_REPORT_TOOL",
+      "DISCOVERED_GL_ENTRY_LIST_TOOL"
+    ],
+    writeTools: []
+  }
+} as const;
+
+
+
+Replace the placeholders with names returned by listTools() from your installed MCP server. Do not assume the placeholder strings are actual package tool names.
+C. Create stock intelligence workflow
+backend/workflows/stock-intelligence.ts
+
+type StockItem = {
+  name: string;
+  available: number;
+  reorderLevel: number;
+};
+
+export function analyseStock(items: StockItem[]) {
+  const lowStock = items.filter(
+    item => item.available <= item.reorderLevel
+  );
+
+  return {
+    totalProducts: items.length,
+    lowStockCount: lowStock.length,
+    lowStockItems: lowStock.map(item => ({
+      product: item.name,
+      available: item.available,
+      reorderLevel: item.reorderLevel,
+      shortage: Math.max(
+        0,
+        item.reorderLevel - item.available
+      )
+    }))
+  };
+}
+
+
+
+The inventory data must be fetched from ERPNext first. This function only performs deterministic calculations on the returned values.
+D. Build purchase approval
+backend/services/approvals.ts
+
+type Approval = {
+  id: string;
+  action: "submit_purchase_order";
+  documentName: string;
+  status: "pending" | "approved" | "rejected";
+  approvedBy?: string;
+  createdAt: string;
+};
+
+const approvals = new Map<string, Approval>();
+
+export function requestPurchaseApproval(
+  documentName: string
+) {
+  const approval: Approval = {
+    id: crypto.randomUUID(),
+    action: "submit_purchase_order",
+    documentName,
+    status: "pending",
+    createdAt: new Date().toISOString()
+  };
+
+  approvals.set(approval.id, approval);
+  return approval;
+}
+
+export function approvePurchase(
+  id: string,
+  ownerId: string
+) {
+  const approval = approvals.get(id);
+
+  if (!approval || approval.status !== "pending") {
+    throw new Error("Invalid approval request");
+  }
+
+  approval.status = "approved";
+  approval.approvedBy = ownerId;
+
+  return approval;
+}
+
+
+
+This is a prototype in-memory example. For the real application, persist approval records in your database, bind approval to the exact document and amount, expire old approvals, and make submission idempotent.
+
+Never let the LLM call the purchase-submit tool just because the owner said something vaguely affirmative. Bind approval to a specific purchase order, total and supplier, then verify it on the server.
+8. Gnani voice integration
+This is where your product becomes different from an ordinary ERP assistant.
+
+Use a backend voice service with two adapters:
+Browser microphone
+       |
+       v
+Audio streaming
+       |
+       v
+Gnani Prisma API
+       |
+       v
+Transcript
+       |
+       v
+Intent extraction
+       |
+       v
+Agent Town workflow
+       |
+       v
+Final response
+       |
+       v
+Gnani Timbre API
+       |
+       v
+Spoken audio
+       |
+       v
+Browser playback
+
+
+Recommended voice interaction
+The UI should have a single prominent microphone button.
+NammaOps Voice Command Center
+Illustrative interface specificationನಮಸ್ಕಾರ! ನಮಸ್ಕಾರ
+Namaskara! How can I help your store?
+Tap to speak
+Kannada • Hindi • English
+Recent command
+
+"Check low stock and prepare a purchase order."
+
+Live agent activity
+Inventory Agent
+Completed
+
+Procurement Agent
+Approval needed
+
+Manager Agent
+Coordinating
+
+
+
+Voice implementation tasks
+Prisma adapter
+- Capture microphone audio.
+- Stream or upload audio using the supported Prisma API.
+- Receive transcript.
+- Preserve detected language and timestamps if available.
+- Pass transcript into your intent parser.
+Timbre adapter
+- Receive final response text.
+- Select the supported language and voice.
+- Generate speech using the documented API.
+- Stream or return the audio to the frontend.
+I would keep the actual Gnani HTTP/WebSocket request details inside prisma.ts and timbre.ts. Implement against the API schema and credentials supplied in your Gnani developer account rather than guessing endpoint paths.
+
+Official references: Gnani API documentation and Gnani developer platform.
+
+9. Database design for NammaOps
+ERPNext remains the source of truth for products, invoices, suppliers and stock.
+
+Your own application database should store only the additional orchestration information.
+
+I recommend these tables:
+Table	Purpose
+agent_sessions	Owner voice sessions
+voice_commands	Audio transcript and detected intent
+agent_tasks	Tasks assigned to agents
+agent_events	Agent-to-agent messages
+workflow_runs	Workflow execution state
+approvals	Pending owner decisions
+audit_logs	Action history
+store_preferences	Language and reorder preferences
+
+Example SQL:
+
+CREATE TABLE agent_tasks (
+  id UUID PRIMARY KEY,
+  workflow_id UUID NOT NULL,
+  agent_name VARCHAR(80) NOT NULL,
+  task_type VARCHAR(100) NOT NULL,
+  status VARCHAR(30) NOT NULL,
+  input JSONB NOT NULL DEFAULT '{}',
+  result JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  completed_at TIMESTAMPTZ
+);
+
+CREATE TABLE approvals (
+  id UUID PRIMARY KEY,
+  workflow_id UUID NOT NULL,
+  erp_document_type VARCHAR(80) NOT NULL,
+  erp_document_name VARCHAR(140) NOT NULL,
+  amount NUMERIC(14,2),
+  status VARCHAR(30) NOT NULL,
+  approved_by VARCHAR(140),
+  expires_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE audit_logs (
+  id UUID PRIMARY KEY,
+  workflow_id UUID,
+  agent_name VARCHAR(80),
+  action VARCHAR(100),
+  erp_document_name VARCHAR(140),
+  outcome JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+
+Add a unique idempotency key for each external write operation. This prevents accidental duplicate purchase orders when an agent retries after a timeout.
+10. How Agent Town should visually change
+Don't remove your completed Agent Town environment.
+
+Repurpose its existing visual world.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+12
+
+
+
+
+
+
+
+
+
+
+
+
+
+My recommended mapping:
+Existing Agent Town element	New NammaOps meaning
+Town center	Kirana shop headquarters
+Warehouse	Inventory management
+Commercial building	Sales analytics
+Supplier building	Procurement
+Finance building	Accounting
+Agent characters	Autonomous workforce
+Agent messages	Business coordination
+Town activity	Real ERPNext events
+
+Every meaningful action should generate an event.
+
+Example:
+{
+  "event": "PURCHASE_ORDER_DRAFT_CREATED",
+  "agent": "procurement",
+  "document": "PUR-ORD-0001",
+  "status": "awaiting_approval",
+  "timestamp": "2026-10-31T15:00:00Z"
+}
+
+
+The frontend listens to backend events using your existing event infrastructure or WebSockets.
+
+The visual town then becomes a live representation of the real business operation.
+
+11. Build schedule and implementation priorities
+I would divide the build into six phases.
+Phase	Tasks	Completion criteria
+1. ERP setup	Docker, company, items, suppliers, data	ERPNext records available
+2. MCP setup	Install server, discover tools, permissions	Read-only MCP connection
+3. Agents	Inventory, sales, procurement, finance, manager	All five agents coordinated
+4. Workflows	Stock, reorder, sales report	Three complete workflows
+5. Voice/UI	Prisma, Timbre, Agent Town dashboard	Live voice experience
+6. Validation	Test data, approvals, latency, demo	Reliable demonstration
+
+Suggested day-by-day tasks
+Development checklist
+0 of 24 tasks completed0%
+
+
+
+Phase 1 – ERPNext setup
+[ ] Launch Docker ERPNext
+[ ] Create Namma Kirana company
+[ ] Create products, warehouses and suppliers
+[ ] Create API user and credentials
+
+
+Phase 2 – MCP connection
+[ ] Install hvgerp-mcp
+[ ] Discover available tools
+[ ] Implement tool registry
+[ ] Test read-only stock and sales queries
+
+
+Phase 3 – Agent workforce
+[ ] Implement Inventory Agent
+[ ] Implement Sales Agent
+[ ] Implement Procurement Agent
+[ ] Implement Finance Agent
+[ ] Implement Manager Agent
+
+
+Phase 4 – Three workflows
+[ ] Build stock intelligence
+[ ] Build reorder and approval
+[ ] Build daily sales report
+
+
+Phase 5 – Gnani and UI
+[ ] Integrate Prisma
+[ ] Integrate Timbre
+[ ] Connect Agent Town events
+[ ] Build voice command center
+
+
+Phase 6 – Final testing
+[ ] Test Kannada and English commands
+[ ] Test purchase approval
+[ ] Test ERP data accuracy
+[ ] Record demo and prepare submission
+
+Reset checklist
+12. Testing and demo acceptance criteria
+Before recording your submission, test these scenarios.
+Test	Expected result
+Stock changes in ERPNext	NammaOps reports new stock
+Unknown product spoken	Agent asks for clarification
+Supplier has no quotation	Agent reports unavailable pricing
+Purchase order prepared	ERPNext contains a draft
+Owner rejects purchase	No submission occurs
+Owner approves purchase	Correct order is submitted once
+Sales invoices updated	Dashboard reflects new sales
+Accounting report unavailable	Agent does not invent profit
+Gnani API unavailable	Graceful error, no false success
+
+Metrics worth displaying
+- Voice transcription latency.
+- Time from voice command to workflow completion.
+- Correct product identification rate.
+- Correct stock retrieval rate.
+- Successful agent task completion rate.
+- Purchase approval accuracy.
+Test with at least 20–30 spoken commands, including Kannada-English code-switching. Report measured results rather than estimated performance.
+13. Final hackathon demo
+Your best presentation should show this sequence:
+NammaOps – One voice. Five agents. One business.
+
+
+
+
+
+
+
+arjankc.com.np
+
+
+1. Owner speaks
+   
+   "Check my low stock and prepare tomorrow's purchase order."
+2. Gnani understands
+   
+   Show the live Prisma transcript.
+3. Agent Town activates
+   
+   Show five agents coordinating.
+4. ERPNext executes
+   
+   Show actual stock data and a real draft purchase order.
+5. Owner approves
+   
+   Submit the purchase order through the approval gateway.
+6. Gnani responds
+   
+   Hear the final Kannada spoken summary through Timbre.
+
+14. Important technical decisions
+A few things I would insist on:
+1. Keep ERPNext as the single source of truth for business records.
+2. Keep your existing Agent Town orchestration instead of rebuilding it.
+3. Use the existing MCP server as the ERP integration, with a separate NammaOps permission gateway.
+4. Do not give agents unrestricted ERPNext write access.
+5. Store approvals and audit events in your application database.
+6. Use synthetic data for the hackathon.
+7. Never expose Gnani or ERPNext credentials to the frontend.
+8. Treat the Docker demo as disposable; use a persistent controlled instance for the final public demonstration.
+One particularly important MCP detail: the current hvgerp-mcp repository supports many operations, including generic DocType CRUD and purchase-order submission. That power is useful, but it also makes permission filtering essential. 
+
+GitHub+1
+
+
+15. What I want you to build first
+Don't start by modifying the entire Agent Town interface.
+
+Build and verify this sequence:
+First development milestone
+Voice → MCP → ERPNext → Agent Town
+Milestone 1
+1. Launch ERPNext demo.
+2. Connect the MCP server.
+3. Retrieve real product stock through MCP.
+4. Display that stock in Agent Town.
+5. Speak a command using Gnani Prisma.
+6. Return the result using Gnani Timbre.
+
+Success condition
+
+A shop owner speaks "Check milk stock", and Agent Town retrieves the actual quantity from ERPNext and speaks the answer back.
+
+Once this works, the rest of the workforce can be added incrementally.
+
+My recommendation is to make this your first working prototype within 1–2 days. It validates the three most important integrations before you spend time implementing the remaining agents.
+
+The finished product should not look like ERPNext with an AI chatbot attached. It should look and behave like your existing Agent Town has become a real autonomous kirana business workforce.

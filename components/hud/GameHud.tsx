@@ -19,6 +19,7 @@ import TaskPanel from "./TaskPanel";
 import WorkerPanel from "./WorkerPanel";
 import SeatManagerModal from "./SeatManagerModal";
 import DeveloperModeModal from "./DeveloperModeModal";
+import NammaOpsPanel from "./NammaOpsPanel";
 import MusicControls from "./MusicControls";
 import OnboardingOverlay from "./OnboardingOverlay";
 import AgentDetailPanel from "./AgentDetailPanel";
@@ -156,6 +157,7 @@ export default function GameHud() {
         iconActive: "/ui/icons/icon-tasks-active.png",
       },
       { id: "operations", label: "Office operations", icon: "", iconActive: "" },
+      { id: "nammaops", label: "NammaOps", icon: "", iconActive: "" },
       {
         id: "workers",
         label: "Employees",
@@ -224,6 +226,7 @@ export default function GameHud() {
               {openPanel === "connection" ? <ConnectionPanel /> : null}
               {openPanel === "tasks" ? <TaskPanel tasks={visibleTasks} /> : null}
               {openPanel === "operations" ? <OperationsPanel /> : null}
+              {openPanel === "nammaops" ? <NammaOpsPanel /> : null}
               {openPanel === "workers" ? (
                 <WorkerPanel
                   seats={state.seats}

@@ -1,0 +1,104 @@
+{
+  "_note": "LIVE ERPNext binding (read-only). Tools are served by lib/mcp/hvgerp-adapter-server.mjs, which calls the pinned @hvgllc/hvgerp-mcp@3.7.0 and exposes only the business read tools below. Capabilities with tool:null and a disabled reason are intentionally not offered. Select with NAMMAOPS_BINDING=config/nammaops/binding.hvgerp.json.",
+  "shape": "hvgerp",
+  "data_label": "Live ERPNext Cloud (demo store; records marked NAMMAOPS-SEED are synthetic demo data)",
+  "server": {
+    "server_id": "erpnext-live",
+    "name": "ERPNext Cloud (read-only adapter over hvgerp-mcp 3.7.0)",
+    "description": "Narrow read-only adapter. Credentials come from ERPNEXT_URL, ERPNEXT_API_KEY and ERPNEXT_API_SECRET in the server environment only.",
+    "transport": "stdio",
+    "connection": {
+      "command": "node",
+      "args": ["lib/mcp/hvgerp-adapter-server.mjs"]
+    },
+    "authentication_refs": ["ERPNEXT_URL", "ERPNEXT_API_KEY", "ERPNEXT_API_SECRET"],
+    "connect_timeout_ms": 30000,
+    "request_timeout_ms": 120000
+  },
+  "capabilities": {
+    "erp.items.list": {
+      "tool": "list_items",
+      "risk": "READ"
+    },
+    "erp.stock.balance": {
+      "tool": "get_stock_balance",
+      "risk": "READ"
+    },
+    "erp.warehouses.list": {
+      "tool": "list_warehouses",
+      "risk": "READ"
+    },
+    "erp.stock.ledger": {
+      "tool": "get_stock_ledger",
+      "risk": "READ"
+    },
+    "erp.suppliers.list": {
+      "tool": "list_suppliers",
+      "risk": "READ"
+    },
+    "erp.supplier_quotations.list": {
+      "tool": "list_supplier_quotations",
+      "risk": "READ"
+    },
+    "erp.item_prices.get": {
+      "tool": "get_item_prices",
+      "risk": "READ"
+    },
+    "erp.po.create_draft": {
+      "tool": null,
+      "risk": "WRITE",
+      "disabled": "Live purchase-order drafts are not enabled yet (G2 is read-only)."
+    },
+    "erp.po.get": {
+      "tool": null,
+      "risk": "READ",
+      "disabled": "Only needed with live purchase-order drafts; not enabled yet."
+    },
+    "erp.po.submit": {
+      "tool": null,
+      "risk": "EXTERNAL_ACTION",
+      "disabled": "Live purchase-order submission is not enabled; it needs the owner PIN path and a constrained submit tool."
+    },
+    "erp.sales_invoices.list": {
+      "tool": "list_sales_invoices",
+      "risk": "READ"
+    },
+    "erp.pos_invoices.list": {
+      "tool": "list_pos_invoices",
+      "risk": "READ"
+    },
+    "erp.customers.list": {
+      "tool": "list_customers",
+      "risk": "READ"
+    },
+    "erp.pnl": {
+      "tool": "get_profit_and_loss",
+      "risk": "READ"
+    },
+    "erp.gl": {
+      "tool": "get_general_ledger",
+      "risk": "READ"
+    },
+    "erp.purchase_invoices.list": {
+      "tool": "list_purchase_invoices",
+      "risk": "READ"
+    },
+    "erp.payments.summary": {
+      "tool": null,
+      "risk": "READ",
+      "disabled": "No reviewed live tool yet."
+    },
+    "erp.sales.history": {
+      "tool": "list_sales_lines",
+      "risk": "READ"
+    },
+    "erp.stock.movements": {
+      "tool": "list_stock_ledger",
+      "risk": "READ"
+    },
+    "erp.po.open": {
+      "tool": "list_open_purchase_orders",
+      "risk": "READ"
+    }
+  }
+}

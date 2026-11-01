@@ -1,0 +1,1320 @@
+{
+  "_note": "Discovered with listTools() from the real server. No credentials. Read-only discovery; no tool was called.",
+  "package": {
+    "name": "@hvgllc/hvgerp-mcp",
+    "version": "3.7.0"
+  },
+  "server": {
+    "name": "hvgerp-mcp",
+    "version": "3.7.0"
+  },
+  "categories": "sales,inventory,purchasing,accounting",
+  "count": 47,
+  "tools": [
+    {
+      "name": "erpnext_account_list",
+      "title": null,
+      "description": "List Chart of Accounts. Filterable by root_type, is_group and disabled. Fields: name, account_name, account_type, root_type, parent_account, is_group, disabled. root_type values: Asset, Liability, Income, Expense, Equity. An account is 'active' when disabled is 0; pass disabled:false to count only t",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 50)"
+        },
+        "root_type": {
+          "type": "string",
+          "enum": ["Asset", "Liability", "Income", "Expense", "Equity"],
+          "description": "Filter by root type: Asset, Liability, Income, Expense, Equity"
+        },
+        "is_group": {
+          "type": "boolean",
+          "description": "Filter by group accounts only"
+        },
+        "company": {
+          "type": "string",
+          "description": "Filter by company"
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Filter by disabled flag. Omit to list every account regardless of state."
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_customer_create",
+      "title": null,
+      "description": "Create a new Customer. Requires customer_name. Optionally set customer_group, territory, email_id.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false
+      },
+      "required": ["customer_name"],
+      "properties": {
+        "customer_name": {
+          "type": "string",
+          "description": "Full customer name"
+        },
+        "customer_group": {
+          "type": "string",
+          "description": "Customer group (default: 'Commercial')"
+        },
+        "territory": {
+          "type": "string",
+          "description": "Territory (default: 'All Territories')"
+        },
+        "email_id": {
+          "type": "string",
+          "description": "Primary email address"
+        },
+        "customer_type": {
+          "type": "string",
+          "enum": ["Company", "Individual"],
+          "description": "Customer type: Company or Individual (default: Company)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_customer_get",
+      "title": null,
+      "description": "Get a single ERPNext customer by name (ID). Returns all fields including contact details.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Customer name (ID)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_customer_list",
+      "title": null,
+      "description": "List ERPNext customers. Returns active customers by default. Fields: name, customer_name, customer_group, territory, email_id, disabled.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 20)"
+        },
+        "customer_group": {
+          "type": "string",
+          "description": "Filter by customer group"
+        },
+        "territory": {
+          "type": "string",
+          "description": "Filter by territory"
+        },
+        "include_disabled": {
+          "type": "boolean",
+          "description": "Include disabled customers (default false)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_customer_update",
+      "title": null,
+      "description": "Update an existing Customer. Pass only the fields you want to change.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Customer name (ID)"
+        },
+        "customer_name": {
+          "type": "string",
+          "description": "New customer name"
+        },
+        "customer_group": {
+          "type": "string",
+          "description": "New customer group"
+        },
+        "territory": {
+          "type": "string",
+          "description": "New territory"
+        },
+        "email_id": {
+          "type": "string",
+          "description": "New email address"
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Set to true to disable the customer"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_financial_report",
+      "title": null,
+      "description": "Run one of ERPNext's standard financial reports and return its columns, rows and summary. These reports read the general ledger and apply ERPNext's own accounting rules (account tree, period buckets, debit/credit signs), so they are the correct source for P&L, balance sheet and ledger questions — re",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": ["report"],
+      "properties": {
+        "report": {
+          "type": "string",
+          "enum": [
+            "Accounts Payable",
+            "Accounts Payable Summary",
+            "Accounts Receivable",
+            "Accounts Receivable Summary",
+            "Balance Sheet",
+            "Cash Flow",
+            "Customer Ledger Summary",
+            "Financial Ratios",
+            "General Ledger",
+            "Gross Profit",
+            "Profit and Loss Statement",
+            "Supplier Ledger Summary",
+            "Trial Balance"
+          ],
+          "description": "Which standard report to run"
+        },
+        "filters": {
+          "type": "object",
+          "description": "Report filters, passed to ERPNext unchanged. Most financial reports require at least 'company' plus a date range."
+        },
+        "limit": {
+          "type": "number",
+          "description": "Max report rows to return (default 100). Truncation is always reported in 'count', 'returned' and 'has_more'."
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_gl_entry_list",
+      "title": null,
+      "description": "List GL Entry rows: the general ledger itself, one row per account posting. This is where the money actually is — every submitted Sales Invoice, Purchase Invoice, Payment Entry, Journal Entry and Expense Claim writes its debits and credits here, so income and expense totals must be read from GL Entr",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 20)"
+        },
+        "account": {
+          "type": "string",
+          "description": "Filter by account (e.g. 'Administrative Expenses - HVG')"
+        },
+        "party_type": {
+          "type": "string",
+          "enum": ["Customer", "Supplier", "Employee", "Shareholder"],
+          "description": "Filter by party type (Customer, Supplier, Employee, Shareholder). Required when 'party' is set, so the party name/ID can be resolved against the right doctype."
+        },
+        "party": {
+          "type": "string",
+          "description": "Filter by party — ID or name (e.g. 'HR-EMP-00024' or 'Acme Corp'). Requires 'party_type'."
+        },
+        "voucher_type": {
+          "type": "string",
+          "description": "Filter by source document type (Sales Invoice, Purchase Invoice, Payment Entry, Journal Entry, Expense Claim, ...)"
+        },
+        "voucher_no": {
+          "type": "string",
+          "description": "Filter by source document name (e.g. 'HR-EXP-2026-00089')"
+        },
+        "cost_center": {
+          "type": "string",
+          "description": "Filter by cost center"
+        },
+        "project": {
+          "type": "string",
+          "description": "Filter by project"
+        },
+        "company": {
+          "type": "string",
+          "description": "Filter by company"
+        },
+        "date_from": {
+          "type": "string",
+          "description": "Earliest posting_date, YYYY-MM-DD"
+        },
+        "date_to": {
+          "type": "string",
+          "description": "Latest posting_date, YYYY-MM-DD"
+        },
+        "include_cancelled": {
+          "type": "boolean",
+          "description": "Include cancelled ledger rows (default false). Cancelling a voucher does not delete its GL rows: ERPNext keeps the original AND writes a mirrored reversal, both"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_item_create",
+      "title": null,
+      "description": "Create a new Item (product or service). Requires item_code and item_name. Set is_stock_item=false for service/non-stocked items.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false
+      },
+      "required": ["item_code", "item_name"],
+      "properties": {
+        "item_code": {
+          "type": "string",
+          "description": "Unique item code"
+        },
+        "item_name": {
+          "type": "string",
+          "description": "Human-readable item name"
+        },
+        "item_group": {
+          "type": "string",
+          "description": "Item group (default: 'All Item Groups')"
+        },
+        "uom": {
+          "type": "string",
+          "description": "Stock unit of measure, sent to ERPNext as stock_uom (for example 'Nos')"
+        },
+        "is_stock_item": {
+          "type": "boolean",
+          "description": "True for physical stock items (default: true)"
+        },
+        "standard_rate": {
+          "type": "number",
+          "description": "Default selling rate"
+        },
+        "description": {
+          "type": "string",
+          "description": "Item description"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_item_get",
+      "title": null,
+      "description": "Get a single ERPNext Item by name/item_code. Returns all fields including pricing and stock details.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Item name or item_code"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_item_list",
+      "title": null,
+      "description": "List ERPNext Items. Returns active items by default. Fields: name, item_code, item_name, item_group, stock_uom, is_stock_item, standard_rate. Filterable by item_group, is_stock_item.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 20)"
+        },
+        "item_group": {
+          "type": "string",
+          "description": "Filter by item group"
+        },
+        "is_stock_item": {
+          "type": "boolean",
+          "description": "Filter by stock item flag (true=stock items only)"
+        },
+        "include_disabled": {
+          "type": "boolean",
+          "description": "Include disabled items (default false)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_item_update",
+      "title": null,
+      "description": "Update an existing Item. Pass only the fields you want to change.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Item name/item_code"
+        },
+        "item_name": {
+          "type": "string",
+          "description": "New item name"
+        },
+        "item_group": {
+          "type": "string",
+          "description": "New item group"
+        },
+        "standard_rate": {
+          "type": "number",
+          "description": "New default selling rate"
+        },
+        "description": {
+          "type": "string",
+          "description": "New description"
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Set to true to disable the item"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_journal_entry_create",
+      "title": null,
+      "description": "Create a new Journal Entry. Requires voucher_type and accounts with debit/credit amounts. Total debits must equal total credits.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false
+      },
+      "required": ["voucher_type", "accounts"],
+      "properties": {
+        "voucher_type": {
+          "type": "string",
+          "description": "Journal entry type (Journal Entry, Bank Entry, Cash Entry, Credit Card Entry, etc.)"
+        },
+        "accounts": {
+          "type": "array",
+          "description": "Account entries: [{account, debit_in_account_currency, credit_in_account_currency}]"
+        },
+        "posting_date": {
+          "type": "string",
+          "description": "Posting date YYYY-MM-DD (default: today)"
+        },
+        "remark": {
+          "type": "string",
+          "description": "Narration / remark"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_journal_entry_get",
+      "title": null,
+      "description": "Get a single Journal Entry by name (e.g. JV-00001). Returns full document with accounts.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Journal Entry name (e.g. JV-00001)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_journal_entry_list",
+      "title": null,
+      "description": "List Journal Entries. Filterable by date range and voucher_type. Fields: name, voucher_type, posting_date, total_debit, total_credit, remark.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 20)"
+        },
+        "voucher_type": {
+          "type": "string",
+          "description": "Filter by voucher type (Journal Entry, Bank Entry, Cash Entry, etc.)"
+        },
+        "date_from": {
+          "type": "string",
+          "description": "Start date filter YYYY-MM-DD"
+        },
+        "date_to": {
+          "type": "string",
+          "description": "End date filter YYYY-MM-DD"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_payment_entry_get",
+      "title": null,
+      "description": "Get a single Payment Entry by name (e.g. PE-00001). Returns full document including references.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Payment Entry name (e.g. PE-00001)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_payment_entry_list",
+      "title": null,
+      "description": "List Payment Entries. Filterable by payment_type, party_type, date range. Fields: name, payment_type, party_type, party, posting_date, paid_amount, paid_from_account_currency, paid_to_account_currency. payment_type values: Receive, Pay, Internal Transfer.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 20)"
+        },
+        "payment_type": {
+          "type": "string",
+          "enum": ["Receive", "Pay", "Internal Transfer"],
+          "description": "Filter by payment type: Receive, Pay, Internal Transfer"
+        },
+        "party_type": {
+          "type": "string",
+          "enum": ["Customer", "Supplier", "Employee"],
+          "description": "Filter by party type (Customer, Supplier, Employee). Required when 'party' is set, so the party name/ID can be resolved against the right doctype."
+        },
+        "party": {
+          "type": "string",
+          "description": "Filter by party — ID or name (e.g. 'CUST-00001' or 'Acme Corp'). Requires 'party_type'."
+        },
+        "date_from": {
+          "type": "string",
+          "description": "Start date filter YYYY-MM-DD"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_purchase_invoice_get",
+      "title": null,
+      "description": "Get a single Purchase Invoice by name (e.g. PINV-00001). Returns full document with line items.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Purchase Invoice name (e.g. PINV-00001)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_purchase_invoice_list",
+      "title": null,
+      "description": "List Purchase Invoices (bills from suppliers). Filterable by supplier, status, date range. Fields: name, supplier, posting_date, due_date, status, grand_total, outstanding_amount.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 20)"
+        },
+        "supplier": {
+          "type": "string",
+          "description": "Filter by supplier ID or name (e.g. 'SUPP-00001' or 'Acme Supplies')"
+        },
+        "status": {
+          "type": "string",
+          "description": "Filter by status (Draft, Unpaid, Paid, Overdue, Cancelled, etc.)"
+        },
+        "date_from": {
+          "type": "string",
+          "description": "Start date filter YYYY-MM-DD"
+        },
+        "date_to": {
+          "type": "string",
+          "description": "End date filter YYYY-MM-DD"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_purchase_order_create",
+      "title": null,
+      "description": "Create a new Purchase Order. Requires supplier and at least one item with item_code, qty, rate. Optionally set schedule_date (YYYY-MM-DD).",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false
+      },
+      "required": ["supplier", "items"],
+      "properties": {
+        "supplier": {
+          "type": "string",
+          "description": "Supplier name or ID — a unique name resolves automatically"
+        },
+        "items": {
+          "type": "array",
+          "description": "Line items: [{item_code, qty, rate}]"
+        },
+        "schedule_date": {
+          "type": "string",
+          "description": "Expected delivery date YYYY-MM-DD"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_purchase_order_get",
+      "title": null,
+      "description": "Get a single Purchase Order by name (e.g. PO-00001). Returns full document with line items.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Purchase Order name (e.g. PO-00001)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_purchase_order_list",
+      "title": null,
+      "description": "List Purchase Orders. Filterable by supplier, status, date range. Fields: name, supplier, transaction_date, schedule_date, status, grand_total, currency.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 20)"
+        },
+        "supplier": {
+          "type": "string",
+          "description": "Filter by supplier ID or name (e.g. 'SUPP-00001' or 'Acme Supplies')"
+        },
+        "status": {
+          "type": "string",
+          "description": "Filter by status (Draft, To Receive and Bill, To Bill, Completed, Cancelled, etc.)"
+        },
+        "date_from": {
+          "type": "string",
+          "description": "Start date filter YYYY-MM-DD"
+        },
+        "date_to": {
+          "type": "string",
+          "description": "End date filter YYYY-MM-DD"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_purchase_receipt_get",
+      "title": null,
+      "description": "Get a single Purchase Receipt by name (e.g. MAT-PRE-00001). Returns full document with received items.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Purchase Receipt name (e.g. MAT-PRE-00001)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_purchase_receipt_list",
+      "title": null,
+      "description": "List Purchase Receipts (goods received notes). Filterable by supplier, status, date range. Fields: name, supplier, posting_date, status, total_qty, grand_total.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 20)"
+        },
+        "supplier": {
+          "type": "string",
+          "description": "Filter by supplier ID or name (e.g. 'SUPP-00001' or 'Acme Supplies')"
+        },
+        "status": {
+          "type": "string",
+          "description": "Filter by status (Draft, To Bill, Completed, Cancelled, etc.)"
+        },
+        "date_from": {
+          "type": "string",
+          "description": "Start date filter YYYY-MM-DD"
+        },
+        "date_to": {
+          "type": "string",
+          "description": "End date filter YYYY-MM-DD"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_quotation_create",
+      "title": null,
+      "description": "Create a new Quotation for a customer or lead. Requires quotation_to (Customer or Lead), party_name, and at least one item.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false
+      },
+      "required": ["quotation_to", "party_name", "items"],
+      "properties": {
+        "quotation_to": {
+          "type": "string",
+          "enum": ["Customer", "Lead"],
+          "description": "Party type: Customer or Lead"
+        },
+        "party_name": {
+          "type": "string",
+          "description": "Customer or Lead — ID or name"
+        },
+        "items": {
+          "type": "array",
+          "description": "Line items: [{item_code, qty, rate}]"
+        },
+        "transaction_date": {
+          "type": "string",
+          "description": "Quotation date YYYY-MM-DD (default: today)"
+        },
+        "valid_till": {
+          "type": "string",
+          "description": "Validity date YYYY-MM-DD"
+        },
+        "company": {
+          "type": "string",
+          "description": "Company name. Required if multiple companies exist."
+        },
+        "selling_price_list": {
+          "type": "string",
+          "description": "Price list name (e.g. 'Standard Selling')."
+        },
+        "currency": {
+          "type": "string",
+          "description": "Transaction currency (e.g. 'EUR', 'USD')."
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_quotation_get",
+      "title": null,
+      "description": "Get a single Quotation by name. Returns full document with line items and terms.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Quotation name (e.g. QTN-00001)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_quotation_list",
+      "title": null,
+      "description": "List Quotations. Filterable by party_name, status. Fields: name, party_name, transaction_date, status, grand_total.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 20)"
+        },
+        "quotation_to": {
+          "type": "string",
+          "enum": ["Customer", "Lead"],
+          "description": "Party type: Customer or Lead. Required when 'party_name' is set, so the party name/ID can be resolved against the right doctype."
+        },
+        "party_name": {
+          "type": "string",
+          "description": "Filter by party — ID or name (e.g. customer/lead name). Requires 'quotation_to'."
+        },
+        "status": {
+          "type": "string",
+          "description": "Filter by status (Draft, Open, Replied, Ordered, Lost, Cancelled)"
+        },
+        "date_from": {
+          "type": "string",
+          "description": "Start date filter YYYY-MM-DD"
+        },
+        "date_to": {
+          "type": "string",
+          "description": "End date filter YYYY-MM-DD"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_sales_invoice_create",
+      "title": null,
+      "description": "Create a new Sales Invoice. Requires customer and at least one item. On a fresh ERPNext instance, you may also need to set company, selling_price_list, and currency. To generate from a Sales Order, use erpnext_doc_update to set is_return etc.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false
+      },
+      "required": ["customer", "items"],
+      "properties": {
+        "customer": {
+          "type": "string",
+          "description": "Customer name (ID)"
+        },
+        "items": {
+          "type": "array",
+          "description": "Line items: [{item_code, qty, rate, warehouse?}]"
+        },
+        "posting_date": {
+          "type": "string",
+          "description": "Invoice date YYYY-MM-DD (default: today)"
+        },
+        "due_date": {
+          "type": "string",
+          "description": "Payment due date YYYY-MM-DD"
+        },
+        "company": {
+          "type": "string",
+          "description": "Company name. Required if multiple companies exist."
+        },
+        "selling_price_list": {
+          "type": "string",
+          "description": "Price list name (e.g. 'Standard Selling'). Required if no default is set."
+        },
+        "currency": {
+          "type": "string",
+          "description": "Transaction currency (e.g. 'EUR', 'USD'). Defaults to company currency."
+        },
+        "set_warehouse": {
+          "type": "string",
+          "description": "Default warehouse for all items."
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_sales_invoice_get",
+      "title": null,
+      "description": "Get a single Sales Invoice by name (e.g. SINV-00001). Returns full document with line items.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Sales Invoice name (e.g. SINV-00001)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_sales_invoice_list",
+      "title": null,
+      "description": "List Sales Invoices. Filterable by customer, status, date range. Fields: name, customer, posting_date, due_date, status, grand_total, outstanding_amount.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 20)"
+        },
+        "customer": {
+          "type": "string",
+          "description": "Filter by customer ID or name (e.g. 'CUST-00001' or 'Acme Corp')"
+        },
+        "status": {
+          "type": "string",
+          "description": "Filter by status (Draft, Unpaid, Paid, Overdue, Cancelled, etc.)"
+        },
+        "date_from": {
+          "type": "string",
+          "description": "Start date filter YYYY-MM-DD"
+        },
+        "date_to": {
+          "type": "string",
+          "description": "End date filter YYYY-MM-DD"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_sales_invoice_submit",
+      "title": null,
+      "description": "Submit a Draft Sales Invoice (posts it to the ledger, changes status to 'Unpaid'). Once submitted, the invoice is visible to the customer and affects GL.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Sales Invoice name (e.g. SINV-00001)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_sales_order_cancel",
+      "title": null,
+      "description": "Cancel a submitted Sales Order. Reverses stock reservation. Only works on submitted (non-completed) Sales Orders.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Sales Order name (e.g. SO-00001)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_sales_order_create",
+      "title": null,
+      "description": "Create a new Sales Order. Requires customer and at least one item with item_code, qty, rate. On a fresh ERPNext instance, you may also need to set company, selling_price_list, and currency.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false
+      },
+      "required": ["customer", "items"],
+      "properties": {
+        "customer": {
+          "type": "string",
+          "description": "Customer name (ID)"
+        },
+        "items": {
+          "type": "array",
+          "description": "Line items: [{item_code, qty, rate, warehouse?}]"
+        },
+        "delivery_date": {
+          "type": "string",
+          "description": "Delivery date YYYY-MM-DD (default: today + 7 days)"
+        },
+        "company": {
+          "type": "string",
+          "description": "Company name. Required if multiple companies exist."
+        },
+        "selling_price_list": {
+          "type": "string",
+          "description": "Price list name (e.g. 'Standard Selling'). Required if no default is set."
+        },
+        "currency": {
+          "type": "string",
+          "description": "Transaction currency (e.g. 'EUR', 'USD'). Defaults to company currency."
+        },
+        "set_warehouse": {
+          "type": "string",
+          "description": "Default warehouse for all items (e.g. 'Stores - CI')."
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_sales_order_get",
+      "title": null,
+      "description": "Get a single Sales Order by name (e.g. SO-00001). Returns full document with line items.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Sales Order name (e.g. SO-00001)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_sales_order_list",
+      "title": null,
+      "description": "List Sales Orders. Filterable by customer, status, date range. Fields: name, customer, transaction_date, status, grand_total, currency.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 20)"
+        },
+        "customer": {
+          "type": "string",
+          "description": "Filter by customer ID or name (e.g. 'CUST-00001' or 'Acme Corp')"
+        },
+        "status": {
+          "type": "string",
+          "description": "Filter by status (Draft, To Deliver and Bill, Completed, Cancelled, etc.)"
+        },
+        "date_from": {
+          "type": "string",
+          "description": "Start date filter YYYY-MM-DD"
+        },
+        "date_to": {
+          "type": "string",
+          "description": "End date filter YYYY-MM-DD"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_sales_order_submit",
+      "title": null,
+      "description": "Submit a Draft Sales Order (changes status to 'To Deliver and Bill'). Triggers stock reservation and fulfillment workflow.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Sales Order name (e.g. SO-00001)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_sales_order_update",
+      "title": null,
+      "description": "Update an existing Sales Order (only in Draft status). Pass only the fields you want to change (e.g. delivery_date, items).",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Sales Order name (e.g. SO-00001)"
+        },
+        "delivery_date": {
+          "type": "string",
+          "description": "New delivery date YYYY-MM-DD"
+        },
+        "items": {
+          "type": "array",
+          "description": "Replacement item list: [{item_code, qty, rate}]"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_stock_balance",
+      "title": null,
+      "description": "Get stock balance by item and/or warehouse. Reads from the Bin DocType. Fields: item_code, warehouse, actual_qty, reserved_qty, projected_qty, valuation_rate, stock_value. Filterable by item_code, warehouse.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 50)"
+        },
+        "item_code": {
+          "type": "string",
+          "description": "Filter by item code or name (e.g. 'ITEM-001' or 'Widget A')"
+        },
+        "warehouse": {
+          "type": "string",
+          "description": "Filter by warehouse"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_stock_entry_create",
+      "title": null,
+      "description": "Create a new Stock Entry (material issue, receipt, or transfer). Requires stock_entry_type and items with item_code and qty. For Material Issue: set s_warehouse. For Material Receipt: set t_warehouse. For Material Transfer: set both s_warehouse and t_warehouse.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false
+      },
+      "required": ["stock_entry_type", "items"],
+      "properties": {
+        "stock_entry_type": {
+          "type": "string",
+          "enum": ["Material Issue", "Material Receipt", "Material Transfer"],
+          "description": "Entry type: Material Issue, Material Receipt, Material Transfer"
+        },
+        "items": {
+          "type": "array",
+          "description": "Items to move: [{item_code, qty, s_warehouse?, t_warehouse?, basic_rate?}]"
+        },
+        "from_warehouse": {
+          "type": "string",
+          "description": "Default source warehouse (applies to all items if not per-item)"
+        },
+        "to_warehouse": {
+          "type": "string",
+          "description": "Default target warehouse (applies to all items if not per-item)"
+        },
+        "posting_date": {
+          "type": "string",
+          "description": "Posting date YYYY-MM-DD"
+        },
+        "remarks": {
+          "type": "string",
+          "description": "Optional remarks"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_stock_entry_get",
+      "title": null,
+      "description": "Get a single Stock Entry by name. Returns full document with item details.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Stock Entry name (e.g. STE-00001)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_stock_entry_list",
+      "title": null,
+      "description": "List Stock Entries (material transfers, receipts, issues). Fields: name, stock_entry_type, posting_date, from_warehouse, to_warehouse, total_amount. Filterable by stock_entry_type, date range.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 20)"
+        },
+        "stock_entry_type": {
+          "type": "string",
+          "description": "Filter by type (Material Issue, Material Receipt, Material Transfer, etc.)"
+        },
+        "date_from": {
+          "type": "string",
+          "description": "Start date filter YYYY-MM-DD"
+        },
+        "date_to": {
+          "type": "string",
+          "description": "End date filter YYYY-MM-DD"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_stock_ledger_list",
+      "title": null,
+      "description": "List recent non-cancelled Stock Ledger Entries for one item and warehouse. Item accepts an ID or name; warehouse must be its exact ID. Returns {data: rows}, newest posting date/time/name first, with voucher and quantity fields.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": ["item_code", "warehouse"],
+      "properties": {
+        "item_code": {
+          "type": "string",
+          "description": "Item ID or name"
+        },
+        "warehouse": {
+          "type": "string",
+          "description": "Exact warehouse ID"
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Max results (default 5, maximum 20)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_supplier_create",
+      "title": null,
+      "description": "Create a new ERPNext Supplier. Requires supplier_name and supplier_group. Returns the created supplier document.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false
+      },
+      "required": ["supplier_name", "supplier_group"],
+      "properties": {
+        "supplier_name": {
+          "type": "string",
+          "description": "Supplier company or person name"
+        },
+        "supplier_group": {
+          "type": "string",
+          "description": "Supplier Group (e.g. 'Hardware', 'Services')"
+        },
+        "supplier_type": {
+          "type": "string",
+          "description": "Company or Individual (default Company)"
+        },
+        "country": {
+          "type": "string",
+          "description": "Country name"
+        },
+        "default_currency": {
+          "type": "string",
+          "description": "Currency code (e.g. EUR, USD)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_supplier_get",
+      "title": null,
+      "description": "Get a single ERPNext supplier by name (ID). Returns all fields including contact details.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Supplier name (ID)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_supplier_list",
+      "title": null,
+      "description": "List ERPNext suppliers. Returns active suppliers by default. Fields: name, supplier_name, supplier_group, supplier_type, email_id, disabled.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 20)"
+        },
+        "supplier_group": {
+          "type": "string",
+          "description": "Filter by supplier group"
+        },
+        "supplier_type": {
+          "type": "string",
+          "description": "Filter by supplier type (Company, Individual)"
+        },
+        "include_disabled": {
+          "type": "boolean",
+          "description": "Include disabled suppliers (default false)"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_supplier_quotation_list",
+      "title": null,
+      "description": "List Supplier Quotations (RFQ responses from suppliers). Filterable by supplier, status. Fields: name, supplier, transaction_date, status, grand_total.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 20)"
+        },
+        "supplier": {
+          "type": "string",
+          "description": "Filter by supplier ID or name (e.g. 'SUPP-00001' or 'Acme Supplies')"
+        },
+        "status": {
+          "type": "string",
+          "description": "Filter by status (Draft, Submitted, Ordered, Lost, Cancelled)"
+        },
+        "date_from": {
+          "type": "string",
+          "description": "Start date filter YYYY-MM-DD"
+        },
+        "date_to": {
+          "type": "string",
+          "description": "End date filter YYYY-MM-DD"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_warehouse_list",
+      "title": null,
+      "description": "List ERPNext Warehouses. Fields: name, warehouse_name, warehouse_type, company.",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {
+        "limit": {
+          "type": "number",
+          "description": "Max results (default 20)"
+        },
+        "company": {
+          "type": "string",
+          "description": "Filter by company"
+        },
+        "warehouse_type": {
+          "type": "string",
+          "description": "Filter by warehouse type"
+        }
+      },
+      "hasOutputSchema": false
+    },
+    {
+      "name": "erpnext_whoami",
+      "title": null,
+      "description": "Identify the ERPNext user this session is acting as: their User ID (email), full name, roles, and linked Employee record (ID, designation, department, company, manager). `roles` and `employee` may be null because the deployment withheld them rather than because they are empty — read `roles_note`, `e",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "required": [],
+      "properties": {},
+      "hasOutputSchema": false
+    }
+  ]
+}

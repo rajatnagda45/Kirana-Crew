@@ -1,0 +1,191 @@
+{
+  "_note": "The NammaOps workforce. Every agent uses the same configuration and execution path; differences come only from this file and the capability binding.",
+  "agents": [
+    {
+      "agent_id": "nammaops-manager",
+      "role": "manager",
+      "name": "Manager Agent",
+      "specialization": "Kirana store operations coordinator",
+      "purpose": "Coordinate store operations and give the owner one clear answer.",
+      "responsibilities": [
+        "Understand the owner's request and pick the matching workflow",
+        "Delegate to the specialists and collect their results",
+        "Check results for consistency and completeness",
+        "Ask for clarification when a request is ambiguous",
+        "Present purchases for owner approval",
+        "Produce the final business response"
+      ],
+      "allowed_actions": ["Coordinate specialist tasks", "Summarize specialist evidence"],
+      "forbidden_actions": [
+        {
+          "text": "Access ERPNext directly",
+          "category": "read"
+        },
+        {
+          "text": "Submit purchase orders without owner approval",
+          "category": "write"
+        },
+        {
+          "text": "Grant or change tool permissions",
+          "category": "other"
+        }
+      ],
+      "business_capabilities": []
+    },
+    {
+      "agent_id": "nammaops-inventory",
+      "role": "inventory",
+      "name": "Inventory Agent",
+      "specialization": "Kirana stock monitoring",
+      "purpose": "Know the current stock and what is running low.",
+      "responsibilities": [
+        "Read product details and stock balances",
+        "Read warehouses and stock ledger entries",
+        "Compare stock with reorder levels",
+        "Report low-stock products with evidence"
+      ],
+      "allowed_actions": ["Read items, stock balances, warehouses and stock ledger"],
+      "forbidden_actions": [
+        {
+          "text": "Change stock quantities",
+          "category": "write"
+        },
+        {
+          "text": "Submit stock adjustments",
+          "category": "write"
+        },
+        {
+          "text": "Delete products",
+          "category": "write"
+        },
+        {
+          "text": "Submit purchase orders",
+          "category": "write"
+        }
+      ],
+      "business_capabilities": [
+        "erp.items.list",
+        "erp.stock.balance",
+        "erp.warehouses.list",
+        "erp.stock.ledger",
+        "erp.stock.movements"
+      ]
+    },
+    {
+      "agent_id": "nammaops-sales",
+      "role": "sales",
+      "name": "Sales Agent",
+      "specialization": "Kirana sales analysis",
+      "purpose": "Understand sales performance.",
+      "responsibilities": [
+        "Read sales and POS invoices",
+        "Read customer records when needed",
+        "Compute sales totals and top-selling products"
+      ],
+      "allowed_actions": ["Read sales invoices, POS invoices and customers"],
+      "forbidden_actions": [
+        {
+          "text": "Create or modify invoices",
+          "category": "write"
+        },
+        {
+          "text": "Make payments",
+          "category": "write"
+        }
+      ],
+      "business_capabilities": [
+        "erp.sales_invoices.list",
+        "erp.pos_invoices.list",
+        "erp.customers.list",
+        "erp.items.list",
+        "erp.sales.history"
+      ]
+    },
+    {
+      "agent_id": "nammaops-procurement",
+      "role": "procurement",
+      "name": "Procurement Agent",
+      "specialization": "Kirana supplier purchasing",
+      "purpose": "Prepare supplier purchase recommendations and draft orders.",
+      "responsibilities": [
+        "Read suppliers, quotations and item prices",
+        "Compare suppliers on price, availability and lead time",
+        "Calculate recommended purchase quantities",
+        "Prepare draft purchase orders for owner review"
+      ],
+      "allowed_actions": ["Read supplier data", "Create draft purchase orders"],
+      "forbidden_actions": [
+        {
+          "text": "Submit purchase orders",
+          "category": "external_send"
+        },
+        {
+          "text": "Cancel or delete purchase documents",
+          "category": "write"
+        },
+        {
+          "text": "Create purchase receipts",
+          "category": "write"
+        }
+      ],
+      "business_capabilities": [
+        "erp.suppliers.list",
+        "erp.supplier_quotations.list",
+        "erp.item_prices.get",
+        "erp.po.create_draft",
+        "erp.po.get",
+        "erp.po.open"
+      ]
+    },
+    {
+      "agent_id": "nammaops-finance",
+      "role": "finance",
+      "name": "Finance Agent",
+      "specialization": "Kirana financial reporting",
+      "purpose": "Produce financial summaries from posted accounting data.",
+      "responsibilities": [
+        "Read profit and loss for the reporting period",
+        "Read general ledger, purchase invoices and payment summaries",
+        "State when profit cannot be verified"
+      ],
+      "allowed_actions": ["Read posted accounting reports"],
+      "forbidden_actions": [
+        {
+          "text": "Create journal entries",
+          "category": "write"
+        },
+        {
+          "text": "Submit payments",
+          "category": "write"
+        },
+        {
+          "text": "Estimate profit from purchase orders and sales",
+          "category": "other"
+        }
+      ],
+      "business_capabilities": [
+        "erp.pnl",
+        "erp.gl",
+        "erp.purchase_invoices.list",
+        "erp.payments.summary"
+      ]
+    }
+  ],
+  "voice_departments": {
+    "_note": "Presentation only. Maps a voice seat (by seat label) to the department it speaks for. It grants no permission: every ERP read still runs as the NammaOps specialist that owns the capability, through Phase C governance.",
+    "seats": [
+      { "voice_name": "Alice", "department": "manager", "title": "Store Manager" },
+      { "voice_name": "Bob", "department": "inventory", "title": "Inventory" },
+      { "voice_name": "Carol", "department": "sales", "title": "Sales" },
+      { "voice_name": "Dave", "department": "procurement", "title": "Procurement" }
+    ],
+    "background": [{ "department": "finance", "title": "Finance" }]
+  },
+  "principals": [
+    {
+      "id": "nammaops-po-submit",
+      "purpose": "Submits a purchase order only after the store owner approved that exact order.",
+      "business_capabilities": ["erp.po.get", "erp.po.submit"]
+    }
+  ]
+}

@@ -1,0 +1,409 @@
+{
+  "_note": "TEST FIXTURE. Synthetic data shaped like ERPNext records. Not real business data.",
+  "company": "Namma Kirana (fixture)",
+  "items": [
+    {
+      "item_code": "MILK-500",
+      "item_name": "Toned Milk 500ml",
+      "aliases": ["milk"],
+      "stock_uom": "Nos",
+      "reorder_level": 40,
+      "reorder_qty": 60,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "RICE-5KG",
+      "item_name": "Sona Masoori Rice 5kg",
+      "aliases": ["rice"],
+      "stock_uom": "Bag",
+      "reorder_level": 10,
+      "reorder_qty": 20,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "OIL-SUN-1L",
+      "item_name": "Sunflower Oil 1L",
+      "aliases": ["cooking oil", "sunflower oil"],
+      "stock_uom": "Nos",
+      "reorder_level": 15,
+      "reorder_qty": 24,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "OIL-COCO-500",
+      "item_name": "Coconut Oil 500ml",
+      "aliases": ["coconut oil"],
+      "stock_uom": "Nos",
+      "reorder_level": 6,
+      "reorder_qty": 12,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "DAL-TOOR-1KG",
+      "item_name": "Toor Dal 1kg",
+      "aliases": ["dal", "toor dal"],
+      "stock_uom": "Nos",
+      "reorder_level": 12,
+      "reorder_qty": 20,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "SUGAR-1KG",
+      "item_name": "Sugar 1kg",
+      "aliases": ["sugar"],
+      "stock_uom": "Nos",
+      "reorder_level": 10,
+      "reorder_qty": 20,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "GHEE-200",
+      "item_name": "Ghee 200ml",
+      "aliases": ["ghee"],
+      "stock_uom": "Nos",
+      "reorder_level": 5,
+      "reorder_qty": 10,
+      "warehouse": "Stores - NK"
+    }
+  ],
+  "warehouses": [
+    {
+      "name": "Stores - NK"
+    },
+    {
+      "name": "Back Room - NK"
+    }
+  ],
+  "bins": [
+    {
+      "item_code": "MILK-500",
+      "warehouse": "Stores - NK",
+      "actual_qty": 18
+    },
+    {
+      "item_code": "MILK-500",
+      "warehouse": "Back Room - NK",
+      "actual_qty": 6
+    },
+    {
+      "item_code": "RICE-5KG",
+      "warehouse": "Stores - NK",
+      "actual_qty": 14
+    },
+    {
+      "item_code": "OIL-SUN-1L",
+      "warehouse": "Stores - NK",
+      "actual_qty": 9
+    },
+    {
+      "item_code": "OIL-COCO-500",
+      "warehouse": "Stores - NK",
+      "actual_qty": 8
+    },
+    {
+      "item_code": "DAL-TOOR-1KG",
+      "warehouse": "Stores - NK",
+      "actual_qty": 25
+    },
+    {
+      "item_code": "SUGAR-1KG",
+      "warehouse": "Stores - NK",
+      "actual_qty": 30
+    },
+    {
+      "item_code": "GHEE-200",
+      "warehouse": "Stores - NK",
+      "actual_qty": 7
+    }
+  ],
+  "stock_ledger": [
+    {
+      "item_code": "MILK-500",
+      "warehouse": "Stores - NK",
+      "posting_date": "2026-10-31",
+      "actual_qty": 60,
+      "voucher_type": "Purchase Receipt"
+    },
+    {
+      "item_code": "MILK-500",
+      "warehouse": "Stores - NK",
+      "posting_date": "2026-11-01",
+      "actual_qty": -42,
+      "voucher_type": "Sales Invoice"
+    }
+  ],
+  "suppliers": [
+    {
+      "name": "Bengaluru Wholesale Traders",
+      "lead_time_days": 1,
+      "on_time_rate": 0.95
+    },
+    {
+      "name": "Mysuru Agro Supplies",
+      "lead_time_days": 3,
+      "on_time_rate": 0.9
+    },
+    {
+      "name": "City Dairy Distributors",
+      "lead_time_days": 1
+    }
+  ],
+  "supplier_quotations": [
+    {
+      "name": "SQ-FX-0001",
+      "supplier": "Bengaluru Wholesale Traders",
+      "item_code": "MILK-500",
+      "rate": 24,
+      "available_qty": 200,
+      "lead_time_days": 1,
+      "valid_till": "2026-11-30"
+    },
+    {
+      "name": "SQ-FX-0002",
+      "supplier": "City Dairy Distributors",
+      "item_code": "MILK-500",
+      "rate": 23.5,
+      "available_qty": 30,
+      "lead_time_days": 1,
+      "valid_till": "2026-11-30"
+    },
+    {
+      "name": "SQ-FX-0003",
+      "supplier": "Bengaluru Wholesale Traders",
+      "item_code": "OIL-SUN-1L",
+      "rate": 142,
+      "available_qty": 100,
+      "lead_time_days": 1,
+      "valid_till": "2026-11-30"
+    },
+    {
+      "name": "SQ-FX-0004",
+      "supplier": "Mysuru Agro Supplies",
+      "item_code": "OIL-SUN-1L",
+      "rate": 138,
+      "available_qty": 100,
+      "lead_time_days": 3,
+      "valid_till": "2026-11-30"
+    },
+    {
+      "name": "SQ-FX-0005",
+      "supplier": "Mysuru Agro Supplies",
+      "item_code": "RICE-5KG",
+      "rate": 365,
+      "available_qty": 50,
+      "lead_time_days": 3,
+      "valid_till": "2026-11-30"
+    },
+    {
+      "name": "SQ-FX-0006",
+      "supplier": "Mysuru Agro Supplies",
+      "item_code": "DAL-TOOR-1KG",
+      "rate": 118,
+      "available_qty": 80,
+      "lead_time_days": 3,
+      "valid_till": "2026-11-30"
+    },
+    {
+      "name": "SQ-FX-0007",
+      "supplier": "Bengaluru Wholesale Traders",
+      "item_code": "SUGAR-1KG",
+      "rate": 44,
+      "available_qty": 100,
+      "lead_time_days": 1,
+      "valid_till": "2026-11-30"
+    }
+  ],
+  "item_prices": [
+    {
+      "item_code": "MILK-500",
+      "price_list": "Standard Buying",
+      "rate": 25
+    },
+    {
+      "item_code": "OIL-SUN-1L",
+      "price_list": "Standard Buying",
+      "rate": 145
+    },
+    {
+      "item_code": "RICE-5KG",
+      "price_list": "Standard Buying",
+      "rate": 370
+    }
+  ],
+  "customers": [
+    {
+      "name": "Walk-in Customer"
+    },
+    {
+      "name": "Lakshmi Stores"
+    }
+  ],
+  "sales_invoices": [
+    {
+      "name": "SINV-FX-0001",
+      "posting_date": "2026-11-01",
+      "customer": "Lakshmi Stores",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 1840,
+      "items": [
+        {
+          "item_code": "RICE-5KG",
+          "qty": 4,
+          "amount": 1600
+        },
+        {
+          "item_code": "MILK-500",
+          "qty": 10,
+          "amount": 240
+        }
+      ]
+    },
+    {
+      "name": "POS-FX-0001",
+      "posting_date": "2026-11-01",
+      "customer": "Walk-in Customer",
+      "docstatus": 1,
+      "is_pos": true,
+      "grand_total": 1046,
+      "items": [
+        {
+          "item_code": "MILK-500",
+          "qty": 32,
+          "amount": 896
+        },
+        {
+          "item_code": "OIL-SUN-1L",
+          "qty": 1,
+          "amount": 150
+        }
+      ]
+    },
+    {
+      "name": "POS-FX-0002",
+      "posting_date": "2026-11-01",
+      "customer": "Walk-in Customer",
+      "docstatus": 1,
+      "is_pos": true,
+      "grand_total": 300,
+      "items": [
+        {
+          "item_code": "OIL-SUN-1L",
+          "qty": 2,
+          "amount": 300
+        }
+      ]
+    },
+    {
+      "name": "POS-FX-0000",
+      "posting_date": "2026-10-31",
+      "customer": "Walk-in Customer",
+      "docstatus": 1,
+      "is_pos": true,
+      "grand_total": 500,
+      "items": [
+        {
+          "item_code": "SUGAR-1KG",
+          "qty": 10,
+          "amount": 500
+        }
+      ]
+    }
+  ],
+  "profit_and_loss": [
+    {
+      "date": "2026-10-31",
+      "income": 500,
+      "expense": 410,
+      "net_profit": 90
+    },
+    {
+      "date": "2026-11-01",
+      "income": 3186,
+      "expense": 2702,
+      "net_profit": 484
+    }
+  ],
+  "general_ledger": [],
+  "purchase_invoices": [],
+  "payments": [
+    {
+      "posting_date": "2026-11-01",
+      "payment_type": "Receive",
+      "amount": 1346
+    }
+  ],
+  "open_purchase_orders": [
+    {
+      "name": "PUR-ORD-FX-OPEN-01",
+      "supplier": "Bengaluru Wholesale Traders",
+      "docstatus": 1,
+      "status": "To Receive and Bill",
+      "schedule_date": "2026-11-02",
+      "items": [
+        {
+          "item_code": "SUGAR-1KG",
+          "qty": 20,
+          "received_qty": 0
+        }
+      ]
+    },
+    {
+      "name": "PUR-ORD-FX-OPEN-02",
+      "supplier": "Mysuru Agro Supplies",
+      "docstatus": 1,
+      "status": "To Receive and Bill",
+      "schedule_date": "2026-11-03",
+      "items": [
+        {
+          "item_code": "DAL-TOOR-1KG",
+          "qty": 15,
+          "received_qty": 5
+        }
+      ]
+    }
+  ],
+  "demand_history": {
+    "_note": "TEST FIXTURE. Deterministically generated synthetic daily sales and stock ledger; not real demand.",
+    "start": "2026-08-02",
+    "end": "2026-10-30",
+    "seed": 20261101,
+    "profiles": {
+      "MILK-500": {
+        "base": 36,
+        "weekend": 1.35
+      },
+      "RICE-5KG": {
+        "base": 4,
+        "weekend": 1.5
+      },
+      "OIL-SUN-1L": {
+        "base": 5,
+        "weekend": 1.2,
+        "promo": {
+          "from": "2026-10-10",
+          "to": "2026-10-16",
+          "factor": 2.2
+        }
+      },
+      "OIL-COCO-500": {
+        "base": 0.6
+      },
+      "DAL-TOOR-1KG": {
+        "base": 5,
+        "stockout": {
+          "from": "2026-10-18",
+          "to": "2026-10-23"
+        }
+      },
+      "SUGAR-1KG": {
+        "base": 6,
+        "weekend": 1.1
+      },
+      "GHEE-200": {
+        "base": 2,
+        "launched": "2026-10-24"
+      }
+    }
+  }
+}

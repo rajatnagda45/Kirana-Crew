@@ -1,0 +1,99 @@
+{
+  "_note": "Business capability -> MCP tool binding for the TEST FIXTURE server. Agents and workflows only use the business IDs on the left.",
+  "shape": "fixture",
+  "server": {
+    "server_id": "erp-fixture",
+    "name": "ERPNext fixture (TEST)",
+    "description": "Synthetic ERPNext-shaped data for development. Not real business data.",
+    "transport": "stdio",
+    "connection": {
+      "command": "node",
+      "args": ["lib/mcp/fixture-erpnext-server.mjs"]
+    }
+  },
+  "capabilities": {
+    "erp.items.list": {
+      "tool": "list_items",
+      "risk": "READ"
+    },
+    "erp.stock.balance": {
+      "tool": "get_stock_balance",
+      "risk": "READ"
+    },
+    "erp.warehouses.list": {
+      "tool": "list_warehouses",
+      "risk": "READ"
+    },
+    "erp.stock.ledger": {
+      "tool": "get_stock_ledger",
+      "risk": "READ"
+    },
+    "erp.suppliers.list": {
+      "tool": "list_suppliers",
+      "risk": "READ"
+    },
+    "erp.supplier_quotations.list": {
+      "tool": "list_supplier_quotations",
+      "risk": "READ"
+    },
+    "erp.item_prices.get": {
+      "tool": "get_item_prices",
+      "risk": "READ"
+    },
+    "erp.po.create_draft": {
+      "tool": "create_purchase_order",
+      "risk": "WRITE",
+      "approval_required": false
+    },
+    "erp.po.get": {
+      "tool": "get_purchase_order",
+      "risk": "READ"
+    },
+    "erp.po.submit": {
+      "tool": "submit_purchase_order",
+      "risk": "EXTERNAL_ACTION",
+      "approval_required": false,
+      "_note": "Granted only to the owner-approval workflow principal; the business owner's PIN approval is the gate."
+    },
+    "erp.sales_invoices.list": {
+      "tool": "list_sales_invoices",
+      "risk": "READ"
+    },
+    "erp.pos_invoices.list": {
+      "tool": "list_pos_invoices",
+      "risk": "READ"
+    },
+    "erp.customers.list": {
+      "tool": "list_customers",
+      "risk": "READ"
+    },
+    "erp.pnl": {
+      "tool": "get_profit_and_loss",
+      "risk": "READ"
+    },
+    "erp.gl": {
+      "tool": "get_general_ledger",
+      "risk": "READ"
+    },
+    "erp.purchase_invoices.list": {
+      "tool": "list_purchase_invoices",
+      "risk": "READ"
+    },
+    "erp.payments.summary": {
+      "tool": "get_payment_summary",
+      "risk": "READ"
+    },
+    "erp.sales.history": {
+      "tool": "list_sales_lines",
+      "risk": "READ"
+    },
+    "erp.stock.movements": {
+      "tool": "list_stock_ledger",
+      "risk": "READ"
+    },
+    "erp.po.open": {
+      "tool": "list_open_purchase_orders",
+      "risk": "READ"
+    }
+  }
+}

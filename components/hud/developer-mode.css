@@ -133,3 +133,30 @@
     overflow-x: auto;
   }
 }
+.dev-mode__evidence {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border-left: 3px solid var(--pixel-accent);
+  font-size: 0.8rem;
+}
+.dev-mode__evidence code {
+  word-break: break-all;
+}
+.nammaops-body {
+  overflow-x: hidden;
+}
+.nammaops-body .dev-mode__table {
+  table-layout: fixed;
+  width: 100%;
+  font-size: 0.75rem;
+}
+.nammaops-body .dev-mode__table th,
+.nammaops-body .dev-mode__table td {
+  overflow-wrap: anywhere;
+}
+.dev-mode__evidence,
+.dev-mode__evidence * {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
