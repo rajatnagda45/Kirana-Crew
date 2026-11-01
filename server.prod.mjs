@@ -12,6 +12,7 @@ import { dirname, join } from "node:path";
 import { agentRoute } from "./lib/server/agent-api.mjs";
 import { developerRoute } from "./lib/server/developer-api.mjs";
 import { mcpRoute } from "./lib/server/mcp-api.mjs";
+import { nammaopsRoute } from "./lib/server/nammaops/api.mjs";
 import { readOpenClawToken } from "./lib/ws-proxy.mjs";
 import {
   attachAuggieBridge,
@@ -79,7 +80,8 @@ app
         req.url?.split("?")[0] === "/api/agents/discover" ||
         agentRoute(req.url?.split("?")[0] ?? "") ||
         developerRoute(req.url?.split("?")[0] ?? "") ||
-        mcpRoute(req.url?.split("?")[0] ?? "")
+        mcpRoute(req.url?.split("?")[0] ?? "") ||
+        nammaopsRoute(req.url?.split("?")[0] ?? "")
       ) {
         void tasks.handler(req, res);
         return;
