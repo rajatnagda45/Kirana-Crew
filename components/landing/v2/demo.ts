@@ -1,60 +1,82 @@
-export const demoStages = ["Request", "Plan", "Execute", "Deliver"] as const;
+export const demoStages = ["Speak", "Plan", "Execute", "Deliver"] as const;
+
 export const samplePrompt =
-  "Review the Agent Town landing page for conflicting worker statuses and propose a shared source of truth.";
+  "Check milk and oil stock, and prepare an order for anything running low.";
+
 export const demoEvents = [
-  { stage: 0, agent: "You", action: "Request captured", detail: samplePrompt },
+  {
+    stage: 0,
+    agent: "Shopkeeper (voice)",
+    action: "Voice command captured",
+    detail:
+      'Gnani Prisma STT transcript: "Haalina mattu yenney stock check maadi, kam iddre order haaki." · Detected intent: prepare_reorder · Products: [milk, oil]',
+  },
   {
     stage: 1,
-    agent: "Carol",
-    action: "Split the review",
-    detail: "Alice: inspect labels. Bob: trace display state. Dave: propose checks.",
+    agent: "Manager Agent",
+    action: "Delegation plan created",
+    detail:
+      "Inventory Agent: check current stock levels for milk and oil · Sales Agent: review 7-day demand · Procurement Agent: compare supplier prices and draft PO",
   },
   {
     stage: 2,
-    agent: "Alice",
-    action: "Compare indicators",
-    detail: "Sample finding: a fixed busy counter can disagree with animated desks.",
+    agent: "Inventory Agent",
+    action: "INVENTORY_CHECK_COMPLETED",
+    detail:
+      "LOW_STOCK_DETECTED — Milk: 18 packets remaining (reorder threshold: 30) · Oil: 4 litres remaining (reorder threshold: 10)",
   },
   {
     stage: 2,
-    agent: "Bob",
-    action: "Trace one shared snapshot",
-    detail: "Proposed flow: office state → worker snapshot → hero and crew.",
+    agent: "Sales Agent",
+    action: "DEMAND_ANALYSIS_COMPLETED",
+    detail:
+      "7-day avg daily sales — Milk: 6 packets/day · Oil: 1.2 litres/day · Recommended order covers 4-day buffer above threshold",
   },
   {
     stage: 2,
-    agent: "Dave",
-    action: "Define verification",
-    detail: "Check working counts, breaks, desk occupancy and walking states.",
+    agent: "Procurement Agent",
+    action: "PURCHASE_ORDER_DRAFTED",
+    detail:
+      "SUPPLIER_COMPARISON_DONE — Best price: Shree Distributors · Milk 24 packets @ ₹40 = ₹960 · Oil 12 litres @ ₹120 = ₹1,440 · Total: ₹2,400",
   },
   {
     stage: 3,
-    agent: "Carol",
-    action: "Collect review notes",
-    detail: "Sample review ready for inspection. No repository was accessed or changed.",
+    agent: "Manager Agent",
+    action: "Draft PO ready — owner approval required",
+    detail:
+      'Gnani Timbre TTS: "Draft order ready. Milk: 24 packets for ₹960. Oil: 12 litres for ₹1,440. Total ₹2,400. Approve?" · Owner PIN required to execute',
   },
 ] as const;
-export const sampleReport = `AGENT TOWN / SAMPLE REVIEW
 
-Observation
-Fixed status labels can contradict the office animation.
+export const sampleReport = `KIRANACREW / SAMPLE PURCHASE ORDER
 
-Proposed change
-Publish a typed snapshot from the office engine.
-Derive the busy count and crew labels from that snapshot.
-Keep desk occupancy separate from worker availability.
+Request (voice)
+"Check milk and oil stock and prepare an order for anything running low."
 
-Review checklist
-[ ] Busy count equals workers marked working
-[ ] Walking workers are marked unavailable
-[ ] Breaks are idle; empty desks have no occupant
-[ ] Demo activity is not presented as tool execution
+Low-stock findings
+Product   Current  Threshold  Recommended Order
+Milk      18 pkts  30 pkts    24 packets  @ ₹40   = ₹960
+Oil        4 ltrs  10 ltrs    12 litres   @ ₹120  = ₹1,440
+                               ─────────────────────────
+                               Total order           ₹2,400
 
-Scope: illustrative review, not a recorded agent run.
-No tools invoked. No files modified.`;
+Supplier selected
+Shree Distributors (best price on both items this week)
+
+Voice response (Gnani Timbre TTS)
+"Draft order ready. Milk: 24 packets for ₹960. Oil: 12 litres for
+₹1,440. Total ₹2,400 from Shree Distributors. Approve?"
+
+Approval gate
+[ ] Owner PIN required before ERP write
+[ ] Confirmation sent as voice reply after approval
+
+Scope: illustrative workflow · no live ERP or AI connected.`;
+
 export function nextDemoStage(stage: number) {
   return Math.min(stage + 1, demoStages.length - 1);
 }
+
 export function eventsAtStage(stage: number) {
   return demoEvents.filter((e) => e.stage <= stage);
 }

@@ -2,29 +2,29 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Play,
-  Rocket,
-  Armchair,
-  Users,
-  Cpu,
-  Activity,
-  Mic,
-  Github,
-} from "lucide-react";
+import { ArrowRight, Play, Rocket, Mic, Github, Volume2, Package } from "lucide-react";
 import { TaskWalkthrough } from "./TaskWalkthrough";
 import { Architecture } from "./Architecture";
 import { initialWorkers, summarizeWorkers } from "./status";
 import { OfficeCanvas } from "./OfficeCanvas";
 import { PixelCharacter } from "./PixelCharacter";
-import { CollabIllustration } from "./illustrations/CollabIllustration";
-import { CodeEditorIllustration } from "./illustrations/CodeEditorIllustration";
-import { StateIllustration } from "./illustrations/StateIllustration";
-import { OfficeIllustration } from "./illustrations/OfficeIllustration";
+import { InventoryIllustration } from "./illustrations/InventoryIllustration";
+import { ProcurementIllustration } from "./illustrations/ProcurementIllustration";
+import { SalesIllustration } from "./illustrations/SalesIllustration";
+import { VoiceAIIllustration } from "./illustrations/VoiceAIIllustration";
 import type { CharDef } from "./PixelCharacter";
-
-const nav = ["Home", "Features", "Voice", "Agents", "How It Works"];
+import {
+  brand,
+  nav,
+  features,
+  stats,
+  agentCrew,
+  howItWorksSteps,
+  voiceBanner,
+  gnaniSection,
+  gnaniAttribution,
+  footerNav,
+} from "./kiranacrew-content";
 
 const CHAR_DEFS: Record<string, CharDef> = {
   Alice: { hair: "#6b3f22", skin: "#f1c7a0", shirt: "#3b4a7a", pants: "#2a2a3a" },
@@ -33,65 +33,19 @@ const CHAR_DEFS: Record<string, CharDef> = {
   Dave: { hair: "#4a5a7a", skin: "#f3d0b0", shirt: "#6a4a8a", pants: "#3a4a3a" },
 };
 
-const crew = [
-  { n: "Alice", seat: 1 },
-  { n: "Bob", seat: 2 },
-  { n: "Carol", seat: 3 },
-  { n: "Dave", seat: 4 },
-];
+// Feature card illustrations mapped by tag
+const FEATURE_ILLUS: Record<string, React.ComponentType> = {
+  INVENTORY: InventoryIllustration,
+  PROCUREMENT: ProcurementIllustration,
+  SALES: SalesIllustration,
+  "VOICE AI": VoiceAIIllustration,
+};
 
-const features: { Illus: React.ComponentType; tag: string; t: string; d: string }[] = [
-  {
-    Illus: CollabIllustration,
-    tag: "TEAM",
-    t: "Collaborative Agents",
-    d: "Six role-based characters share one visible office — named assignments and handoffs in the sample task.",
-  },
-  {
-    Illus: CodeEditorIllustration,
-    tag: "ACTIVITY",
-    t: "Visible Work & Ownership",
-    d: "Desk screens and worker labels follow the same local activity state. Task events are explicitly labeled.",
-  },
-  {
-    Illus: StateIllustration,
-    tag: "STATE",
-    t: "Shared Workspace State",
-    d: "The office and crew share one in-memory snapshot. No saved team config is connected on this page.",
-  },
-  {
-    Illus: OfficeIllustration,
-    tag: "WORLD",
-    t: "A Living Office",
-    d: "Role-based routines, short trips, and desk visits across the library, kitchen, and lounge.",
-  },
-];
+// Stat icons
+const STAT_ICONS = [Rocket, Volume2, Mic, Package];
 
-const stats = [
-  { I: Armchair, v: "6", l: "Rendered desks" },
-  { I: Users, v: "6", l: "Demo workers" },
-  { I: Cpu, v: "Canvas 2D", l: "Office engine" },
-  { I: Activity, v: "Local", l: "Simulation state" },
-];
-
-const steps = [
-  {
-    t: "Fill your seats",
-    d: "The demo office starts with named workers, each with a role and a desk.",
-  },
-  {
-    t: "Talk to the main agent",
-    d: "Inspect a sample request and the planning handoff in the walkthrough.",
-  },
-  {
-    t: "Workers pick it up",
-    d: "Follow the sample assignments and review each worker's contribution.",
-  },
-  {
-    t: "Review the output",
-    d: "Inspect the sample report and download its proposed review checklist.",
-  },
-];
+// CTA crew (first 4 for avatar strip)
+const ctaCrew = agentCrew.slice(0, 4);
 
 function useReveal<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -188,9 +142,10 @@ export default function LandingPageV2() {
     const ids = [
       "home",
       "features",
+      "voice-ai",
       "live-task",
       "architecture",
-      "agents",
+      "our-crew",
       "how-it-works",
       "voice",
       "cta",
@@ -219,7 +174,7 @@ export default function LandingPageV2() {
             <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-sm border-2 border-border bg-deep">
               <PixelCharacter def={CHAR_DEFS.Bob} className="h-8" animate />
             </span>
-            <span className="font-pixel text-[10px] text-gold sm:text-[11px]">AGENT TOWN</span>
+            <span className="font-pixel text-[10px] text-gold sm:text-[11px]">{brand.name}</span>
           </a>
 
           <nav className="hidden items-center gap-0.5 lg:flex">
@@ -244,7 +199,7 @@ export default function LandingPageV2() {
 
           <div className="flex shrink-0 items-center gap-3">
             <span className="hidden items-center gap-2 rounded-sm border border-border bg-deep px-3 py-1.5 text-xs text-muted-foreground md:flex">
-              <span className="h-2 w-2 animate-pulse bg-mint" /> {summary.total} workers
+              <span className="h-2 w-2 animate-pulse bg-mint" /> {summary.total} agents
             </span>
             <Btn primary href="/app">
               Enter App <ArrowRight className="h-3.5 w-3.5" />
@@ -259,51 +214,50 @@ export default function LandingPageV2() {
           {/* Text col */}
           <div className="relative z-10 animate-reveal">
             <span className="inline-flex items-center gap-2 rounded-sm border border-border bg-panel px-3.5 py-1.5 text-[11px] tracking-widest text-muted-foreground">
-              <span className="h-2 w-2 bg-mint" /> THE MULTI-AGENT WORKSPACE
+              <span className="h-2 w-2 bg-mint" /> {brand.tagline}
             </span>
 
             <h1 className="mt-8 font-pixel leading-[1.1]">
               <span className="block text-[2.6rem] text-gold glow-gold sm:text-6xl lg:text-7xl">
-                AGENT
+                KIRANA
               </span>
               <span className="mt-2 block text-[2.6rem] text-cream pixel-shadow sm:text-6xl lg:text-7xl">
-                TOWN<span className="animate-blink text-gold">_</span>
+                CREW<span className="animate-blink text-gold">_</span>
               </span>
             </h1>
 
             <p className="mt-7 max-w-sm text-base font-bold leading-relaxed text-cream sm:text-lg">
-              A virtual office where AI agents work, collaborate and get things done.
+              {brand.description}
             </p>
             <p className="mt-3 max-w-sm text-sm leading-loose text-muted-foreground">
-              Give each agent a desk, a name and a role. Ask the main agent for something, and watch
-              the crew pick it up.
+              Give each AI specialist a role and a task. Speak in your language — your crew picks it
+              up.
             </p>
 
             <div className="mt-9 flex flex-wrap gap-3">
               <Btn primary href="/app">
-                <Rocket className="h-4 w-4" /> Enter Agent Town{" "}
-                <ArrowRight className="h-3.5 w-3.5" />
+                <Rocket className="h-4 w-4" /> {brand.ctaEnter}
               </Btn>
               <Btn href="#live-task">
-                <Play className="h-4 w-4 fill-current" /> Watch Demo
+                <Play className="h-4 w-4 fill-current" /> {brand.ctaDemo}
               </Btn>
             </div>
 
             <div className="mt-10 flex items-center gap-4">
               <div className="flex -space-x-3">
-                {crew.map((a, i) => (
+                {agentCrew.slice(0, 4).map((a, i) => (
                   <span key={a.n} className="relative" style={{ zIndex: 4 - i }}>
                     <span className="grid h-11 w-11 place-items-center overflow-hidden rounded-sm border-2 border-panel bg-deep ring-2 ring-panel">
-                      <PixelCharacter def={CHAR_DEFS[a.n]} className="h-10" animate />
+                      <PixelCharacter def={CHAR_DEFS[a.charKey]} className="h-10" animate />
                     </span>
                     <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 border-2 border-deep bg-mint" />
                   </span>
                 ))}
               </div>
               <p className="text-sm text-muted-foreground">
-                Alice, Bob, Carol &amp; Dave
+                {brand.heroAgentLine}
                 <br />
-                <span className="text-cream">are in the demo office.</span>
+                <span className="text-cream">{brand.heroLangs}</span>
               </p>
             </div>
           </div>
@@ -318,51 +272,57 @@ export default function LandingPageV2() {
                 {summary.working}/{summary.total} working
               </span>
               <span className="h-3 w-px bg-border" />
-              <span className="text-cream">{summary.seated} seated</span>
+              <span className="text-cream">{summary.seated} at desk</span>
             </div>
           </div>
         </div>
 
         <p className="mt-5 text-center text-[11px] text-muted-foreground opacity-70">
-          Local visual simulation · no live agent execution
+          {brand.liveNote}
         </p>
 
         {/* Feature cards */}
         <div id="features" className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map((f, i) => (
-            <Reveal key={f.t} delay={i * 80}>
-              <div className="pixel-panel group relative flex h-full flex-col p-7 transition-colors hover:border-gold">
-                <span className="absolute right-3 top-3 font-pixel text-[7px] tracking-widest text-crimson opacity-80">
-                  {f.tag}
-                </span>
-                <div className="transition-transform duration-300 group-hover:-translate-y-1">
-                  <f.Illus />
+          {features.map((f, i) => {
+            const Illus = FEATURE_ILLUS[f.tag] ?? InventoryIllustration;
+            return (
+              <Reveal key={f.t} delay={i * 80}>
+                <div className="pixel-panel group relative flex h-full flex-col p-7 transition-colors hover:border-gold">
+                  <span className="absolute right-3 top-3 font-pixel text-[7px] tracking-widest text-crimson opacity-80">
+                    {f.tag}
+                  </span>
+                  <div className="transition-transform duration-300 group-hover:-translate-y-1">
+                    <Illus />
+                  </div>
+                  <h3 className="mt-5 text-center text-sm font-bold text-cream">{f.t}</h3>
+                  <p className="mt-2.5 text-center text-xs leading-relaxed text-muted-foreground">
+                    {f.d}
+                  </p>
                 </div>
-                <h3 className="mt-5 text-center text-sm font-bold text-cream">{f.t}</h3>
-                <p className="mt-2.5 text-center text-xs leading-relaxed text-muted-foreground">
-                  {f.d}
-                </p>
-              </div>
-            </Reveal>
-          ))}
+              </Reveal>
+            );
+          })}
         </div>
 
         {/* Stats bar */}
         <Reveal className="mt-6">
           <div className="pixel-panel grid grid-cols-2 gap-y-6 bg-deep px-8 py-6 md:grid-cols-4 md:divide-x md:divide-border">
-            {stats.map(({ I, v, l }) => (
-              <div key={l} className="flex items-center justify-center gap-3">
-                <span className="grid h-9 w-9 place-items-center rounded-sm border border-border bg-surface">
-                  <I className="h-4 w-4 text-gold" />
-                </span>
-                <div>
-                  <div className="font-pixel text-[11px] text-cream">{v}</div>
-                  <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-                    {l}
+            {stats.map(({ v, l }, idx) => {
+              const Icon = STAT_ICONS[idx] ?? Rocket;
+              return (
+                <div key={l} className="flex items-center justify-center gap-3">
+                  <span className="grid h-9 w-9 place-items-center rounded-sm border border-border bg-surface">
+                    <Icon className="h-4 w-4 text-gold" />
+                  </span>
+                  <div>
+                    <div className="font-pixel text-[11px] text-cream">{v}</div>
+                    <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                      {l}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Reveal>
       </section>
@@ -372,6 +332,127 @@ export default function LandingPageV2() {
         <Divider />
       </div>
 
+      {/* ── GNANI VOICE PIPELINE ────────────────────────── */}
+      <section id="voice-ai" className="mx-auto max-w-7xl scroll-mt-28 px-6 pb-24">
+        <div className="mb-12 text-center">
+          <span className="font-pixel text-[9px] tracking-[0.15em] text-gold">
+            {gnaniSection.label}
+          </span>
+          <h2 className="mt-5 text-3xl font-bold text-cream lg:text-4xl">{gnaniSection.heading}</h2>
+          <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground">
+            {gnaniSection.sub}
+          </p>
+        </div>
+
+        {/* Pipeline visualization */}
+        <Reveal className="mb-12">
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {[
+              { label: "SHOPKEEPER SPEAKS", sub: "Kannada · Hindi · Hinglish", color: "#f5c842" },
+              { label: "↓", sub: "", color: "#555" },
+              { label: "GNANI PRISMA STT", sub: "Speech → Text", color: "#e05c5c" },
+              { label: "↓", sub: "", color: "#555" },
+              { label: "VOICE ROUTER", sub: "Intent detection", color: "#f5c842" },
+              { label: "↓", sub: "", color: "#555" },
+              { label: "AI WORKFORCE", sub: "5 specialists", color: "#e05c5c" },
+              { label: "↓", sub: "", color: "#555" },
+              { label: "GNANI TIMBRE TTS", sub: "Text → Speech", color: "#e05c5c" },
+            ].map((step, i) =>
+              step.label === "↓" ? (
+                <span key={i} className="text-xl" style={{ color: "#555" }}>
+                  ↓
+                </span>
+              ) : (
+                <div
+                  key={i}
+                  className="min-w-[140px] px-4 py-3 text-center"
+                  style={{
+                    border: `1px solid ${step.color}44`,
+                    background: "#1a1510",
+                  }}
+                >
+                  <div
+                    className="font-mono text-[10px] font-bold tracking-[0.1em]"
+                    style={{ color: step.color }}
+                  >
+                    {step.label}
+                  </div>
+                  {step.sub && (
+                    <div className="mt-1 font-mono text-[9px]" style={{ color: "#6b6055" }}>
+                      {step.sub}
+                    </div>
+                  )}
+                </div>
+              ),
+            )}
+          </div>
+        </Reveal>
+
+        {/* Prisma + Timbre model cards */}
+        <Reveal>
+          <div className="grid gap-6 md:grid-cols-2 mx-auto max-w-3xl">
+            <div className="p-6" style={{ border: "1px solid #3a2a20", background: "#1a1510" }}>
+              <div
+                className="font-mono text-[10px] tracking-[0.1em] mb-3"
+                style={{ color: "#e05c5c" }}
+              >
+                {gnaniSection.prismaLabel}
+              </div>
+              <div className="font-mono text-base font-bold text-cream mb-2">
+                {gnaniSection.prismaTitle}
+              </div>
+              <p className="font-mono text-xs leading-relaxed" style={{ color: "#7a6a5a" }}>
+                {gnaniSection.prismaDesc}
+              </p>
+              <div
+                className="mt-4 p-3"
+                style={{ background: "#0f0d0a", border: "1px solid #2a2018" }}
+              >
+                <div className="font-mono text-[9px] mb-1" style={{ color: "#6b6055" }}>
+                  EXAMPLE TRANSCRIPT
+                </div>
+                <div className="font-mono text-xs" style={{ color: "#f5c842" }}>
+                  {gnaniSection.prismaExample}
+                </div>
+                <div className="font-mono text-[10px] mt-1" style={{ color: "#7a6a5a" }}>
+                  {gnaniSection.prismaResult}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6" style={{ border: "1px solid #3a2a20", background: "#1a1510" }}>
+              <div
+                className="font-mono text-[10px] tracking-[0.1em] mb-3"
+                style={{ color: "#e05c5c" }}
+              >
+                {gnaniSection.timbreLabel}
+              </div>
+              <div className="font-mono text-base font-bold text-cream mb-2">
+                {gnaniSection.timbreTitle}
+              </div>
+              <p className="font-mono text-xs leading-relaxed" style={{ color: "#7a6a5a" }}>
+                {gnaniSection.timbreDesc}
+              </p>
+              <div
+                className="mt-4 p-3"
+                style={{ background: "#0f0d0a", border: "1px solid #2a2018" }}
+              >
+                <div className="font-mono text-[9px] mb-1" style={{ color: "#6b6055" }}>
+                  EXAMPLE RESPONSE
+                </div>
+                <div className="font-mono text-xs leading-relaxed" style={{ color: "#f5c842" }}>
+                  {gnaniSection.timbreExample}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+
+        <p className="mt-6 text-center font-mono text-[10px]" style={{ color: "#4a3a2a" }}>
+          {gnaniSection.evonNote}
+        </p>
+      </section>
+
       <TaskWalkthrough />
       <Architecture />
 
@@ -380,25 +461,25 @@ export default function LandingPageV2() {
       </div>
 
       {/* ── AGENTS ──────────────────────────────────────── */}
-      <section id="agents" className="mx-auto max-w-7xl px-6 pb-24">
+      <section id="our-crew" className="mx-auto max-w-7xl px-6 pb-24">
         <SectionHead
           k="MEET THE CREW"
-          t="Four familiar faces. Six demo workers."
-          s="Current office activity, read directly from the local simulation."
+          t="Five Specialists. One Smarter Store."
+          s="Each agent has a specific role, controlled ERP permissions, and one shared mission."
         />
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {crew.map((a, i) => {
-            const worker = workers.find((w) => w.name === a.n);
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+          {agentCrew.map((a, i) => {
+            const worker = workers.find((w) => w.name.toLowerCase() === a.n.toLowerCase());
             return (
               <Reveal key={a.n} delay={i * 80}>
                 <div className="pixel-panel group p-5 transition-colors hover:border-gold">
                   <div className="relative grid h-44 place-items-center rounded-sm border border-border bg-deep">
-                    <PixelCharacter def={CHAR_DEFS[a.n]} className="h-36" animate />
+                    <PixelCharacter def={CHAR_DEFS[a.charKey]} className="h-36" animate />
                     <span className="absolute left-2 top-2 font-pixel text-[7px] text-muted-foreground opacity-60">
-                      SEAT {a.seat}
+                      AGENT {a.seat}
                     </span>
                     <span className="absolute right-2 top-2 rounded-sm border border-border bg-panel px-1.5 py-0.5 text-[9px] text-cream">
-                      {worker?.status ?? "unavailable"}
+                      {worker?.status ?? a.status}
                     </span>
                   </div>
                   <div className="mt-4 flex items-center justify-between">
@@ -407,40 +488,29 @@ export default function LandingPageV2() {
                       {worker?.seated ? "At desk" : "Away"}
                     </span>
                   </div>
-                  <div className="mt-1 text-xs text-gold">{worker?.role}</div>
+                  <div className="mt-1 text-xs text-gold">{a.role}</div>
                   <div className="mt-4 flex items-center gap-2 border-t border-dashed border-border pt-3 text-xs text-muted-foreground">
                     <span
                       className={`h-2 w-2 shrink-0 ${worker?.status === "working" ? "bg-mint" : worker?.status === "idle" ? "bg-gold" : "bg-muted-foreground"}`}
                     />
-                    {worker?.activity}
+                    {worker?.activity ?? a.status}
                   </div>
                 </div>
               </Reveal>
             );
           })}
         </div>
-
-        <Reveal className="mt-5">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border border-dashed border-border px-5 py-4 text-xs text-muted-foreground">
-            <span className="font-pixel text-[8px] text-gold">ALSO IN THE OFFICE</span>
-            {workers.slice(4).map((w) => (
-              <span key={w.name}>
-                {w.name} · {w.role} · {w.status}
-              </span>
-            ))}
-          </div>
-        </Reveal>
       </section>
 
       {/* ── HOW IT WORKS ────────────────────────────────── */}
       <section id="how-it-works" className="mx-auto max-w-7xl px-6 pb-24">
         <SectionHead
           k="HOW IT WORKS"
-          t="From a message to finished work"
-          s="The intended task journey, illustrated in the deterministic walkthrough above."
+          t="From a spoken command to finished work"
+          s="The voice-first task journey your shopkeeper experiences every time."
         />
         <div className="grid gap-5 md:grid-cols-4">
-          {steps.map((s, i) => (
+          {howItWorksSteps.map((s, i) => (
             <Reveal key={s.t} delay={i * 80}>
               <div className="pixel-panel relative h-full p-7">
                 <div className="flex items-center gap-3">
@@ -459,7 +529,7 @@ export default function LandingPageV2() {
         </div>
       </section>
 
-      {/* ── VOICE ───────────────────────────────────────── */}
+      {/* ── VOICE BANNER ────────────────────────────────── */}
       <section id="voice" className="mx-auto max-w-7xl px-6 pb-24">
         <Reveal>
           <div className="pixel-panel grid items-center gap-8 border-crimson p-8 md:grid-cols-[auto_1fr_auto] md:p-12">
@@ -467,13 +537,14 @@ export default function LandingPageV2() {
               <Mic className="h-7 w-7 text-cream" />
             </span>
             <div>
-              <p className="font-pixel text-[9px] tracking-[0.2em] text-crimson">VOICE</p>
+              <p className="font-pixel text-[9px] tracking-[0.2em] text-crimson">
+                {voiceBanner.label}
+              </p>
               <h2 className="mt-3 text-2xl font-bold text-cream sm:text-3xl">
-                Talk to the main agent.
+                {voiceBanner.heading}
               </h2>
               <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                Voice is part of the product concept. Speak a task naturally and your agents spring
-                into action.
+                {voiceBanner.sub}
               </p>
             </div>
             <div className="flex h-12 items-end gap-1" aria-hidden>
@@ -493,24 +564,24 @@ export default function LandingPageV2() {
       <section id="cta" className="mx-auto max-w-3xl px-6 pb-28 pt-4 text-center">
         <Reveal>
           <div className="mb-8 flex justify-center gap-3">
-            {crew.map((a) => (
+            {ctaCrew.map((a) => (
               <span
                 key={a.n}
                 className="grid h-16 w-16 place-items-center overflow-hidden rounded-sm border-2 border-border bg-deep"
               >
-                <PixelCharacter def={CHAR_DEFS[a.n]} className="h-[58px]" animate />
+                <PixelCharacter def={CHAR_DEFS[a.charKey]} className="h-[58px]" animate />
               </span>
             ))}
           </div>
           <h2 className="font-pixel text-2xl leading-relaxed text-gold glow-gold sm:text-[2rem]">
-            BUILD TOGETHER
+            {brand.ctaBuild}
           </h2>
           <p className="mx-auto mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground">
-            Explore the office, follow the sample handoffs, and inspect the result.
+            {brand.ctaSub}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Btn primary href="/app">
-              <Rocket className="h-4 w-4" /> Enter Agent Town
+              <Rocket className="h-4 w-4" /> {brand.ctaEnter}
             </Btn>
             <a
               href="https://github.com"
@@ -524,12 +595,25 @@ export default function LandingPageV2() {
         </Reveal>
       </section>
 
+      {/* ── GNANI ATTRIBUTION ───────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-6 pb-12">
+        <Reveal>
+          <div className="flex flex-wrap items-center justify-center gap-6 border border-dashed border-border px-6 py-5 text-center">
+            <span className="font-pixel text-[9px] text-gold">{gnaniAttribution.brand}</span>
+            <span className="text-xs text-muted-foreground">{gnaniAttribution.models}</span>
+            <span className="text-[10px] text-muted-foreground opacity-60">
+              {gnaniAttribution.note}
+            </span>
+          </div>
+        </Reveal>
+      </section>
+
       {/* ── FOOTER ──────────────────────────────────────── */}
       <footer className="border-t border-border bg-deep">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-xs text-muted-foreground">
-          <span className="font-pixel text-[9px] text-gold">AGENT TOWN</span>
+          <span className="font-pixel text-[9px] text-gold">{brand.name}</span>
           <nav className="flex flex-wrap gap-5">
-            {nav.map((n) => (
+            {footerNav.map((n) => (
               <a
                 key={n}
                 href={`#${n.toLowerCase().replace(/ /g, "-")}`}
@@ -539,7 +623,7 @@ export default function LandingPageV2() {
               </a>
             ))}
           </nav>
-          <span className="opacity-60">&copy; 2026 Agent Town</span>
+          <span className="opacity-60">&copy; 2026 KiranaCrew</span>
         </div>
       </footer>
     </div>
