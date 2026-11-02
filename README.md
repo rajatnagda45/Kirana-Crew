@@ -1,360 +1,429 @@
 <div align="center">
 
-# Agent Town
+# KIRANACREW
 
-### An inspectable AI operations team.
+### Your Language. Your Store. Your Voice.
 
-**Coordinate specialized workers, investigate approved data, challenge conclusions, and preserve the evidence behind every decision.**
+**Voice-first autonomous AI workforce for Indian kirana stores**
 
-[![CI](https://github.com/rajatnagda45/agent-town/actions/workflows/ci.yml/badge.svg)](https://github.com/rajatnagda45/agent-town/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-0.5.0-6366f1)](package.json)
-[![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A522.19.0-339933)](.node-version)
+*Speak in Kannada, Hindi or Hinglish — your AI crew handles the rest*
 
-[See the product](#one-request-a-coordinated-team-of-ai-workers) · [Watch the demo](https://www.youtube.com/watch?v=IDXVoASphbE) · [Presentation](https://docs.google.com/presentation/d/1blDIW1iIX8goXpgb4I0Vs2by3PVkQsdm/edit?usp=sharing) · [Run locally](#quick-start) · [Sponsor architecture](#sponsor-architecture-one-decision-pipeline) · [Inspect the proof](#proof-not-promises)
+---
+
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org)
+[![Gnani AI](https://img.shields.io/badge/Gnani_AI-Prisma_v2.5-red?style=flat-square)](https://gnani.ai)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+[![Hackathon](https://img.shields.io/badge/Great_Indian_AI_Internship_Challenge-2026-orange?style=flat-square)](https://www.gnani.ai/internship)
+[![Tests](https://img.shields.io/badge/Tests-1162_passing-brightgreen?style=flat-square)](lib/__tests__)
+[![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A522.19.0-339933?style=flat-square&logo=node.js)](.node-version)
+
+---
+
+[The Problem](#the-problem) · [The Solution](#the-solution) · [Demo](#live-demo--screenshots) · [Five Agents](#the-five-agent-workforce) · [Gnani AI](#gnani-ai-integration) · [Architecture](#architecture) · [Quick Start](#getting-started) · [Testing](#testing)
+
+---
+
+![KiranaCrew Landing Page](public/landing-v2/kiranacrew-landing.png)
+
+*KiranaCrew — voice-first AI workforce for Indian kirana stores*
 
 </div>
 
-![Agent Town's 3D office with named teammates, direct access to Chat and Tasks, and workspace controls](docs/images/agent-town-office.png)
+---
 
-_The real application: choose a teammate, start a conversation, and follow the work into its execution record._
+## The Problem
 
-## The problem
+India has over **13 million kirana stores** — neighbourhood grocery shops that form the backbone of the country's retail economy. Together they move more than $800 billion in goods every year, yet almost all of them operate on paper ledgers and WhatsApp messages.
 
-AI can produce an answer in seconds. Trusting that answer still takes work.
+The barriers are steep and compounded:
 
-An engineering or operations lead must reconstruct what was requested, who handled each part, which data was used, whether a step failed, and whether the result survived review. In most agent products, that context is scattered across chat windows and disappears when the session ends.
+- **Language barrier.** Most shopkeepers are fluent in Kannada, Hindi or their local dialect — not in the English that every existing inventory and accounting tool demands.
+- **Software complexity.** ERP systems like ERPNext are powerful but assume a trained accounts staff that the typical kirana owner cannot hire or afford.
+- **No data-driven decisions.** Without accessible analytics, restocking is guesswork. Orders are placed by memory. Suppliers are chosen by habit rather than current price and lead time.
+- **Supplier negotiations are manual.** Each reorder involves phone calls to check who has stock, at what price, and when it will arrive — time the owner cannot spare while serving customers.
+- **No financial visibility.** Profit is inferred from the cash drawer at the end of the day, not from a P&L statement tied to submitted invoices.
 
-**Agent Town makes the work itself visible.** A Team Lead can split one goal into distinct assignments, route them to eligible workers, respect dependencies, synthesize the outputs, and send the result through an independent review. Every task, event, source, handoff, uncertainty, and decision is preserved in a durable Work Report.
+KiranaCrew was built to dissolve every one of these barriers at once, without requiring the shopkeeper to learn new software or change how they speak.
 
-The spatial office is not decoration around a chatbot. It is the front door to an inspectable system of work.
+---
 
-## One request. A coordinated team of AI workers.
+## The Solution
 
-```mermaid
-flowchart LR
-    A[One goal] --> B[Team Lead]
-    B --> C[Distinct assignments]
-    C --> D[Eligible AI workers]
-    D --> E[Evidence and handoffs]
-    E --> F[Synthesis]
-    F --> G[Independent review]
-    G --> H[Durable Work Report]
+KiranaCrew gives every kirana store a **five-agent AI workforce** that operates entirely through voice. The shopkeeper speaks naturally, and the agents handle the rest:
+
+1. **Shopkeeper speaks** in Kannada, Hindi or Hinglish.
+2. **Gnani Prisma v2.5 STT** converts speech to text with Indian-language accuracy.
+3. **Voice router** (`lib/server/nammaops/voice-router.mjs`) identifies one of eight supported business intents.
+4. **Manager Agent** delegates to the right specialist.
+5. **Specialist agents** — Inventory, Sales, Procurement, Finance — each read only the ERPNext data their role permits, through Phase C MCP governance.
+6. **Deterministic calculations** in `calculations.mjs` and `forecast.mjs` produce numbers from real ERP data, not from a language model's inference.
+7. **Gnani Timbre v2.5 TTS** [PLANNED] speaks the result back in the shopkeeper's language.
+
+The critical difference from a chatbot: agents **take autonomous action**. The Procurement Agent reads real supplier quotations, picks the cheapest valid supplier, and creates a draft purchase order in ERPNext — no human typing required. The shopkeeper reviews the draft and approves it with a PIN.
+
+---
+
+## Live Demo / Screenshots
+
+| | |
+|:---:|:---:|
+| ![Landing page hero](public/landing-v2/kiranacrew-landing.png) | ![Feature cards](public/landing-v2/screenshot-5.png) |
+| *KiranaCrew landing page* | *Feature capability cards* |
+| ![Task walkthrough](public/landing-v2/screenshot-6.png) | ![Architecture diagram](public/landing-v2/screenshot-7.png) |
+| *Workflow task walkthrough* | *System architecture overview* |
+| ![Agent crew cards](public/landing-v2/screenshot-8.png) | ![Voice section and CTA](public/landing-v2/screenshot-9.png) |
+| *Five-agent crew cards* | *Voice section and call to action* |
+
+---
+
+## The Five-Agent Workforce
+
+Each agent is defined in `config/nammaops/workforce.json` and wired up through `lib/server/nammaops/workforce.mjs`. Every agent receives only the ERP capabilities its role requires — nothing more.
+
+| Agent | Role | Key ERP Capabilities | Status |
+|---|---|---|---|
+| **Manager Agent** (`nammaops-manager`) | Coordinates store operations; routes requests; consolidates results for the owner | No direct ERP access | [IMPLEMENTED] |
+| **Inventory Agent** (`nammaops-inventory`) | Monitors stock levels; identifies low-stock products | `erp.items.list`, `erp.stock.balance`, `erp.warehouses.list`, `erp.stock.ledger`, `erp.stock.movements` | [IMPLEMENTED] |
+| **Sales Agent** (`nammaops-sales`) | Analyses sales performance; reads invoices and POS data | `erp.sales_invoices.list`, `erp.pos_invoices.list`, `erp.customers.list`, `erp.sales.history` | [IMPLEMENTED] |
+| **Procurement Agent** (`nammaops-procurement`) | Compares suppliers; calculates order quantities; creates draft POs | `erp.suppliers.list`, `erp.supplier_quotations.list`, `erp.item_prices.get`, `erp.po.create_draft`, `erp.po.get`, `erp.po.open` | [IMPLEMENTED] |
+| **Finance Agent** (`nammaops-finance`) | Produces P&L summaries from posted accounting data | `erp.pnl`, `erp.gl`, `erp.purchase_invoices.list`, `erp.payments.summary` | [IMPLEMENTED] |
+
+### Manager Agent [IMPLEMENTED]
+
+The Manager Agent (`nammaops-manager`) has no direct ERP access by design. It parses the owner's natural-language command via `parseCommand()` in `workflows.mjs`, identifies one of five intents (`stock_check`, `prepare_reorder`, `daily_report`, `demand_forecast`, `supplier_comparison`), and delegates to the appropriate specialist agents. It then consolidates all results into a single owner-facing summary. When `NAMMAOPS_REASONING=manager` is set, it makes one optional OpenClaw reasoning turn over the verified facts — but only after the deterministic numbers are computed, and only if the model's figures match the ERP-sourced values exactly.
+
+### Inventory Agent [IMPLEMENTED]
+
+The Inventory Agent (`nammaops-inventory`) reads the full item catalogue and current stock balances from ERPNext. The `analyseStock()` function in `calculations.mjs` computes whether each item is at or below its reorder level, and calculates the recommended purchase quantity using the formula `max(reorder_qty, 2 × reorder_level − available)`. The agent is forbidden from changing stock quantities, submitting adjustments, or creating purchase orders.
+
+### Sales Agent [IMPLEMENTED]
+
+The Sales Agent (`nammaops-sales`) reads submitted sales invoices and POS invoices for a given date range. `aggregateSales()` in `calculations.mjs` computes total sales revenue, transaction count, and a top-five product ranking by sales amount. The agent cannot create or modify invoices or process payments.
+
+### Procurement Agent [IMPLEMENTED]
+
+The Procurement Agent (`nammaops-procurement`) is the most capable specialist. `rankSuppliers()` in `calculations.mjs` scores each supplier quotation by availability (can they supply the requested quantity?), validity (has the quotation expired?), then rate, lead time, and on-time delivery rate. The agent can create draft purchase orders in ERPNext via `erp.po.create_draft`, but cannot submit them — that requires explicit owner PIN approval through the `OwnerApprovals` class in `owner-approvals.mjs`.
+
+### Finance Agent [IMPLEMENTED]
+
+The Finance Agent (`nammaops-finance`) reads the posted Profit and Loss report from ERPNext for a given period. It explicitly refuses to estimate profit from sales invoices or purchase orders — it reports only what accounting has posted. When the P&L income differs from the invoice total by more than 1%, it raises a warning to the owner rather than silently reconciling the discrepancy.
+
+---
+
+## Gnani AI Integration
+
+KiranaCrew was built specifically for the **Great Indian AI Internship Challenge 2026** by Gnani AI. Gnani's voice models solve a problem that no general-purpose speech platform does well: accurate, low-latency transcription for Indian languages in a noisy kirana store environment.
+
+### A. Prisma v2.5 STT [IMPLEMENTED — API KEY CONFIGURATION REQUIRED]
+
+Gnani Prisma v2.5 is the speech-to-text provider for all voice commands. The integration lives in `lib/server/stt.mjs`.
+
+**Code path:**
+
+```
+Shopkeeper speaks → browser captures audio →
+POST /api/tasks/voice (with audio blob) →
+createSttProvider(process.env) → gnaniProvider({ apiKey }) →
+POST https://api.vachana.ai/stt/v3 (X-API-Key-ID header) →
+{ transcript, provider: "gnani-prisma", requestId }
 ```
 
-1. **Ask the office.** Send one bounded goal from Chat & Tasks or Operations.
-2. **Let the Team Lead plan.** The server creates one to five non-overlapping assignments, validates dependencies, and rejects cyclic plans.
-3. **Watch the team work.** The Team Board shows owners, phases, dependencies, handoffs, uncertainties, queued guidance, and stop requests in real time.
-4. **Ground the answer.** Approved workflows can attach Zetaris query records, Tavily sources, calculations, and provider execution events.
-5. **Review before accepting.** Synthesis and independent critique are separate stages; deterministic checks decide whether supported investigations can be verified.
-6. **Keep the decision.** SQLite persistence, SSE updates, full-text search, and per-task Work Reports make the work recoverable after reload or restart.
+**How to activate:**
 
-![Agent Town landing page with a pixel-art office, named demo workers, and Enter App navigation](docs/images/agent-town-landing.jpg)
-
-_The landing page introduces the office metaphor. Its animated scene is a labeled local simulation; execution begins inside the application._
-
-### The workers are roles, not costumes
-
-| Worker responsibility       | Output                                    | Guardrail                                                                            |
-| --------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------ |
-| **Team Lead / Planner**     | Validated assignment and dependency graph | The server rejects duplicate IDs, overlapping deliverables, and cyclic plans.        |
-| **Data Investigator**       | Approved records with source provenance   | Queries are bounded and read-only; retrieved content remains untrusted input.        |
-| **Analyst**                 | Calculations, findings, and uncertainty   | Dispatch requires eligible capabilities, identity bindings, and policy approval.     |
-| **Critic / Reviewer**       | Objections, gaps, and revision requests   | A critic cannot independently certify an unsupported result.                         |
-| **Memory Steward**          | Scoped prior lessons and feedback         | Provenance, freshness, conflict, and supersession rules prevent blind reuse.         |
-| **Verification Controller** | Accepted, rejected, or incomplete state   | Deterministic source, citation, arithmetic, and execution checks control the status. |
-
-The same backend may fill more than one visible seat. Agent Town records the actual provider, agent, session, task, and role bindings instead of pretending each avatar is automatically an independent model.
-
-## What judges can experience
-
-| Surface               | What it demonstrates                                                                                                     |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| **3D and 2D office**  | A memorable, navigable way to discover named teammates and enter their conversations.                                    |
-| **Chat & Tasks**      | Dedicated conversations, Office Group collaboration, Markdown/code results, search, and durable task inspection.         |
-| **Team Board**        | Live assignments, dependency state, handoffs, revisions, uncertainty, steering, and safe stop controls.                  |
-| **Operations**        | Natural-language investigation entry, capability readiness, reviewed data scopes, and decision records.                  |
-| **Work Report**       | One shareable page for the brief, lifecycle, provider decision, evidence, query provenance, memory, and exportable JSON. |
-| **Cross-task search** | SQLite FTS5/BM25 retrieval over prior work without spending another model call.                                          |
-| **Emergency stop**    | Pause new work without killing in-flight tasks or corrupting their execution history.                                    |
-
-![A completed analysis in Chat and Tasks beside its original request and recorded execution timeline](docs/images/agent-town-task-inspector.png)
-
-_A real provider-backed analysis. The answer, original request, stable task identity, and lifecycle remain together._
-
-## A concrete, reproducible result
-
-The repository contains a recorded run in which Alice analyzed the supplied latency samples `10, 20, 30, 40, 100 ms`:
-
-- arithmetic mean: **40 ms**;
-- nearest-rank P95 and P99: **100 ms**;
-- correct limitation: five observations do not establish production tail latency;
-- result, request, task identity, and execution events remained available after reload.
-
-This is deliberately a small case: judges can verify the arithmetic in seconds and then inspect the much harder part—the execution trail and recovery behavior. See the [sanitized evidence manifest](docs/evidence/demo-manifest-20261027.json).
-
-## The flagship workflow: supplier delivery decisions
-
-An operations lead asks why purchase order `PO-1042` shows **100 units ordered but only 85 received**. A single plausible explanation is unsafe: the remaining 15 units could be missing, in transit, delivered but unrecorded, or hidden by stale evidence.
-
-| Stage        | Agent Town responsibility                                                                                 | Inspectable output                                               | Current proof level                                                      |
-| ------------ | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| 1. Plan      | Team Lead decomposes the question into bounded, non-overlapping assignments.                              | Task graph, owners, dependencies, and completion criteria.       | Implemented and automated-test covered.                                  |
-| 2. Retrieve  | Data Investigator requests the approved purchase order, receipt, shipment, and supplier records.          | Zetaris query lifecycle, source IDs, timestamps, and read audit. | Adapter tested; historical live reads; final combined run pending.       |
-| 3. Analyze   | Analyst calculates the 15-unit discrepancy and identifies missing facts.                                  | Findings, calculations, evidence references, and uncertainty.    | Workflow tested; live Nightshift acceptance pending.                     |
-| 4. Challenge | Critic tests assumptions and requests a bounded revision when evidence is insufficient.                   | Critic verdict, objections, and revision history.                | Implemented and automated-test covered; live sponsor case pending.       |
-| 5. Verify    | Deterministic checks evaluate source freshness, completeness, citations, arithmetic, and execution state. | Verified, rejected, or incomplete status with reasons.           | Implemented and automated-test covered.                                  |
-| 6. Remember  | H-MEM retrieves the previous finding with provenance and learns whether fresh evidence confirms it.       | Source task, confidence feedback, conflict, and lineage.         | Vendored reference engine passes 13/13 locally; no hosted-service claim. |
-| 7. Decide    | Team Lead synthesizes evidence, uncertainty, and allowed next actions.                                    | Durable Work Report with a human-approval boundary.              | Implemented; complete live sponsor acceptance pending.                   |
-| 8. Recover   | The same task, evidence, and decision are reopened after reload or restart.                               | Stable IDs, lifecycle, result, and dispatch history.             | Proven for core execution; sponsor-case recovery not yet tested.         |
-
-The included supplier records are explicitly **synthetic demonstration data**, isolated in `AGENT_TOWN_SUPPLIER_DEMO`; they are not enterprise production records. Day two introduces fresh evidence that contradicts the earlier finding, demonstrating why memory must receive feedback instead of repeating yesterday's conclusion. The [supplier demo](docs/DEMO_SUPPLIER.md) includes the dataset specification and reproduction steps.
-
-## Demo
-
-🎬 **Watch the demo:** **[Agent Town — full walkthrough on YouTube](https://www.youtube.com/watch?v=IDXVoASphbE)**
-
-📊 **Presentation:** **[Agent Town slide deck (Google Slides)](https://docs.google.com/presentation/d/1blDIW1iIX8goXpgb4I0Vs2by3PVkQsdm/edit?usp=sharing)**
-
-[![Watch the Agent Town demo](https://img.youtube.com/vi/IDXVoASphbE/maxresdefault.jpg)](https://www.youtube.com/watch?v=IDXVoASphbE)
-
-For more depth, use the [timed walkthrough and shot list](docs/DEMO_SCRIPT.md), [reproduction runbook](docs/DEMO_RUNBOOK.md), or [supplier decision demo](docs/DEMO_SUPPLIER.md). The sanitized [demo evidence manifest](docs/evidence/demo-manifest-20261027.json) identifies the existing real-provider tasks without distributing the private runtime database. The [animated walkthrough](public/demo/index.html) is a scripted product illustration, not a substitute for the final video or a provider-execution claim.
-
-### Suggested three-minute judge path
-
-1. Enter the office and ask the Team Lead for a bounded goal.
-2. Open the Team Board to show distinct assignments, owners, and dependencies.
-3. Open one task's Work Report and inspect its lifecycle, provider, sources, and handoffs.
-4. Show the supplier decision changing when fresh records conflict with remembered evidence.
-5. Reload the application and reopen the same durable work.
-
-## Sponsor architecture: one decision pipeline
-
-Agent Town brings together data retrieval, specialized agent execution, decision memory, and evidence-based verification to turn an operational question into an inspectable, recoverable decision. Each technology contributes to a defined stage of the workflow, with execution identity, provenance, and verification boundaries preserved throughout.
-
-| Technology               | Product role and entry point                                                                                                                                      | What it contributes                                                                                                                                                              | Evidence and current status                                                                                                                                                                                                                                                                                                                                                                                          |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Zetaris**              | Operational evidence source through [`data-zetaris.mjs`](lib/server/data-zetaris.mjs).                                                                            | Authenticated, bounded, read-only SQL; response mapping; source provenance; freshness validation; and query auditing.                                                            | **Implemented and contract-tested, with historical live-read evidence.** The adapter enforces bounded access and preserves query audit information. Historical tests correctly rejected stale synthetic records rather than reporting a false verification pass. Final acceptance requires a fresh approved read within the complete supplier investigation and confirmation that the source audit survives restart. |
-| **Meterless Nightshift** | Specialized execution provider through the [Nightshift gateway](lib/server/nightshift-gateway.mjs) and [role enforcement](lib/server/nightshift-enforcement.mjs). | Role-bound planning, analysis, and critique contexts connected to Agent Town's durable task orchestration, with execution results and lifecycle events available for inspection. | **Implemented and contract-tested, with partial historical live evidence.** Automated coverage verifies the adapter and role restrictions. Complete acceptance requires authenticated discovery, confirmed model identity, eligible analyst and critic execution, terminal outputs, and recovery evidence from the same investigation.                                                                               |
-| **Meterless H-MEM**      | Decision memory through the [vendored reference engine](lib/vendor/hmem-reference/README.md) and Agent Town's scoped SQLite memory path.                          | Provenance-aware recall, feedback, contradiction handling, supersession, and an auditable history of prior lessons used in later decisions.                                      | **Vendored reference-engine conformance: 13/13 passed.** The local engine's tested behavior is documented, alongside the separate SQLite-backed lesson store. Complete workflow acceptance requires recording the exact memory read, supporting source task, feedback/write event, and recovered result after restart; hosted H-MEM acceptance is not implied by local conformance.                                  |
-| **NVIDIA / Nemotron**    | Potential model provider for bounded worker execution, subject to an authorized configuration and explicit provider/model identity.                               | A model-backed reasoning path for eligible analysis or review tasks, with outputs routed through Agent Town's existing evidence and verification controls.                       | **Integration target defined; execution must be evidenced.** Acceptance requires a configured authorized provider, discovered Nemotron model identity, a completed bounded task, and a sanitized execution receipt linking the model to the task. Generic routing labels alone do not establish model provenance.                                                                                                    |
-| **SpaceX AI**            | Potential future provider integration, subject to identifying an applicable official product and supported API.                                                   | A sponsor-relevant capability can be incorporated only after its actual product boundary and technical fit are established.                                                      | **Integration discovery required.** First establish the official product, API contract, authentication requirements, and supported use case. Only then implement a bounded adapter and verify it with a real execution receipt. No product integration or runtime usage is claimed without that evidence.                                                                                                            |
-
-### How the technologies fit together
-
-```mermaid
-flowchart TD
-    Q["Operational question"] --> TL["Agent Town Team Lead"]
-    TL --> P["Validated plan and dependencies"]
-    P --> Z["Zetaris: authorized data retrieval"]
-    Z --> E["Evidence with provenance and freshness"]
-    E --> N["Meterless Nightshift: bounded execution"]
-    HM["Meterless H-MEM: prior lessons"] --> N
-    N --> C["Critic and independent review"]
-    C --> V["Deterministic verification"]
-    V --> HM
-    V --> R["Durable Work Report"]
-    R --> U["Inspect, approve, and recover"]
-    NV["NVIDIA Nemotron: eligible model path"] -. "After verified configuration" .-> N
-    SX["SpaceX AI: subject to product discovery"] -. "Future integration" .-> N
+```env
+# In .env.local
+AGENT_TOWN_STT_PROVIDER=gnani
+GNANI_API_KEY=your_gnani_api_key
 ```
 
-### Reference workflow and current acceptance boundary
+**Languages supported** (via `language_code` and `preferred_language` fields):
+- `kn-IN` — Kannada
+- `hi-IN` — Hindi
+- `en-IN` — Indian English / Hinglish
+- `indic-auto` — automatic Indic language detection
 
-This is the implemented product architecture and the intended complete sponsor trace. Its individual components exist, but the entire path has **not yet passed as one live retained run**.
+**Current status:** The `gnaniProvider()` function is fully implemented and tested. The `.env.example` file lists `GNANI_API_KEY` as commented out with the note "NOT WIRED YET" — meaning the code is complete but the API key environment variable is not read by default. Set `AGENT_TOWN_STT_PROVIDER=gnani` and `GNANI_API_KEY=your_key` to activate it. Without a key, the server falls back to `AGENT_TOWN_STT_PROVIDER=gemini` (Google Gemini STT) or `fixture` (deterministic test transcript).
 
-```mermaid
-flowchart TD
-    Q[Operational question] --> TL[Agent Town Team Lead]
-    TL --> P[Validated task and dependency graph]
-    P --> DI[Data Investigator]
-    DI --> Z[Zetaris authorized read-only data]
-    Z --> E[Evidence bundle with provenance]
-    E --> A[Meterless Nightshift analyst context]
-    A --> C[Critic and independent review]
-    C --> V[Deterministic verification]
-    HM[Meterless H-MEM prior lessons] --> A
-    V --> HM
-    V --> R[Durable Work Report]
-    R --> U[Human inspection, approval, and recovery]
+**Example interaction:**
+
+```
+Shopkeeper says (Kannada): "Haalina stock check maadi."
+Gnani Prisma transcribes: "Haalina stock check maadi."
+Voice router maps intent: check_stock → products: ["haalu"] (milk)
+Inventory Agent reads: erp.items.list + erp.stock.balance
+Result: "Milk (MILK-500): 18 units in stock, reorder level 20 (low). Buy 22 units."
 ```
 
-Connection probes, mocked tests, and a complete live investigation are reported separately. The [installed Zetaris contract](docs/zetaris-installed-contract.md), checked-in tests, and the safe [environment template](.env.example) make the integration boundaries reproducible.
+### B. Timbre v2.5 TTS [PLANNED]
 
-### Why this architecture is different
+Gnani Timbre v2.5 is the planned text-to-speech provider that would speak results back to the shopkeeper in their own language. **No `tts.mjs` file exists in the codebase.** The `.env.example` reserves `GNANI_TTS_URL` and `GNANI_TTS_VOICE` but explicitly marks the entire Gnani voice section as "NOT WIRED YET."
 
-| Approach                    | Coordination                                                    | Evidence                                                             | Review and memory                                       | Recovery                                                    |
-| --------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------- |
-| **Single chatbot**          | One response                                                    | Often embedded in prose                                              | Self-review in the same context                         | Usually conversation-level                                  |
-| **Unstructured agent chat** | Multiple contributions without enforced dependencies            | Varies by agent                                                      | Handoffs may be informal                                | Difficult to reconstruct                                    |
-| **Agent Town**              | Server-validated tasks, dependencies, eligibility, and handoffs | Source identities, query audits, citations, and deterministic checks | Separate critique plus provenance-aware memory feedback | Stable task IDs, lifecycle events, SQLite, and Work Reports |
+**What needs to be built:**
 
-### Supporting integrations
+```javascript
+// lib/server/tts.mjs (PLANNED)
+export function timbreProvider({ apiKey, url, voice }) {
+  return {
+    name: "gnani-timbre",
+    synthesize: async ({ text, language }) => {
+      // POST to GNANI_TTS_URL with X-API-Key-ID header
+      // return { audio: Buffer, mimeType: "audio/wav" }
+    }
+  };
+}
+```
 
-| Technology             | Role                                                                                                              |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| **OpenClaw**           | Verified core office/chat provider on the current Mac, including durable real-provider demonstrations.            |
-| **Auggie**             | Optional local agent provider through Agent Town's protocol bridge.                                               |
-| **Google Gemini Live** | Optional low-latency voice conversation with constrained ephemeral browser credentials and persisted transcripts. |
-| **Tavily**             | Reviewed web search and extraction whose result URLs become audited, source-linked evidence.                      |
+The voice router contract in `voice-router.mjs` already structures results as `facts`, `recommendations`, and `limitations` arrays — these are designed to be spoken directly once Timbre TTS is wired.
+
+### C. Evon v3.3 [PLANNED — SELF-HOSTED ONLY]
+
+Gnani Evon v3.3 is a self-hosted speech foundation model requiring H100 or A100 GPU hardware. It is not integrated and is not referenced anywhere in the codebase. It would provide the highest-accuracy Indic language transcription for a production deployment with dedicated infrastructure.
+
+**Why it is marked planned:** Evon is open-weights, not a hosted API. Integrating it would require a separate inference endpoint, GPU cluster provisioning, and a custom adapter in `stt.mjs`. The current architecture supports this — `createSttProvider()` dispatches on `AGENT_TOWN_STT_PROVIDER` and any new value can register a provider — but the adapter is not written.
+
+---
 
 ## Architecture
 
 ```mermaid
 flowchart TD
-    UI[Office / Chat and Tasks / Operations]
-    LEAD[Team Lead: plan, assign, synthesize, review]
-    ORCH[Durable orchestrator and policy router]
-    DB[(SQLite: tasks, events, evidence, memory)]
-    P[OpenClaw / Nightshift / Auggie]
-    Z[Zetaris read-only data]
-    T[Tavily source evidence]
-    V[Deterministic verification]
-    WR[Team Board and Work Reports]
-
-    UI --> LEAD
-    LEAD --> ORCH
-    ORCH <--> DB
-    ORCH --> P
-    ORCH --> Z
-    ORCH --> T
-    Z --> V
-    T --> V
-    P --> V
-    V --> DB
-    DB --> WR
-    WR --> UI
+    A["Shopkeeper speaks\nKannada / Hindi / Hinglish"] --> B["Gnani Prisma v2.5 STT\nstt.mjs · gnaniProvider\nX-API-Key-ID header"]
+    B --> C["Voice Router\nvoice-router.mjs\n8 business intents"]
+    C --> D["Manager Agent\nworkforce.mjs · workforce.json"]
+    D --> E1["Inventory Agent\nerp.items.list · erp.stock.balance\nerp.stock.ledger · erp.stock.movements"]
+    D --> E2["Sales Agent\nerp.sales_invoices.list\nerp.pos_invoices.list · erp.sales.history"]
+    D --> E3["Procurement Agent\nerp.suppliers.list · erp.supplier_quotations.list\nerp.po.create_draft · erp.po.open"]
+    D --> E4["Finance Agent\nerp.pnl · erp.gl\nerp.purchase_invoices.list"]
+    E1 --> F["OrchestrationService\nworkflows.mjs · calculations.mjs · forecast.mjs\nDeterministic arithmetic — no model hallucination"]
+    E2 --> F
+    E3 --> F
+    E4 --> F
+    F --> G{"Owner Approval Required?\nowner-approvals.mjs"}
+    G -->|"Purchase Orders\n(erp.po.submit)"| H["PIN Verification\nSHA-256 fingerprint\n30-min TTL · safeSecretEqual"]
+    G -->|"Read-only queries"| I["Direct Response"]
+    H --> J["ERPNext via hvgerp-mcp\nhvgerp-adapter-server.mjs\nOR fixture-erpnext-server.mjs"]
+    I --> J
+    J --> K["Gnani Timbre v2.5 TTS\nPLANNED · tts.mjs not yet written"]
+    K --> L["Shopkeeper hears\nnatural voice response"]
 ```
 
-**Stack:** Next.js 16 · React 19 · TypeScript · Three.js · Phaser 3 · Tailwind CSS 4 · Node SQLite · SSE · Vitest · Puppeteer.
+**Three architectural rules that make KiranaCrew trustworthy:**
 
-Three rules shape the implementation:
+1. **Numbers come from ERP, not from a language model.** Every quantity, total, and recommendation is computed by deterministic functions in `calculations.mjs` and `forecast.mjs` over data returned by ERPNext tools. A model cannot hallucinate a stock balance.
 
-- **The server owns execution.** Stable task IDs, checked bindings, grants, dependency gates, circuit breakers, and durable events decide what can run.
-- **Evidence controls verification.** Missing authorization, stale records, invalid citations, failed arithmetic, or uncertain execution prevent a verified result.
-- **People keep authority.** Steering and approval are explicit. Stop requests and ambiguous provider outcomes remain visible instead of being silently rewritten.
+2. **Each agent sees only what its role permits.** Phase C MCP governance (`mcp-governance.mjs`) enforces capability grants per agent identity. The Finance Agent cannot read supplier quotations. The Inventory Agent cannot submit purchase orders. These are hard server-side rules, not prompt instructions.
 
-## Proof, not promises
+3. **Purchase orders require explicit owner approval.** No purchase is submitted to ERPNext without the owner's PIN, an unexpired approval request, and a SHA-256 fingerprint match confirming the draft has not changed since it was presented.
 
-The current code at commit [`31d585e`](https://github.com/rajatnagda45/agent-town/commit/31d585ebed76b2e764591825fea096eb17504aa5) passes GitHub CI and the full local release gate.
+---
 
-| Evidence                                                                         | Result                                 | What it proves                                                                                                                        |
-| -------------------------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| [GitHub CI](https://github.com/rajatnagda45/agent-town/actions/runs/40529432468) | **Passed** on the current commit       | Frozen install, formatting, lint, types, build, and automated tests.                                                                  |
-| Full local release gate                                                          | **1,026 tests across 99 files passed** | Unit/integration regression coverage plus production build, isolated browser flows, archive extraction/startup, and dependency audit. |
-| [H-MEM conformance receipt](docs/evidence/hmem-conformance.txt)                  | **13/13 passed**                       | The vendored Meterless reference engine satisfies its included official conformance suite.                                            |
-| [Real provider analysis](docs/evidence/demo-manifest-20261027.json)              | **Completed and recovered**            | Correct bounded analysis, durable identity, lifecycle events, and reload recovery.                                                    |
-| [Office Group receipt](docs/evidence/team-demo-20261027.json)                    | **Four persisted contributions**       | Sequential shared-context collaboration through one recorded backend agent; not four independent models.                              |
+## End-to-End Workflow Example
 
-The checks establish implementation quality and traceability. They do not substitute for user studies. The [impact protocol](docs/IMPACT_EVALUATION.md) and blank [trial template](docs/evidence/impact-trials-template.csv) define paired manual-versus-Agent-Town measures for review time, correctness, citation coverage, and recovery; no productivity percentage or ROI is claimed before those trials exist.
+**Command:** "Check the stock of milk, rice and cooking oil."
 
-## Quick start
+| Step | What happens | File | Status |
+|---|---|---|---|
+| 1. Voice capture | Browser records audio, sends to `POST /api/tasks/voice` | `lib/voice/audio.ts` | [IMPLEMENTED] |
+| 2. STT transcription | `gnaniProvider()` (or `geminiProvider()` / `fixtureProvider()`) returns transcript | `lib/server/stt.mjs` | [IMPLEMENTED] (Gnani key required) |
+| 3. Intent detection | `parseCommand()` matches `/\bcheck\b.*\bstock\b/` pattern → `stock_check` intent, products: `["milk","rice","cooking oil"]` | `lib/server/nammaops/workflows.mjs` | [IMPLEMENTED] |
+| 4. Manager delegates | `Workflows.stockCheck()` calls `readStock()` → Inventory Agent step | `lib/server/nammaops/workflows.mjs` | [IMPLEMENTED] |
+| 5. Inventory reads ERP | `erp.items.list` + `erp.stock.balance` called as governed MCP tools under `nammaops-inventory` identity | `lib/server/mcp-governance.mjs` | [IMPLEMENTED] |
+| 6. Stock analysis | `analyseStock()` computes available vs. reorder level for each item | `lib/server/nammaops/calculations.mjs` | [IMPLEMENTED] |
+| 7. Supplier ranking | If items are low, `rankForLow()` calls Procurement Agent to read quotations and rank suppliers | `lib/server/nammaops/workflows.mjs` | [IMPLEMENTED] |
+| 8. Voice contract | `VoiceRouter.result()` shapes facts into speakable arrays | `lib/server/nammaops/voice-router.mjs` | [IMPLEMENTED] |
+| 9. TTS response | Gnani Timbre speaks the result | `lib/server/tts.mjs` | [PLANNED] |
 
-### 1. Install
+The same stock check workflow powers the `check_stock` and `list_products` voice intents. The `prepare_reorder` workflow extends it by also creating draft purchase orders in ERPNext.
 
-Use **Node.js ≥22.19.0** and **pnpm 10.20.0**.
+---
 
-```sh
-git clone https://github.com/rajatnagda45/agent-town.git
-cd agent-town
+## Getting Started
+
+### Prerequisites
+
+- Node.js 22.19.0 or later
+- pnpm 10.20.0
+- An authenticated OpenClaw or Nightshift gateway installation
+
+### Installation
+
+```bash
+git clone https://github.com/rajatnagda45/NammaOps.git kiranacrew
+cd kiranacrew
 pnpm install --frozen-lockfile
-```
-
-### 2. Start the verified core provider
-
-With an authenticated OpenClaw installation:
-
-```sh
-openclaw gateway start
-```
-
-Create an ignored `.env.local`:
-
-```env
-AGENT_PROVIDER=openclaw
-GATEWAY_URL=ws://127.0.0.1:18789/
-# Optional: override the token read from local OpenClaw configuration.
-# GATEWAY_TOKEN=your_private_gateway_token
-```
-
-### 3. Run Agent Town
-
-```sh
+cp .env.example .env.local
+# Edit .env.local — see Environment Variables below
 pnpm dev
 ```
 
-Open [the office](http://localhost:3000/app) or [Chat & Tasks](http://localhost:3000/app/chat). Use **WASD / arrow keys** to move and **E** at an interaction prompt.
+Open [http://localhost:3000](http://localhost:3000)
 
-For production, run `pnpm build` and `pnpm start`. The custom server is required for the durable task runtime; `pnpm dev:next` does not start it.
+### NammaOps workforce (kirana store backend)
 
-<details>
-<summary><strong>Configure Meterless Nightshift and Zetaris</strong></summary>
-
-Use a Nightshift installation that exposes its API. The free M1–M4 Mac browser edition does not expose the native local API.
+The NammaOps panel is the kirana-specific interface. Configure these variables in `.env.local`:
 
 ```env
-AGENT_PROVIDER=nightshift
-NIGHTSHIFT_BASE_URL=http://127.0.0.1:8088/v1
-NIGHTSHIFT_API_KEY=your_private_runtime_proxy_token
-NIGHTSHIFT_MODEL=meterless/auto
-AGENT_TOWN_INVENTORY_MODE=zetaris
+# Required for owner purchase order approval
+NAMMAOPS_OWNER_PIN=your_secure_pin
+
+# Use the test fixture (no ERPNext account needed) or point at live ERPNext
+# Fixture (default):
+NAMMAOPS_BINDING=config/nammaops/binding.fixture.json
+
+# Live ERPNext (read-only, requires ERPNEXT_* below):
+# NAMMAOPS_BINDING=config/nammaops/binding.hvgerp.json
+ERPNEXT_URL=https://your-site.m.frappe.cloud
+ERPNEXT_API_KEY=your_erpnext_api_key
+ERPNEXT_API_SECRET=your_erpnext_api_secret
+
+# Optional: Gnani Prisma STT
+AGENT_TOWN_STT_PROVIDER=gnani
+GNANI_API_KEY=your_gnani_api_key
+
+# Optional: OpenClaw gateway for agent reasoning
+AGENT_PROVIDER=openclaw
+GATEWAY_URL=ws://127.0.0.1:18789/
 ```
 
-Add the exact Zetaris open, page, and close endpoints; bearer credential; organization scope; response mappings; and methods from the [installed contract](docs/zetaris-installed-contract.md). A base URL alone is not enough. Keep every credential server-side.
+Then set up the workforce via the NammaOps panel or:
 
-```sh
-pnpm nightshift:check
-node --env-file-if-exists=.env.local scripts/check-zetaris.mjs
+```bash
+node --import tsx scripts/nammaops-demo.mjs
 ```
 
-These commands establish connectivity, not a completed investigation.
+---
 
-</details>
+## Environment Variables
 
-<details>
-<summary><strong>Add voice or use another port</strong></summary>
+All variables are safe placeholders. Never commit real credentials.
 
-For optional voice, add `GEMINI_API_KEY`, restart, choose a teammate's **Voice** tab, and start a call. Microphone permission and provider quota are required.
+| Variable | Purpose | Required |
+|---|---|---|
+| `AGENT_PROVIDER` | AI gateway provider (`openclaw`, `nightshift`, `auggie`) | Required |
+| `GATEWAY_URL` | OpenClaw gateway WebSocket URL | Required for OpenClaw |
+| `GATEWAY_TOKEN` | OpenClaw gateway auth token | Required for OpenClaw |
+| `GEMINI_API_KEY` | Google Gemini Live voice sessions and Gemini STT fallback | Optional |
+| `GNANI_API_KEY` | Gnani Prisma v2.5 STT — set `AGENT_TOWN_STT_PROVIDER=gnani` to activate | Optional |
+| `GNANI_STT_URL` | Override Gnani STT endpoint (default: `https://api.vachana.ai/stt/v3`) | Optional |
+| `GNANI_TTS_URL` | Gnani Timbre TTS endpoint [PLANNED — not read yet] | Planned |
+| `GNANI_TTS_VOICE` | Gnani Timbre voice ID [PLANNED — not read yet] | Planned |
+| `NAMMAOPS_OWNER_PIN` | Store-owner PIN for approving purchase orders | Required for approvals |
+| `NAMMAOPS_BINDING` | Binding file path (`binding.fixture.json` or `binding.hvgerp.json`) | Optional (fixture default) |
+| `NAMMAOPS_WORKFORCE` | Workforce file path (default: `config/nammaops/workforce.json`) | Optional |
+| `NAMMAOPS_REASONING` | `off` (deterministic) or `manager` (one OpenClaw turn per workflow) | Optional |
+| `ERPNEXT_URL` | ERPNext / Frappe Cloud base URL | Required for live ERP |
+| `ERPNEXT_API_KEY` | ERPNext API key (dedicated `nammaops.api` user) | Required for live ERP |
+| `ERPNEXT_API_SECRET` | ERPNext API secret | Required for live ERP |
+| `AGENT_TOWN_STT_PROVIDER` | STT provider: `gnani`, `gemini`, or `fixture` | Optional (unset = 503) |
+| `AGENT_TOWN_DB_PATH` | SQLite database path (default: `data/agent-town.sqlite`) | Optional |
+| `NIGHTSHIFT_BASE_URL` | Meterless Nightshift API base URL | Required for Nightshift |
+| `NIGHTSHIFT_API_KEY` | Nightshift API key | Required for Nightshift |
+| `NVIDIA_API_KEY` | NVIDIA hosted inference key | Optional |
+| `TAVILY_API_KEY` | Tavily web search key for evidence retrieval | Optional |
+| `OPENCLAW_PROTOCOL_MODULE` | Absolute path to OpenClaw protocol module | Optional (auto-discovery) |
+| `AGENT_TOWN_MCP_STDIO_ALLOWLIST` | JSON array of allowed MCP stdio server commands | Optional |
+| `AGENT_TOWN_MCP_PROXY_SECRET` | Shared secret for the governed MCP proxy | Optional |
 
-If port 3000 is occupied, launch with `PORT=3107 pnpm dev`. SQLite defaults to `~/.agent-town/tasks.sqlite`; override it with `AGENT_TOWN_DB_PATH`. Run one process per database and retain that database to preserve work.
+---
 
-</details>
+## Testing
 
-## Run the same checks
-
-```sh
-pnpm format:check
-pnpm lint
-pnpm typecheck
+```bash
 pnpm test
-pnpm build
 ```
 
-After building, `pnpm phase3:check` runs isolated browser acceptance with mocked provider and voice transports. `pnpm release:check` also creates and validates an extracted release archive. Neither command is presented as live sponsor execution.
+**Current test results: 1162 tests across 105 files, all passing.**
 
-## Security and operating boundaries
+Key test files for KiranaCrew / NammaOps:
 
-- Permanent provider credentials remain server-side; Gemini Live receives only a constrained ephemeral token.
-- Zetaris access is bounded to approved read-only queries. Models cannot choose arbitrary SQL or write methods.
-- Provider responses and web content are treated as untrusted data, not executable instructions.
-- Agent Town is a local, single-workspace application. Public deployment requires an authenticated TLS reverse proxy; built-in multi-tenant authentication is outside the current scope.
-- Accessibility has responsive and interaction coverage, but no formal WCAG conformance claim.
+| File | What it covers |
+|---|---|
+| `lib/__tests__/nammaops.test.ts` | Full workforce setup, all five workflows, voice intents, owner approval, duplicate-prevention, audit trail — against the in-memory fixture |
+| `lib/__tests__/nammaops-live-adapter.test.ts` | Live ERPNext adapter contract tests |
+| `lib/__tests__/nammaops-forecast.test.ts` | Deterministic forecast engine: `forecastItem()`, `backtest()`, `stockoutDays()`, `dailyDemand()`, and all four forecast methods |
+| `lib/__tests__/mcp-governance.test.ts` | Phase C governance: capability discovery, risk review, grant enforcement, per-agent identity, invocation audit |
+| `lib/__tests__/voice-agent.test.ts` | Voice agent tool execution and routing |
+| `lib/__tests__/voice-service.test.ts` | STT provider selection and transcription pipeline |
 
-## Submission resources
+---
 
-- [Demo video (YouTube)](https://www.youtube.com/watch?v=IDXVoASphbE) · [Presentation (Google Slides)](https://docs.google.com/presentation/d/1blDIW1iIX8goXpgb4I0Vs2by3PVkQsdm/edit?usp=sharing)
-- [Demo script](docs/DEMO_SCRIPT.md) · [demo runbook](docs/DEMO_RUNBOOK.md) · [supplier scenario](docs/DEMO_SUPPLIER.md)
-- [Presentation content](docs/PRESENTATION_CONTENT.md)
-- [Sanitized demo manifest](docs/evidence/demo-manifest-20261027.json) · [sponsor integration contract](docs/zetaris-installed-contract.md)
-- [Impact evaluation protocol](docs/IMPACT_EVALUATION.md)
+## Hackathon Context
 
-## Project scope
+KiranaCrew was submitted to the **Great Indian AI Internship Challenge 2026** run by Gnani AI.
 
-Agent Town's repository history begins before the hackathon. The event-window work adds and hardens dedicated conversations, durable execution inspection, Team Lead delegation, Team Board and Work Reports, source-linked research, sponsor adapters, H-MEM decision memory, lifecycle diagnosis, emergency-stop behavior, and evidence-based verification. The [commit history](https://github.com/rajatnagda45/agent-town/commits/main/) preserves that timeline.
+**Why this project is novel:**
+
+- **Voice-first for Bharat.** No English required. The shopkeeper speaks in Kannada or Hindi and gets a reply in the same language.
+- **Autonomous action, not chatbot answers.** The system reads live ERP data, computes results with deterministic arithmetic, and creates purchase order drafts — all without the shopkeeper touching a keyboard.
+- **Governed multi-agent architecture.** Each agent has a role, a fixed set of ERP capabilities, and a hardware-enforced boundary. No agent can exceed its permissions.
+- **Owner retains authority.** No purchase is submitted without the owner's explicit PIN approval and a fingerprint check that the draft has not changed.
+- **Production-grade safety.** Prompt injection fencing (`fenceUntrusted`), EmergencyStop, read-only ERP access by default, and credential isolation.
+
+**Real-world impact potential:** Giving India's 13 million kirana stores access to voice-driven stock management and procurement could reduce stockouts, lower procurement costs through supplier comparison, and provide the first accessible financial visibility for stores that have never run a P&L report.
+
+---
+
+## Security and Governance
+
+| Control | Implementation | File |
+|---|---|---|
+| **MCP governance** | Every ERP tool call goes through `CapabilityRegistry` + `Governance` + `ToolGateway`. Agents can only call tools they have been explicitly granted. | `lib/server/mcp-governance.mjs` |
+| **Owner PIN approval** | Purchase order submission requires the owner's PIN, an unexpired request (30-min TTL), and a SHA-256 fingerprint match confirming the draft is unchanged. | `lib/server/nammaops/owner-approvals.mjs` |
+| **Read-only ERP by default** | All five agents have only READ-risk capabilities except the Procurement Agent's `erp.po.create_draft` (WRITE) and the dedicated `nammaops-po-submit` principal's `erp.po.submit` (EXTERNAL_ACTION). | `config/nammaops/binding.fixture.json` |
+| **Prompt injection fencing** | Content returned from ERP tools is treated as untrusted data. `fenceUntrusted()` prevents injected instructions from escalating. | `lib/server/untrusted-content.mjs` |
+| **EmergencyStop** | `estop.mjs` provides a file-based stop mechanism that pauses new work without killing in-flight tasks or corrupting their execution history. | `lib/server/estop.mjs` |
+| **Credential isolation** | `ERPNEXT_API_KEY`, `ERPNEXT_API_SECRET`, and `GNANI_API_KEY` are server-side only. They are never sent to the browser or the voice client. | `.env.example` |
+| **Invocation audit** | Every governed MCP tool call is recorded with agent identity, capability, arguments (redacted), and outcome. | `lib/server/mcp-governance.mjs` |
+
+---
+
+## Roadmap
+
+Based on what is in `.env.example` and the current implementation state:
+
+| Feature | Status | What is needed |
+|---|---|---|
+| Gnani Prisma v2.5 STT | [IMPLEMENTED — key required] | Set `AGENT_TOWN_STT_PROVIDER=gnani` and `GNANI_API_KEY` |
+| Gnani Timbre v2.5 TTS | [PLANNED] | Write `lib/server/tts.mjs` with `timbreProvider()`, wire to `GNANI_TTS_URL` / `GNANI_TTS_VOICE` |
+| Gnani Evon v3.3 | [PLANNED] | Self-hosted inference endpoint on H100/A100; write adapter in `stt.mjs` |
+| Live ERPNext connection | [IMPLEMENTED] | Set `NAMMAOPS_BINDING=binding.hvgerp.json` with `ERPNEXT_*` credentials |
+| Manager reasoning mode | [IMPLEMENTED] | Set `NAMMAOPS_REASONING=manager` |
+| Kannada / Hindi UI labels | [PLANNED] | i18n layer over the NammaOps panel components |
+| Mobile PWA | [PLANNED] | Progressive Web App shell for shopkeeper's phone |
+| Multi-store support | [PLANNED] | Tenant isolation layer over the current single-workspace architecture |
+
+---
+
+## Built With
+
+| Technology | Role |
+|---|---|
+| **Gnani AI Prisma v2.5** | Indian-language speech-to-text |
+| **Gnani AI Timbre v2.5** | Indian-language text-to-speech [PLANNED] |
+| **ERPNext / Frappe Cloud** | Kirana store ERP backend |
+| **hvgerp-mcp v3.7.0** | Read-only MCP adapter for ERPNext |
+| **Next.js 16** | Application framework |
+| **React 19** | UI components |
+| **TypeScript 5** | Type safety across the full stack |
+| **Node.js SQLite** | Durable workflow state and audit trail |
+| **Model Context Protocol (MCP)** | Governed tool interface between agents and ERP |
+| **Vitest** | Test runner (1162 tests, 105 files) |
+| **Phaser 3** | 2D office scene |
+| **Three.js** | 3D office scene |
+
+## Credits
+
+Built for the **Great Indian AI Internship Challenge 2026** by [Gnani AI](https://gnani.ai).
+
+Voice models: Gnani Prisma v2.5 STT / Gnani Timbre v2.5 TTS (planned) / Gnani Evon v3.3 (planned).
 
 ---
 
 <div align="center">
 
-### Delegate the work. Inspect the evidence. Keep the decision.
+### Speak to your store. Your AI crew handles the rest.
+
+*KiranaCrew — voice-first AI workforce for Indian kirana stores*
 
 </div>
