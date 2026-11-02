@@ -1,6 +1,6 @@
-# Agent Town — Codebase Map
+# KiranaCrew — Codebase Map
 
-> **Note (2026-11-02):** The public product brand for the kirana store workforce is now **KiranaCrew**. This file documents the underlying Agent Town codebase architecture. For KiranaCrew-specific documentation, see [AGENT_WORKFORCE.md](AGENT_WORKFORCE.md), [GNANI_INTEGRATION.md](GNANI_INTEGRATION.md), [VOICE_WORKFLOW.md](VOICE_WORKFLOW.md), and [DEMO_WALKTHROUGH.md](DEMO_WALKTHROUGH.md).
+> **Note (2026-11-02):** The public product brand for the kirana store workforce is now **KiranaCrew**. This file documents the underlying KiranaCrew codebase architecture. For KiranaCrew-specific documentation, see [AGENT_WORKFORCE.md](AGENT_WORKFORCE.md), [GNANI_INTEGRATION.md](GNANI_INTEGRATION.md), [VOICE_WORKFLOW.md](VOICE_WORKFLOW.md), and [DEMO_WALKTHROUGH.md](DEMO_WALKTHROUGH.md).
 
 A navigation guide for engineers. Every subsystem is described with its responsibilities, key exports, dependencies, and communication with the rest of the system.
 
@@ -9,18 +9,18 @@ A navigation guide for engineers. Every subsystem is described with its responsi
 ## Top-Level Layout
 
 ```
-agent-town/
+kiranacrew/
 ├── app/              Next.js App Router (pages, layouts, API route handlers)
 ├── components/       React components (game, HUD, chat, panels, UI)
 ├── lib/              All non-UI logic: server runtime, gateway, voice, persistence, types
 │   ├── server/       Server-only modules (.mjs) — the full backend runtime
 │   ├── voice/        Voice client + provider (browser + server)
 │   ├── hooks/        React hooks (useGateway, useSession, useTaskRouter)
-│   ├── mcp/          MCP server entry (agent-town-mcp.mjs)
+│   ├── mcp/          MCP server entry (kiranacrew-mcp.mjs)
 │   ├── vendor/       Vendored library (hmem-reference)
 │   └── __tests__/    All test files
 ├── types/            Shared TypeScript types (game.ts)
-├── bin/              CLI entry point (agent-town.mjs)
+├── bin/              CLI entry point (kiranacrew.mjs)
 ├── scripts/          Build, check, and release scripts
 ├── docs/             Documentation
 ├── public/           Static assets (audio worklets, sprites, maps, sounds)
@@ -111,7 +111,7 @@ agent-town/
 | Property                   | Detail                                                                                                                               |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | **Files**                  | `lib/server/nightshift-gateway.mjs`                                                                                                  |
-| **Responsibility**         | Adapts Meterless Nightshift's OpenAI-compatible HTTP completions API to Agent Town's durable task model; enforces `REASONING_LIMITS` |
+| **Responsibility**         | Adapts Meterless Nightshift's OpenAI-compatible HTTP completions API to KiranaCrew's durable task model; enforces `REASONING_LIMITS` |
 | **Key class**              | `NightshiftGateway`                                                                                                                  |
 | **Key methods**            | Same interface as `ServerGateway`: `start()`, `stop()`, `send()`, `capabilities()`                                                   |
 | **Depends on**             | `fetch` (Node built-in), `nightshift-contracts.mjs`                                                                                  |
@@ -283,7 +283,7 @@ agent-town/
 | **Key classes**            | `PhaserGame` (React component), `OfficeScene` (Phaser.Scene), `OfficeRenderer` (Three.js renderer)                                                                                                                                               |
 | **Emits**                  | `seats-discovered` on map load; `office-inspect` on player interaction                                                                                                                                                                           |
 | **Listens**                | `seat-configs-updated`, `task-assigned`, `task-completed`, `task-failed`, `task-aborted`, `task-bubble`, `office-settings`, `office-runtime`, `office-focus`                                                                                     |
-| **Reusable independently** | No — tightly coupled to Agent Town's domain concepts and event bus                                                                                                                                                                               |
+| **Reusable independently** | No — tightly coupled to KiranaCrew's domain concepts and event bus                                                                                                                                                                               |
 
 ---
 
@@ -294,7 +294,7 @@ agent-town/
 | **Files**                  | `components/hud/GameHud.tsx`, `components/hud/ChatPanel.tsx`, `components/hud/TaskPanel.tsx`, `components/hud/OperationsPanel.tsx`, `components/hud/TeamBoard.tsx`, `components/hud/WorkReport.tsx`, `components/hud/PendingReviews.tsx`, `components/hud/TaskComposer.tsx`, `components/hud/WorkerPanel.tsx`, `components/hud/InventoryInvestigationPanel.tsx`, `components/hud/VoiceDiagnostics.tsx`, `components/hud/TopBar.tsx`, `components/hud/BottomBar.tsx`, `components/hud/SessionSwitcher.tsx` |
 | **Responsibility**         | All floating UI overlays: chat, task management, team board, work reports, reviews, voice diagnostics, seat management, inventory investigations                                                                                                                                                                                                                                                                                                                                                          |
 | **Depends on**             | `useStudio()`, `useVoice()`, `gameEvents`, `runtimeRequest()`                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| **Reusable independently** | Some panels (WorkReport, TeamBoard, OperationsPanel) are reusable UI patterns; the specific domain content is Agent Town-specific                                                                                                                                                                                                                                                                                                                                                                         |
+| **Reusable independently** | Some panels (WorkReport, TeamBoard, OperationsPanel) are reusable UI patterns; the specific domain content is KiranaCrew-specific                                                                                                                                                                                                                                                                                                                                                                         |
 
 ---
 
@@ -322,8 +322,8 @@ agent-town/
 
 | Property                   | Detail                                                                             |
 | -------------------------- | ---------------------------------------------------------------------------------- |
-| **File**                   | `lib/mcp/agent-town-mcp.mjs`                                                       |
-| **Responsibility**         | Exposes Agent Town capabilities as an MCP server (for use by external agent tools) |
+| **File**                   | `lib/mcp/kiranacrew-mcp.mjs`                                                       |
+| **Responsibility**         | Exposes KiranaCrew capabilities as an MCP server (for use by external agent tools) |
 | **Reusable independently** | Yes — the MCP pattern is directly portable                                         |
 
 ---
@@ -383,21 +383,21 @@ Server
 
 ---
 
-## Subsystem 17: NammaOps Core Engine
+## Subsystem 17: KiranaCrew Core Engine
 
 | Property                   | Detail                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Files**                  | `lib/server/nammaops/index.mjs`, `lib/server/nammaops/workflows.mjs`, `lib/server/nammaops/workforce.mjs`, `lib/server/nammaops/erp-binding.mjs`, `lib/server/nammaops/calculations.mjs`, `lib/server/nammaops/forecast.mjs`, `lib/server/nammaops/voice-router.mjs`, `lib/server/nammaops/owner-approvals.mjs`, `lib/server/nammaops/group-business.mjs`, `lib/server/nammaops/api.mjs`, `lib/server/nammaops/openapi.mjs`, `lib/server/nammaops/openapi-examples.mjs` |
 | **Responsibility**         | Five-agent kirana-store workforce; five deterministic workflows; ERPNext data access via governed MCP tools; PIN-gated owner approval for purchase orders; voice routing from Gemini Live tool calls; group-chat text routing                                                                                                                                                                                                                                           |
-| **Key exports**            | `createNammaOps(runtime, env, overrides)` — factory; `Workflows` class; `VoiceRouter` class; `ErpBinding` class; `OwnerApprovals` class; `handleNammaOpsApi()` — REST handler; `nammaopsRoute()` — path matcher                                                                                                                                                                                                                                                         |
+| **Key exports**            | `createKiranaCrew(runtime, env, overrides)` — factory; `Workflows` class; `VoiceRouter` class; `ErpBinding` class; `OwnerApprovals` class; `handleKiranaCrewApi()` — REST handler; `nammaopsRoute()` — path matcher                                                                                                                                                                                                                                                     |
 | **Depends on**             | `lib/server/mcp-governance.mjs` (ToolGateway), `lib/server/mcp-servers.mjs`, `lib/server/developer-config.mjs`, `lib/server/agent-profiles.mjs`, `lib/server/task-db.mjs`                                                                                                                                                                                                                                                                                               |
 | **Inputs**                 | `NAMMAOPS_BINDING` (path to binding.fixture.json or binding.hvgerp.json), `NAMMAOPS_OWNER_PIN`, `NAMMAOPS_REASONING` (off                                                                                                                                                                                                                                                                                                                                               | manager), `NAMMAOPS_VOICE_WAIT_MS` |
 | **Outputs**                | REST API `/api/nammaops/*`; workflow records in `nammaops.workflow` namespace; task records in `nammaops.task`; approval records in `nammaops.owner-approval`                                                                                                                                                                                                                                                                                                           |
-| **Reusable independently** | No — requires a full Agent Town runtime with MCP governance                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **Reusable independently** | No — requires a full KiranaCrew runtime with MCP governance                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 ### `index.mjs`
 
-Entry point. `createNammaOps(runtime, env, overrides)` wires `ErpBinding`, `OwnerApprovals`, `Workflows`, and `VoiceRouter` together and returns them as a single object attached to `runtime.nammaops`.
+Entry point. `createKiranaCrew(runtime, env, overrides)` wires `ErpBinding`, `OwnerApprovals`, `Workflows`, and `VoiceRouter` together and returns them as a single object attached to `runtime.nammaops`.
 
 ### `workflows.mjs`
 
@@ -433,7 +433,7 @@ Historical-demand forecasting engine. `forecastItem()` runs stockout censoring, 
 
 ### `api.mjs`
 
-`handleNammaOpsApi(runtime, req, {rest})` implements all 14 REST endpoints under `/api/nammaops/`. Loopback only. Reads JSON bodies, routes by method+path regex. Calls `nammaops.workflows`, `nammaops.approvals`, `nammaops.binding`.
+`handleKiranaCrewApi(runtime, req, {rest})` implements all 14 REST endpoints under `/api/nammaops/`. Loopback only. Reads JSON bodies, routes by method+path regex. Calls `nammaops.workflows`, `nammaops.approvals`, `nammaops.binding`.
 
 ---
 
@@ -450,7 +450,7 @@ A fully functional ERPNext-shaped MCP server with 19 tools. Business data read f
 
 ### `governed-tools-mcp.mjs`
 
-`createGovernedProxy({baseUrl, agentId, secret})` is the MCP server an OpenClaw seat registers. It lists tools from the Agent Town gateway (`/api/runtime/mcp-gateway/tools?agent_id=…`) and routes every call through the gateway (`/api/runtime/mcp-gateway/invoke`). The agent identity comes from the process environment (`AGENT_TOWN_AGENT_ID`), never from tool arguments. Each tool name is derived from `capability_id` (dots/colons → underscores, truncated to 64 chars).
+`createGovernedProxy({baseUrl, agentId, secret})` is the MCP server an OpenClaw seat registers. It lists tools from the KiranaCrew gateway (`/api/runtime/mcp-gateway/tools?agent_id=…`) and routes every call through the gateway (`/api/runtime/mcp-gateway/invoke`). The agent identity comes from the process environment (`AGENT_TOWN_AGENT_ID`), never from tool arguments. Each tool name is derived from `capability_id` (dots/colons → underscores, truncated to 64 chars).
 
 ### `hvgerp-adapter-server.mjs`
 
@@ -458,7 +458,7 @@ A fully functional ERPNext-shaped MCP server with 19 tools. Business data read f
 
 ---
 
-## Subsystem 19: NammaOps Configuration
+## Subsystem 19: KiranaCrew Configuration
 
 | Property           | Detail                                                                                                                                                                                               |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -487,16 +487,16 @@ Discovery output from Phase G1: 47 tools in 4 categories (sales, inventory, purc
 
 ---
 
-## Subsystem 20: NammaOps UI Panels
+## Subsystem 20: KiranaCrew UI Panels
 
-| Property           | Detail                                                                                                               |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------- |
-| **Files**          | `components/hud/NammaOpsPanel.tsx`, `components/hud/McpGovernancePanel.tsx`, `components/hud/DeveloperModeModal.tsx` |
-| **Responsibility** | Business operations panel, MCP governance panel, developer configuration modal                                       |
+| Property           | Detail                                                                                                                 |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| **Files**          | `components/hud/KiranaCrewPanel.tsx`, `components/hud/McpGovernancePanel.tsx`, `components/hud/DeveloperModeModal.tsx` |
+| **Responsibility** | Business operations panel, MCP governance panel, developer configuration modal                                         |
 
-### `NammaOpsPanel.tsx`
+### `KiranaCrewPanel.tsx`
 
-HUD flyout. Shows workforce table, owner command input (4 preset examples + free-text), workflow results (inventory table, purchase approval with PIN entry, demand intelligence table with evidence drill-down, daily business summary), and live timeline. Subscribes to SSE; re-polls `/api/nammaops/dashboard` on NammaOps or MCP invocation events with 250ms debounce. Shows data-source banner (fixture vs live ERPNext).
+HUD flyout. Shows workforce table, owner command input (4 preset examples + free-text), workflow results (inventory table, purchase approval with PIN entry, demand intelligence table with evidence drill-down, daily business summary), and live timeline. Subscribes to SSE; re-polls `/api/nammaops/dashboard` on KiranaCrew or MCP invocation events with 250ms debounce. Shows data-source banner (fixture vs live ERPNext).
 
 ### `McpGovernancePanel.tsx`
 

@@ -1,8 +1,8 @@
-# NammaOps — Hackathon Strategy
+# KiranaCrew — Hackathon Strategy
 
 ## Great Indian AI Internship Challenge 2026
 
-> **NammaOps**: AI Workforce for Kirana Stores
+> **KiranaCrew**: AI Workforce for Kirana Stores
 > **UPDATED Nov 2, 2026** — Revised to reflect actual codebase (82 new files merged Nov 2).
 > Status labels: [VERIFIED], [INFERRED], [UNVERIFIED ASSUMPTION]
 > Every section updated for what is built vs. what remains.
@@ -15,7 +15,7 @@
 
 **Tagline**: _"Namma AI, Namma Bhasha, Namma Dukan"_ — Our AI, Our Language, Our Shop.
 
-**One-sentence pitch**: NammaOps is a voice-first AI platform that puts five AI specialists to work for any kirana store owner — just speak in Kannada, Hindi, or Hinglish, and your stock gets checked, orders get drafted with your approval, and your daily books get summarized.
+**One-sentence pitch**: KiranaCrew is a voice-first AI platform that puts five AI specialists to work for any kirana store owner — just speak in Kannada, Hindi, or Hinglish, and your stock gets checked, orders get drafted with your approval, and your daily books get summarized.
 
 **What makes this real, not a demo**:
 
@@ -32,9 +32,9 @@
 
 ### 2.1 MCP Governance as a Novel Architecture
 
-The single most technically distinctive thing about NammaOps that no other hackathon project will likely have: **Phase C MCP tool governance**.
+The single most technically distinctive thing about KiranaCrew that no other hackathon project will likely have: **Phase C MCP tool governance**.
 
-Every ERP call in NammaOps is:
+Every ERP call in KiranaCrew is:
 
 1. Registered as a named capability (e.g., `erp.stock.balance`)
 2. Reviewed by a human developer with a risk score
@@ -44,11 +44,11 @@ Every ERP call in NammaOps is:
 
 This means: the inventory agent cannot accidentally call finance tools. The procurement agent cannot call the submission tool unless it has been explicitly granted. The owner approval principal (`nammaops-po-submit`) has access to exactly two tools: get PO and submit PO — nothing else.
 
-This is production-grade AI governance, not a hackathon prototype. It directly demonstrates that NammaOps is safe to connect to a real store's ERP.
+This is production-grade AI governance, not a hackathon prototype. It directly demonstrates that KiranaCrew is safe to connect to a real store's ERP.
 
 ### 2.2 Deterministic Business Intelligence
 
-All NammaOps business calculations are deterministic — no LLM required for:
+All KiranaCrew business calculations are deterministic — no LLM required for:
 
 - Stock analysis (reorder level, recommended quantity)
 - Supplier ranking (by rate, lead time, on-time performance)
@@ -92,20 +92,20 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 - What it does: Digital ledger (udhar/credit tracking), basic invoicing, payment reminders, low-stock alerts, basic inventory
 - What it does NOT do: No voice input, no autonomous AI agents, no supplier management, no predictive ordering, no vernacular voice interface
 - Price: Free basic; paid tiers available
-- Gap NammaOps fills: Voice-first interaction; autonomous agent execution (not just recording)
+- Gap KiranaCrew fills: Voice-first interaction; autonomous agent execution (not just recording)
 
 **Vyapar**
 
 - What it does: Comprehensive billing, real-time stock tracking, barcode scanning, multi-warehouse, batch/expiry tracking, GST compliance, WhatsApp invoicing
 - What it does NOT do: No voice interface, no autonomous ordering, no AI forecasting, no Kannada/Hindi voice commands
 - Price: Free Android basic; ₹1,249–₹6,999/year for premium
-- Gap NammaOps fills: Voice-first; autonomous execution; AI agents that act, not just report
+- Gap KiranaCrew fills: Voice-first; autonomous execution; AI agents that act, not just report
 
 **GoFrugal**
 
 - What it does: Full POS, grocery-specific features, barcode/weighing scale integration, stock management, expiry tracking, multi-store, cloud-hosted, GST compliance
 - What it does NOT do: No voice AI, no autonomous agents, no Indian vernacular interface beyond English/basic Hindi UI
-- Gap NammaOps fills: Voice-first; affordable; AI agents for small stores
+- Gap KiranaCrew fills: Voice-first; affordable; AI agents for small stores
 
 ### 3.2 Voice AI in Indian Market
 
@@ -135,7 +135,7 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 
 **What it rewards**: [VERIFIED] Most useful solution for farmers, kirana stores, or rural healthcare. Kirana stores are named explicitly.
 
-**How NammaOps qualifies** (all [IMPLEMENTED]):
+**How KiranaCrew qualifies** (all [IMPLEMENTED]):
 
 - Five deterministic workflows: stock check, demand forecast, supplier comparison, daily report, prepare reorder
 - All five workflows run against real ERPNext data (live read-only)
@@ -158,7 +158,7 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 
 **What it rewards**: [VERIFIED] Best project in a regional/low-resource Indian language
 
-**How NammaOps qualifies**:
+**How KiranaCrew qualifies**:
 
 - Kannada is the primary regional language target (low-resource relative to Hindi)
 - Gnani Prisma STT with `language_code: "kn-IN"` — implemented in `stt.mjs`
@@ -182,7 +182,7 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 
 **What it rewards**: [VERIFIED] Best code-mixed speech application (Hinglish, Tanglish, Benglish)
 
-**How NammaOps qualifies**:
+**How KiranaCrew qualifies**:
 
 - Prisma STT explicitly supports Hinglish; `indic-auto` language hint for auto-detection
 - `parseCommand()` in `workflows.mjs` is language-agnostic (works on any transcript)
@@ -204,9 +204,9 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 
 **What it rewards**: [VERIFIED] Best 60-second demo video
 
-**Why NammaOps has a compelling 60-second story**:
+**Why KiranaCrew has a compelling 60-second story**:
 
-- The NammaOpsPanel visually shows five agents activating in sequence (timeline)
+- The KiranaCrewPanel visually shows five agents activating in sequence (timeline)
 - The MCPGovernancePanel shows tool governance in real time
 - Gnani Prisma: visible transcript on screen
 - Timbre TTS: visible waveform + audio plays
@@ -223,7 +223,7 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 
 **What it rewards**: [VERIFIED] Best performance on messy telephonic audio
 
-**How NammaOps qualifies**: Prisma v3.0 is trained on 8kHz telephony audio; kirana stores have natural background noise.
+**How KiranaCrew qualifies**: Prisma v3.0 is trained on 8kHz telephony audio; kirana stores have natural background noise.
 
 **What needs to be done** (Day 6 if time):
 
@@ -237,7 +237,7 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 
 ### Award 6: Jugaad Genius Award — Most Creative/Unexpected Usage
 
-**How NammaOps qualifies**:
+**How KiranaCrew qualifies**:
 
 - Five AI specialists acting as a "workforce" for a kirana owner is a creative metaphor
 - The governance-by-identity pattern (each agent has its own ERP credentials) is technically unusual
@@ -253,7 +253,7 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 
 ### PRIMARY: Real Deal Award + Main Character Award (dual-target strategy)
 
-**Real Deal Award** is the clearest match: NammaOps is literally a kirana store solution (the award names kirana stores [VERIFIED]). The application is functionally complete for all five workflows on live ERPNext data. This is not a prototype — it is a production-grade system.
+**Real Deal Award** is the clearest match: KiranaCrew is literally a kirana store solution (the award names kirana stores [VERIFIED]). The application is functionally complete for all five workflows on live ERPNext data. This is not a prototype — it is a production-grade system.
 
 **Main Character Award** is the second strongest: primary language is Kannada (kn-IN). The Gnani Prisma STT provider is implemented. Timbre TTS is being built Day 2. The voice round-trip in Kannada will be complete by Day 4.
 
@@ -309,7 +309,7 @@ The shortlisting process is: engagement verification → eligibility check → i
 
 - Be able to explain every technical decision in the codebase
 - Understand Indian kirana market context (13 million stores, typical owner profile, pain points)
-- Have a clear vision for how NammaOps extends post-hackathon (multi-store, GST integration, WhatsApp interface)
+- Have a clear vision for how KiranaCrew extends post-hackathon (multi-store, GST integration, WhatsApp interface)
 - Understand voice AI architectures, Indian language challenges, and deployment constraints
 
 ---
@@ -318,13 +318,13 @@ The shortlisting process is: engagement verification → eligibility check → i
 
 **The narrative arc in 60 seconds**:
 
-**[0:00–0:08]** Title card: "India has 13 million kirana stores. Ramesh manages stock and supplier orders manually. NammaOps gives him a five-agent AI workforce."
+**[0:00–0:08]** Title card: "India has 13 million kirana stores. Ramesh manages stock and supplier orders manually. KiranaCrew gives him a five-agent AI workforce."
 
-**[0:08–0:18]** NammaOpsPanel: five agents visible (Manager, Inventory, Sales, Procurement, Finance). Data source banner: "Live ERPNext (demo store)." Owner speaks Kannada into microphone — Gnani Prisma transcript appears: "Haalindu stock enu aagide?"
+**[0:08–0:18]** KiranaCrewPanel: five agents visible (Manager, Inventory, Sales, Procurement, Finance). Data source banner: "Live ERPNext (demo store)." Owner speaks Kannada into microphone — Gnani Prisma transcript appears: "Haalindu stock enu aagide?"
 
 **[0:18–0:32]** Timeline activates: INVENTORY_TASK_STARTED → INVENTORY_TASK_COMPLETED → PROCUREMENT_TASK_STARTED → PROCUREMENT_TASK_COMPLETED. Results appear: "Toned Milk 500ml: 18 left — LOW (reorder at 40). Sunflower Oil 1L: 8 left — LOW."
 
-**[0:32–0:44]** Owner speaks: "Prepare an order for the running-low products." Procurement agent creates draft POs. NammaOpsPanel shows Purchase Approval section: draft PO with line items, total ₹2,450. Owner enters PIN → Approve. "Owner approved. Submitted to ERP."
+**[0:32–0:44]** Owner speaks: "Prepare an order for the running-low products." Procurement agent creates draft POs. KiranaCrewPanel shows Purchase Approval section: draft PO with line items, total ₹2,450. Owner enters PIN → Approve. "Owner approved. Submitted to ERP."
 
 **[0:44–0:54]** Gnani Timbre responds in Kannada (waveform visible): "Eradu vaste kademedhe ide. Purchase order submit aagide." (Two items are running low. Purchase order submitted.)
 

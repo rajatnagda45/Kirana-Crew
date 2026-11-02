@@ -99,7 +99,7 @@ sequenceDiagram
     VoiceRouter-->>VoiceAgent: voice contract (speak_rule enforced)
 
     alt Purchase order requires approval
-        VoiceAgent-->>Owner: "Review and approve in the NammaOps panel with your PIN."
+        VoiceAgent-->>Owner: "Review and approve in the KiranaCrew panel with your PIN."
         Owner->>Approvals: POST /api/nammaops/approvals/:id/approve { pin }
         Approvals->>Approvals: checkPin(pin) — safeSecretEqual
         Approvals->>Approvals: check TTL not expired
@@ -237,7 +237,7 @@ See `docs/GNANI_INTEGRATION.md` for the planned implementation.
 
 **Output facts:** Draft PO names, suppliers, totals, item lists
 
-**Approval:** Sets `approval_required: true`. Voice response includes approval IDs and location ("NammaOps panel — owner PIN required").
+**Approval:** Sets `approval_required: true`. Voice response includes approval IDs and location ("KiranaCrew panel — owner PIN required").
 
 ### `daily_report` / `sales_summary` / `top_selling_products` / `business_profit`
 

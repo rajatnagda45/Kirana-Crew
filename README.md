@@ -24,7 +24,7 @@ _Speak in Kannada, Hindi or Hinglish — your AI crew handles the rest_
 
 ---
 
-![KiranaCrew Landing Page](public/landing-v2/kiranacrew-landing.png)
+![KiranaCrew Landing Page](public/landing-v2/kc-hero.png)
 
 _KiranaCrew — voice-first AI workforce for Indian kirana stores_
 
@@ -66,14 +66,12 @@ The critical difference from a chatbot: agents **take autonomous action**. The P
 
 ## Live Demo / Screenshots
 
-|                                                                |                                                              |
-| :------------------------------------------------------------: | :----------------------------------------------------------: |
-| ![Landing page hero](public/landing-v2/kiranacrew-landing.png) |     ![Feature cards](public/landing-v2/screenshot-5.png)     |
-|                   _KiranaCrew landing page_                    |                  _Feature capability cards_                  |
-|    ![Task walkthrough](public/landing-v2/screenshot-6.png)     | ![Architecture diagram](public/landing-v2/screenshot-7.png)  |
-|                  _Workflow task walkthrough_                   |                _System architecture overview_                |
-|    ![Agent crew cards](public/landing-v2/screenshot-8.png)     | ![Voice section and CTA](public/landing-v2/screenshot-9.png) |
-|                    _Five-agent crew cards_                     |              _Voice section and call to action_              |
+|                                                        |                                                              |
+| :----------------------------------------------------: | :----------------------------------------------------------: |
+|   ![KiranaCrew hero](public/landing-v2/kc-hero.png)    |  ![Voice workflow demo](public/landing-v2/kc-workflow.png)   |
+|         _KiranaCrew — pixel-art kirana store_          |      _"One voice command. Your entire store responds."_      |
+| ![How it works](public/landing-v2/kc-how-it-works.png) |     ![Gnani Voice AI](public/landing-v2/kc-voice-ai.png)     |
+|       _4-step workflow · Gnani Voice AI section_       | _"Your Language. Your Store. Your Voice." · Prisma + Timbre_ |
 
 ---
 
@@ -250,7 +248,7 @@ The same stock check workflow powers the `check_stock` and `list_products` voice
 ### Installation
 
 ```bash
-git clone https://github.com/rajatnagda45/NammaOps.git kiranacrew
+git clone https://github.com/rajatnagda45/KiranaCrew.git kiranacrew
 cd kiranacrew
 pnpm install --frozen-lockfile
 cp .env.example .env.local
@@ -260,9 +258,9 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000)
 
-### NammaOps workforce (kirana store backend)
+### KiranaCrew workforce (kirana store backend)
 
-The NammaOps panel is the kirana-specific interface. Configure these variables in `.env.local`:
+The KiranaCrew panel is the kirana-specific interface. Configure these variables in `.env.local`:
 
 ```env
 # Required for owner purchase order approval
@@ -287,7 +285,7 @@ AGENT_PROVIDER=openclaw
 GATEWAY_URL=ws://127.0.0.1:18789/
 ```
 
-Then set up the workforce via the NammaOps panel or:
+Then set up the workforce via the KiranaCrew panel or:
 
 ```bash
 node --import tsx scripts/nammaops-demo.mjs
@@ -336,7 +334,7 @@ pnpm test
 
 **Current test results: 1162 tests across 105 files, all passing.**
 
-Key test files for KiranaCrew / NammaOps:
+Key test files for KiranaCrew:
 
 | File                                          | What it covers                                                                                                                             |
 | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -390,7 +388,7 @@ Based on what is in `.env.example` and the current implementation state:
 | Gnani Evon v3.3           | [PLANNED]                    | Self-hosted inference endpoint on H100/A100; write adapter in `stt.mjs`                         |
 | Live ERPNext connection   | [IMPLEMENTED]                | Set `NAMMAOPS_BINDING=binding.hvgerp.json` with `ERPNEXT_*` credentials                         |
 | Manager reasoning mode    | [IMPLEMENTED]                | Set `NAMMAOPS_REASONING=manager`                                                                |
-| Kannada / Hindi UI labels | [PLANNED]                    | i18n layer over the NammaOps panel components                                                   |
+| Kannada / Hindi UI labels | [PLANNED]                    | i18n layer over the KiranaCrew panel components                                                 |
 | Mobile PWA                | [PLANNED]                    | Progressive Web App shell for shopkeeper's phone                                                |
 | Multi-store support       | [PLANNED]                    | Tenant isolation layer over the current single-workspace architecture                           |
 

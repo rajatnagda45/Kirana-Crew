@@ -2,7 +2,7 @@
 
 ## Prisma v2.5 (STT) · Timbre v2.5 (TTS) · Evon v3.3 (LLM)
 
-> For NammaOps — AI Workforce for Kirana Stores
+> For KiranaCrew — AI Workforce for Kirana Stores
 > All claims tagged [VERIFIED], [INFERRED], or [UNVERIFIED ASSUMPTION]
 > Sources: docs.gnani.ai, gnani.ai/speech-to-text-api, HuggingFace gnani/gnani-evon-v3.3-30B-A3B, LiveKit docs, PyPI gnani-vachana
 
@@ -70,7 +70,7 @@ The sub-200ms P95 streaming latency is a competitive claim against Google STT an
 - Trained on **telephony-grade audio**: 8kHz PSTN-quality audio with compression artifacts and network degradation
 - **Word Error Rate on noisy audio**: Claims 3.8% WER [VERIFIED — gnani.ai/speech-to-text-api]
 - **Specific conditions addressed**: background noise, compression artifacts, network degradation, rural environments
-- This is directly relevant to NammaOps: kirana stores often have market noise, TV/radio playing, customer conversations in the background
+- This is directly relevant to KiranaCrew: kirana stores often have market noise, TV/radio playing, customer conversations in the background
 
 ### 1.6 Regional Accent Support
 
@@ -88,7 +88,7 @@ The sub-200ms P95 streaming latency is a competitive claim against Google STT an
 - Exact credit consumption per API call: **not published in verified sources** [UNVERIFIED — must test early to avoid running out of credits mid-development]
 - Production pricing: **not accessible without sales contact** [UNVERIFIED]
 
-### 1.8 NammaOps Fit Assessment
+### 1.8 KiranaCrew Fit Assessment
 
 **Verdict: STRONG FIT**
 
@@ -154,7 +154,7 @@ Language codes supported by timbre-v2.5:
 - **Blind MOS evaluation**: "Leads blind MOS evaluation across 10 Indian languages at 7.32, highest of any provider evaluated" [VERIFIED — search results, but note MOS scale typically runs 1–5; "7.32" may be a different evaluation scale or a misquote — treat with caution]
 - Per-language voice quality for Kannada specifically: **not independently benchmarked in verified sources** [UNVERIFIED ASSUMPTION]
 
-**NammaOps implication**: For Kannada-language output to kirana store owners, voice naturalness is critical for trust and usability. The quality claims are positive but Kannada-specific independent benchmarks have not been found. Early testing with Kannada speakers is strongly recommended. [INFERRED]
+**KiranaCrew implication**: For Kannada-language output to kirana store owners, voice naturalness is critical for trust and usability. The quality claims are positive but Kannada-specific independent benchmarks have not been found. Early testing with Kannada speakers is strongly recommended. [INFERRED]
 
 ### 2.3 Prosody for Prices and Currency
 
@@ -190,7 +190,7 @@ Three synthesis methods with confirmed endpoints:
 
 **CORRECTION NOTE [Audit Nov 1]**: The REST endpoint is at `api.gnani.ai` while the WebSocket is at `api.vachana.ai`. Both use the same API key with the `X-API-Key-ID` header. Note: `timbre-v2.0` is no longer supported by gnani-vachana 0.8.x [VERIFIED — LiveKit PR].
 
-For NammaOps real-time voice interactions, WebSocket (`wss://api.vachana.ai/api/v1/tts`) is the recommended method. [INFERRED]
+For KiranaCrew real-time voice interactions, WebSocket (`wss://api.vachana.ai/api/v1/tts`) is the recommended method. [INFERRED]
 
 ### 2.6 Audio Format Parameters
 
@@ -212,7 +212,7 @@ For kirana store deployment on low-end Android phones: 8000 Hz sample rate, OggO
 - LiveKit documentation: characterizes service as "low-latency, natural-sounding speech synthesis" without specific quantified metrics [VERIFIED — docs.livekit.io]
 - Combined pipeline latency (Prisma STT + Evon reasoning + Timbre TTS) for a full voice turn: **not published; estimated 500ms–2s total** [INFERRED — sum of individual component latencies; highly dependent on network, model load, and token count]
 
-### 2.8 NammaOps Fit Assessment
+### 2.8 KiranaCrew Fit Assessment
 
 **Verdict: STRONG FIT**
 
@@ -291,7 +291,7 @@ Hindi, Bengali, Telugu, Tamil, Marathi, Gujarati, Kannada, Malayalam, Odia, Punj
 - Summarization (CrossSum-in: 4.67 chrF): significantly below alternatives
 - Instruction-following benchmark (IndicIFEval-trans: 47.45): moderate
 
-**Implication for NammaOps**: Evon is strong for comprehension and QA (reading inventory data, understanding supplier conversations) but weaker at translation and summarization. For kirana store use cases, comprehension and instruction-following matter more than translation. [INFERRED]
+**Implication for KiranaCrew**: Evon is strong for comprehension and QA (reading inventory data, understanding supplier conversations) but weaker at translation and summarization. For kirana store use cases, comprehension and instruction-following matter more than translation. [INFERRED]
 
 ### 3.3 Deployment Requirements
 
@@ -314,7 +314,7 @@ This means:
 - Self-hosting Evon requires NVIDIA H100 80GB, H200, or A100 — cost ~$20–40/hour on cloud GPU instances [INFERRED from typical pricing]
 - For a hackathon, self-hosting Evon is impractical without access to H100/A100 hardware
 
-**REVISED recommendation for NammaOps architecture**: Evon cannot be used via the API platform. A fallback reasoning model is REQUIRED. See Section 3.9 for fallback options. [UPDATED — VERIFIED]
+**REVISED recommendation for KiranaCrew architecture**: Evon cannot be used via the API platform. A fallback reasoning model is REQUIRED. See Section 3.9 for fallback options. [UPDATED — VERIFIED]
 
 ### 3.4 Tool Calling Compatibility
 
@@ -326,7 +326,7 @@ This means:
 - **No benchmark scores for tool-use success rate reported** [VERIFIED — this is explicitly noted as a gap in the HackerNoon analysis]
 - Tool calling format uses qwen3_coder parser [VERIFIED]
 
-**Implication for NammaOps**: Evon supports tool calling, which is required for agent-based operations (query inventory DB, place orders, check supplier status). However, the "limitations on multi-step agentic use" warning means complex multi-step tool chains may require careful prompt engineering and fallback handling. [INFERRED]
+**Implication for KiranaCrew**: Evon supports tool calling, which is required for agent-based operations (query inventory DB, place orders, check supplier status). However, the "limitations on multi-step agentic use" warning means complex multi-step tool chains may require careful prompt engineering and fallback handling. [INFERRED]
 
 ### 3.5 Licensing Model
 
@@ -337,16 +337,16 @@ This means:
 - Commercial use: Permitted under Apache 2.0 [VERIFIED — standard Apache 2.0 terms]
 - For hackathon: API access via programme credits [VERIFIED — gnani.ai/internship]
 
-### 3.6 Fit with Agent Town's Orchestration Architecture
+### 3.6 Fit with KiranaCrew's Orchestration Architecture
 
 **Verdict: COMPATIBLE WITH ADAPTATION**
 
-Agent Town's orchestration engine (OrchestrationService, TeamLead) dispatches tasks to AI agents via a gateway protocol. Currently it uses OpenClaw/Nightshift/Auggie adapters. Evon would require a new gateway adapter, likely a NightshiftGateway-style HTTP adapter calling the Gnani Evon API.
+KiranaCrew's orchestration engine (OrchestrationService, TeamLead) dispatches tasks to AI agents via a gateway protocol. Currently it uses OpenClaw/Nightshift/Auggie adapters. Evon would require a new gateway adapter, likely a NightshiftGateway-style HTTP adapter calling the Gnani Evon API.
 
 Key compatibility factors:
 
 - Evon supports tool calling (required for executor/specialist agents) [COMPATIBLE]
-- 128K context window fits Agent Town's handoff injection pattern (task history, evidence) [COMPATIBLE]
+- 128K context window fits KiranaCrew's handoff injection pattern (task history, evidence) [COMPATIBLE]
 - Multi-step agentic limitations mean complex orchestration chains need testing [RISK]
 - API must be called via Gnani's inference endpoint, not self-hosted for hackathon [COMPATIBLE — same as OpenAI-compatible HTTP adapter pattern]
 
@@ -451,27 +451,27 @@ Since Evon v3.3 is not on the API platform, the following fallback options are r
 
 ---
 
-## 5. Recommended Integration Architecture for NammaOps
+## 5. Recommended Integration Architecture for KiranaCrew
 
 ```
 Kirana Owner
     │
     │ (speaks in Kannada/Hindi/Hinglish on mobile browser)
     ▼
-[Browser AudioWorklet — PCM16 capture — existing Agent Town pattern]
+[Browser AudioWorklet — PCM16 capture — existing KiranaCrew pattern]
     │
     ▼
 Prisma v2.5 STT API (WebSocket streaming)
     │ transcript + detected language
     ▼
-[NammaOps Intent Router]  ──────────────────────────────────────────────────────┐
+[KiranaCrew Intent Router]  ──────────────────────────────────────────────────────┐
     │                                                                           │
     │ structured intent                                                         │
     ▼                                                                           │
 Evon v3.3 via Gnani API  ←────────── [Kirana Context: store ID, session, stock] │
     │ (tool calls: inventory_read, order_create, supplier_query, finance_read)  │
     ▼                                                                           │
-[Agent Orchestration Engine — reused from Agent Town]                           │
+[Agent Orchestration Engine — reused from KiranaCrew]                           │
     ├── StockAgent (read inventory DB)                                          │
     ├── OrderAgent (create/confirm purchase orders)                             │
     ├── SupplierAgent (WhatsApp/SMS follow-up)                                  │
@@ -499,9 +499,9 @@ All three models are used in every meaningful voice interaction. [INFERRED — b
 
 | Unknown                                                  | Why It Matters                                                       | Test Approach                                                                          |
 | -------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Kanglish (Kannada-English) accuracy                      | Core NammaOps use case may break if code-mixing accuracy is poor     | Record 20 Kannada-English mixed sentences; transcribe via Prisma; measure WER manually |
+| Kanglish (Kannada-English) accuracy                      | Core KiranaCrew use case may break if code-mixing accuracy is poor   | Record 20 Kannada-English mixed sentences; transcribe via Prisma; measure WER manually |
 | Credit consumption rate                                  | 5,000 credits may run out before demo if consumption is high         | Make 10 test calls at start; calculate burn rate                                       |
-| Evon tool calling reliability                            | Multi-step agent failures will break NammaOps workflows              | Build 5 tool-calling test scenarios; measure success rate                              |
+| Evon tool calling reliability                            | Multi-step agent failures will break KiranaCrew workflows            | Build 5 tool-calling test scenarios; measure success rate                              |
 | Timbre Kannada naturalness                               | Kirana owner must trust and understand the voice output              | Play 10 Kannada TTS samples to Kannada speakers; collect MOS rating                    |
 | Evon inference latency via API                           | If P95 response time > 3s, real-time voice UX breaks                 | Measure 50 Evon API calls under representative load                                    |
 | Combined pipeline round-trip time                        | Total STT + LLM + TTS latency must be < 4s for acceptable UX         | Full end-to-end timing test                                                            |

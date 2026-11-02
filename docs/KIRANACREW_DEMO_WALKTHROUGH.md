@@ -20,7 +20,7 @@ A judge-friendly step-by-step guide to reproduce the full demo. Every command is
 ## Step 1: Setup
 
 ```bash
-git clone https://github.com/rajatnagda45/NammaOps.git kiranacrew
+git clone https://github.com/rajatnagda45/KiranaCrew.git kiranacrew
 cd kiranacrew
 pnpm install --frozen-lockfile
 cp .env.example .env.local
@@ -120,13 +120,13 @@ Navigate to `http://localhost:3000`. You should see the KiranaCrew landing page 
 
 ---
 
-## Step 5: Navigate to the NammaOps Panel
+## Step 5: Navigate to the KiranaCrew Panel
 
 1. Click **Enter App** or navigate to `http://localhost:3000/app`
-2. Move to the NammaOps section of the office (WASD/arrow keys, E to interact)
-3. Or open the HUD dock and select **NammaOps**
+2. Move to the KiranaCrew section of the office (WASD/arrow keys, E to interact)
+3. Or open the HUD dock and select **KiranaCrew**
 
-The NammaOps panel shows:
+The KiranaCrew panel shows:
 
 - Setup status (click **Set up workforce** if not yet configured)
 - Recent workflows with status badges
@@ -139,7 +139,7 @@ The NammaOps panel shows:
 
 With `AGENT_TOWN_STT_PROVIDER=fixture` and `AGENT_TOWN_STT_FIXTURE_TRANSCRIPT=Check the stock of milk and rice.`:
 
-1. In the NammaOps panel, click **Voice** or use the voice section
+1. In the KiranaCrew panel, click **Voice** or use the voice section
 2. Record or submit audio — the fixture provider will use the fixed transcript
 3. Watch the workflow execute:
    - Inventory Agent step appears: "Read stock and compare with reorder levels"
@@ -158,13 +158,13 @@ With `AGENT_TOWN_STT_PROVIDER=fixture` and `AGENT_TOWN_STT_FIXTURE_TRANSCRIPT=Ch
 
 ## Step 7: Purchase Order Approval Flow
 
-1. Run a reorder workflow from the NammaOps panel:
+1. Run a reorder workflow from the KiranaCrew panel:
    - Type: "Prepare an order for the products that are running low."
    - Or use the demo script's Workflow 2
 
 2. The workflow creates draft POs and returns `status: "awaiting_approval"`
 
-3. The NammaOps panel shows pending approvals with:
+3. The KiranaCrew panel shows pending approvals with:
    - PO name, supplier, items, total
    - Approve / Reject buttons
 

@@ -99,7 +99,7 @@ export default function NammaOpsPanel() {
 
   return (
     <HudFlyout
-      title="NammaOps"
+      title="KiranaCrew"
       subtitle="Your kirana store's AI workforce"
       bodyClass="nammaops-body"
     >

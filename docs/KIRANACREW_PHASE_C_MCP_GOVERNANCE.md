@@ -1,6 +1,6 @@
 # Phase C: MCP integration and permission governance
 
-MCP servers provide tools. Agent Town decides who may call them, checks every call against current
+MCP servers provide tools. KiranaCrew decides who may call them, checks every call against current
 policy, executes it once and records it.
 
 Discovery is not assignment. Assignment is not authorisation. Authorisation is not approval.
@@ -59,9 +59,9 @@ checked, so a replay fails) → one `tools/call` with timeout → response check
 
 ## OpenClaw
 
-OpenClaw runs its own MCP clients, so Agent Town cannot intercept calls OpenClaw makes to servers
+OpenClaw runs its own MCP clients, so KiranaCrew cannot intercept calls OpenClaw makes to servers
 registered directly in OpenClaw. The governed path is the proxy. Register only the proxy in
-OpenClaw (one entry per Agent Town agent) and do not register the underlying servers there:
+OpenClaw (one entry per KiranaCrew agent) and do not register the underlying servers there:
 
 ```bash
 openclaw mcp add   # see `openclaw mcp add --help` for flags; the server is:

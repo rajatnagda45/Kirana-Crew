@@ -1,4 +1,4 @@
-# NammaOps — MVP and Demo Plan (REVISED Nov 2, 2026)
+# KiranaCrew — MVP and Demo Plan (REVISED Nov 2, 2026)
 
 > **Based on actual codebase, not proposals.**
 > All features marked [IMPLEMENTED], [NEEDS GNANI INTEGRATION], or [NOT BUILT].
@@ -76,7 +76,7 @@ Owner speaks: "Prepare an order for the products that are running low. Choose th
 
 1. Inventory reads stock; finds low items
 2. Procurement ranks suppliers (using `rankSuppliers()`) and creates draft POs in ERP
-3. Owner sees draft in NammaOpsPanel: "PUR-ORD-FX-0001 from Supplier X, total ₹2,450"
+3. Owner sees draft in KiranaCrewPanel: "PUR-ORD-FX-0001 from Supplier X, total ₹2,450"
 4. Owner enters PIN → clicks Approve
 5. System re-reads PO from ERP, verifies fingerprint, submits
 6. Timeline shows: PURCHASE_ORDER_SUBMITTED
@@ -101,34 +101,34 @@ Owner speaks: "What will sell next week and what should I order?"
 
 ## 5. 60-Second Demo Script (Based on What Is Actually Built)
 
-**Tool**: The NammaOpsPanel HUD or the standalone demo script.
+**Tool**: The KiranaCrewPanel HUD or the standalone demo script.
 
-**[0:00–0:08]** Title card: "India has 13 million kirana stores. Ramesh manages Namma Kirana manually. NammaOps gives him a five-agent AI workforce."
+**[0:00–0:08]** Title card: "India has 13 million kirana stores. Ramesh manages Namma Kirana manually. KiranaCrew gives him a five-agent AI workforce."
 
-**[0:08–0:18]** Screen shows NammaOpsPanel. Five agents are listed (Manager, Inventory, Sales, Procurement, Finance) each with their seat, permitted tools, and status "idle". Data source shows "test fixture" or "live ERPNext".
+**[0:08–0:18]** Screen shows KiranaCrewPanel. Five agents are listed (Manager, Inventory, Sales, Procurement, Finance) each with their seat, permitted tools, and status "idle". Data source shows "test fixture" or "live ERPNext".
 
 **[0:18–0:30]** Owner types (or speaks via Alice/Bob/Carol/Dave voice session): "Check the stock of milk, rice and cooking oil. Tell me what we need to buy tomorrow." Timeline shows: WORKFLOW_STARTED → INVENTORY_TASK_STARTED → INVENTORY_TASK_COMPLETED → PROCUREMENT_TASK_STARTED → PROCUREMENT_TASK_COMPLETED → WORKFLOW_COMPLETED. Inventory table appears: Milk 18/40 LOW, Rice 6/10 LOW, Oil 8/15 LOW.
 
-**[0:30–0:42]** Switch to "Prepare an order for the products running low." Procurement agent creates draft POs. NammaOpsPanel shows Purchase Approval section: PO with line items, total, PIN entry. Owner enters PIN → Approve → "Owner approved; submitted to ERP."
+**[0:30–0:42]** Switch to "Prepare an order for the products running low." Procurement agent creates draft POs. KiranaCrewPanel shows Purchase Approval section: PO with line items, total, PIN entry. Owner enters PIN → Approve → "Owner approved; submitted to ERP."
 
 **[0:42–0:52]** (Optional if Gnani API key is available) Open the voice tab. Speak: "What will sell next week?" Alice answers with demand forecast numbers — facts only from the workflow result.
 
 **[0:52–0:58]** Show audit: governance panel with 12 invocations logged, all as inventory agent or procurement agent, none denied. "Zero unreviewed tool calls."
 
-**[0:58–0:60]** End card: "NammaOps — Built on Agent Town. Powered by Gnani Prisma + Timbre + Agent Town MCP governance. #GreatIndianAIInternshipChallenge #GnaniAI"
+**[0:58–0:60]** End card: "KiranaCrew — Built on KiranaCrew. Powered by Gnani Prisma + Timbre + KiranaCrew MCP governance. #GreatIndianAIInternshipChallenge #GnaniAI"
 
 ---
 
 ## 6. 2–3 Minute Technical Demo Script
 
 **[0:00–0:20] Problem**
-"India has 13 million kirana stores. Ramesh manages stock, suppliers, and accounts manually with ledgers. NammaOps gives him five AI specialists that speak his language and never touch his ERP without his approval."
+"India has 13 million kirana stores. Ramesh manages stock, suppliers, and accounts manually with ledgers. KiranaCrew gives him five AI specialists that speak his language and never touch his ERP without his approval."
 
 **[0:20–0:45] Architecture**
-Show architecture diagram. "NammaOps uses Gnani Prisma for voice input in Kannada and Hindi. Workflows run five specialist agents — each with exactly the ERP permissions they need, verified through Phase C MCP governance. All calculations are deterministic — no hallucinated inventory numbers. Results are delivered back in the owner's language via Gnani Timbre TTS."
+Show architecture diagram. "KiranaCrew uses Gnani Prisma for voice input in Kannada and Hindi. Workflows run five specialist agents — each with exactly the ERP permissions they need, verified through Phase C MCP governance. All calculations are deterministic — no hallucinated inventory numbers. Results are delivered back in the owner's language via Gnani Timbre TTS."
 
 **[0:45–1:20] Demo: Stock Check → Reorder → Approval**
-Live demo of the three core workflows in the NammaOpsPanel. Show the timeline ticking through agent steps. Show the approval flow with PIN entry. "Notice: the AI created the draft PO; the owner's PIN is the gate. The AI cannot submit to ERPNext without explicit human approval of the unchanged draft."
+Live demo of the three core workflows in the KiranaCrewPanel. Show the timeline ticking through agent steps. Show the approval flow with PIN entry. "Notice: the AI created the draft PO; the owner's PIN is the gate. The AI cannot submit to ERPNext without explicit human approval of the unchanged draft."
 
 **[1:20–1:50] Voice Demo (if Gnani key available)**
 "Alice speaks for the Manager department. She answers using only the facts the workflow returned — not from her own knowledge." Demonstrate voice query: "Bob, how much milk do we have?" Bob answers with the exact number from the stock workflow.
@@ -143,7 +143,7 @@ Show McpGovernancePanel. "Every ERP call is logged with the agent identity, capa
 "Toggle to live ERPNext: same workflows, same code path, now reading from a real ERPNext Cloud instance. 36 items, 35 stock bins, 479 invoices verified." Show the data-source banner change in the panel.
 
 **[2:45–3:00] Close**
-"Three agent patterns that solve real kirana store problems: stock intelligence, demand forecasting, and supplier governance. Built on production-grade Agent Town orchestration. Built for the Great Indian AI Internship Challenge 2026."
+"Three agent patterns that solve real kirana store problems: stock intelligence, demand forecasting, and supplier governance. Built on production-grade KiranaCrew orchestration. Built for the Great Indian AI Internship Challenge 2026."
 
 ---
 
@@ -160,7 +160,7 @@ Show McpGovernancePanel. "Every ERP call is logged with the agent identity, capa
 - [ ] Credit consumption measured: 10 Prisma calls, note credit delta
 - [ ] Build `lib/server/tts.mjs` with `timbreProvider()` (REST POST to `https://api.gnani.ai/v1/tts/inference`, `X-API-Key-ID` auth)
 - [ ] Test Timbre: 5 Kannada text strings synthesized and played in browser
-- [ ] Note: the NammaOps workflows and voice router are already complete — zero changes to business logic needed
+- [ ] Note: the KiranaCrew workflows and voice router are already complete — zero changes to business logic needed
 
 **Go/No-go**: Both Prisma and Timbre make at least one successful call with `X-API-Key-ID` auth.
 
@@ -173,7 +173,7 @@ Show McpGovernancePanel. "Every ERP call is logged with the agent identity, capa
 **Deliverables**:
 
 - [ ] Browser audio capture → server `POST /api/nammaops/voice/transcribe` → Prisma STT → transcript displayed
-- [ ] Transcript → NammaOps `parseCommand()` → workflow start → wait → voice contract
+- [ ] Transcript → KiranaCrew `parseCommand()` → workflow start → wait → voice contract
 - [ ] Voice contract facts → server `POST /api/nammaops/voice/speak` → Timbre TTS → audio bytes
 - [ ] Audio bytes → browser audio element → plays Kannada/Hindi response
 - [ ] Test: "Check the stock of milk" spoken → Prisma transcribes → workflow runs → Timbre responds
@@ -219,7 +219,7 @@ Show McpGovernancePanel. "Every ERP call is logged with the agent identity, capa
 
 **Deliverables**:
 
-- [ ] NammaOps voice page polished: transcript display, agent activity animation, Timbre waveform, approval panel
+- [ ] KiranaCrew voice page polished: transcript display, agent activity animation, Timbre waveform, approval panel
 - [ ] Hinglish test: "Kya kya order karna hai check karo" — Prisma transcribes; workflow identifies prepare_reorder intent
 - [ ] Test 5 Hinglish code-mixed queries; note Prisma accuracy
 - [ ] Record preliminary demo video (can use for submission if Days 7-8 don't produce better)
@@ -289,18 +289,18 @@ Show McpGovernancePanel. "Every ERP call is logged with the agent identity, capa
 
 ## 8. Prioritized Feature List
 
-| Feature                                  | Priority       | Status                    | Notes                                                       |
-| ---------------------------------------- | -------------- | ------------------------- | ----------------------------------------------------------- |
-| Gnani Prisma STT wired to NammaOps voice | MUST           | [NEEDS GNANI INTEGRATION] | `gnaniProvider()` coded; needs routing                      |
-| Gnani Timbre TTS                         | MUST           | [NOT BUILT]               | Build `tts.mjs` on Day 2                                    |
-| Standalone Gnani voice page              | MUST           | [NOT BUILT]               | Needed for Gnani demo                                       |
-| All five workflows (fixture)             | DONE           | [IMPLEMENTED]             | Demo-ready today                                            |
-| All five read workflows (live ERPNext)   | DONE           | [IMPLEMENTED]             | Demo-ready today                                            |
-| Owner approval (fixture)                 | DONE           | [IMPLEMENTED]             | Demo-ready today                                            |
-| NammaOpsPanel HUD                        | DONE           | [IMPLEMENTED]             | Demo-ready today                                            |
-| McpGovernancePanel HUD                   | DONE           | [IMPLEMENTED]             | Demo-ready today                                            |
-| Kannada voice input via Gnani            | MUST           | [NEEDS GNANI INTEGRATION] | Day 3-4                                                     |
-| Hindi/Hinglish voice input               | SHOULD         | [NEEDS GNANI INTEGRATION] | Day 5-6                                                     |
-| Evon LLM reasoning                       | CONDITIONAL    | [NOT BUILT]               | Use GPT-4o-mini / Gemini Flash fallback if H100 unavailable |
-| Live ERPNext PO drafts                   | NICE           | [FIXTURE ONLY]            | Not needed for demo                                         |
-| Multi-store / multi-tenant               | POST-HACKATHON | —                         | Out of scope                                                |
+| Feature                                    | Priority       | Status                    | Notes                                                       |
+| ------------------------------------------ | -------------- | ------------------------- | ----------------------------------------------------------- |
+| Gnani Prisma STT wired to KiranaCrew voice | MUST           | [NEEDS GNANI INTEGRATION] | `gnaniProvider()` coded; needs routing                      |
+| Gnani Timbre TTS                           | MUST           | [NOT BUILT]               | Build `tts.mjs` on Day 2                                    |
+| Standalone Gnani voice page                | MUST           | [NOT BUILT]               | Needed for Gnani demo                                       |
+| All five workflows (fixture)               | DONE           | [IMPLEMENTED]             | Demo-ready today                                            |
+| All five read workflows (live ERPNext)     | DONE           | [IMPLEMENTED]             | Demo-ready today                                            |
+| Owner approval (fixture)                   | DONE           | [IMPLEMENTED]             | Demo-ready today                                            |
+| KiranaCrewPanel HUD                        | DONE           | [IMPLEMENTED]             | Demo-ready today                                            |
+| McpGovernancePanel HUD                     | DONE           | [IMPLEMENTED]             | Demo-ready today                                            |
+| Kannada voice input via Gnani              | MUST           | [NEEDS GNANI INTEGRATION] | Day 3-4                                                     |
+| Hindi/Hinglish voice input                 | SHOULD         | [NEEDS GNANI INTEGRATION] | Day 5-6                                                     |
+| Evon LLM reasoning                         | CONDITIONAL    | [NOT BUILT]               | Use GPT-4o-mini / Gemini Flash fallback if H100 unavailable |
+| Live ERPNext PO drafts                     | NICE           | [FIXTURE ONLY]            | Not needed for demo                                         |
+| Multi-store / multi-tenant                 | POST-HACKATHON | —                         | Out of scope                                                |

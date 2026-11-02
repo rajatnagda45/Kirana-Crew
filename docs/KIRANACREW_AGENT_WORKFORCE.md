@@ -18,7 +18,7 @@ The workforce is defined in two files:
 
 ```mermaid
 flowchart TD
-    Owner["Store Owner\n(voice or NammaOps panel)"] --> Manager
+    Owner["Store Owner\n(voice or KiranaCrew panel)"] --> Manager
 
     Manager["Manager Agent\nnammaops-manager\nNo ERP access"]
 
@@ -267,5 +267,5 @@ The `workforce.json` also defines a `voice_departments` section that maps voice 
 ## Implementation Notes
 
 - **Setup is idempotent.** `setupWorkforce()` can be called multiple times safely. Existing specializations, seat bindings, and grants are reused.
-- **Blockers are reported, not thrown.** If a tool is not discovered or a seat is unavailable, `setupWorkforce()` returns a `blockers` array instead of crashing. The UI shows these blockers in the NammaOps panel.
+- **Blockers are reported, not thrown.** If a tool is not discovered or a seat is unavailable, `setupWorkforce()` returns a `blockers` array instead of crashing. The UI shows these blockers in the KiranaCrew panel.
 - **Fixture vs. live.** The fixture binding (`binding.fixture.json`) connects to `lib/mcp/fixture-erpnext-server.mjs`, which serves synthetic data from `config/nammaops/fixture-data.json`. The live binding (`binding.hvgerp.json`) connects to `lib/mcp/hvgerp-adapter-server.mjs`, which calls the real ERPNext API using `hvgerp-mcp v3.7.0`.

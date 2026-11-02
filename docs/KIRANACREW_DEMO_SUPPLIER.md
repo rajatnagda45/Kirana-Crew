@@ -1,7 +1,7 @@
 # Demo: supplier delivery discrepancy (Track 03 reasoning architecture)
 
 **Story.** Purchase order PO-1042 ordered 100 units; receiving recorded 85. Was the shipment
-short, was the receipt recorded wrongly, or are units still in transit? Agent Town investigates
+short, was the receipt recorded wrongly, or are units still in transit? KiranaCrew investigates
 with live Zetaris data, recalls earlier verified findings through H-MEM, applies an explicit
 policy and recommends the next action. It never approves payment or changes records.
 
@@ -33,7 +33,7 @@ node --env-file=.env.local scripts/supplier-demo.mjs verify # read-only
 
 ## Before recording
 
-1. Zetaris running (Docker `zetaris-*`), Nightshift on `:8088`, Agent Town started (`pnpm dev`).
+1. Zetaris running (Docker `zetaris-*`), Nightshift on `:8088`, KiranaCrew started (`pnpm dev`).
 2. Load day 1 (fresh timestamps; status records are valid for 24 hours):
    ```sh
    pnpm supplier:demo generate day1 && pnpm supplier:demo load
@@ -59,7 +59,7 @@ report is **blocked** — "PO-9999 has no purchase order, receipt, shipment or s
 
 - "Instead of checking disconnected records manually, the agents collect the evidence into one investigation."
 - "The first explanation is a hypothesis, not a fact. It must survive evidence and policy checks."
-- "Agent Town remembers what it learned about this order, but never treats yesterday's evidence as proof of today."
+- "KiranaCrew remembers what it learned about this order, but never treats yesterday's evidence as proof of today."
 - "The result is an auditable recommendation, not an unauthorized transaction."
 
 ## What is real, and what is not

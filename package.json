@@ -1,7 +1,7 @@
 {
-  "name": "@rajatnagda45/agent-town",
+  "name": "@rajatnagda45/kiranacrew",
   "version": "0.5.0",
-  "description": "Pixel-style AI Agent collaboration community — visualize your agents working in a pixel art office",
+  "description": "Voice-first autonomous AI workforce for Indian kirana stores — speak in Kannada, Hindi or Hinglish, your crew handles the rest",
   "license": "MIT",
   "engines": {
     "node": ">=22.19.0"
@@ -54,12 +54,13 @@
     "registry": "https://registry.npmjs.org/"
   },
   "keywords": [
-    "agent",
-    "ai",
+    "kirana",
+    "ai-workforce",
+    "voice-ai",
+    "gnani",
+    "india",
+    "erpnext",
     "pixel-art",
-    "collaboration",
-    "visualization",
-    "phaser",
     "nextjs"
   ],
   "dependencies": {

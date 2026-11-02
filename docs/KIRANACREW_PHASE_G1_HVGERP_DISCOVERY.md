@@ -34,7 +34,7 @@ submitting a purchase order exists only as the generic `erpnext_doc_submit` (ano
 
 Latency 37-342 ms per call. List results carry `count`, `returned`, `has_more`.
 
-## Gaps against NammaOps business capabilities (for G2)
+## Gaps against KiranaCrew business capabilities (for G2)
 
 | Capability                                 | Finding                                                                                                                                                                                         |
 | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -62,7 +62,7 @@ Latency 37-342 ms per call. List results carry `count`, `returned`, `has_more`.
 # Phase G2: live read-only binding for the voice agents
 
 Alice, Bob, Carol and Dave reach live ERPNext through the same path as fixture data: voice tool
-`nammaops_business_query` -> voice router -> NammaOps workflow -> specialist agents -> Phase C
+`nammaops_business_query` -> voice router -> KiranaCrew workflow -> specialist agents -> Phase C
 governance gateway -> **`lib/mcp/hvgerp-adapter-server.mjs`** -> pinned `@hvgllc/hvgerp-mcp@3.7.0` -> ERPNext.
 
 ## How to run live
@@ -115,7 +115,7 @@ Answers carry `source: "erpnext_live"` and the data label in their limitations.
   Remove `NAMMAOPS_BINDING` to return to fixture data. Backup of the previous file kept outside the repo.
 - Finance bound to seat-5 (label "Finance"); setup: 5 specialists, no blockers, 4 disabled writes.
   seat-4 still holds three `outcome_unknown` office-chat tasks from 27 Oct and was left alone.
-- The NammaOps panel now states "Data source: live ERPNext (read-only ...)" on live data.
+- The KiranaCrew panel now states "Data source: live ERPNext (read-only ...)" on live data.
 
 | Level                   | Result                                                                                                                                                                                                                                                       |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

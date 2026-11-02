@@ -3,12 +3,12 @@ import { NAMMAOPS_OPENAPI } from "@/lib/server/nammaops/openapi.mjs";
 
 type Any = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-export const metadata = { title: "NammaOps API reference" };
+export const metadata = { title: "KiranaCrew API reference" };
 
 const METHOD_COLOURS: Record<string, string> = { get: "#2f855a", post: "#2b6cb0" };
 const pre = (value: unknown) => JSON.stringify(value, null, 2);
 
-/** Development reference for the NammaOps REST API, rendered from the served OpenAPI document. */
+/** Development reference for the KiranaCrew REST API, rendered from the served OpenAPI document. */
 export default function ApiDocsPage() {
   if (process.env.NODE_ENV === "production") notFound();
   const spec: Any = NAMMAOPS_OPENAPI;

@@ -1,8 +1,8 @@
-# Agent Town — Reusability Matrix for NammaOps / KiranaCrew
+# KiranaCrew — Reusability Matrix for KiranaCrew / KiranaCrew
 
-> **Note (2026-11-02):** The public product brand is now **KiranaCrew**. This matrix documents which Agent Town components were reused for the kirana store workforce.
+> **Note (2026-11-02):** The public product brand is now **KiranaCrew**. This matrix documents which KiranaCrew components were reused for the kirana store workforce.
 
-**Target product**: NammaOps — AI Workforce for Kirana Stores  
+**Target product**: KiranaCrew — AI Workforce for Kirana Stores  
 A voice-first, vernacular-language, domain-specific B2B SaaS product serving small Indian grocery stores. Key characteristics:
 
 - Voice-first interface (owner speaks, AI acts)
@@ -105,7 +105,7 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 
 **What to adapt:**
 
-- Memory scope is currently `(gatewayId, agentId, sessionKey, seatId, bindingRevision)`. For NammaOps, scope should be `(tenantId, storeId, sessionKey)`.
+- Memory scope is currently `(gatewayId, agentId, sessionKey, seatId, bindingRevision)`. For KiranaCrew, scope should be `(tenantId, storeId, sessionKey)`.
 - The `applicability` field (200 char topic) is a good fit for kirana queries like "tomato supplier reliability" or "evening milk demand patterns."
 - `DecisionMemory` (supplier decisions) is directly usable for kirana supplier management with cosmetic renaming.
 - The vendored H-MEM reference engine (`lib/vendor/hmem-reference`) can be reused as-is.
@@ -253,7 +253,7 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 
 **What to adapt:**
 
-- For NammaOps, the primary "gateway" may be a custom agent runtime or a managed service. The adapter pattern is directly reusable.
+- For KiranaCrew, the primary "gateway" may be a custom agent runtime or a managed service. The adapter pattern is directly reusable.
 - Consider replacing OpenClaw dependency with a vendor-neutral abstraction.
 - Nightshift's `maxToolCalls: 0` limit makes it unsuitable for kirana operations that require tool use (reading stock DB, placing orders).
 
@@ -261,7 +261,7 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 
 ---
 
-## Priority Order for NammaOps
+## Priority Order for KiranaCrew
 
 | Priority  | Subsystem               | Action                                                  | Weeks            |
 | --------- | ----------------------- | ------------------------------------------------------- | ---------------- |

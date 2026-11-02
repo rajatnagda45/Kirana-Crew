@@ -89,7 +89,7 @@ Every submission must integrate at least one of the following Gnani AI models:
 - The requirement is "at least one Gnani AI model" — Prisma + Timbre alone satisfy this requirement
 - Using all three models is still the strongest strategy for award eligibility, but Evon requires separate hardware
 
-**Strategy note for NammaOps**: Using Prisma (STT) + a fallback reasoning model + Timbre (TTS) satisfies the competition requirement. If H100 GPU access is available, self-hosting Evon strengthens the "deep integration" case. If not, disclose the fallback model transparently. [UPDATED — VERIFIED]
+**Strategy note for KiranaCrew**: Using Prisma (STT) + a fallback reasoning model + Timbre (TTS) satisfies the competition requirement. If H100 GPU access is available, self-hosting Evon strengthens the "deep integration" case. If not, disclose the fallback model transparently. [UPDATED — VERIFIED]
 
 ---
 
@@ -169,8 +169,8 @@ Each award is worth ₹50,000. Maximum one award per individual/team. Award judg
 **Description**: Best project in a regional or low-resource Indian language
 **What is rewarded**: Demonstrating that Gnani's models can serve speakers of languages beyond Hindi/English — particularly underserved regional languages
 **Criteria** [INFERRED from name and description]: Depth of language-specific work, actual functionality in the target language, quality of transcription/synthesis, impact on speakers of that language
-**What NammaOps needs**: Strong Kannada-language functionality; the store management domain is directly relevant to rural/Tier-2 Kannada-speaking regions
-**Competitiveness**: HIGH — NammaOps targets Kannada as primary language
+**What KiranaCrew needs**: Strong Kannada-language functionality; the store management domain is directly relevant to rural/Tier-2 Kannada-speaking regions
+**Competitiveness**: HIGH — KiranaCrew targets Kannada as primary language
 
 ---
 
@@ -179,7 +179,7 @@ Each award is worth ₹50,000. Maximum one award per individual/team. Award judg
 **Description**: Best code-mixed voice application (Hinglish, Tanglish, Benglish)
 **What is rewarded**: Applications that work with natural code-mixing — the way Indians actually speak
 **Criteria** [INFERRED]: Quality of code-mixed transcription handling, naturalness of mixed-language output, demonstrated understanding of the linguistic phenomenon
-**What NammaOps needs**: Support for "Kannada-English" (Kanglish) and Hindi-English (Hinglish) kirana owner speech; realistic test cases showing accurate transcription of "ek kilo tomato hai kya?" type queries
+**What KiranaCrew needs**: Support for "Kannada-English" (Kanglish) and Hindi-English (Hinglish) kirana owner speech; realistic test cases showing accurate transcription of "ek kilo tomato hai kya?" type queries
 **Competitiveness**: HIGH — Kirana store speech is inherently code-mixed
 
 ---
@@ -189,8 +189,8 @@ Each award is worth ₹50,000. Maximum one award per individual/team. Award judg
 **Description**: Most useful solution for farmers, kirana stores, or rural healthcare
 **What is rewarded**: Practical real-world utility; the award description explicitly names **kirana stores** as a target
 **Criteria** [INFERRED]: Genuine utility for real users, not just a technical demo; measurable benefit; plausibility of actual deployment
-**What NammaOps needs**: A demo scenario that shows a real kirana store problem being solved; ideally with a real or simulated kirana owner persona
-**Competitiveness**: VERY HIGH — NammaOps is purpose-built for this exact category; kirana stores are named verbatim
+**What KiranaCrew needs**: A demo scenario that shows a real kirana store problem being solved; ideally with a real or simulated kirana owner persona
+**Competitiveness**: VERY HIGH — KiranaCrew is purpose-built for this exact category; kirana stores are named verbatim
 
 ---
 
@@ -199,7 +199,7 @@ Each award is worth ₹50,000. Maximum one award per individual/team. Award judg
 **Description**: Best performance on messy telephonic audio
 **What is rewarded**: Robustness of the STT integration under real-world noisy conditions (market sounds, phone calls, overlapping speech)
 **Criteria** [INFERRED]: Demonstrated accuracy on noisy audio; test scenarios with realistic background noise; comparison metrics if possible
-**What NammaOps needs**: Test scenarios with kirana store background noise (market sounds, TV in background, poor network); Prisma is specifically trained on telephony audio
+**What KiranaCrew needs**: Test scenarios with kirana store background noise (market sounds, TV in background, poor network); Prisma is specifically trained on telephony audio
 **Competitiveness**: MEDIUM — Requires deliberate testing and demo design; Prisma's telephony training is a technical advantage
 
 ---
@@ -209,7 +209,7 @@ Each award is worth ₹50,000. Maximum one award per individual/team. Award judg
 **Description**: Best project by a two-member team
 **What is rewarded**: Quality of the project combined with it being built by exactly two people
 **Criteria** [INFERRED]: Same as general quality, but restricted to team entries
-**What NammaOps needs**: Being a two-member team; clear documentation of each person's contribution
+**What KiranaCrew needs**: Being a two-member team; clear documentation of each person's contribution
 **Competitiveness**: If submitting as a two-person team: MEDIUM-HIGH (depends on competition field)
 
 ---
@@ -219,7 +219,7 @@ Each award is worth ₹50,000. Maximum one award per individual/team. Award judg
 **Description**: Best solo participant project
 **What is rewarded**: Exceptional achievement by a single developer
 **Criteria** [INFERRED]: Same quality bar as Two-Person Army, restricted to solo entries
-**What NammaOps needs**: If submitting solo: must meet the same quality bar
+**What KiranaCrew needs**: If submitting solo: must meet the same quality bar
 **Competitiveness**: If submitting solo: MEDIUM-HIGH
 
 ---
@@ -229,8 +229,8 @@ Each award is worth ₹50,000. Maximum one award per individual/team. Award judg
 **Description**: Most creative or unexpected usage of the Gnani AI models
 **What is rewarded**: Innovation, creativity, unexpected applications that judges find surprising
 **Criteria** [INFERRED]: Novelty of use case; creative model combination; unexpected domain application
-**What NammaOps needs**: The multi-agent orchestration architecture applied to voice-first kirana store operations is genuinely novel; emphasize the AI workforce metaphor as creative
-**Competitiveness**: MEDIUM — Other entrants may target this directly; NammaOps's novelty is the multi-agent angle
+**What KiranaCrew needs**: The multi-agent orchestration architecture applied to voice-first kirana store operations is genuinely novel; emphasize the AI workforce metaphor as creative
+**Competitiveness**: MEDIUM — Other entrants may target this directly; KiranaCrew's novelty is the multi-agent angle
 
 ---
 
@@ -239,7 +239,7 @@ Each award is worth ₹50,000. Maximum one award per individual/team. Award judg
 **Description**: Best entry from a Tier 2/3 city or college
 **What is rewarded**: Geographic diversity; talent from smaller cities and colleges
 **Criteria** [INFERRED]: Registration address/college location must be in a Tier 2/3 city or college
-**What NammaOps needs**: If team members are from Tier 2/3 cities — directly qualifies; this is a demographic criterion not a technical one
+**What KiranaCrew needs**: If team members are from Tier 2/3 cities — directly qualifies; this is a demographic criterion not a technical one
 **Competitiveness**: DEPENDS ON TEAM LOCATION
 
 ---
@@ -249,7 +249,7 @@ Each award is worth ₹50,000. Maximum one award per individual/team. Award judg
 **Description**: Best 60-second demo video
 **What is rewarded**: Production quality, clarity, and impact of the 60-second demonstration video
 **Criteria** [INFERRED]: Video quality, clarity of problem/solution communication, technical demonstration clarity, memorability
-**What NammaOps needs**: A polished 60-second video showing: (1) real voice input in Kannada/Hindi, (2) real processing, (3) real business result; tight narrative
+**What KiranaCrew needs**: A polished 60-second video showing: (1) real voice input in Kannada/Hindi, (2) real processing, (3) real business result; tight narrative
 **Competitiveness**: HIGH — A well-produced voice-first demo with real-time agent orchestration is visually compelling
 
 ---
@@ -259,7 +259,7 @@ Each award is worth ₹50,000. Maximum one award per individual/team. Award judg
 **Description**: Public votes on LinkedIn and X using the required hashtags
 **What is rewarded**: The project that receives the most authentic public engagement on social media
 **Criteria** [VERIFIED]: Public reactions, comments, reshares on nominated posts; bots and purchased engagement are disqualifying
-**What NammaOps needs**: A compelling, shareable demo video that resonates with the developer community and kirana business community; content about solving real Indian small business problems tends to perform well
+**What KiranaCrew needs**: A compelling, shareable demo video that resonates with the developer community and kirana business community; content about solving real Indian small business problems tends to perform well
 **Competitiveness**: MEDIUM — Depends heavily on network and posting strategy; the kirana store audience is large but requires reaching beyond the tech community
 
 ---
@@ -293,7 +293,7 @@ The following activities result in disqualification:
 
 **Authentic Gnani usage**: The eligibility check specifically verifies "authentic use of Gnani technology." This means the integration must be real and functional, not faked. [VERIFIED]
 
-**Synthetic data for demos**: The competition explicitly requires synthetic data in demonstrations — no real personal data of real people. This means NammaOps demos should use fictional kirana store names, fictional supplier names, and fictional inventory data. [VERIFIED]
+**Synthetic data for demos**: The competition explicitly requires synthetic data in demonstrations — no real personal data of real people. This means KiranaCrew demos should use fictional kirana store names, fictional supplier names, and fictional inventory data. [VERIFIED]
 
 **IP ownership**: [UNVERIFIED ASSUMPTION — no specific IP clause was found in the verified sources] It is standard practice for hackathons to allow participants to retain IP. However, this was not explicitly confirmed in the sources reviewed. Participants should review the full terms of service on gnani.ai before submission.
 
@@ -375,10 +375,10 @@ The competition explicitly rewards authentic engagement and explicitly prohibits
 - Respond to every comment on your post (boosts algorithm reach organically)
 - Cross-post across personal LinkedIn and X for reach
 
-**Content strategy for NammaOps:**
+**Content strategy for KiranaCrew:**
 
 - Frame the story around the kirana owner (13+ million in India), not the technology
-- Show the contrast: "Before NammaOps" (paper ledger, calling supplier manually) vs. "After NammaOps" (voice command, instant result)
+- Show the contrast: "Before KiranaCrew" (paper ledger, calling supplier manually) vs. "After KiranaCrew" (voice command, instant result)
 - Include a line in Kannada or Hindi in the post — relatable to the target audience
 - Tag relevant communities: MSME associations, startup communities, college entrepreneurship cells
 

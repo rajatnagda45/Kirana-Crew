@@ -157,7 +157,7 @@ export default function GameHud() {
         iconActive: "/ui/icons/icon-tasks-active.png",
       },
       { id: "operations", label: "Office operations", icon: "", iconActive: "" },
-      { id: "nammaops", label: "NammaOps", icon: "", iconActive: "" },
+      { id: "nammaops", label: "KiranaCrew", icon: "", iconActive: "" },
       {
         id: "workers",
         label: "Employees",
