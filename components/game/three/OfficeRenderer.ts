@@ -7,8 +7,9 @@ import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { OfficeAssets } from "./assets";
-import { buildEnvironment } from "./environment";
+import { buildEnvironment, buildStoreCollisions } from "./environment";
 import { OfficeCharacter } from "./character";
+import { CREW, CrewSim, type CrewDef } from "./crew";
 import { worldPosition, type OfficeSource, type OfficeActor } from "./types";
 
 /** Pure presentation adapter. The existing Phaser scene remains the only simulation clock. */
@@ -30,6 +31,9 @@ export class OfficeRenderer {
     string,
     { model: OfficeCharacter; label: HTMLButtonElement; activity: HTMLSpanElement }
   >();
+  private crewSim = new CrewSim(undefined, buildStoreCollisions());
+  private crewById: Map<string, CrewDef> = new Map(CREW.map((d) => [d.id, d]));
+  private selectedId: string | null = null;
   private labels = document.createElement("div");
   private prompt = document.createElement("div");
   private menu = document.createElement("div");
@@ -197,7 +201,10 @@ export class OfficeRenderer {
       true,
     )[0];
     const id = hit?.object.userData.actorId;
-    if (typeof id === "string") this.source.inspect(id);
+    if (typeof id === "string") {
+      this.selectedId = this.selectedId === id ? null : id;
+      this.source.inspect(id);
+    }
   };
   private resize() {
     if (!this.host.clientWidth || !this.host.clientHeight) return;
@@ -285,33 +292,32 @@ export class OfficeRenderer {
       pivot.rotation.y +=
         (target - pivot.rotation.y) * (this.motion.matches ? 1 : 1 - Math.exp(-dt * 10));
     }
-    const boss: OfficeActor = {
-      id: "boss",
-      label: "You",
-      spriteKey: "character_09",
-      x: frame.player.x,
-      y: frame.player.y,
-      facing: frame.player.facing,
-      moving: frame.player.moving,
-      atDesk: false,
-      status: "idle",
-      voice: "idle",
-      connection: "connected",
-      activity: "",
-      bubble: "",
-    };
-    const all = [...frame.actors, boss];
-    const ids = new Set(all.map((a) => a.id));
+    // Sync real backend activities so characters navigate to relevant store locations
+    const activitiesMap: Record<string, string> = {};
+    for (const actor of frame.actors) if (actor.activity) activitiesMap[actor.id] = actor.activity;
+    this.crewSim.setActivities(activitiesMap);
+    this.crewSim.step(dt);
+
+    // Build backend state lookup for ring colors and label text
+    const backendMap = new Map<string, OfficeActor>();
+    for (const actor of frame.actors) backendMap.set(actor.id, actor);
+
+    // Render characters from CrewSim positions (A* pathfinding) + backend metadata
+    const crewActors = this.crewSim.actors;
+    const ids = new Set(crewActors.map((a) => a.id));
     for (const [id, actor] of this.actors)
       if (!ids.has(id)) {
         actor.model.dispose();
         actor.label.remove();
         this.actors.delete(id);
       }
-    for (const actor of all) {
-      let entry = this.actors.get(actor.id);
+    for (const crewActor of crewActors) {
+      let entry = this.actors.get(crewActor.id);
       if (!entry) {
-        const model = new OfficeCharacter(this.assets, actor.id);
+        const def = this.crewById.get(crewActor.id);
+        const palette = def?.palette ?? { hair: "#744b35", shirt: "#48566b", skin: "#d3a182" };
+        const prop = def?.prop ?? "none";
+        const model = new OfficeCharacter(this.assets, crewActor.id, palette, prop);
         this.scene.add(model.root);
         const label = document.createElement("button");
         label.className = "office-actor-label";
@@ -319,26 +325,34 @@ export class OfficeRenderer {
         const name = document.createElement("strong");
         const activity = document.createElement("span");
         label.append(name, activity);
-        label.addEventListener("click", () => this.source.inspect(actor.id));
+        label.addEventListener("click", () => this.source.inspect(crewActor.id));
         this.labels.append(label);
         entry = { model, label, activity };
-        this.actors.set(actor.id, entry);
+        this.actors.set(crewActor.id, entry);
       }
-      entry.model.update(actor, dt, this.motion.matches);
+      const backend = backendMap.get(crewActor.id);
+      entry.model.update(
+        crewActor,
+        dt,
+        this.selectedId === crewActor.id,
+        backend?.status,
+        backend?.voice !== "idle" && backend?.voice !== undefined,
+      );
+      const displayName = backend?.label ?? crewActor.name;
       const name = entry.label.firstElementChild!;
-      if (name.textContent !== actor.label) name.textContent = actor.label;
-      const activity = actor.bubble || actor.activity;
-      if (entry.activity.textContent !== activity) entry.activity.textContent = activity;
-      entry.activity.hidden = !actor.bubble && actor.voice === "idle" && actor.status === "idle";
-      entry.label.dataset.status = actor.status;
-      entry.label.dataset.activity = actor.ambient ?? "idle";
+      if (name.textContent !== displayName) name.textContent = displayName;
+      const activityText = backend?.bubble || backend?.activity || crewActor.activity;
+      if (entry.activity.textContent !== activityText) entry.activity.textContent = activityText;
+      entry.activity.hidden =
+        !backend?.bubble && backend?.voice === "idle" && (!backend || backend.status === "idle");
+      entry.label.dataset.status = backend?.status ?? "idle";
       if (process.env.NODE_ENV === "development") {
-        entry.label.dataset.x = actor.x.toFixed(1);
-        entry.label.dataset.y = actor.y.toFixed(1);
+        entry.label.dataset.x = crewActor.x.toFixed(1);
+        entry.label.dataset.z = crewActor.z.toFixed(1);
       }
       entry.label.setAttribute(
         "aria-label",
-        `${actor.label}${activity ? `: ${activity}` : ""}. Inspect worker`,
+        `${displayName}${activityText ? `: ${activityText}` : ""}. Inspect worker`,
       );
     }
     if (this.target) {
@@ -363,8 +377,8 @@ export class OfficeRenderer {
     });
     this.camera.updateMatrixWorld();
     const used: Array<{ x: number; y: number }> = [];
-    for (const actor of all) {
-      const entry = this.actors.get(actor.id)!;
+    for (const crewActor of crewActors) {
+      const entry = this.actors.get(crewActor.id)!;
       const pos = entry.model.root.position;
       this.point.set(pos.x, 1.8, pos.z).project(this.camera);
       let x = (this.point.x * 0.5 + 0.5) * this.width,
