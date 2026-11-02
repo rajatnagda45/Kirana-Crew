@@ -4,7 +4,7 @@
 
 ## User and problem
 
-An operations lead must explain a stock discrepancy before approving a correction. Today they collect counts, balances and movement records, reconcile timestamps, consult a colleague, and preserve enough evidence to defend the decision. Agent Town aims to keep that review attached to durable task and source identities. A plausible answer without traceability is insufficient.
+An operations lead must explain a stock discrepancy before approving a correction. Today they collect counts, balances and movement records, reconcile timestamps, consult a colleague, and preserve enough evidence to defend the decision. KiranaCrew aims to keep that review attached to durable task and source identities. A plausible answer without traceability is insufficient.
 
 ## Evidence already available
 
@@ -14,13 +14,13 @@ The supplied-data latency example has five values: 10, 20, 30, 40, 100 ms. Mean 
 
 Automated recovery, deduplication and evidence tests use isolated databases and mocked providers. Test pass counts measure regression coverage, not a production reliability percentage. No new human timing observations were collected in this mission.
 
-## Equivalent baseline and Agent Town procedures
+## Equivalent baseline and KiranaCrew procedures
 
 Use five approved, frozen, non-sensitive inventory cases: balanced stock, missing movement, duplicate movement, stale count, and ambiguous discrepancy. Mark synthetic cases as synthetic in both arms. An independent reviewer writes the expected calculation and acceptable uncertainty before either arm runs.
 
-**Baseline:** a competent operator receives the same four sources, question and cutoff time. They may use their normal spreadsheet, calculator, search and existing chat assistant. They produce a recommendation, citations, calculations and limitations. Do not artificially disable tools or make the baseline search for files Agent Town receives automatically.
+**Baseline:** a competent operator receives the same four sources, question and cutoff time. They may use their normal spreadsheet, calculator, search and existing chat assistant. They produce a recommendation, citations, calculations and limitations. Do not artificially disable tools or make the baseline search for files KiranaCrew receives automatically.
 
-**Agent Town:** the same operator receives the same sources and objective through the reviewed investigation workflow. Record setup separately. Start timing at source/question availability, include human review and any correction, and stop only when the same required deliverable is accepted. Export the investigation record and preserve original source evidence privately.
+**KiranaCrew:** the same operator receives the same sources and objective through the reviewed investigation workflow. Record setup separately. Start timing at source/question availability, include human review and any correction, and stop only when the same required deliverable is accepted. Export the investigation record and preserve original source evidence privately.
 
 Alternate arm order across cases to reduce learning effects. Repeat each case three times per arm (15 trials per arm), record warm/cold state, model and version, and report repeated-case learning as a limitation. Prefer multiple operators for a later study. Do not pool different datasets or hide failures.
 
@@ -37,7 +37,7 @@ A human step is a deliberate navigation, copy, command, review or correction; do
 ## Calculations and reporting
 
 - Total task time = end minus start; include failed attempts and review. Report setup separately.
-- Paired time difference = baseline time minus Agent Town time for the same case/trial. Report all observations, median difference and range; compute percentage only against a nonzero paired baseline.
+- Paired time difference = baseline time minus KiranaCrew time for the same case/trial. Report all observations, median difference and range; compute percentage only against a nonzero paired baseline.
 - Evidence coverage = valid cited claims / total checkable claims. Validate the cited source actually supports each claim.
 - Completion and correctness = counts / attempted trials, with unresolved and timeout counts alongside them. Set a common timeout before testing.
 - Duplicate dispatches = repeated provider executions for the same accepted task identity; distinguish a bounded intentional revision.
@@ -51,4 +51,4 @@ Use [the runbook](DEMO_RUNBOOK.md) and the root README's sponsor workflow. Spons
 
 ## Final sprint experiment decision
 
-No paired experiment was run. Local configuration was supplied, but both sponsor services refused connections before authentication or query execution. A human baseline against a failed or unavailable Agent Town arm would not measure the intended workflow. The recorded latency example is useful for checking arithmetic and traceability, but is too small to establish operational productivity. Keep the trial count at zero until equivalent-case inputs, reachable services, reviewed provider usage and a human operator are available.
+No paired experiment was run. Local configuration was supplied, but both sponsor services refused connections before authentication or query execution. A human baseline against a failed or unavailable KiranaCrew arm would not measure the intended workflow. The recorded latency example is useful for checking arithmetic and traceability, but is too small to establish operational productivity. Keep the trial count at zero until equivalent-case inputs, reachable services, reviewed provider usage and a human operator are available.

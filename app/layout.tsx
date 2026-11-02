@@ -17,8 +17,8 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Agent Town",
-  description: "A pixel office where AI agents work",
+  title: "KiranaCrew",
+  description: "Voice-first autonomous AI workforce for Indian kirana stores",
 };
 
 export default function RootLayout({

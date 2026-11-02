@@ -1,4 +1,4 @@
-# NammaOps — Actual Implemented Architecture
+# KiranaCrew — Actual Implemented Architecture
 
 > This document reflects the codebase as it exists on November 2, 2026. It supersedes all prior "proposed" architecture documents. Every claim is sourced from reading the code directly.
 > Status labels: [IMPLEMENTED] [STUBBED] [NEEDS GNANI INTEGRATION] [FIXTURE ONLY] [LIVE READY]
@@ -7,7 +7,7 @@
 
 ## 1. What Has Been Built
 
-NammaOps is a fully functional kirana-store AI operations platform layered on top of Agent Town. The core intelligence is a deterministic multi-agent workflow engine — no LLM is required for business logic, routing, or calculations. An LLM (the existing OpenClaw Manager) is only used for an optional natural-language summary of a completed workflow result.
+KiranaCrew is a fully functional kirana-store AI operations platform layered on top of KiranaCrew. The core intelligence is a deterministic multi-agent workflow engine — no LLM is required for business logic, routing, or calculations. An LLM (the existing OpenClaw Manager) is only used for an optional natural-language summary of a completed workflow result.
 
 ### Component Status
 
@@ -33,11 +33,11 @@ NammaOps is a fully functional kirana-store AI operations platform layered on to
 | Gemini STT provider (fallback)                                         | `stt.mjs` — `geminiProvider()`                     | [IMPLEMENTED]                       |
 | Fixture STT provider (test)                                            | `stt.mjs` — `fixtureProvider()`                    | [IMPLEMENTED]                       |
 | REST API (14 endpoints)                                                | `api.mjs` + `openapi.mjs`                          | [IMPLEMENTED]                       |
-| NammaOpsPanel UI                                                       | `components/hud/NammaOpsPanel.tsx`                 | [IMPLEMENTED]                       |
+| KiranaCrewPanel UI                                                     | `components/hud/KiranaCrewPanel.tsx`               | [IMPLEMENTED]                       |
 | McpGovernancePanel UI                                                  | `components/hud/McpGovernancePanel.tsx`            | [IMPLEMENTED]                       |
 | Governed MCP proxy for OpenClaw                                        | `governed-tools-mcp.mjs`                           | [IMPLEMENTED]                       |
 | Gnani Timbre TTS integration                                           | NOT PRESENT in codebase                            | [NEEDS GNANI INTEGRATION]           |
-| Voice TTS for NammaOps responses                                       | Gemini Live voices (Kore/Puck/Aoede/Charon) used   | [PARTIAL — uses Gemini, not Timbre] |
+| Voice TTS for KiranaCrew responses                                     | Gemini Live voices (Kore/Puck/Aoede/Charon) used   | [PARTIAL — uses Gemini, not Timbre] |
 
 ---
 
@@ -47,14 +47,14 @@ NammaOps is a fully functional kirana-store AI operations platform layered on to
 graph TB
     subgraph "Browser"
         VA[Voice Agent — Gemini Live session<br/>Alice / Bob / Carol / Dave]
-        PANEL[NammaOpsPanel HUD]
+        PANEL[KiranaCrewPanel HUD]
         GOVPANEL[McpGovernancePanel HUD]
     end
 
-    subgraph "Agent Town Server (localhost:3108)"
+    subgraph "KiranaCrew Server (localhost:3108)"
         RTAPI[runtime-api.mjs<br/>routes /api/nammaops/*]
 
-        subgraph "NammaOps Engine"
+        subgraph "KiranaCrew Engine"
             VR[VoiceRouter<br/>voice-router.mjs]
             WF[Workflows<br/>workflows.mjs]
             OA[OwnerApprovals<br/>owner-approvals.mjs]
@@ -160,7 +160,7 @@ sequenceDiagram
     Browser-->>Owner: plays Kannada/Hindi response
 ```
 
-**The Gnani STT REST provider is fully coded (`gnaniProvider()` in `stt.mjs`). It only needs `GNANI_API_KEY` in the environment and `AGENT_TOWN_STT_PROVIDER=gnani`. The gap is wiring this to the NammaOps voice path (today voice goes through Gemini Live's built-in STT, not Gnani Prisma). Gnani Timbre TTS has zero implementation in the codebase — it must be written.**
+**The Gnani STT REST provider is fully coded (`gnaniProvider()` in `stt.mjs`). It only needs `GNANI_API_KEY` in the environment and `AGENT_TOWN_STT_PROVIDER=gnani`. The gap is wiring this to the KiranaCrew voice path (today voice goes through Gemini Live's built-in STT, not Gnani Prisma). Gnani Timbre TTS has zero implementation in the codebase — it must be written.**
 
 ---
 
@@ -218,7 +218,7 @@ stateDiagram-v2
     approval_required --> denied: developer denies
 ```
 
-Every ERP call in NammaOps passes through this state machine under the identity of the specialist agent making the call. The owner approval for purchase orders is a separate business gate on top of this.
+Every ERP call in KiranaCrew passes through this state machine under the identity of the specialist agent making the call. The owner approval for purchase orders is a separate business gate on top of this.
 
 ---
 
@@ -266,11 +266,11 @@ Verified live: 36 items, 35 bins, 479 invoices, P&L reconciles, 64 governed read
 
 ## 7. What Needs Gnani Integration (Exact Files and Functions)
 
-### Gap 1: Wire Gnani Prisma STT to NammaOps Voice Path
+### Gap 1: Wire Gnani Prisma STT to KiranaCrew Voice Path
 
 **What exists**: `lib/server/stt.mjs` — `gnaniProvider()` is fully implemented. It POSTs to `https://api.vachana.ai/stt/v3` with `X-API-Key-ID` auth, handles multipart/form-data audio upload, 60s timeout, error mapping.
 
-**What is missing**: The NammaOps voice path today uses Gemini Live's built-in speech recognition (audio goes directly to Gemini, not to Gnani). To use Gnani Prisma, a separate audio capture + STT path must be added that:
+**What is missing**: The KiranaCrew voice path today uses Gemini Live's built-in speech recognition (audio goes directly to Gemini, not to Gnani). To use Gnani Prisma, a separate audio capture + STT path must be added that:
 
 1. Captures audio from the browser (existing AudioWorklet infrastructure in `lib/voice/`)
 2. Sends audio bytes to server at `POST /api/voice/transcribe` or similar
@@ -279,7 +279,7 @@ Verified live: 36 items, 35 bins, 479 invoices, P&L reconciles, 64 governed read
 
 Required env vars: `AGENT_TOWN_STT_PROVIDER=gnani`, `GNANI_API_KEY=<key>`
 
-**Files to change**: Add a server route (possibly in `runtime-api.mjs` or a new `stt-api.mjs`); add a browser component for transcript display; optionally add a standalone NammaOps voice page separate from the existing Gemini Live voice page.
+**Files to change**: Add a server route (possibly in `runtime-api.mjs` or a new `stt-api.mjs`); add a browser component for transcript display; optionally add a standalone KiranaCrew voice page separate from the existing Gemini Live voice page.
 
 ### Gap 2: Implement Gnani Timbre TTS
 
@@ -291,7 +291,7 @@ Required env vars: `AGENT_TOWN_STT_PROVIDER=gnani`, `GNANI_API_KEY=<key>`
 
 ### Gap 3 (optional): Standalone Gnani Voice Page
 
-The current voice path is deeply coupled to Gemini Live. For the hackathon demo, a standalone page at `/nammaops/voice` that uses Gnani Prisma STT + NammaOps intent routing + Gnani Timbre TTS would be the most direct Gnani integration demonstration and would not require changing the existing Gemini Live voice path at all.
+The current voice path is deeply coupled to Gemini Live. For the hackathon demo, a standalone page at `/nammaops/voice` that uses Gnani Prisma STT + KiranaCrew intent routing + Gnani Timbre TTS would be the most direct Gnani integration demonstration and would not require changing the existing Gemini Live voice path at all.
 
 This is the recommended approach for Day 2-3 of the hackathon schedule.
 

@@ -1,4 +1,4 @@
-# Phase D: NammaOps workforce and three workflows (fixture-first)
+# Phase D: KiranaCrew workforce and three workflows (fixture-first)
 
 ## Blueprint reconciliation
 
@@ -9,7 +9,7 @@ submit; an event per business action; ERPNext as the source of truth.
 
 **Superseded:** local ERPNext Docker (memory) → test fixture, hosted ERPNext later; unpinned
 `npx @hvgllc/hvgerp-mcp` → reviewed and pinned 3.7.0, not installed yet; new backend and Postgres
-tables → existing Agent Town modules and `runtime_records`; in-memory approvals → persisted, PIN
+tables → existing KiranaCrew modules and `runtime_records`; in-memory approvals → persisted, PIN
 approvals; Gnani → Phase E; town buildings → the world is one office, agents are mapped to seats.
 
 **Blocked:** real ERPNext URL and credentials; hvgerp-mcp `listTools()` discovery and result
@@ -26,7 +26,7 @@ normalizers; OpenClaw MCP proxy registration; OpenClaw latency (5–15 min per t
 | Calculations          | `lib/server/nammaops/calculations.mjs`             | deterministic, no model                                   |
 | Owner approval        | `lib/server/nammaops/owner-approvals.mjs`          | gateway, `safeSecretEqual`                                |
 | REST                  | `lib/server/nammaops/api.mjs`                      | runtime handler                                           |
-| UI                    | `components/hud/NammaOpsPanel.tsx`                 | HUD flyout, `/api/runtime/events`                         |
+| UI                    | `components/hud/KiranaCrewPanel.tsx`               | HUD flyout, `/api/runtime/events`                         |
 
 Every specialist step is a child task whose ERP reads are governed MCP calls under that agent's
 own identity, so the five agents are separately permissioned, not five chats. PO submission is
@@ -58,7 +58,7 @@ the computed ones or the reply is discarded. Default is `off`.
 
 Env for the app: `AGENT_TOWN_MCP_STDIO_ALLOWLIST='[{"command":"node","args":["lib/mcp/fixture-erpnext-server.mjs"]}]'`,
 `NAMMAOPS_OWNER_PIN=<pin>`. Then `POST /api/nammaops/setup` (needs five free bound OpenClaw seats)
-and use the NammaOps toolbar panel. Standalone demo: `node --import tsx scripts/nammaops-demo.mjs`.
+and use the KiranaCrew toolbar panel. Standalone demo: `node --import tsx scripts/nammaops-demo.mjs`.
 
 ## hvgerp-mcp 3.7.0 review (not installed, not run)
 

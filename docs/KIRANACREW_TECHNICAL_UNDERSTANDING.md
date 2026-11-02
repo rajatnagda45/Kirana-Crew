@@ -1,6 +1,6 @@
-# Agent Town — Complete Technical Understanding
+# KiranaCrew — Complete Technical Understanding
 
-> **Note (2026-11-02):** The public product brand for the kirana store workforce is now **KiranaCrew**. This document covers the full Agent Town technical architecture. For KiranaCrew hackathon documentation, see [../README.md](../README.md) and the docs in this directory.
+> **Note (2026-11-02):** The public product brand for the kirana store workforce is now **KiranaCrew**. This document covers the full KiranaCrew technical architecture. For KiranaCrew hackathon documentation, see [../README.md](../README.md) and the docs in this directory.
 
 > Reverse-engineered from source code at commit `083f7e7`. All claims cite actual file paths and function names. No fabricated features.
 
@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary
 
-Agent Town is a **pixel-art AI agent collaboration visualizer and orchestration runtime** built on Next.js 16 + Phaser 3 + Three.js. It is simultaneously:
+KiranaCrew is a **pixel-art AI agent collaboration visualizer and orchestration runtime** built on Next.js 16 + Phaser 3 + Three.js. It is simultaneously:
 
 1. A **visual frontend**: a pixel-art office rendered in Phaser (2D) with an optional cinematic Three.js 3D overlay, where animated sprite characters represent AI agents sitting at desks, walking around, and showing speech bubbles when working.
 2. A **durable task runtime**: a Node.js server (SQLite-backed) that submits tasks to external AI agent backends, tracks their status, persists results, and reconciles state across server restarts.
@@ -569,11 +569,11 @@ Server-side tracking of voice calls in `runtime_records(namespace="voiceCall")`.
 
 **Development**: `pnpm dev` → `tsx watch server.ts`; Next.js dev server + hot reload; server-side gateway connection.
 
-**Production (npm package)**: `npx agent-town` → `bin/agent-town.mjs` → `server.prod.mjs`; requires `next build` + `node scripts/prepare-package.mjs` to create standalone bundle.
+**Production (npm package)**: `npx kiranacrew` → `bin/kiranacrew.mjs` → `server.prod.mjs`; requires `next build` + `node scripts/prepare-package.mjs` to create standalone bundle.
 
 **Build outputs**: `.next/standalone/` (Next.js standalone), `bin/` (CLI entry).
 
-**Database**: SQLite file at `AGENT_TOWN_DB_PATH` (default: `~/.agent-town/tasks.sqlite`). Single-process lock enforced.
+**Database**: SQLite file at `AGENT_TOWN_DB_PATH` (default: `~/.kiranacrew/tasks.sqlite`). Single-process lock enforced.
 
 **Process requirements**: Node.js >= 22.19.0 (for `node:sqlite` built-in).
 
@@ -671,7 +671,7 @@ Node.js `node:sqlite` (built-in, requires Node >= 22.19.0) is used for all datab
 ## 19. Existing Limitations
 
 1. **No real-time WebSocket to browser**: All browser↔server communication is REST + SSE. No bidirectional push (which is fine for the read-heavy pattern but limits interactive sub-second latency).
-2. **Single SQLite database**: Single-process lock (`acquireOwner`). Cannot run multiple Agent Town instances against the same DB.
+2. **Single SQLite database**: Single-process lock (`acquireOwner`). Cannot run multiple KiranaCrew instances against the same DB.
 3. **Phaser scene not code-split**: PhaserGame is dynamically imported (no SSR) but still loads the full Phaser bundle.
 4. **NVIDIA and SpaceXAI adapters not implemented**: Environment variables are defined but no gateway adapter code exists.
 5. **Voice limited to Gemini Live**: No abstraction layer; VoiceProvider and GeminiVoiceClient are Gemini-specific. Supporting another TTS/ASR provider requires new client code.
@@ -700,15 +700,15 @@ Node.js `node:sqlite` (built-in, requires Node >= 22.19.0) is used for all datab
 
 ---
 
-## 21. NammaOps Integration (Added Nov 2026)
+## 21. KiranaCrew Integration (Added Nov 2026)
 
-### 21.1 What NammaOps Is
+### 21.1 What KiranaCrew Is
 
-NammaOps is a kirana-store AI operations subsystem layered on top of the existing Agent Town runtime. It adds five named business agents, five multi-step workflows, an MCP governance layer for ERPNext tool access, owner-approval gating for purchase orders, live ERPNext read integration, and a voice query path via the existing Gemini Live session. It does NOT replace any existing Agent Town subsystem — it is purely additive.
+KiranaCrew is a kirana-store AI operations subsystem layered on top of the existing KiranaCrew runtime. It adds five named business agents, five multi-step workflows, an MCP governance layer for ERPNext tool access, owner-approval gating for purchase orders, live ERPNext read integration, and a voice query path via the existing Gemini Live session. It does NOT replace any existing KiranaCrew subsystem — it is purely additive.
 
-All NammaOps code lives under `lib/server/nammaops/`, `lib/mcp/`, and `config/nammaops/`. The HUD gains three new panels: `NammaOpsPanel.tsx`, `McpGovernancePanel.tsx`, and `DeveloperModeModal.tsx` (expanded).
+All KiranaCrew code lives under `lib/server/nammaops/`, `lib/mcp/`, and `config/nammaops/`. The HUD gains three new panels: `KiranaCrewPanel.tsx`, `McpGovernancePanel.tsx`, and `DeveloperModeModal.tsx` (expanded).
 
-### 21.2 NammaOps Subsystem Architecture
+### 21.2 KiranaCrew Subsystem Architecture
 
 ```
 Owner Voice (Gemini Live session)
@@ -743,7 +743,7 @@ MCP stdio server:
                   └── ERPNext Cloud
 ```
 
-Owner text commands also arrive via the NammaOps REST API:
+Owner text commands also arrive via the KiranaCrew REST API:
 
 ```
 Owner types in panel → POST /api/nammaops/workflows {text: "Check the stock of milk"}
@@ -799,7 +799,7 @@ Calculations (stock analysis, supplier ranking, sales aggregation, demand foreca
 
 1. `prepare_reorder` workflow drafts POs in ERP via the procurement agent
 2. `OwnerApprovals.request()` snapshots the exact PO (order fingerprint via SHA-256 of canonical JSON)
-3. Owner sees the draft in NammaOpsPanel; enters PIN; clicks Approve or Reject
+3. Owner sees the draft in KiranaCrewPanel; enters PIN; clicks Approve or Reject
 4. `approve()`: re-reads the PO from ERP, verifies fingerprint matches, then submits — if the PO changed, the request is invalidated; nothing is submitted
 5. Submissions are idempotent: claiming the "submitting" state uses SQLite optimistic concurrency (revision check) to prevent double-submits
 6. Approval TTL: 30 minutes
@@ -809,12 +809,12 @@ Voice agents explicitly CANNOT approve. The `speak_rule` in every voice response
 
 ### 21.7 MCP Governance Layer
 
-`lib/server/mcp-governance.mjs` (pre-existing but now heavily used by NammaOps) provides:
+`lib/server/mcp-governance.mjs` (pre-existing but now heavily used by KiranaCrew) provides:
 
 - **CapabilityRegistry**: discovers tools from MCP servers, tracks schema fingerprints, holds review state (discovered → registered after developer risk review)
 - **Governance**: assigns capabilities to agents/specializations, grants operations, enforces per-call approval for EXTERNAL_ACTION risk level
 - **ToolGateway**: the single execution path for every ERP call — checks grants, logs invocations, enforces MAX_RESPONSE_BYTES (256 KB) cap
-- **governed-tools-mcp.mjs**: the proxy an OpenClaw seat registers instead of a real MCP server — routes all tool calls through the Agent Town gateway with agent identity from environment, never from tool arguments
+- **governed-tools-mcp.mjs**: the proxy an OpenClaw seat registers instead of a real MCP server — routes all tool calls through the KiranaCrew gateway with agent identity from environment, never from tool arguments
 
 The setup flow (`workforce.mjs setupWorkforce()`) automates: register server → discover tools → review capabilities with correct risk levels → create specializations → assign agents to seats → grant capabilities. This is idempotent and re-runnable.
 
@@ -900,9 +900,9 @@ All under `/api/nammaops/` (also mirrored at `/api/runtime/nammaops/`). Loopback
 
 ### 21.12 New UI Panels
 
-**NammaOpsPanel.tsx** (`components/hud/NammaOpsPanel.tsx`):
+**KiranaCrewPanel.tsx** (`components/hud/KiranaCrewPanel.tsx`):
 
-- HUD flyout titled "NammaOps"
+- HUD flyout titled "KiranaCrew"
 - Shows: workforce table (5 agents with seat, granted tools, live status), owner command textbox with 4 example buttons, workflow result sections (inventory table, reorder approval with PIN entry, demand intelligence with evidence drill-down, daily business summary), live workflow timeline
 - Subscribes to `/api/runtime/events` SSE, re-polls dashboard on `nammaops.*` or `mcp.invocation` events
 - Shows "test fixture" or "live ERPNext" banner based on data source
@@ -914,15 +914,15 @@ All under `/api/nammaops/` (also mirrored at `/api/runtime/nammaops/`). Loopback
 
 **DeveloperModeModal.tsx** — expanded with a `mcp` tab that shows McpGovernancePanel.
 
-### 21.13 Integration with Existing Agent Town Orchestration
+### 21.13 Integration with Existing KiranaCrew Orchestration
 
-NammaOps does NOT use Agent Town's `OrchestrationService`, `TeamLead`, or task pipeline for its workflow steps. Instead:
+KiranaCrew does NOT use KiranaCrew's `OrchestrationService`, `TeamLead`, or task pipeline for its workflow steps. Instead:
 
 - Each specialist step is a child task in `runtime_records` under `nammaops.task` namespace
 - The workflow record lives in `nammaops.workflow` namespace
 - ERP calls go through the Phase C `ToolGateway` (same as any other MCP tool call)
 - Owner approvals persist in `nammaops.owner-approval` namespace
 
-The optional Manager reasoning turn (`NAMMAOPS_REASONING=manager`) submits a text task to `agentTasks.submitText()`, which does use the normal Agent Town task path through an OpenClaw seat.
+The optional Manager reasoning turn (`NAMMAOPS_REASONING=manager`) submits a text task to `agentTasks.submitText()`, which does use the normal KiranaCrew task path through an OpenClaw seat.
 
-The `createNammaOps()` factory in `index.mjs` is called from `server.ts` / `server.prod.mjs` at startup, attaching the NammaOps instance to `runtime.nammaops`. The runtime API handler in `runtime-api.mjs` routes `/api/nammaops/` requests to `handleNammaOpsApi()`.
+The `createKiranaCrew()` factory in `index.mjs` is called from `server.ts` / `server.prod.mjs` at startup, attaching the KiranaCrew instance to `runtime.nammaops`. The runtime API handler in `runtime-api.mjs` routes `/api/nammaops/` requests to `handleKiranaCrewApi()`.

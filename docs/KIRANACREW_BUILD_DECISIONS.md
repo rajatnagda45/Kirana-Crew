@@ -1,4 +1,4 @@
-# NammaOps — Final Build Decisions (REVISED Nov 2, 2026)
+# KiranaCrew — Final Build Decisions (REVISED Nov 2, 2026)
 
 > **Based on a full read of all 82 new files added in the Nov 2 merge.**
 > Every claim is sourced directly from the code. Status labels are factual, not aspirational.
@@ -11,7 +11,7 @@
 
 ### What Is Fully Implemented
 
-The NammaOps engine is production-grade, tested, and running. The following work WITHOUT any Gnani API key:
+The KiranaCrew engine is production-grade, tested, and running. The following work WITHOUT any Gnani API key:
 
 **Five-agent workforce** (`config/nammaops/workforce.json`, `workforce.mjs`):
 
@@ -85,20 +85,20 @@ All workflows: deterministic calculations, no LLM inference in the critical path
 - 5 MB audio size limit
 - Supported formats: WAV, MP3, OGG, FLAC, AAC, M4A, WebM
 
-**UI panels** (`NammaOpsPanel.tsx`, `McpGovernancePanel.tsx`, `DeveloperModeModal.tsx`):
+**UI panels** (`KiranaCrewPanel.tsx`, `McpGovernancePanel.tsx`, `DeveloperModeModal.tsx`):
 
-- NammaOpsPanel: workforce table, command input, 4 preset examples, results, approval flow, demand intelligence, daily report, live timeline
+- KiranaCrewPanel: workforce table, command input, 4 preset examples, results, approval flow, demand intelligence, daily report, live timeline
 - McpGovernancePanel: server registration, tool discovery, risk review, assignment/grant editor, approval queue, audit log
 
 **OpenAPI spec** (`openapi.mjs`):
 
-- Complete OpenAPI 3.1 spec for all 14 NammaOps endpoints
+- Complete OpenAPI 3.1 spec for all 14 KiranaCrew endpoints
 - Examples are real fixture responses
 - Served at `GET /api/nammaops/openapi.json`
 
 ### What Is Stubbed
 
-Nothing in NammaOps is stubbed. All implemented features are genuinely functional.
+Nothing in KiranaCrew is stubbed. All implemented features are genuinely functional.
 
 ### What Is Missing (Must Build)
 
@@ -106,7 +106,7 @@ Nothing in NammaOps is stubbed. All implemented features are genuinely functiona
 
 2. **Standalone Gnani voice page** — The current voice path uses Gemini Live (which does its own STT/TTS). A separate `/nammaops/voice` page must be built that uses Prisma for input and Timbre for output.
 
-3. **Gnani Prisma wired to NammaOps** — `gnaniProvider()` exists and works; it needs a browser→server audio path that is separate from the existing Gemini Live session path.
+3. **Gnani Prisma wired to KiranaCrew** — `gnaniProvider()` exists and works; it needs a browser→server audio path that is separate from the existing Gemini Live session path.
 
 ---
 
@@ -123,7 +123,7 @@ Current path:  Owner speaks → Gemini Live session → Gemini STT → transcrip
 Target path:   Owner speaks → Browser AudioWorklet → POST /api/nammaops/voice/transcribe
                → server: gnaniProvider().transcribe({bytes, mime, language})
                → {transcript, provider: "gnani-prisma"}
-               → NammaOps parseCommand(transcript, today)
+               → KiranaCrew parseCommand(transcript, today)
                → workflow start
 ```
 
@@ -164,7 +164,7 @@ Once Gaps 1 and 2 are closed, a standalone page at `app/nammaops/voice/page.tsx`
 
 - Audio capture (browser)
 - Transcript display (Prisma output)
-- NammaOps workflow status (from SSE events)
+- KiranaCrew workflow status (from SSE events)
 - Timbre audio player
 
 This is the "money shot" for the hackathon video: one screen showing Prisma transcript, workflow agents activating, and Timbre playing the response.
@@ -197,7 +197,7 @@ This is the "money shot" for the hackathon video: one screen showing Prisma tran
 **Status**: Evon v3.3 is self-hosted only. Not on gnani.ai API platform. Requires H100/A100.
 **Decision**: Do NOT wait for GPU access.
 
-The Manager reasoning turn in NammaOps (`NAMMAOPS_REASONING=manager`) submits a task to the existing OpenClaw agent. For the hackathon demo, reasoning is off by default (`NAMMAOPS_REASONING=off`) — business logic is deterministic and needs no LLM reasoning.
+The Manager reasoning turn in KiranaCrew (`NAMMAOPS_REASONING=manager`) submits a task to the existing OpenClaw agent. For the hackathon demo, reasoning is off by default (`NAMMAOPS_REASONING=off`) — business logic is deterministic and needs no LLM reasoning.
 
 For a compelling demo, the Manager agent can summarize results verbally via the existing Gemini Live voice session (Alice speaks the summary). This counts as Gnani usage (Prisma + Timbre) without needing Evon.
 
@@ -210,7 +210,7 @@ For a compelling demo, the Manager agent can summarize results verbally via the 
 ### Primary: Real Deal Award
 
 **Criterion**: "Most useful real-world problem solved — for kirana stores, farmers, rural health"
-**Why NammaOps wins**: The award description explicitly names kirana stores. NammaOps is a complete kirana store operations platform — stock intelligence, supplier management, demand forecasting, financial summary, owner-controlled purchase approval. Voice input in Kannada/Hindi via Gnani Prisma. All workflows tested against live ERPNext data.
+**Why KiranaCrew wins**: The award description explicitly names kirana stores. KiranaCrew is a complete kirana store operations platform — stock intelligence, supplier management, demand forecasting, financial summary, owner-controlled purchase approval. Voice input in Kannada/Hindi via Gnani Prisma. All workflows tested against live ERPNext data.
 
 **What judges will see**:
 
@@ -224,7 +224,7 @@ For a compelling demo, the Manager agent can summarize results verbally via the 
 ### Secondary: Main Character Award
 
 **Criterion**: "Best build in a regional or low-resource Indian language"
-**Why NammaOps qualifies**: Primary language is Kannada (kn-IN) via Gnani Prisma. The fixture and live data include Indian product names (Toned Milk, Toor Dal, Sunflower Oil) with Kannada/Hindi aliases. The voice contract's `speak_rule` is designed to prevent the model from adding English numbers on top of Kannada facts.
+**Why KiranaCrew qualifies**: Primary language is Kannada (kn-IN) via Gnani Prisma. The fixture and live data include Indian product names (Toned Milk, Toor Dal, Sunflower Oil) with Kannada/Hindi aliases. The voice contract's `speak_rule` is designed to prevent the model from adding English numbers on top of Kannada facts.
 
 ---
 
@@ -278,7 +278,7 @@ For a compelling demo, the Manager agent can summarize results verbally via the 
 
 ---
 
-### Day 3 (Nov 3) — Wire Prisma to NammaOps Voice Path
+### Day 3 (Nov 3) — Wire Prisma to KiranaCrew Voice Path
 
 **Objective**: Speak → Prisma transcript → workflow starts.
 
@@ -289,7 +289,7 @@ For a compelling demo, the Manager agent can summarize results verbally via the 
 | Transcript → `parseCommand()` → `workflows.start()`                                | existing, just wire            | [ ]   |
 | Test: "Check the stock of milk" → Prisma transcribes → stock_check workflow starts | —                              | [ ]   |
 
-**Go/No-go**: Speaking a stock query in Kannada triggers a NammaOps workflow visible in the panel timeline.
+**Go/No-go**: Speaking a stock query in Kannada triggers a KiranaCrew workflow visible in the panel timeline.
 
 ---
 
@@ -333,7 +333,7 @@ For a compelling demo, the Manager agent can summarize results verbally via the 
 | Deliverable                                                             | File                                      | Done? |
 | ----------------------------------------------------------------------- | ----------------------------------------- | ----- |
 | Voice page polished: transcript, activity, audio player, approval panel | —                                         | [ ]   |
-| NammaOpsPanel shows Gnani attribution in data source banner             | `NammaOpsPanel.tsx`                       | [ ]   |
+| KiranaCrewPanel shows Gnani attribution in data source banner           | `KiranaCrewPanel.tsx`                     | [ ]   |
 | Preliminary 60-second recording made                                    | —                                         | [ ]   |
 | Compliance checklist reviewed                                           | `GNANI_HACKATHON_RULES_AND_COMPLIANCE.md` | [ ]   |
 
@@ -390,7 +390,7 @@ All six must pass before declaring the demo submission-ready.
 | ---- | ------------------------------------------------------------------------------------------------------------------------------ | ------ |
 | G1   | Gnani Prisma STT: at least 3 Kannada audio clips transcribed correctly via `https://api.vachana.ai/stt/v3` with `X-API-Key-ID` | [ ]    |
 | G2   | Gnani Timbre TTS: at least 3 Kannada text strings synthesized via Timbre API, audio plays in browser                           | [ ]    |
-| G3   | NammaOps voice round-trip: Prisma transcript → workflow → Timbre response, under 8s total                                      | [ ]    |
+| G3   | KiranaCrew voice round-trip: Prisma transcript → workflow → Timbre response, under 8s total                                    | [ ]    |
 | G4   | All three demo workflows complete end-to-end with Gnani voice (A: stock check, B: reorder+approval, C: demand forecast)        | [ ]    |
 | G5   | At least one clean 60-second screen recording exists showing all three workflows and Gnani model attribution                   | [ ]    |
 | G6   | Submission form saved and social media post draft ready with both required hashtags                                            | [ ]    |
@@ -466,15 +466,15 @@ All six must pass before declaring the demo submission-ready.
 
 ### Risk 5: Demo Deadline Miss from Scope Creep [LOW but CRITICAL]
 
-**Description**: NammaOps is fully functional today. The risk is adding unnecessary features instead of building the Gnani voice path.
+**Description**: KiranaCrew is fully functional today. The risk is adding unnecessary features instead of building the Gnani voice path.
 
 **Mitigation**:
 
 1. **HARD RULE**: Do not touch `workflows.mjs`, `calculations.mjs`, `forecast.mjs`, `owner-approvals.mjs`, `erp-binding.mjs`, or `voice-router.mjs` — these are complete.
 2. Only build the two missing components: Timbre TTS + Standalone voice page
-3. NammaOpsPanel is demo-ready today — no UI changes unless a specific Gnani attribution element is missing
+3. KiranaCrewPanel is demo-ready today — no UI changes unless a specific Gnani attribution element is missing
 
-**Contingency**: If Day 6 arrives and the standalone voice page is not complete, the demo uses the existing NammaOpsPanel (text commands) + voice via Gemini Live sessions. This is still a compelling demo showing the full business intelligence platform.
+**Contingency**: If Day 6 arrives and the standalone voice page is not complete, the demo uses the existing KiranaCrewPanel (text commands) + voice via Gemini Live sessions. This is still a compelling demo showing the full business intelligence platform.
 
 ---
 

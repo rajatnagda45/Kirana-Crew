@@ -1,4 +1,4 @@
-# Agent Town — slide content
+# KiranaCrew — slide content
 
 **Published artifacts:** [Demo video (YouTube)](https://www.youtube.com/watch?v=IDXVoASphbE) · [Final presentation (Google Slides)](https://docs.google.com/presentation/d/1blDIW1iIX8goXpgb4I0Vs2by3PVkQsdm/edit?usp=sharing)
 
@@ -14,9 +14,9 @@ Speaker: “Our target is the handoff between receiving an AI answer and making 
 
 ## 2. One place to delegate, inspect and return
 
-**Agent Town connects an approachable office to durable agent work.**
+**KiranaCrew connects an approachable office to durable agent work.**
 
-Visual: [office screenshot](images/agent-town-office.png). Three labels only: find a teammate, start a task, inspect its record.
+Visual: [office screenshot](images/kiranacrew-office.png). Three labels only: find a teammate, start a task, inspect its record.
 
 Speaker: “The spatial office is the entry point. The persisted execution record is the operational foundation.”
 
@@ -24,7 +24,7 @@ Speaker: “The spatial office is the entry point. The persisted execution recor
 
 **Question → actual execution → recorded result → reload.**
 
-Visual: [task inspector](images/agent-town-task-inspector.png). Show supplied samples and the 40 ms mean, 100 ms nearest-rank P95/P99. Mark this as a recorded supplied-data example.
+Visual: [task inspector](images/kiranacrew-task-inspector.png). Show supplied samples and the 40 ms mean, 100 ms nearest-rank P95/P99. Mark this as a recorded supplied-data example.
 
 Speaker: “These five observations support the calculation, not a production reliability claim. The original request and task identity remain inspectable.”
 
@@ -46,7 +46,7 @@ Speaker: “Adapters and mocked contract tests are implemented. The Mac has loca
 
 ## 6. Measure review quality, not animation
 
-**Next measurement: same case, same sources, manual workflow versus Agent Town.**
+**Next measurement: same case, same sources, manual workflow versus KiranaCrew.**
 
 Display “0 paired human trials collected.” Protocol: five cases, three repeats per arm; elapsed review time, correct/uncertain decisions, valid citations, duplicate dispatches, restart recovery. Link [methodology](IMPACT_EVALUATION.md).
 

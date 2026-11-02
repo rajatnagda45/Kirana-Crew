@@ -15,12 +15,12 @@ export default function OnboardingOverlay({ onDone }: { onDone: () => void }) {
         role="dialog"
         aria-modal="true"
         onKeyDown={(event) => event.stopPropagation()}
-        aria-label="Welcome to Agent Town"
+        aria-label="Welcome to KiranaCrew"
         tabIndex={-1}
         className="ui-confirm"
       >
         <span className="ui-eyebrow">Your agent workspace</span>
-        <h2>Welcome to Agent Town</h2>
+        <h2>Welcome to KiranaCrew</h2>
         <p>
           Connect your gateway to work with your team. Use the connection button in the top toolbar,
           then select a teammate to chat or assign a task.

@@ -1,4 +1,4 @@
-# Phase 0 audit: what Agent Town does and what is hackathon-only
+# Phase 0 audit: what KiranaCrew does and what is hackathon-only
 
 Read-only audit of branch `feat/office-lead-openclaw-tavily` at `4db65b1` (31 Oct 2026). Nothing was
 deleted or changed. Every row cites the file it came from. "Not run" means I read the code but did
@@ -6,7 +6,7 @@ not exercise it live.
 
 ## Headline findings
 
-1. **The NammaOps integrations are not in this repo.** A case-insensitive search for `erpnext`,
+1. **The KiranaCrew integrations are not in this repo.** A case-insensitive search for `erpnext`,
    `gnani`, `namma` and `timbre` across all tracked files (excluding the lockfile) returns nothing.
    The blueprint's ERPNext MCP, Gnani Prisma STT and Gnani Timbre TTS have not been built here yet,
    so there is nothing of them to remove or isolate. They can be designed as optional adapters from
@@ -18,7 +18,7 @@ not exercise it live.
 3. **Voice is Gemini Live, not Gnani.** `lib/voice/diagnostics.mjs` fixes `gemini-3.8-live`, and
    `app/api/voice/session/route.ts` mints a token with `@google/genai` from `GEMINI_API_KEY`. There
    is no pluggable STT/TTS interface; the provider is hard-coded.
-4. **The only MCP code is an outbound dispatch tool.** `lib/mcp/agent-town-mcp.mjs` (145 lines)
+4. **The only MCP code is an outbound dispatch tool.** `lib/mcp/kiranacrew-mcp.mjs` (145 lines)
    exposes one tool, `dispatch_to_worker`, for the `auggie` provider. There is no MCP client, no
    server discovery and no per-seat tool binding.
 
@@ -30,7 +30,7 @@ not exercise it live.
 | Agent runtime   | Three providers behind one gateway shape: OpenClaw (WebSocket), Nightshift (HTTP, text only), Auggie (CLI emulating the OpenClaw protocol). `ExecutionRouter` picks an option by requirements. `TaskRuntime` (964 lines) owns queue, dispatch and `chat.send`.                             | `gateway-connection.mjs`, `execution-router.mjs`, `task-runtime.mjs`, `lib/ws-proxy.mjs`, `auggie-bridge.mjs` | OpenClaw is only used via the router when `AGENT_TOWN_EXECUTION_OPTIONS` is non-empty.             |
 | Task system     | `tasks`, `dispatches`, `messages`, `events` tables; `TaskComposer` (1,445 lines) runs classify, plan, collect, analyze, review, verify; `task-lifecycle.mjs` handles states; `task-search.mjs` indexes.                                                                                    | `task-db.mjs`, `task-composer.mjs`, `task-lifecycle.mjs`                                                      | Composer is tightly coupled to Zetaris and Tavily as the two data sources.                         |
 | Agent bindings  | Grant JSON maps `manifestId` to `seatId` and `sessionKey` (`agent:<id>:main`). `authorize` compares the session's `tools.effective` to the manifest tools.                                                                                                                                 | `specialist-config.mjs`, `execution-options.mjs`, `nightshift-enforcement.mjs`                                | Binding is env-driven, not editable from the UI.                                                   |
-| MCP             | One stdio server with one tool (`dispatch_to_worker`) that POSTs to `/api/internal/dispatch` with a shared secret.                                                                                                                                                                         | `lib/mcp/agent-town-mcp.mjs`                                                                                  | No discovery, no client, no tool catalogue. Needs a new module.                                    |
+| MCP             | One stdio server with one tool (`dispatch_to_worker`) that POSTs to `/api/internal/dispatch` with a shared secret.                                                                                                                                                                         | `lib/mcp/kiranacrew-mcp.mjs`                                                                                  | No discovery, no client, no tool catalogue. Needs a new module.                                    |
 | REST APIs       | About 35 routes under `/api/runtime/*` (state, events SSE, tasks, composer, team, seats, reviews, management, estop, voice, import, connect, reconcile), plus `/api/agents/discover`, `/api/config`, `/api/contracts`, `/api/voice/session`, `/api/internal/*`.                            | `runtime-api.mjs:318-656`, `app/api/*`, `internal-api.mjs`                                                    | No agent-profile CRUD and no MCP routes. `runtime-api.mjs` is one 690-line router with no OpenAPI. |
 | Voice           | Gemini Live in the browser (`client.ts` 699 lines, `VoiceProvider.tsx` 629 lines). Server side only validates actions and records transcripts and diagnostics.                                                                                                                             | `lib/voice/*`, `lib/server/voice.mjs`, `app/api/voice/session/route.ts`                                       | Single provider, key required, no STT/TTS split. Nothing for Gnani.                                |
 | Permissions     | Loopback-only bind and origin checks; shared-secret compare for internal routes; `EmergencyStop` kill switch; per-manifest tool allowlists verified through `tools.effective`; approval states in the composer (`approval_required`, `needs_confirmation`).                                | `server-security.mjs`, `estop.mjs`, `execution-options.mjs`, `task-composer.mjs`                              | Allowlists apply to specialist roles only. No per-seat or per-MCP-tool policy.                     |
@@ -111,5 +111,5 @@ Each step is small and independently testable. None should start without your go
 
 - Keep Nightshift and Auggie as optional providers, or drop them?
 - Is the Kirana demo staying in this repo (as an example pack) or moving to its own?
-- The uploaded NammaOps blueprint was not available to me. If the plan expects ERPNext, Gnani Prisma
+- The uploaded KiranaCrew blueprint was not available to me. If the plan expects ERPNext, Gnani Prisma
   or Gnani Timbre behaviour that I should compare against, please share the file.

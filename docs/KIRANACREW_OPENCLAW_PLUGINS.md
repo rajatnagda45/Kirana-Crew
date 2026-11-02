@@ -1,4 +1,4 @@
-# OpenClaw plugins (inventory for Agent Town / NammaOps)
+# OpenClaw plugins (inventory for KiranaCrew / KiranaCrew)
 
 OpenClaw 2026.10.7. Captured 2026-11-01 from `openclaw plugins list --json`: 67 plugins, 42 were enabled.
 To reduce gateway memory, only the plugins this project needs stay on. Everything else is listed here so it can be enabled later.
@@ -7,7 +7,7 @@ To reduce gateway memory, only the plugins this project needs stay on. Everythin
 
 | Plugin            | Reason                                                              |
 | ----------------- | ------------------------------------------------------------------- |
-| `openai`          | Model provider for all Agent Town agents (openai/gpt-5.4-mini).     |
+| `openai`          | Model provider for all KiranaCrew agents (openai/gpt-5.4-mini).     |
 | `codex`           | Agent turn harness (codex app-server) and the web_search provider.  |
 | `browser`         | browser tool used by the researcher manifest.                       |
 | `web-readability` | Readable-text extraction behind web_fetch.                          |
@@ -19,7 +19,7 @@ To reduce gateway memory, only the plugins this project needs stay on. Everythin
 ```bash
 openclaw plugins enable <id> [more-ids]   # edits ~/.openclaw/openclaw.json
 openclaw plugins inspect <id>             # what it provides (tools, providers, harnesses)
-# then restart the gateway (openclaw gateway run) and restart Agent Town after it is up
+# then restart the gateway (openclaw gateway run) and restart KiranaCrew after it is up
 ```
 
 Full restore of the previous configuration: copy `~/.openclaw/openclaw.json.bak-before-plugin-trim-20261101` back to `~/.openclaw/openclaw.json` and restart the gateway.

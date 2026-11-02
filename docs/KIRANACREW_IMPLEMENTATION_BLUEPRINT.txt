@@ -1,10 +1,10 @@
-NammaOps – Complete Implementation Blueprint
+KiranaCrew – Complete Implementation Blueprint
 
 Recommended architecture
  Hackathon MVP
 
-We're going to build NammaOps as an extension of your completed Agent Town project, using:
-- Agent Town: Existing autonomous-agent environment and orchestration.
+We're going to build KiranaCrew as an extension of your completed KiranaCrew project, using:
+- KiranaCrew: Existing autonomous-agent environment and orchestration.
 - ERPNext: Real kirana business backend.
 - ERPNext MCP: Standardised access to inventory, sales and purchasing.
 - Gnani Prisma v2.5: Voice-to-text.
@@ -27,13 +27,13 @@ The product promise:
 1. Final system architecture
 This is the architecture I recommend implementing.
 System architecture
-NammaOps Web App
-Existing Agent Town UI + Voice Command Center
+KiranaCrew Web App
+Existing KiranaCrew UI + Voice Command Center
 
 Gnani Voice Gateway
 Prisma STT → intent → Timbre TTS
 
-Agent Town Orchestrator
+KiranaCrew Orchestrator
 Intent routing • Task planning • Agent coordination
 
 Inventory Agent
@@ -48,7 +48,7 @@ Manager Agent
 
 
 
-NammaOps MCP Gateway
+KiranaCrew MCP Gateway
 Tool allowlist • Input validation • Approval policy • Audit logging
 
 ERPNext MCP Server
@@ -56,7 +56,7 @@ Inventory • Sales • Purchasing • Accounting
 
 ERPNext + MariaDB
 Actual business records and transactions
-The NammaOps gateway is important: agents should not receive unrestricted access to the underlying ERPNext MCP server.
+The KiranaCrew gateway is important: agents should not receive unrestricted access to the underlying ERPNext MCP server.
 2. ERPNext demo deployment
 You selected demo deployment. I recommend a disposable local Docker ERPNext environment for development and testing.
 
@@ -208,14 +208,14 @@ The repository describes these tool groups; consult its live tool reference for 
 GitHub
 
 For your application, build a small adapter so that changes in the third-party MCP tool names do not require rewriting the agents.
-4. NammaOps MCP integration code
+4. KiranaCrew MCP integration code
 I recommend a dedicated Node.js backend service.
 
 Install:
 npm install @modelcontextprotocol/sdk zod dotenv
 
 
-The following is the integration pattern. It is a starting implementation, not a complete drop-in replacement for your existing Agent Town gateway.
+The following is the integration pattern. It is a starting implementation, not a complete drop-in replacement for your existing KiranaCrew gateway.
 
 integrations/erpnext/mcp-client.ts
 
@@ -309,7 +309,7 @@ Forbidden:
 - Submitting stock adjustments.
 - Creating purchase orders.
 Example system instruction:
-You are the NammaOps Inventory Agent.
+You are the KiranaCrew Inventory Agent.
 
 Your responsibility is to inspect inventory.
 
@@ -472,7 +472,7 @@ Expected output
 ERPNext data-backed
 "Anna, milk, rice and cooking oil are below their minimum stock levels. I've prepared the replenishment recommendations."
 
-Acceptance test: Change the stock quantity inside ERPNext and rerun the voice command. NammaOps must report the updated quantity.
+Acceptance test: Change the stock quantity inside ERPNext and rerun the voice command. KiranaCrew must report the updated quantity.
 
 This proves that the application is connected to real ERP records rather than hardcoded values.
 
@@ -560,7 +560,7 @@ Top-selling productMilk
 Net profitFrom P&L
 
 
-Acceptance test: Create additional sales transactions in ERPNext and confirm that NammaOps updates the sales summary. Profit must come from actual accounting data, not an invented estimate.
+Acceptance test: Create additional sales transactions in ERPNext and confirm that KiranaCrew updates the sales summary. Profit must come from actual accounting data, not an invented estimate.
 
 7. How to implement the workflows in code
 Keep the agents independent of individual ERPNext MCP tool names.
@@ -614,7 +614,7 @@ nammaops/
     └── types/
 
 
-This is an additive layout. Keep your current Agent Town files and adapt these modules to its existing conventions.
+This is an additive layout. Keep your current KiranaCrew files and adapt these modules to its existing conventions.
 A. Define structured intent
 shared/schemas/intent.ts
 
@@ -794,7 +794,7 @@ Transcript
 Intent extraction
        |
        v
-Agent Town workflow
+KiranaCrew workflow
        |
        v
 Final response
@@ -811,7 +811,7 @@ Browser playback
 
 Recommended voice interaction
 The UI should have a single prominent microphone button.
-NammaOps Voice Command Center
+KiranaCrew Voice Command Center
 Illustrative interface specificationನಮಸ್ಕಾರ! ನಮಸ್ಕಾರ
 Namaskara! How can I help your store?
 Tap to speak
@@ -848,7 +848,7 @@ I would keep the actual Gnani HTTP/WebSocket request details inside prisma.ts an
 
 Official references: Gnani API documentation and Gnani developer platform.
 
-9. Database design for NammaOps
+9. Database design for KiranaCrew
 ERPNext remains the source of truth for products, invoices, suppliers and stock.
 
 Your own application database should store only the additional orchestration information.
@@ -903,8 +903,8 @@ CREATE TABLE audit_logs (
 
 
 Add a unique idempotency key for each external write operation. This prevents accidental duplicate purchase orders when an agent retries after a timeout.
-10. How Agent Town should visually change
-Don't remove your completed Agent Town environment.
+10. How KiranaCrew should visually change
+Don't remove your completed KiranaCrew environment.
 
 Repurpose its existing visual world.
 
@@ -942,7 +942,7 @@ Repurpose its existing visual world.
 
 
 My recommended mapping:
-Existing Agent Town element	New NammaOps meaning
+Existing KiranaCrew element	New KiranaCrew meaning
 Town center	Kirana shop headquarters
 Warehouse	Inventory management
 Commercial building	Sales analytics
@@ -975,7 +975,7 @@ Phase	Tasks	Completion criteria
 2. MCP setup	Install server, discover tools, permissions	Read-only MCP connection
 3. Agents	Inventory, sales, procurement, finance, manager	All five agents coordinated
 4. Workflows	Stock, reorder, sales report	Three complete workflows
-5. Voice/UI	Prisma, Timbre, Agent Town dashboard	Live voice experience
+5. Voice/UI	Prisma, Timbre, KiranaCrew dashboard	Live voice experience
 6. Validation	Test data, approvals, latency, demo	Reliable demonstration
 
 Suggested day-by-day tasks
@@ -1015,7 +1015,7 @@ Phase 4 – Three workflows
 Phase 5 – Gnani and UI
 [ ] Integrate Prisma
 [ ] Integrate Timbre
-[ ] Connect Agent Town events
+[ ] Connect KiranaCrew events
 [ ] Build voice command center
 
 
@@ -1029,7 +1029,7 @@ Reset checklist
 12. Testing and demo acceptance criteria
 Before recording your submission, test these scenarios.
 Test	Expected result
-Stock changes in ERPNext	NammaOps reports new stock
+Stock changes in ERPNext	KiranaCrew reports new stock
 Unknown product spoken	Agent asks for clarification
 Supplier has no quotation	Agent reports unavailable pricing
 Purchase order prepared	ERPNext contains a draft
@@ -1049,7 +1049,7 @@ Metrics worth displaying
 Test with at least 20–30 spoken commands, including Kannada-English code-switching. Report measured results rather than estimated performance.
 13. Final hackathon demo
 Your best presentation should show this sequence:
-NammaOps – One voice. Five agents. One business.
+KiranaCrew – One voice. Five agents. One business.
 
 
 
@@ -1066,7 +1066,7 @@ arjankc.com.np
 2. Gnani understands
    
    Show the live Prisma transcript.
-3. Agent Town activates
+3. KiranaCrew activates
    
    Show five agents coordinating.
 4. ERPNext executes
@@ -1082,8 +1082,8 @@ arjankc.com.np
 14. Important technical decisions
 A few things I would insist on:
 1. Keep ERPNext as the single source of truth for business records.
-2. Keep your existing Agent Town orchestration instead of rebuilding it.
-3. Use the existing MCP server as the ERP integration, with a separate NammaOps permission gateway.
+2. Keep your existing KiranaCrew orchestration instead of rebuilding it.
+3. Use the existing MCP server as the ERP integration, with a separate KiranaCrew permission gateway.
 4. Do not give agents unrestricted ERPNext write access.
 5. Store approvals and audit events in your application database.
 6. Use synthetic data for the hackathon.
@@ -1095,25 +1095,25 @@ GitHub+1
 
 
 15. What I want you to build first
-Don't start by modifying the entire Agent Town interface.
+Don't start by modifying the entire KiranaCrew interface.
 
 Build and verify this sequence:
 First development milestone
-Voice → MCP → ERPNext → Agent Town
+Voice → MCP → ERPNext → KiranaCrew
 Milestone 1
 1. Launch ERPNext demo.
 2. Connect the MCP server.
 3. Retrieve real product stock through MCP.
-4. Display that stock in Agent Town.
+4. Display that stock in KiranaCrew.
 5. Speak a command using Gnani Prisma.
 6. Return the result using Gnani Timbre.
 
 Success condition
 
-A shop owner speaks "Check milk stock", and Agent Town retrieves the actual quantity from ERPNext and speaks the answer back.
+A shop owner speaks "Check milk stock", and KiranaCrew retrieves the actual quantity from ERPNext and speaks the answer back.
 
 Once this works, the rest of the workforce can be added incrementally.
 
 My recommendation is to make this your first working prototype within 1–2 days. It validates the three most important integrations before you spend time implementing the remaining agents.
 
-The finished product should not look like ERPNext with an AI chatbot attached. It should look and behave like your existing Agent Town has become a real autonomous kirana business workforce.
+The finished product should not look like ERPNext with an AI chatbot attached. It should look and behave like your existing KiranaCrew has become a real autonomous kirana business workforce.

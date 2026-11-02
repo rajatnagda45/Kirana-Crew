@@ -85,7 +85,7 @@ export default function ConnectionPanel() {
                 : serverHasToken === null
                   ? "Checking Nightshift configuration…"
                   : !serverHasToken
-                    ? "Set the server-only NIGHTSHIFT_API_KEY from your runtime's proxy-token file, then restart Agent Town."
+                    ? "Set the server-only NIGHTSHIFT_API_KEY from your runtime's proxy-token file, then restart KiranaCrew."
                     : isConnected
                       ? "Nightshift is connected. Model discovery succeeded."
                       : "Nightshift token is configured, but the runtime is not connected. Start a supported Meterless runtime and check NIGHTSHIFT_BASE_URL, then connect again."}
@@ -108,8 +108,8 @@ export default function ConnectionPanel() {
             ) : (
               <p style={{ color: "#f0c040", margin: 0 }}>
                 No server-side gateway token was found. Configure OpenClaw locally or set the
-                server-only <code>GATEWAY_TOKEN</code> environment variable, then restart Agent
-                Town.
+                server-only <code>GATEWAY_TOKEN</code> environment variable, then restart
+                KiranaCrew.
               </p>
             )}
           </>
@@ -167,7 +167,7 @@ export default function ConnectionPanel() {
         )}
         {isProtocolMismatch && !error && (
           <p style={{ color: "var(--pixel-red)" }}>
-            Gateway protocol version is not supported. Please update Agent Town or your gateway.
+            Gateway protocol version is not supported. Please update KiranaCrew or your gateway.
           </p>
         )}
         {error && <p style={{ color: "var(--pixel-red)" }}>{error}</p>}

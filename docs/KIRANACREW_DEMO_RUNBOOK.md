@@ -71,8 +71,8 @@ Browser checks require installed Chrome; set `PUPPETEER_EXECUTABLE_PATH` if nece
 
 ## Screens to capture
 
-1. Office overview (existing `images/agent-town-office.png`).
-2. Real request, response and task inspector (existing `images/agent-town-task-inspector.png`).
+1. Office overview (existing `images/kiranacrew-office.png`).
+2. Real request, response and task inspector (existing `images/kiranacrew-task-inspector.png`).
 3. Same task ID after reload, captured during rehearsal.
 4. Actual accepted sponsor source/provider audit and verdict, only when available.
 5. Downloaded investigation record matched to its UI, using approved data.
