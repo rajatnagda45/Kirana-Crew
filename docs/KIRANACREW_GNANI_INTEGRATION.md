@@ -63,7 +63,7 @@ The provider is selected at startup by `createSttProvider()`, which reads `AGENT
 ```javascript
 export function createSttProvider(env = process.env, overrides = {}) {
   const name = env.AGENT_TOWN_STT_PROVIDER?.trim();
-  if (!name) return null;           // No provider → POST /api/tasks/voice returns 503
+  if (!name) return null; // No provider → POST /api/tasks/voice returns 503
   if (name === "gnani") return gnaniProvider({ apiKey: env.GNANI_API_KEY, ...overrides });
   if (name === "gemini") return geminiProvider({ apiKey: env.GEMINI_API_KEY, ...overrides });
   if (name === "fixture") return fixtureProvider(env.AGENT_TOWN_STT_FIXTURE_TRANSCRIPT);
@@ -73,14 +73,15 @@ export function createSttProvider(env = process.env, overrides = {}) {
 
 ### Languages Supported
 
-| Language code | Language |
-|---|---|
-| `kn-IN` | Kannada |
-| `hi-IN` | Hindi |
-| `en-IN` | Indian English / Hinglish |
-| `indic-auto` | Automatic Indic language detection |
+| Language code | Language                           |
+| ------------- | ---------------------------------- |
+| `kn-IN`       | Kannada                            |
+| `hi-IN`       | Hindi                              |
+| `en-IN`       | Indian English / Hinglish          |
+| `indic-auto`  | Automatic Indic language detection |
 
 The `LANGUAGE` regex in `stt.mjs` validates the `language` field:
+
 ```javascript
 const LANGUAGE = /^[a-z]{2,3}(-[A-Za-z]{2,4})?$|^indic-auto$/;
 ```
@@ -113,7 +114,7 @@ Maximum audio size: 5 MB.
 3. The `GNANI_API_KEY` is passed as the `X-API-Key-ID` HTTP header. It never leaves the server.
 4. Restart the server with `pnpm dev`. Voice tasks will now route through Gnani Prisma.
 
-**Why the `.env.example` marks this as "NOT WIRED YET":** The `.env.example` comment means the API key variable is not set by default — the code is complete, but activation requires a real key. The note reads: *"Names only; confirm exact variables and endpoints from your Gnani developer account before use."*
+**Why the `.env.example` marks this as "NOT WIRED YET":** The `.env.example` comment means the API key variable is not set by default — the code is complete, but activation requires a real key. The note reads: _"Names only; confirm exact variables and endpoints from your Gnani developer account before use."_
 
 ### Example Kannada Interaction
 
@@ -170,7 +171,8 @@ export function timbreProvider({ apiKey, url, voice, fetchImpl = fetch } = {}) {
         body: JSON.stringify({ text, language_code: language, voice }),
         signal: AbortSignal.timeout(GNANI_TTS_TIMEOUT_MS),
       });
-      if (!response.ok) throw fail(502, `Gnani TTS rejected the request (HTTP ${response.status}).`);
+      if (!response.ok)
+        throw fail(502, `Gnani TTS rejected the request (HTTP ${response.status}).`);
       const audio = Buffer.from(await response.arrayBuffer());
       return { audio, mimeType: "audio/wav", provider: "gnani-timbre" };
     },
@@ -217,16 +219,19 @@ GNANI_API_KEY=your_gnani_api_key             # shared with STT
 Gnani Evon v3.3 is an open-weights speech foundation model that can be self-hosted for maximum accuracy and data sovereignty.
 
 **Why it is marked planned:**
+
 - Evon requires H100 or A100 GPU hardware for inference. This is not a cloud API.
 - It is not referenced anywhere in the current codebase.
 - Self-hosting would require a separate inference endpoint, model weight download via NGC, and a custom adapter in `stt.mjs`.
 
 **Hardware requirements (approximate):**
+
 - NVIDIA H100 (80 GB) or A100 (40 GB or 80 GB)
 - 100+ GB NVMe storage for model weights
 - Docker or Kubernetes for the NIM container
 
 **Integration path when hardware is available:**
+
 1. Download model via NGC: `docker pull nvcr.io/nvidia/gnani/evon:v3.3-nim`
 2. Expose a REST/gRPC inference endpoint
 3. Add `evonProvider()` to `lib/server/stt.mjs` pointing at the local endpoint
@@ -239,6 +244,7 @@ Gnani Evon v3.3 is an open-weights speech foundation model that can be self-host
 Use this checklist to verify the Gnani integration before a demo:
 
 ### For Gnani Prisma STT (available today)
+
 - [ ] Gnani developer account created at gnani.ai
 - [ ] API key for Prisma v2.5 obtained
 - [ ] `AGENT_TOWN_STT_PROVIDER=gnani` set in `.env.local`
@@ -248,14 +254,17 @@ Use this checklist to verify the Gnani integration before a demo:
 - [ ] Response includes `"provider": "gnani-prisma"` and a non-empty `transcript`
 
 ### For Gemini STT fallback (no Gnani key needed)
+
 - [ ] `AGENT_TOWN_STT_PROVIDER=gemini` set
 - [ ] `GEMINI_API_KEY=your_key` set
 
 ### For fixture STT (demo without any API key)
+
 - [ ] `AGENT_TOWN_STT_PROVIDER=fixture` set
 - [ ] Optional: `AGENT_TOWN_STT_FIXTURE_TRANSCRIPT="Check the stock of milk."` to fix the transcript
 
 ### For Gnani Timbre TTS [PLANNED — not yet available]
+
 - [ ] Write `lib/server/tts.mjs` with `timbreProvider()` (see template above)
 - [ ] Set `AGENT_TOWN_TTS_PROVIDER=gnani`, `GNANI_TTS_URL`, `GNANI_TTS_VOICE`
 - [ ] Wire TTS provider into the voice response path

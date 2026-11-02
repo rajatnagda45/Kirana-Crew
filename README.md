@@ -6,7 +6,7 @@
 
 **Voice-first autonomous AI workforce for Indian kirana stores**
 
-*Speak in Kannada, Hindi or Hinglish — your AI crew handles the rest*
+_Speak in Kannada, Hindi or Hinglish — your AI crew handles the rest_
 
 ---
 
@@ -26,7 +26,7 @@
 
 ![KiranaCrew Landing Page](public/landing-v2/kiranacrew-landing.png)
 
-*KiranaCrew — voice-first AI workforce for Indian kirana stores*
+_KiranaCrew — voice-first AI workforce for Indian kirana stores_
 
 </div>
 
@@ -66,14 +66,14 @@ The critical difference from a chatbot: agents **take autonomous action**. The P
 
 ## Live Demo / Screenshots
 
-| | |
-|:---:|:---:|
-| ![Landing page hero](public/landing-v2/kiranacrew-landing.png) | ![Feature cards](public/landing-v2/screenshot-5.png) |
-| *KiranaCrew landing page* | *Feature capability cards* |
-| ![Task walkthrough](public/landing-v2/screenshot-6.png) | ![Architecture diagram](public/landing-v2/screenshot-7.png) |
-| *Workflow task walkthrough* | *System architecture overview* |
-| ![Agent crew cards](public/landing-v2/screenshot-8.png) | ![Voice section and CTA](public/landing-v2/screenshot-9.png) |
-| *Five-agent crew cards* | *Voice section and call to action* |
+|                                                                |                                                              |
+| :------------------------------------------------------------: | :----------------------------------------------------------: |
+| ![Landing page hero](public/landing-v2/kiranacrew-landing.png) |     ![Feature cards](public/landing-v2/screenshot-5.png)     |
+|                   _KiranaCrew landing page_                    |                  _Feature capability cards_                  |
+|    ![Task walkthrough](public/landing-v2/screenshot-6.png)     | ![Architecture diagram](public/landing-v2/screenshot-7.png)  |
+|                  _Workflow task walkthrough_                   |                _System architecture overview_                |
+|    ![Agent crew cards](public/landing-v2/screenshot-8.png)     | ![Voice section and CTA](public/landing-v2/screenshot-9.png) |
+|                    _Five-agent crew cards_                     |              _Voice section and call to action_              |
 
 ---
 
@@ -81,13 +81,13 @@ The critical difference from a chatbot: agents **take autonomous action**. The P
 
 Each agent is defined in `config/nammaops/workforce.json` and wired up through `lib/server/nammaops/workforce.mjs`. Every agent receives only the ERP capabilities its role requires — nothing more.
 
-| Agent | Role | Key ERP Capabilities | Status |
-|---|---|---|---|
-| **Manager Agent** (`nammaops-manager`) | Coordinates store operations; routes requests; consolidates results for the owner | No direct ERP access | [IMPLEMENTED] |
-| **Inventory Agent** (`nammaops-inventory`) | Monitors stock levels; identifies low-stock products | `erp.items.list`, `erp.stock.balance`, `erp.warehouses.list`, `erp.stock.ledger`, `erp.stock.movements` | [IMPLEMENTED] |
-| **Sales Agent** (`nammaops-sales`) | Analyses sales performance; reads invoices and POS data | `erp.sales_invoices.list`, `erp.pos_invoices.list`, `erp.customers.list`, `erp.sales.history` | [IMPLEMENTED] |
-| **Procurement Agent** (`nammaops-procurement`) | Compares suppliers; calculates order quantities; creates draft POs | `erp.suppliers.list`, `erp.supplier_quotations.list`, `erp.item_prices.get`, `erp.po.create_draft`, `erp.po.get`, `erp.po.open` | [IMPLEMENTED] |
-| **Finance Agent** (`nammaops-finance`) | Produces P&L summaries from posted accounting data | `erp.pnl`, `erp.gl`, `erp.purchase_invoices.list`, `erp.payments.summary` | [IMPLEMENTED] |
+| Agent                                          | Role                                                                              | Key ERP Capabilities                                                                                                            | Status        |
+| ---------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| **Manager Agent** (`nammaops-manager`)         | Coordinates store operations; routes requests; consolidates results for the owner | No direct ERP access                                                                                                            | [IMPLEMENTED] |
+| **Inventory Agent** (`nammaops-inventory`)     | Monitors stock levels; identifies low-stock products                              | `erp.items.list`, `erp.stock.balance`, `erp.warehouses.list`, `erp.stock.ledger`, `erp.stock.movements`                         | [IMPLEMENTED] |
+| **Sales Agent** (`nammaops-sales`)             | Analyses sales performance; reads invoices and POS data                           | `erp.sales_invoices.list`, `erp.pos_invoices.list`, `erp.customers.list`, `erp.sales.history`                                   | [IMPLEMENTED] |
+| **Procurement Agent** (`nammaops-procurement`) | Compares suppliers; calculates order quantities; creates draft POs                | `erp.suppliers.list`, `erp.supplier_quotations.list`, `erp.item_prices.get`, `erp.po.create_draft`, `erp.po.get`, `erp.po.open` | [IMPLEMENTED] |
+| **Finance Agent** (`nammaops-finance`)         | Produces P&L summaries from posted accounting data                                | `erp.pnl`, `erp.gl`, `erp.purchase_invoices.list`, `erp.payments.summary`                                                       | [IMPLEMENTED] |
 
 ### Manager Agent [IMPLEMENTED]
 
@@ -138,6 +138,7 @@ GNANI_API_KEY=your_gnani_api_key
 ```
 
 **Languages supported** (via `language_code` and `preferred_language` fields):
+
 - `kn-IN` — Kannada
 - `hi-IN` — Hindi
 - `en-IN` — Indian English / Hinglish
@@ -169,7 +170,7 @@ export function timbreProvider({ apiKey, url, voice }) {
     synthesize: async ({ text, language }) => {
       // POST to GNANI_TTS_URL with X-API-Key-ID header
       // return { audio: Buffer, mimeType: "audio/wav" }
-    }
+    },
   };
 }
 ```
@@ -222,17 +223,17 @@ flowchart TD
 
 **Command:** "Check the stock of milk, rice and cooking oil."
 
-| Step | What happens | File | Status |
-|---|---|---|---|
-| 1. Voice capture | Browser records audio, sends to `POST /api/tasks/voice` | `lib/voice/audio.ts` | [IMPLEMENTED] |
-| 2. STT transcription | `gnaniProvider()` (or `geminiProvider()` / `fixtureProvider()`) returns transcript | `lib/server/stt.mjs` | [IMPLEMENTED] (Gnani key required) |
-| 3. Intent detection | `parseCommand()` matches `/\bcheck\b.*\bstock\b/` pattern → `stock_check` intent, products: `["milk","rice","cooking oil"]` | `lib/server/nammaops/workflows.mjs` | [IMPLEMENTED] |
-| 4. Manager delegates | `Workflows.stockCheck()` calls `readStock()` → Inventory Agent step | `lib/server/nammaops/workflows.mjs` | [IMPLEMENTED] |
-| 5. Inventory reads ERP | `erp.items.list` + `erp.stock.balance` called as governed MCP tools under `nammaops-inventory` identity | `lib/server/mcp-governance.mjs` | [IMPLEMENTED] |
-| 6. Stock analysis | `analyseStock()` computes available vs. reorder level for each item | `lib/server/nammaops/calculations.mjs` | [IMPLEMENTED] |
-| 7. Supplier ranking | If items are low, `rankForLow()` calls Procurement Agent to read quotations and rank suppliers | `lib/server/nammaops/workflows.mjs` | [IMPLEMENTED] |
-| 8. Voice contract | `VoiceRouter.result()` shapes facts into speakable arrays | `lib/server/nammaops/voice-router.mjs` | [IMPLEMENTED] |
-| 9. TTS response | Gnani Timbre speaks the result | `lib/server/tts.mjs` | [PLANNED] |
+| Step                   | What happens                                                                                                                | File                                   | Status                             |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ---------------------------------- |
+| 1. Voice capture       | Browser records audio, sends to `POST /api/tasks/voice`                                                                     | `lib/voice/audio.ts`                   | [IMPLEMENTED]                      |
+| 2. STT transcription   | `gnaniProvider()` (or `geminiProvider()` / `fixtureProvider()`) returns transcript                                          | `lib/server/stt.mjs`                   | [IMPLEMENTED] (Gnani key required) |
+| 3. Intent detection    | `parseCommand()` matches `/\bcheck\b.*\bstock\b/` pattern → `stock_check` intent, products: `["milk","rice","cooking oil"]` | `lib/server/nammaops/workflows.mjs`    | [IMPLEMENTED]                      |
+| 4. Manager delegates   | `Workflows.stockCheck()` calls `readStock()` → Inventory Agent step                                                         | `lib/server/nammaops/workflows.mjs`    | [IMPLEMENTED]                      |
+| 5. Inventory reads ERP | `erp.items.list` + `erp.stock.balance` called as governed MCP tools under `nammaops-inventory` identity                     | `lib/server/mcp-governance.mjs`        | [IMPLEMENTED]                      |
+| 6. Stock analysis      | `analyseStock()` computes available vs. reorder level for each item                                                         | `lib/server/nammaops/calculations.mjs` | [IMPLEMENTED]                      |
+| 7. Supplier ranking    | If items are low, `rankForLow()` calls Procurement Agent to read quotations and rank suppliers                              | `lib/server/nammaops/workflows.mjs`    | [IMPLEMENTED]                      |
+| 8. Voice contract      | `VoiceRouter.result()` shapes facts into speakable arrays                                                                   | `lib/server/nammaops/voice-router.mjs` | [IMPLEMENTED]                      |
+| 9. TTS response        | Gnani Timbre speaks the result                                                                                              | `lib/server/tts.mjs`                   | [PLANNED]                          |
 
 The same stock check workflow powers the `check_stock` and `list_products` voice intents. The `prepare_reorder` workflow extends it by also creating draft purchase orders in ERPNext.
 
@@ -298,32 +299,32 @@ node --import tsx scripts/nammaops-demo.mjs
 
 All variables are safe placeholders. Never commit real credentials.
 
-| Variable | Purpose | Required |
-|---|---|---|
-| `AGENT_PROVIDER` | AI gateway provider (`openclaw`, `nightshift`, `auggie`) | Required |
-| `GATEWAY_URL` | OpenClaw gateway WebSocket URL | Required for OpenClaw |
-| `GATEWAY_TOKEN` | OpenClaw gateway auth token | Required for OpenClaw |
-| `GEMINI_API_KEY` | Google Gemini Live voice sessions and Gemini STT fallback | Optional |
-| `GNANI_API_KEY` | Gnani Prisma v2.5 STT — set `AGENT_TOWN_STT_PROVIDER=gnani` to activate | Optional |
-| `GNANI_STT_URL` | Override Gnani STT endpoint (default: `https://api.vachana.ai/stt/v3`) | Optional |
-| `GNANI_TTS_URL` | Gnani Timbre TTS endpoint [PLANNED — not read yet] | Planned |
-| `GNANI_TTS_VOICE` | Gnani Timbre voice ID [PLANNED — not read yet] | Planned |
-| `NAMMAOPS_OWNER_PIN` | Store-owner PIN for approving purchase orders | Required for approvals |
-| `NAMMAOPS_BINDING` | Binding file path (`binding.fixture.json` or `binding.hvgerp.json`) | Optional (fixture default) |
-| `NAMMAOPS_WORKFORCE` | Workforce file path (default: `config/nammaops/workforce.json`) | Optional |
-| `NAMMAOPS_REASONING` | `off` (deterministic) or `manager` (one OpenClaw turn per workflow) | Optional |
-| `ERPNEXT_URL` | ERPNext / Frappe Cloud base URL | Required for live ERP |
-| `ERPNEXT_API_KEY` | ERPNext API key (dedicated `nammaops.api` user) | Required for live ERP |
-| `ERPNEXT_API_SECRET` | ERPNext API secret | Required for live ERP |
-| `AGENT_TOWN_STT_PROVIDER` | STT provider: `gnani`, `gemini`, or `fixture` | Optional (unset = 503) |
-| `AGENT_TOWN_DB_PATH` | SQLite database path (default: `data/agent-town.sqlite`) | Optional |
-| `NIGHTSHIFT_BASE_URL` | Meterless Nightshift API base URL | Required for Nightshift |
-| `NIGHTSHIFT_API_KEY` | Nightshift API key | Required for Nightshift |
-| `NVIDIA_API_KEY` | NVIDIA hosted inference key | Optional |
-| `TAVILY_API_KEY` | Tavily web search key for evidence retrieval | Optional |
-| `OPENCLAW_PROTOCOL_MODULE` | Absolute path to OpenClaw protocol module | Optional (auto-discovery) |
-| `AGENT_TOWN_MCP_STDIO_ALLOWLIST` | JSON array of allowed MCP stdio server commands | Optional |
-| `AGENT_TOWN_MCP_PROXY_SECRET` | Shared secret for the governed MCP proxy | Optional |
+| Variable                         | Purpose                                                                 | Required                   |
+| -------------------------------- | ----------------------------------------------------------------------- | -------------------------- |
+| `AGENT_PROVIDER`                 | AI gateway provider (`openclaw`, `nightshift`, `auggie`)                | Required                   |
+| `GATEWAY_URL`                    | OpenClaw gateway WebSocket URL                                          | Required for OpenClaw      |
+| `GATEWAY_TOKEN`                  | OpenClaw gateway auth token                                             | Required for OpenClaw      |
+| `GEMINI_API_KEY`                 | Google Gemini Live voice sessions and Gemini STT fallback               | Optional                   |
+| `GNANI_API_KEY`                  | Gnani Prisma v2.5 STT — set `AGENT_TOWN_STT_PROVIDER=gnani` to activate | Optional                   |
+| `GNANI_STT_URL`                  | Override Gnani STT endpoint (default: `https://api.vachana.ai/stt/v3`)  | Optional                   |
+| `GNANI_TTS_URL`                  | Gnani Timbre TTS endpoint [PLANNED — not read yet]                      | Planned                    |
+| `GNANI_TTS_VOICE`                | Gnani Timbre voice ID [PLANNED — not read yet]                          | Planned                    |
+| `NAMMAOPS_OWNER_PIN`             | Store-owner PIN for approving purchase orders                           | Required for approvals     |
+| `NAMMAOPS_BINDING`               | Binding file path (`binding.fixture.json` or `binding.hvgerp.json`)     | Optional (fixture default) |
+| `NAMMAOPS_WORKFORCE`             | Workforce file path (default: `config/nammaops/workforce.json`)         | Optional                   |
+| `NAMMAOPS_REASONING`             | `off` (deterministic) or `manager` (one OpenClaw turn per workflow)     | Optional                   |
+| `ERPNEXT_URL`                    | ERPNext / Frappe Cloud base URL                                         | Required for live ERP      |
+| `ERPNEXT_API_KEY`                | ERPNext API key (dedicated `nammaops.api` user)                         | Required for live ERP      |
+| `ERPNEXT_API_SECRET`             | ERPNext API secret                                                      | Required for live ERP      |
+| `AGENT_TOWN_STT_PROVIDER`        | STT provider: `gnani`, `gemini`, or `fixture`                           | Optional (unset = 503)     |
+| `AGENT_TOWN_DB_PATH`             | SQLite database path (default: `data/agent-town.sqlite`)                | Optional                   |
+| `NIGHTSHIFT_BASE_URL`            | Meterless Nightshift API base URL                                       | Required for Nightshift    |
+| `NIGHTSHIFT_API_KEY`             | Nightshift API key                                                      | Required for Nightshift    |
+| `NVIDIA_API_KEY`                 | NVIDIA hosted inference key                                             | Optional                   |
+| `TAVILY_API_KEY`                 | Tavily web search key for evidence retrieval                            | Optional                   |
+| `OPENCLAW_PROTOCOL_MODULE`       | Absolute path to OpenClaw protocol module                               | Optional (auto-discovery)  |
+| `AGENT_TOWN_MCP_STDIO_ALLOWLIST` | JSON array of allowed MCP stdio server commands                         | Optional                   |
+| `AGENT_TOWN_MCP_PROXY_SECRET`    | Shared secret for the governed MCP proxy                                | Optional                   |
 
 ---
 
@@ -337,14 +338,14 @@ pnpm test
 
 Key test files for KiranaCrew / NammaOps:
 
-| File | What it covers |
-|---|---|
-| `lib/__tests__/nammaops.test.ts` | Full workforce setup, all five workflows, voice intents, owner approval, duplicate-prevention, audit trail — against the in-memory fixture |
-| `lib/__tests__/nammaops-live-adapter.test.ts` | Live ERPNext adapter contract tests |
-| `lib/__tests__/nammaops-forecast.test.ts` | Deterministic forecast engine: `forecastItem()`, `backtest()`, `stockoutDays()`, `dailyDemand()`, and all four forecast methods |
-| `lib/__tests__/mcp-governance.test.ts` | Phase C governance: capability discovery, risk review, grant enforcement, per-agent identity, invocation audit |
-| `lib/__tests__/voice-agent.test.ts` | Voice agent tool execution and routing |
-| `lib/__tests__/voice-service.test.ts` | STT provider selection and transcription pipeline |
+| File                                          | What it covers                                                                                                                             |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `lib/__tests__/nammaops.test.ts`              | Full workforce setup, all five workflows, voice intents, owner approval, duplicate-prevention, audit trail — against the in-memory fixture |
+| `lib/__tests__/nammaops-live-adapter.test.ts` | Live ERPNext adapter contract tests                                                                                                        |
+| `lib/__tests__/nammaops-forecast.test.ts`     | Deterministic forecast engine: `forecastItem()`, `backtest()`, `stockoutDays()`, `dailyDemand()`, and all four forecast methods            |
+| `lib/__tests__/mcp-governance.test.ts`        | Phase C governance: capability discovery, risk review, grant enforcement, per-agent identity, invocation audit                             |
+| `lib/__tests__/voice-agent.test.ts`           | Voice agent tool execution and routing                                                                                                     |
+| `lib/__tests__/voice-service.test.ts`         | STT provider selection and transcription pipeline                                                                                          |
 
 ---
 
@@ -366,15 +367,15 @@ KiranaCrew was submitted to the **Great Indian AI Internship Challenge 2026** ru
 
 ## Security and Governance
 
-| Control | Implementation | File |
-|---|---|---|
-| **MCP governance** | Every ERP tool call goes through `CapabilityRegistry` + `Governance` + `ToolGateway`. Agents can only call tools they have been explicitly granted. | `lib/server/mcp-governance.mjs` |
-| **Owner PIN approval** | Purchase order submission requires the owner's PIN, an unexpired request (30-min TTL), and a SHA-256 fingerprint match confirming the draft is unchanged. | `lib/server/nammaops/owner-approvals.mjs` |
-| **Read-only ERP by default** | All five agents have only READ-risk capabilities except the Procurement Agent's `erp.po.create_draft` (WRITE) and the dedicated `nammaops-po-submit` principal's `erp.po.submit` (EXTERNAL_ACTION). | `config/nammaops/binding.fixture.json` |
-| **Prompt injection fencing** | Content returned from ERP tools is treated as untrusted data. `fenceUntrusted()` prevents injected instructions from escalating. | `lib/server/untrusted-content.mjs` |
-| **EmergencyStop** | `estop.mjs` provides a file-based stop mechanism that pauses new work without killing in-flight tasks or corrupting their execution history. | `lib/server/estop.mjs` |
-| **Credential isolation** | `ERPNEXT_API_KEY`, `ERPNEXT_API_SECRET`, and `GNANI_API_KEY` are server-side only. They are never sent to the browser or the voice client. | `.env.example` |
-| **Invocation audit** | Every governed MCP tool call is recorded with agent identity, capability, arguments (redacted), and outcome. | `lib/server/mcp-governance.mjs` |
+| Control                      | Implementation                                                                                                                                                                                      | File                                      |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| **MCP governance**           | Every ERP tool call goes through `CapabilityRegistry` + `Governance` + `ToolGateway`. Agents can only call tools they have been explicitly granted.                                                 | `lib/server/mcp-governance.mjs`           |
+| **Owner PIN approval**       | Purchase order submission requires the owner's PIN, an unexpired request (30-min TTL), and a SHA-256 fingerprint match confirming the draft is unchanged.                                           | `lib/server/nammaops/owner-approvals.mjs` |
+| **Read-only ERP by default** | All five agents have only READ-risk capabilities except the Procurement Agent's `erp.po.create_draft` (WRITE) and the dedicated `nammaops-po-submit` principal's `erp.po.submit` (EXTERNAL_ACTION). | `config/nammaops/binding.fixture.json`    |
+| **Prompt injection fencing** | Content returned from ERP tools is treated as untrusted data. `fenceUntrusted()` prevents injected instructions from escalating.                                                                    | `lib/server/untrusted-content.mjs`        |
+| **EmergencyStop**            | `estop.mjs` provides a file-based stop mechanism that pauses new work without killing in-flight tasks or corrupting their execution history.                                                        | `lib/server/estop.mjs`                    |
+| **Credential isolation**     | `ERPNEXT_API_KEY`, `ERPNEXT_API_SECRET`, and `GNANI_API_KEY` are server-side only. They are never sent to the browser or the voice client.                                                          | `.env.example`                            |
+| **Invocation audit**         | Every governed MCP tool call is recorded with agent identity, capability, arguments (redacted), and outcome.                                                                                        | `lib/server/mcp-governance.mjs`           |
 
 ---
 
@@ -382,35 +383,35 @@ KiranaCrew was submitted to the **Great Indian AI Internship Challenge 2026** ru
 
 Based on what is in `.env.example` and the current implementation state:
 
-| Feature | Status | What is needed |
-|---|---|---|
-| Gnani Prisma v2.5 STT | [IMPLEMENTED — key required] | Set `AGENT_TOWN_STT_PROVIDER=gnani` and `GNANI_API_KEY` |
-| Gnani Timbre v2.5 TTS | [PLANNED] | Write `lib/server/tts.mjs` with `timbreProvider()`, wire to `GNANI_TTS_URL` / `GNANI_TTS_VOICE` |
-| Gnani Evon v3.3 | [PLANNED] | Self-hosted inference endpoint on H100/A100; write adapter in `stt.mjs` |
-| Live ERPNext connection | [IMPLEMENTED] | Set `NAMMAOPS_BINDING=binding.hvgerp.json` with `ERPNEXT_*` credentials |
-| Manager reasoning mode | [IMPLEMENTED] | Set `NAMMAOPS_REASONING=manager` |
-| Kannada / Hindi UI labels | [PLANNED] | i18n layer over the NammaOps panel components |
-| Mobile PWA | [PLANNED] | Progressive Web App shell for shopkeeper's phone |
-| Multi-store support | [PLANNED] | Tenant isolation layer over the current single-workspace architecture |
+| Feature                   | Status                       | What is needed                                                                                  |
+| ------------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------- |
+| Gnani Prisma v2.5 STT     | [IMPLEMENTED — key required] | Set `AGENT_TOWN_STT_PROVIDER=gnani` and `GNANI_API_KEY`                                         |
+| Gnani Timbre v2.5 TTS     | [PLANNED]                    | Write `lib/server/tts.mjs` with `timbreProvider()`, wire to `GNANI_TTS_URL` / `GNANI_TTS_VOICE` |
+| Gnani Evon v3.3           | [PLANNED]                    | Self-hosted inference endpoint on H100/A100; write adapter in `stt.mjs`                         |
+| Live ERPNext connection   | [IMPLEMENTED]                | Set `NAMMAOPS_BINDING=binding.hvgerp.json` with `ERPNEXT_*` credentials                         |
+| Manager reasoning mode    | [IMPLEMENTED]                | Set `NAMMAOPS_REASONING=manager`                                                                |
+| Kannada / Hindi UI labels | [PLANNED]                    | i18n layer over the NammaOps panel components                                                   |
+| Mobile PWA                | [PLANNED]                    | Progressive Web App shell for shopkeeper's phone                                                |
+| Multi-store support       | [PLANNED]                    | Tenant isolation layer over the current single-workspace architecture                           |
 
 ---
 
 ## Built With
 
-| Technology | Role |
-|---|---|
-| **Gnani AI Prisma v2.5** | Indian-language speech-to-text |
-| **Gnani AI Timbre v2.5** | Indian-language text-to-speech [PLANNED] |
-| **ERPNext / Frappe Cloud** | Kirana store ERP backend |
-| **hvgerp-mcp v3.7.0** | Read-only MCP adapter for ERPNext |
-| **Next.js 16** | Application framework |
-| **React 19** | UI components |
-| **TypeScript 5** | Type safety across the full stack |
-| **Node.js SQLite** | Durable workflow state and audit trail |
+| Technology                       | Role                                           |
+| -------------------------------- | ---------------------------------------------- |
+| **Gnani AI Prisma v2.5**         | Indian-language speech-to-text                 |
+| **Gnani AI Timbre v2.5**         | Indian-language text-to-speech [PLANNED]       |
+| **ERPNext / Frappe Cloud**       | Kirana store ERP backend                       |
+| **hvgerp-mcp v3.7.0**            | Read-only MCP adapter for ERPNext              |
+| **Next.js 16**                   | Application framework                          |
+| **React 19**                     | UI components                                  |
+| **TypeScript 5**                 | Type safety across the full stack              |
+| **Node.js SQLite**               | Durable workflow state and audit trail         |
 | **Model Context Protocol (MCP)** | Governed tool interface between agents and ERP |
-| **Vitest** | Test runner (1162 tests, 105 files) |
-| **Phaser 3** | 2D office scene |
-| **Three.js** | 3D office scene |
+| **Vitest**                       | Test runner (1162 tests, 105 files)            |
+| **Phaser 3**                     | 2D office scene                                |
+| **Three.js**                     | 3D office scene                                |
 
 ## Credits
 
@@ -424,6 +425,6 @@ Voice models: Gnani Prisma v2.5 STT / Gnani Timbre v2.5 TTS (planned) / Gnani Ev
 
 ### Speak to your store. Your AI crew handles the rest.
 
-*KiranaCrew — voice-first AI workforce for Indian kirana stores*
+_KiranaCrew — voice-first AI workforce for Indian kirana stores_
 
 </div>

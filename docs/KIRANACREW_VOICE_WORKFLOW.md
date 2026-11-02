@@ -132,6 +132,7 @@ For the Gemini Live real-time path, audio is streamed via WebRTC through `lib/vo
 **File:** `lib/server/stt.mjs` → `gnaniProvider()`
 
 The server's `createSttProvider()` reads `AGENT_TOWN_STT_PROVIDER`:
+
 - `gnani` → posts audio to `https://api.vachana.ai/stt/v3` with `X-API-Key-ID: {GNANI_API_KEY}`
 - `gemini` → uses Gemini's `generateContent` API as a fallback
 - `fixture` → returns a fixed transcript (for testing without a real API key)
@@ -145,26 +146,27 @@ The Gnani response includes `{ transcript, request_id }`. The `request_id` is pr
 
 The `VoiceRouter.query()` method receives the transcribed text (or a direct structured intent from the Gemini Live tool call) and identifies the business intent. The eight supported intents are:
 
-| Voice Intent | Maps to Workflow | Example phrase |
-|---|---|---|
-| `list_products` | `stock_check` | "Show me all products" |
-| `check_stock` | `stock_check` | "Check the stock of milk" |
-| `sales_summary` | `daily_report` | "How much did I sell today?" |
-| `top_selling_products` | `daily_report` | "What sold the most today?" |
-| `business_profit` | `daily_report` | "How much profit did I make?" |
-| `demand_forecast` | `demand_forecast` | "What will I need next week?" |
-| `supplier_comparison` | `supplier_comparison` | "Which supplier is cheapest for oil?" |
-| `prepare_purchase_order` | `prepare_reorder` | "Order what's running low" |
+| Voice Intent             | Maps to Workflow      | Example phrase                        |
+| ------------------------ | --------------------- | ------------------------------------- |
+| `list_products`          | `stock_check`         | "Show me all products"                |
+| `check_stock`            | `stock_check`         | "Check the stock of milk"             |
+| `sales_summary`          | `daily_report`        | "How much did I sell today?"          |
+| `top_selling_products`   | `daily_report`        | "What sold the most today?"           |
+| `business_profit`        | `daily_report`        | "How much profit did I make?"         |
+| `demand_forecast`        | `demand_forecast`     | "What will I need next week?"         |
+| `supplier_comparison`    | `supplier_comparison` | "Which supplier is cheapest for oil?" |
+| `prepare_purchase_order` | `prepare_reorder`     | "Order what's running low"            |
 
 The voice router applies idempotency: one spoken tool call (`actionId`) starts at most one workflow, even across HTTP retries or reconnects. Duplicate calls return the existing workflow's result.
 
-**Important security note from the code:** *"The voice seat's department is presentation: it is never used to authorize a call. Voice cannot approve or submit a purchase."*
+**Important security note from the code:** _"The voice seat's department is presentation: it is never used to authorize a call. Voice cannot approve or submit a purchase."_
 
 ### Step 4: Manager Agent Delegation [IMPLEMENTED]
 
 **File:** `lib/server/nammaops/workflows.mjs` → `Workflows.execute()`
 
 The Manager Agent receives the normalized intent object and calls the appropriate workflow method:
+
 - `stock_check` → `Workflows.stockCheck()`
 - `prepare_reorder` → `Workflows.prepareReorder()`
 - `daily_report` → `Workflows.dailyReport()`
@@ -176,6 +178,7 @@ The Manager Agent receives the normalized intent object and calls the appropriat
 **Files:** `lib/server/nammaops/workflows.mjs`, `lib/server/nammaops/calculations.mjs`, `lib/server/nammaops/forecast.mjs`
 
 Each workflow is a sequence of `step()` calls, each of which:
+
 1. Creates a child task record in SQLite with the specialist agent's identity
 2. Calls ERP tools through the governance layer (`this.binding.call(agentId, businessId, args)`)
 3. Records every ERP invocation in the task's `evidence` array
@@ -192,18 +195,19 @@ Purchase order workflows end with status `awaiting_approval`. The `OwnerApproval
 3. **Fingerprint check:** SHA-256 hash of `{ name, supplier, docstatus, grand_total, items }` must match between request creation and approval time. If the ERP draft changed, the approval is invalidated and a new reorder must be prepared.
 4. **Idempotency:** The approval request is claimed (status → `submitting`) before the ERP call. A concurrent approval attempt fails on the database revision check.
 
-Voice agents **cannot** approve purchase orders. The `speak_rule` field in every voice contract includes: *"Voice cannot approve or submit a purchase order."*
+Voice agents **cannot** approve purchase orders. The `speak_rule` field in every voice contract includes: _"Voice cannot approve or submit a purchase order."_
 
 ### Step 7: Result Generation [IMPLEMENTED]
 
 **File:** `lib/server/nammaops/voice-router.mjs` → `SHAPERS`
 
 Each intent has a dedicated shaper function that transforms the raw workflow result into voice-friendly arrays:
+
 - `facts` — statements the agent should say
 - `recommendations` — actions it should suggest
 - `limitations` — caveats it must mention (data source, missing information)
 
-The `speak_rule` field is always: *"Say only these facts, recommendations and limitations. Do not add numbers, products or outcomes that are not listed here."* This prevents the language model from hallucinating numbers that were not computed from ERP data.
+The `speak_rule` field is always: _"Say only these facts, recommendations and limitations. Do not add numbers, products or outcomes that are not listed here."_ This prevents the language model from hallucinating numbers that were not computed from ERP data.
 
 ### Step 8: Gnani Timbre TTS Response [PLANNED]
 
@@ -250,6 +254,7 @@ See `docs/GNANI_INTEGRATION.md` for the planned implementation.
 **ERP calls:** 90-day `erp.sales.history` in 7-day slices (Sales), `erp.items.list` + `erp.stock.balance` + `erp.stock.movements` (Inventory), `erp.po.open` + `erp.suppliers.list` + `erp.supplier_quotations.list` (Procurement, optional)
 
 **Forecast methods** (selected by lowest WAPE on held-out data):
+
 - `ma7` — 7-day moving average
 - `ma30` — 30-day moving average
 - `weighted` — Exponential smoothing (alpha=0.3)

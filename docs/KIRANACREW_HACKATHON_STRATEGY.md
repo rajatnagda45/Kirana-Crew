@@ -1,4 +1,5 @@
 # NammaOps — Hackathon Strategy
+
 ## Great Indian AI Internship Challenge 2026
 
 > **NammaOps**: AI Workforce for Kirana Stores
@@ -12,11 +13,12 @@
 
 **Vision**: Give every kirana store owner an AI workforce that speaks their language, never sleeps, and handles the operational grind — so they can focus on customers.
 
-**Tagline**: *"Namma AI, Namma Bhasha, Namma Dukan"* — Our AI, Our Language, Our Shop.
+**Tagline**: _"Namma AI, Namma Bhasha, Namma Dukan"_ — Our AI, Our Language, Our Shop.
 
 **One-sentence pitch**: NammaOps is a voice-first AI platform that puts five AI specialists to work for any kirana store owner — just speak in Kannada, Hindi, or Hinglish, and your stock gets checked, orders get drafted with your approval, and your daily books get summarized.
 
 **What makes this real, not a demo**:
+
 - Voice input → Gnani Prisma STT → real transcript (`gnaniProvider()` in `stt.mjs` — [IMPLEMENTED])
 - Real multi-agent orchestration: five specialist agents, each with only the ERP permissions they need
 - Real business calculations: inventory reorder formulas, 90-day demand forecast with backtesting, ranked supplier comparison
@@ -33,6 +35,7 @@
 The single most technically distinctive thing about NammaOps that no other hackathon project will likely have: **Phase C MCP tool governance**.
 
 Every ERP call in NammaOps is:
+
 1. Registered as a named capability (e.g., `erp.stock.balance`)
 2. Reviewed by a human developer with a risk score
 3. Granted specifically to one agent identity (not all agents)
@@ -46,6 +49,7 @@ This is production-grade AI governance, not a hackathon prototype. It directly d
 ### 2.2 Deterministic Business Intelligence
 
 All NammaOps business calculations are deterministic — no LLM required for:
+
 - Stock analysis (reorder level, recommended quantity)
 - Supplier ranking (by rate, lead time, on-time performance)
 - Demand forecasting (4 statistical methods, WAPE backtesting)
@@ -56,6 +60,7 @@ All NammaOps business calculations are deterministic — no LLM required for:
 ### 2.3 Live ERPNext Integration (Not Just a Mock)
 
 As of Nov 2, 2026 (Phase G2 verified in `docs/phase-g1-hvgerp-discovery.md`):
+
 - 36 real items verified live
 - 35 real stock bins read live
 - 479 real sales invoices processed
@@ -67,6 +72,7 @@ No other hackathon project is likely running against a real ERPNext Cloud instan
 ### 2.4 Developer Mode (McpGovernancePanel)
 
 The McpGovernancePanel is a full governance UI that lets a developer:
+
 - Register MCP servers
 - Review capabilities with risk levels
 - Assign capabilities to agent identities
@@ -82,18 +88,21 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 ### 3.1 Existing Kirana Software: What They Do, What They Don't
 
 **Khatabook**
+
 - What it does: Digital ledger (udhar/credit tracking), basic invoicing, payment reminders, low-stock alerts, basic inventory
 - What it does NOT do: No voice input, no autonomous AI agents, no supplier management, no predictive ordering, no vernacular voice interface
 - Price: Free basic; paid tiers available
 - Gap NammaOps fills: Voice-first interaction; autonomous agent execution (not just recording)
 
 **Vyapar**
+
 - What it does: Comprehensive billing, real-time stock tracking, barcode scanning, multi-warehouse, batch/expiry tracking, GST compliance, WhatsApp invoicing
 - What it does NOT do: No voice interface, no autonomous ordering, no AI forecasting, no Kannada/Hindi voice commands
 - Price: Free Android basic; ₹1,249–₹6,999/year for premium
 - Gap NammaOps fills: Voice-first; autonomous execution; AI agents that act, not just report
 
 **GoFrugal**
+
 - What it does: Full POS, grocery-specific features, barcode/weighing scale integration, stock management, expiry tracking, multi-store, cloud-hosted, GST compliance
 - What it does NOT do: No voice AI, no autonomous agents, no Indian vernacular interface beyond English/basic Hindi UI
 - Gap NammaOps fills: Voice-first; affordable; AI agents for small stores
@@ -101,15 +110,18 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 ### 3.2 Voice AI in Indian Market
 
 **Sarvam AI (Saaras STT + Bulbul TTS)**:
+
 - Strong Indian language voice models (22+ languages)
 - Platform-level: not packaged as a kirana store solution
 - No kirana-specific application layer
 
 **KiranaPro**:
+
 - Consumer ordering app via ONDC, not store management
 - Does not manage inventory or supplier relations internally
 
 **None of the identified competitors combine**:
+
 1. Voice-first in Kannada/Hindi/Hinglish via Gnani Prisma
 2. Autonomous multi-agent execution (not just recording or alerting)
 3. Store management focus (inventory + orders + supplier + accounts)
@@ -124,6 +136,7 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 **What it rewards**: [VERIFIED] Most useful solution for farmers, kirana stores, or rural healthcare. Kirana stores are named explicitly.
 
 **How NammaOps qualifies** (all [IMPLEMENTED]):
+
 - Five deterministic workflows: stock check, demand forecast, supplier comparison, daily report, prepare reorder
 - All five workflows run against real ERPNext data (live read-only)
 - Owner approval with PIN — AI cannot place orders without human authorization
@@ -131,6 +144,7 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 - Timbre TTS to be added Day 2 — Kannada voice output
 
 **Quantifiable impact to mention**:
+
 - Saves 1–2 hours/day of manual stock checking and supplier calling
 - 90-day demand forecast with stockout censoring reduces overstocking and stockout risk
 - Every ERP access logged — owner can audit AI actions
@@ -145,6 +159,7 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 **What it rewards**: [VERIFIED] Best project in a regional/low-resource Indian language
 
 **How NammaOps qualifies**:
+
 - Kannada is the primary regional language target (low-resource relative to Hindi)
 - Gnani Prisma STT with `language_code: "kn-IN"` — implemented in `stt.mjs`
 - Timbre TTS with `language_code: "kn-IN"` — to be built Day 2
@@ -153,6 +168,7 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 - Fixture data includes Indian grocery products (Toor Dal, Toned Milk, Sunflower Oil)
 
 **What still needs to happen**:
+
 - Build Timbre TTS (Day 2)
 - Demo 6+ Kannada audio queries with successful transcription
 - Test Kannada product name vocabulary (ಹಾಲು, ಅಕ್ಕಿ, ಎಣ್ಣೆ)
@@ -167,12 +183,14 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 **What it rewards**: [VERIFIED] Best code-mixed speech application (Hinglish, Tanglish, Benglish)
 
 **How NammaOps qualifies**:
+
 - Prisma STT explicitly supports Hinglish; `indic-auto` language hint for auto-detection
 - `parseCommand()` in `workflows.mjs` is language-agnostic (works on any transcript)
 - Voice contracts have `speak_rule` that prevents hallucination even on mixed-language input
 - Kirana speech is naturally code-mixed: "Stock check karo milk ka", "ek kilo atta hai kya"
 
 **What needs to be done** (Day 5-6):
+
 - Test 5+ Hinglish queries through Prisma → parseCommand → workflow
 - Test Kanglish queries (Kannada-English mix)
 - Document accuracy in submission
@@ -187,6 +205,7 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 **What it rewards**: [VERIFIED] Best 60-second demo video
 
 **Why NammaOps has a compelling 60-second story**:
+
 - The NammaOpsPanel visually shows five agents activating in sequence (timeline)
 - The MCPGovernancePanel shows tool governance in real time
 - Gnani Prisma: visible transcript on screen
@@ -207,6 +226,7 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 **How NammaOps qualifies**: Prisma v3.0 is trained on 8kHz telephony audio; kirana stores have natural background noise.
 
 **What needs to be done** (Day 6 if time):
+
 - Record a query with background market noise (fan, customer voices, radio)
 - Show Prisma transcript is still correct
 
@@ -218,6 +238,7 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 ### Award 6: Jugaad Genius Award — Most Creative/Unexpected Usage
 
 **How NammaOps qualifies**:
+
 - Five AI specialists acting as a "workforce" for a kirana owner is a creative metaphor
 - The governance-by-identity pattern (each agent has its own ERP credentials) is technically unusual
 - The demand forecast applies stockout censoring — a statistical insight adapted for a kirana context
@@ -243,6 +264,7 @@ This is novel for the hackathon context: the "AI configuration" itself is transp
 ## 6. Secondary Award Opportunities
 
 In priority order:
+
 1. **Demo Day Drop Award**: A polished 60-second video is necessary for submission anyway; invest in production quality. Script is in Section 9.
 2. **Mixed Vibes Award**: Extend the voice demo to include Hinglish/Kanglish scenarios on Day 5-6 — limited additional work.
 3. **Crowd Favourite Award**: If organic social engagement is strong (kirana AI story resonates broadly with Indian startup community), this is achievable.
@@ -273,6 +295,7 @@ In order of impact, based on the actual codebase:
 The shortlisting process is: engagement verification → eligibility check → interview. [VERIFIED]
 
 **Technical depth for the interview**:
+
 - Know exactly how `gnaniProvider()` works (`stt.mjs` — REST POST to `https://api.vachana.ai/stt/v3`, `X-API-Key-ID` auth, multipart/form-data audio)
 - Know what `timbreProvider()` does (to be built on Day 2)
 - Know the MCP governance state machine: discover → register → assign → grant → invoke → audit
@@ -283,6 +306,7 @@ The shortlisting process is: engagement verification → eligibility check → i
 "Evon v3.3 is self-hosted only (open weights on HuggingFace, requires H100). We opted for deterministic business logic instead of LLM reasoning for the business calculations — this gives us reproducible, auditable results. The Manager reasoning turn is an optional LLM summary of deterministic outputs; for the hackathon we use Gemini Flash as the reasoning model, which is within the competition's rules (only one Gnani model is required)."
 
 **Individual interview prep** (for each team member):
+
 - Be able to explain every technical decision in the codebase
 - Understand Indian kirana market context (13 million stores, typical owner profile, pain points)
 - Have a clear vision for how NammaOps extends post-hackathon (multi-store, GST integration, WhatsApp interface)
@@ -307,6 +331,7 @@ The shortlisting process is: engagement verification → eligibility check → i
 **[0:54–0:60]** McpGovernancePanel: 14 invocations logged, all as named agents, none denied. End card: "#GreatIndianAIInternshipChallenge #GnaniAI — Powered by Gnani Prisma + Timbre"
 
 **Key visual moments**:
+
 - Prisma transcript visible on screen (not just audio)
 - Agent timeline ticking through steps
 - Purchase approval with PIN entry
@@ -320,16 +345,19 @@ The shortlisting process is: engagement verification → eligibility check → i
 [All tactics are compliant with competition rules as verified at gnani.ai/internship]
 
 **Nov 2–3 (Day 2-3): Teaser**
+
 - Post a "building in public" LinkedIn post: problem statement only ("India's 13 million kirana stores run on paper ledgers and phone calls — I'm building something about this"). No demo yet.
 - Use #GnaniAI hashtag from the start to establish timeline
 - Do NOT ask for engagement; let it come organically
 
 **Nov 4–5 (Day 4-5): First demo snippet**
+
 - 15-second clip: Kannada voice input → Prisma transcript → workflow starts
 - Caption in Hindi/English: "Bolo, AI samjhega. Kirana store ka AI workforce."
 - Technical thread (separate post): explain one interesting technical choice (MCP governance, stockout censoring in forecast)
 
 **Nov 7-8 (Day 7-8): Full demo post**
+
 - LinkedIn + X: post the 60-second demo video
 - Include both required hashtags: #GreatIndianAIInternshipChallenge and #GnaniAI
 - Tag Gnani AI
@@ -337,6 +365,7 @@ The shortlisting process is: engagement verification → eligibility check → i
 - Respond to every comment within the first 24 hours (engagement signal)
 
 **Post-submission**:
+
 - Respond to all comments
 - Share any reposts or tags
 

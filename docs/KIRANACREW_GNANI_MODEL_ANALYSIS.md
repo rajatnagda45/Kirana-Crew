@@ -1,4 +1,5 @@
 # Gnani AI Model Technical Analysis
+
 ## Prisma v2.5 (STT) · Timbre v2.5 (TTS) · Evon v3.3 (LLM)
 
 > For NammaOps — AI Workforce for Kirana Stores
@@ -14,6 +15,7 @@
 [VERIFIED — from gnani-ai/gnani HuggingFace, gnani.ai/speech-to-text-api, and search results]
 
 Prisma v2.5 supports:
+
 - **10+ Indian languages**: Hindi (hi-IN), Tamil (ta-IN), Telugu (te-IN), Bengali (bn-IN), Marathi (mr-IN), Gujarati (gu-IN), Kannada (kn-IN), Malayalam (ml-IN), Punjabi (pa-IN), Odia, Indian English (en-IN)
 - **Code-mixed combinations**: Hinglish (Hindi+English), Tanglish (Tamil+English), Benglish (Bengali+English)
 - **Auto language detection**: Automatic detection across all supported languages [VERIFIED — gnani.ai/speech-to-text-api]
@@ -38,6 +40,7 @@ Note: Prisma v3.0 was launched October 28, 2026, during the hackathon window. It
 **API Base URL**: `https://api.vachana.ai` [VERIFIED — from docs.gnani.ai/livekit/introduction and LiveKit plugin documentation]
 
 **Three primary API modes:**
+
 1. **REST (file-based)**: `POST /stt/v3` at `https://api.vachana.ai/stt/v3` [VERIFIED]
 2. **WebSocket streaming**: `wss://api.vachana.ai/stt/v3/stream` — real-time transcription with VAD (Voice Activity Detection) [VERIFIED]
 3. **Batch asynchronous**: Separate batch endpoint for long-form audio [VERIFIED — docs.gnani.ai index]
@@ -89,32 +92,32 @@ The sub-200ms P95 streaming latency is a competitive claim against Google STT an
 
 **Verdict: STRONG FIT**
 
-| Factor | Assessment |
-|---|---|
-| Kannada support | Verified; kn-IN language code present |
-| Hindi support | Verified; hi-IN supported |
-| Hinglish code-mixing | Verified; explicitly a design feature |
-| Kirana store noise conditions | Strong fit: telephony audio, noisy environments, rural India |
-| Streaming for real-time voice UX | Verified via WebSocket; sub-200ms P95 |
-| Kanglish code-mixing | Unverified but likely; test required |
-| SDK availability | Yes; gnani-vachana Python package; LiveKit plugin |
+| Factor                           | Assessment                                                   |
+| -------------------------------- | ------------------------------------------------------------ |
+| Kannada support                  | Verified; kn-IN language code present                        |
+| Hindi support                    | Verified; hi-IN supported                                    |
+| Hinglish code-mixing             | Verified; explicitly a design feature                        |
+| Kirana store noise conditions    | Strong fit: telephony audio, noisy environments, rural India |
+| Streaming for real-time voice UX | Verified via WebSocket; sub-200ms P95                        |
+| Kanglish code-mixing             | Unverified but likely; test required                         |
+| SDK availability                 | Yes; gnani-vachana Python package; LiveKit plugin            |
 
 **Primary concern**: Kanglish (Kannada-English) code-mixing is not explicitly documented as a supported variant. Testing with real code-mixed Kannada-English speech is required before committing to this use case. [INFERRED]
 
 ### 1.9 What is DOCUMENTED vs ASSUMED
 
-| Claim | Status |
-|---|---|
-| 10+ Indian languages supported | DOCUMENTED |
-| Kannada (kn-IN) supported | DOCUMENTED |
-| Hinglish code-mixing supported | DOCUMENTED |
-| Sub-200ms streaming latency | DOCUMENTED (vendor claim) |
-| WebSocket streaming API available | DOCUMENTED |
-| 14M hours training data | DOCUMENTED |
-| Telephony audio (8kHz) training | DOCUMENTED |
-| Kanglish specifically supported | ASSUMED (not explicitly stated) |
+| Claim                                            | Status                             |
+| ------------------------------------------------ | ---------------------------------- |
+| 10+ Indian languages supported                   | DOCUMENTED                         |
+| Kannada (kn-IN) supported                        | DOCUMENTED                         |
+| Hinglish code-mixing supported                   | DOCUMENTED                         |
+| Sub-200ms streaming latency                      | DOCUMENTED (vendor claim)          |
+| WebSocket streaming API available                | DOCUMENTED                         |
+| 14M hours training data                          | DOCUMENTED                         |
+| Telephony audio (8kHz) training                  | DOCUMENTED                         |
+| Kanglish specifically supported                  | ASSUMED (not explicitly stated)    |
 | WER 3.8% on noisy audio independent verification | NOT DOCUMENTED — vendor claim only |
-| Credit cost per API call | NOT DOCUMENTED |
+| Credit cost per API call                         | NOT DOCUMENTED                     |
 
 ---
 
@@ -125,6 +128,7 @@ The sub-200ms P95 streaming latency is a competitive claim against Google STT an
 [VERIFIED — docs.livekit.io/agents/models/tts/gnani, PyPI livekit-plugins-gnani]
 
 Language codes supported by timbre-v2.5:
+
 - `auto` (automatic language detection from text)
 - `bn-IN` (Bengali)
 - `en-IN` (Indian English)
@@ -176,6 +180,7 @@ Language codes supported by timbre-v2.5:
 **API Base URL**: `https://api.vachana.ai` (same as STT) [VERIFIED]
 
 Three synthesis methods with confirmed endpoints:
+
 1. **REST**: `POST /api/v1/tts/inference` at `https://api.gnani.ai/v1/tts/inference` [VERIFIED — search results citing Timbre API docs]
 2. **SSE** (Server-Sent Events): `POST /api/v1/tts/sse` [VERIFIED]
 3. **WebSocket**: `wss://api.vachana.ai/api/v1/tts` — "Lowest latency" [VERIFIED — docs.gnani.ai/livekit]
@@ -211,29 +216,29 @@ For kirana store deployment on low-end Android phones: 8000 Hz sample rate, OggO
 
 **Verdict: STRONG FIT**
 
-| Factor | Assessment |
-|---|---|
-| Kannada (kn-IN) support | Verified language code |
-| Hindi (hi-IN) support | Verified language code |
-| Streaming for real-time voice | Verified via WebSocket |
-| Telephony audio (8kHz) | Documented MOS on 8kHz audio |
-| 42 voices for character | Large selection; can choose "friendly shopkeeper" voice |
-| Price/currency prosody | Claimed but not independently verified for Kannada |
-| Low-bandwidth mobile output | 8kHz mono OggOpus configurable |
+| Factor                        | Assessment                                              |
+| ----------------------------- | ------------------------------------------------------- |
+| Kannada (kn-IN) support       | Verified language code                                  |
+| Hindi (hi-IN) support         | Verified language code                                  |
+| Streaming for real-time voice | Verified via WebSocket                                  |
+| Telephony audio (8kHz)        | Documented MOS on 8kHz audio                            |
+| 42 voices for character       | Large selection; can choose "friendly shopkeeper" voice |
+| Price/currency prosody        | Claimed but not independently verified for Kannada      |
+| Low-bandwidth mobile output   | 8kHz mono OggOpus configurable                          |
 
 ### 2.9 What is DOCUMENTED vs ASSUMED
 
-| Claim | Status |
-|---|---|
-| 11 language codes including kn-IN and hi-IN | DOCUMENTED |
-| 42 voices in timbre-v2.5 | DOCUMENTED |
-| WebSocket streaming available | DOCUMENTED |
-| Sub-100ms time to first audio | DOCUMENTED (vendor claim) |
-| Context-aware prosody | DOCUMENTED (general claim) |
-| Correct Indian numeral pronunciation | DOCUMENTED (general claim) |
-| Kannada-specific voice quality | NOT INDEPENDENTLY DOCUMENTED |
-| Correct lakh/crore pronunciation | NOT EXPLICITLY DOCUMENTED |
-| Kirana product name pronunciation | NOT DOCUMENTED — assumed |
+| Claim                                       | Status                       |
+| ------------------------------------------- | ---------------------------- |
+| 11 language codes including kn-IN and hi-IN | DOCUMENTED                   |
+| 42 voices in timbre-v2.5                    | DOCUMENTED                   |
+| WebSocket streaming available               | DOCUMENTED                   |
+| Sub-100ms time to first audio               | DOCUMENTED (vendor claim)    |
+| Context-aware prosody                       | DOCUMENTED (general claim)   |
+| Correct Indian numeral pronunciation        | DOCUMENTED (general claim)   |
+| Kannada-specific voice quality              | NOT INDEPENDENTLY DOCUMENTED |
+| Correct lakh/crore pronunciation            | NOT EXPLICITLY DOCUMENTED    |
+| Kirana product name pronunciation           | NOT DOCUMENTED — assumed     |
 
 ---
 
@@ -243,15 +248,15 @@ For kirana store deployment on low-end Android phones: 8000 Hz sample rate, OggO
 
 [VERIFIED — HuggingFace gnani/gnani-evon-v3.3-30B-A3B, HackerNoon article]
 
-| Attribute | Value | Status |
-|---|---|---|
-| Architecture | Mamba2-Transformer Hybrid Mixture of Experts (MoE) | VERIFIED |
-| Network type | Nemotron Hybrid MoE (`nemotron_h`) | VERIFIED |
-| Total parameters | 30 billion | VERIFIED |
-| Active parameters per token | ~3.5 billion | VERIFIED |
-| Context window | 131,072 tokens (128K) | VERIFIED |
-| Precision | BF16 | VERIFIED |
-| Maximum output tokens | 16,384 | VERIFIED |
+| Attribute                   | Value                                              | Status   |
+| --------------------------- | -------------------------------------------------- | -------- |
+| Architecture                | Mamba2-Transformer Hybrid Mixture of Experts (MoE) | VERIFIED |
+| Network type                | Nemotron Hybrid MoE (`nemotron_h`)                 | VERIFIED |
+| Total parameters            | 30 billion                                         | VERIFIED |
+| Active parameters per token | ~3.5 billion                                       | VERIFIED |
+| Context window              | 131,072 tokens (128K)                              | VERIFIED |
+| Precision                   | BF16                                               | VERIFIED |
+| Maximum output tokens       | 16,384                                             | VERIFIED |
 
 The MoE architecture means Evon activates only 3.5B parameters per inference step despite having 30B total parameters. This gives it efficiency comparable to a 3.5B dense model while having the capacity of a 30B model. [INFERRED from MoE architecture fundamentals]
 
@@ -263,21 +268,25 @@ The MoE architecture means Evon activates only 3.5B parameters per inference ste
 Hindi, Bengali, Telugu, Tamil, Marathi, Gujarati, Kannada, Malayalam, Odia, Punjabi, English
 
 **MILU benchmark performance** (multilingual instruction following):
+
 - 78.74 macro mean across 11 languages [VERIFIED]
 - English: 84.06 [VERIFIED]
 - Odia: 66.94 (lowest) [VERIFIED]
 - Kannada: [UNVERIFIED ASSUMPTION — specific Kannada score not extracted from sources; likely between 70–80 based on language resource availability]
 
 **Comparison with competitors** [VERIFIED]:
+
 - "Leads Sarvam-30B on the MILU benchmark across all 11 languages" [VERIFIED]
 - "Leads Sarvam-105B on 10 of the 11 languages" [VERIFIED]
 - Competitive with gpt-5.4-nano on Indic comprehension (79.46 vs 79.69) [VERIFIED]
 
 **Extractive QA** [VERIFIED]:
+
 - XQuAD-in: 64.59 F1
 - XorQA-in: 41.83 F1
 
 **Known weaknesses** [VERIFIED — HackerNoon]:
+
 - Translation (FLORES-in: 34.52 chrF++): below competitive alternatives
 - Summarization (CrossSum-in: 4.67 chrF): significantly below alternatives
 - Instruction-following benchmark (IndicIFEval-trans: 47.45): moderate
@@ -288,17 +297,18 @@ Hindi, Bengali, Telugu, Tamil, Marathi, Gujarati, Kannada, Malayalam, Odia, Punj
 
 [VERIFIED — HuggingFace; CORRECTION NOTE [Audit Nov 1]: Evon access model confirmed as self-hosted ONLY]
 
-| Requirement | Specification |
-|---|---|
-| Framework | Transformers ≥5.3.0, vLLM ≥0.12.0, or SGLang |
-| Hardware | NVIDIA H100 80GB, H200, or A100 |
-| Operating System | Linux |
-| Precision | BF16 |
-| Special flag | `trust_remote_code=True` required for Transformers loading |
+| Requirement      | Specification                                              |
+| ---------------- | ---------------------------------------------------------- |
+| Framework        | Transformers ≥5.3.0, vLLM ≥0.12.0, or SGLang               |
+| Hardware         | NVIDIA H100 80GB, H200, or A100                            |
+| Operating System | Linux                                                      |
+| Precision        | BF16                                                       |
+| Special flag     | `trust_remote_code=True` required for Transformers loading |
 
 **CORRECTION NOTE [Audit Nov 1]**: The official Gnani AI hackathon blog (gnani.ai/resources/blogs/great-indian-ai-internship-challenge-2026) explicitly states: **"Evon v3.3 isn't on the API platform yet: request the open weights on Hugging Face and run it yourself."** The HuggingFace model card confirms: "This model isn't deployed by any Inference Provider." [VERIFIED]
 
 This means:
+
 - Evon v3.3 is **NOT accessible via the gnani.ai API platform** — this was an inaccurate assumption in the original document
 - The 5,000 programme credits apply **only to Prisma and Timbre** on app.gnani.ai/voice — they do NOT cover Evon inference [VERIFIED]
 - Self-hosting Evon requires NVIDIA H100 80GB, H200, or A100 — cost ~$20–40/hour on cloud GPU instances [INFERRED from typical pricing]
@@ -334,6 +344,7 @@ This means:
 Agent Town's orchestration engine (OrchestrationService, TeamLead) dispatches tasks to AI agents via a gateway protocol. Currently it uses OpenClaw/Nightshift/Auggie adapters. Evon would require a new gateway adapter, likely a NightshiftGateway-style HTTP adapter calling the Gnani Evon API.
 
 Key compatibility factors:
+
 - Evon supports tool calling (required for executor/specialist agents) [COMPATIBLE]
 - 128K context window fits Agent Town's handoff injection pattern (task history, evidence) [COMPATIBLE]
 - Multi-step agentic limitations mean complex orchestration chains need testing [RISK]
@@ -350,6 +361,7 @@ Key compatibility factors:
 **Option B (fallback — strongly recommended)**: Use an OpenAI-compatible model (GPT-4o-mini, Gemini Flash, or Claude Haiku) as the reasoning engine. The competition requires "at least one Gnani AI model or API." Using Prisma + Timbre via the gnani.ai platform already satisfies this requirement. Evon is not mandatory for compliance.
 
 **Rationale for Option B being the practical default**:
+
 1. Self-hosting Evon requires H100/A100 — most hackathon participants do not have this hardware available
 2. The hackathon blog does not require that all three models be used — only that at least one Gnani model is used [VERIFIED]
 3. Prisma (STT) + Timbre (TTS) are on the API platform and fully accessible via the 5,000 credits
@@ -358,43 +370,45 @@ Key compatibility factors:
 **Impact on award strategy**: Using all three Gnani models is stronger for judging ("deep platform integration") but is not a requirement. If Evon self-hosting is not feasible, disclose the fallback model transparently in the submission.
 
 **Where Evon shines (if self-hosted)**:
+
 - Intent classification from Kannada/Hindi voice input (after Prisma transcription)
 - Inventory query reasoning
 - Supplier follow-up composition
 - 128K context window fits full kirana session
 
 **Where the fallback is acceptable**:
+
 - Any OpenAI-compatible model handles tool calling reliably for the hackathon scope
 
 ### 3.8 What is DOCUMENTED vs ASSUMED
 
-| Claim | Status |
-|---|---|
-| 30B total / 3.5B active parameters | DOCUMENTED |
-| 128K context window | DOCUMENTED |
-| 11 Indian languages + English | DOCUMENTED |
-| MILU 78.74 benchmark | DOCUMENTED |
-| Tool calling via vLLM | DOCUMENTED |
-| Multi-step agentic limitations | DOCUMENTED |
-| H100/A100 hardware requirement | DOCUMENTED |
-| Apache 2.0 license | DOCUMENTED |
-| Self-hosted open-weights ONLY (no gnani.ai API) | DOCUMENTED [Audit Nov 1 — VERIFIED] |
-| 302ms first token, 257 tokens/sec on H100 | DOCUMENTED (from search results) |
-| Specific Kannada benchmark score | NOT DOCUMENTED |
-| Gnani.ai hosted API endpoint | DOES NOT EXIST as of Nov 1, 2026 [VERIFIED] |
-| Credit cost per token for Evon | NOT APPLICABLE — Evon is not on the credits platform [VERIFIED] |
+| Claim                                           | Status                                                          |
+| ----------------------------------------------- | --------------------------------------------------------------- |
+| 30B total / 3.5B active parameters              | DOCUMENTED                                                      |
+| 128K context window                             | DOCUMENTED                                                      |
+| 11 Indian languages + English                   | DOCUMENTED                                                      |
+| MILU 78.74 benchmark                            | DOCUMENTED                                                      |
+| Tool calling via vLLM                           | DOCUMENTED                                                      |
+| Multi-step agentic limitations                  | DOCUMENTED                                                      |
+| H100/A100 hardware requirement                  | DOCUMENTED                                                      |
+| Apache 2.0 license                              | DOCUMENTED                                                      |
+| Self-hosted open-weights ONLY (no gnani.ai API) | DOCUMENTED [Audit Nov 1 — VERIFIED]                             |
+| 302ms first token, 257 tokens/sec on H100       | DOCUMENTED (from search results)                                |
+| Specific Kannada benchmark score                | NOT DOCUMENTED                                                  |
+| Gnani.ai hosted API endpoint                    | DOES NOT EXIST as of Nov 1, 2026 [VERIFIED]                     |
+| Credit cost per token for Evon                  | NOT APPLICABLE — Evon is not on the credits platform [VERIFIED] |
 
 ### 3.9 Fallback Reasoning Models (Added by Audit Nov 1)
 
 Since Evon v3.3 is not on the API platform, the following fallback options are ranked by suitability:
 
-| Option | Integration | Tool Calling | Indian Language | Cost | Hackathon Feasibility |
-|---|---|---|---|---|---|
-| **Evon self-hosted (vLLM)** | OpenAI-compatible REST | YES (qwen3_coder parser) | STRONG | ~$20-40/hr GPU | POSSIBLE if H100 available |
-| **GPT-4o-mini** | OpenAI SDK | STRONG | GOOD (English-mediated) | Low per-token | HIGH — API key required |
-| **Gemini 2.0 Flash** | Google AI SDK | STRONG | GOOD | Low per-token | HIGH — free tier available |
-| **Claude 3.5 Haiku** | Anthropic SDK | STRONG | GOOD | Low per-token | HIGH — API key required |
-| **Sarvam-M (Sarvam AI)** | OpenAI-compatible | MODERATE | STRONG (Indian languages) | Low | MEDIUM |
+| Option                      | Integration            | Tool Calling             | Indian Language           | Cost           | Hackathon Feasibility      |
+| --------------------------- | ---------------------- | ------------------------ | ------------------------- | -------------- | -------------------------- |
+| **Evon self-hosted (vLLM)** | OpenAI-compatible REST | YES (qwen3_coder parser) | STRONG                    | ~$20-40/hr GPU | POSSIBLE if H100 available |
+| **GPT-4o-mini**             | OpenAI SDK             | STRONG                   | GOOD (English-mediated)   | Low per-token  | HIGH — API key required    |
+| **Gemini 2.0 Flash**        | Google AI SDK          | STRONG                   | GOOD                      | Low per-token  | HIGH — free tier available |
+| **Claude 3.5 Haiku**        | Anthropic SDK          | STRONG                   | GOOD                      | Low per-token  | HIGH — API key required    |
+| **Sarvam-M (Sarvam AI)**    | OpenAI-compatible      | MODERATE                 | STRONG (Indian languages) | Low            | MEDIUM                     |
 
 **Recommended fallback**: GPT-4o-mini or Gemini 2.0 Flash. Either provides reliable tool calling with no GPU requirements, and both handle Kannada/Hindi prompts acceptably. Disclose in submission that Evon was used for language reasoning (if self-hosted) or that a fallback model was used with justification.
 
@@ -402,38 +416,38 @@ Since Evon v3.3 is not on the API platform, the following fallback options are r
 
 ## 4. Technical Comparison Table
 
-| Feature | Prisma v2.5 | OpenAI Whisper Large | Sarvam AI Saaras | Google Chirp | Deepgram Nova-2 |
-|---|---|---|---|---|---|
-| Kannada support | YES [VERIFIED] | YES | YES [VERIFIED] | YES | Limited [INFERRED] |
-| Hindi support | YES [VERIFIED] | YES | YES [VERIFIED] | YES | Limited [INFERRED] |
-| Hinglish code-mixing | YES [VERIFIED] | Partial [INFERRED] | YES [VERIFIED] | Partial [INFERRED] | No [INFERRED] |
-| Kanglish code-mixing | LIKELY [INFERRED] | Unknown | LIKELY [INFERRED] | Unknown | No [INFERRED] |
-| Streaming latency | <200ms P95 [VERIFIED] | ~500ms+ [INFERRED] | Published but not extracted | ~300ms [INFERRED] | <300ms [INFERRED] |
-| Telephony 8kHz training | YES [VERIFIED] | Partial | YES [VERIFIED] | YES | YES |
-| Indian regional accents | YES [VERIFIED] | Partial | YES [VERIFIED] | Partial | Minimal |
-| API pricing for students | Hackathon credits | Per-minute billing | Free tier available | Per-minute billing | Per-minute billing |
-| LiveKit plugin | YES [VERIFIED] | No | YES [VERIFIED] | Via adapter | YES |
+| Feature                  | Prisma v2.5           | OpenAI Whisper Large | Sarvam AI Saaras            | Google Chirp       | Deepgram Nova-2    |
+| ------------------------ | --------------------- | -------------------- | --------------------------- | ------------------ | ------------------ |
+| Kannada support          | YES [VERIFIED]        | YES                  | YES [VERIFIED]              | YES                | Limited [INFERRED] |
+| Hindi support            | YES [VERIFIED]        | YES                  | YES [VERIFIED]              | YES                | Limited [INFERRED] |
+| Hinglish code-mixing     | YES [VERIFIED]        | Partial [INFERRED]   | YES [VERIFIED]              | Partial [INFERRED] | No [INFERRED]      |
+| Kanglish code-mixing     | LIKELY [INFERRED]     | Unknown              | LIKELY [INFERRED]           | Unknown            | No [INFERRED]      |
+| Streaming latency        | <200ms P95 [VERIFIED] | ~500ms+ [INFERRED]   | Published but not extracted | ~300ms [INFERRED]  | <300ms [INFERRED]  |
+| Telephony 8kHz training  | YES [VERIFIED]        | Partial              | YES [VERIFIED]              | YES                | YES                |
+| Indian regional accents  | YES [VERIFIED]        | Partial              | YES [VERIFIED]              | Partial            | Minimal            |
+| API pricing for students | Hackathon credits     | Per-minute billing   | Free tier available         | Per-minute billing | Per-minute billing |
+| LiveKit plugin           | YES [VERIFIED]        | No                   | YES [VERIFIED]              | Via adapter        | YES                |
 
-| Feature | Timbre v2.5 | Google Cloud TTS | Azure Neural TTS | ElevenLabs | Sarvam Bulbul |
-|---|---|---|---|---|---|
-| Kannada voices | YES (kn-IN) [VERIFIED] | YES | Limited | No | YES [INFERRED] |
-| Hindi voices | YES (hi-IN) [VERIFIED] | YES | YES | Limited | YES [VERIFIED] |
-| Indian prosody | YES [VERIFIED] | Partial | Partial | No | YES [INFERRED] |
-| WebSocket streaming | YES [VERIFIED] | No (HTTP only) | SSE | HTTP | Unknown |
-| Voice count | 42 [VERIFIED] | 30+ Indian | 10 Indian | N/A | Multiple |
-| MOS on 8kHz | 4.23 [VERIFIED] | Unknown | Unknown | N/A | Unknown |
-| Hackathon credits | YES [VERIFIED] | No | No | No | No |
+| Feature             | Timbre v2.5            | Google Cloud TTS | Azure Neural TTS | ElevenLabs | Sarvam Bulbul  |
+| ------------------- | ---------------------- | ---------------- | ---------------- | ---------- | -------------- |
+| Kannada voices      | YES (kn-IN) [VERIFIED] | YES              | Limited          | No         | YES [INFERRED] |
+| Hindi voices        | YES (hi-IN) [VERIFIED] | YES              | YES              | Limited    | YES [VERIFIED] |
+| Indian prosody      | YES [VERIFIED]         | Partial          | Partial          | No         | YES [INFERRED] |
+| WebSocket streaming | YES [VERIFIED]         | No (HTTP only)   | SSE              | HTTP       | Unknown        |
+| Voice count         | 42 [VERIFIED]          | 30+ Indian       | 10 Indian        | N/A        | Multiple       |
+| MOS on 8kHz         | 4.23 [VERIFIED]        | Unknown          | Unknown          | N/A        | Unknown        |
+| Hackathon credits   | YES [VERIFIED]         | No               | No               | No         | No             |
 
-| Feature | Evon v3.3 | GPT-4o | Gemini Flash | Sarvam-30B | Llama-3.3-70B |
-|---|---|---|---|---|---|
-| Kannada reasoning | YES [VERIFIED] | YES | YES | YES | Partial |
-| MILU benchmark | 78.74 [VERIFIED] | N/A | N/A | Lower [VERIFIED] | N/A |
-| Context window | 128K [VERIFIED] | 128K | 1M | Unknown | 128K |
-| Tool calling | YES [VERIFIED] | YES | YES | Unknown | YES |
-| Open weights | YES (Apache 2.0) [VERIFIED] | No | No | YES [INFERRED] | YES |
-| Self-hostable | YES (H100 required) [VERIFIED] | No | No | YES | YES (A100) |
-| Hackathon credits | YES [VERIFIED] | No | No | No | No |
-| Multi-step agent (tested) | Limited [VERIFIED] | Strong | Strong | Unknown | Moderate |
+| Feature                   | Evon v3.3                      | GPT-4o | Gemini Flash | Sarvam-30B       | Llama-3.3-70B |
+| ------------------------- | ------------------------------ | ------ | ------------ | ---------------- | ------------- |
+| Kannada reasoning         | YES [VERIFIED]                 | YES    | YES          | YES              | Partial       |
+| MILU benchmark            | 78.74 [VERIFIED]               | N/A    | N/A          | Lower [VERIFIED] | N/A           |
+| Context window            | 128K [VERIFIED]                | 128K   | 1M           | Unknown          | 128K          |
+| Tool calling              | YES [VERIFIED]                 | YES    | YES          | Unknown          | YES           |
+| Open weights              | YES (Apache 2.0) [VERIFIED]    | No     | No           | YES [INFERRED]   | YES           |
+| Self-hostable             | YES (H100 required) [VERIFIED] | No     | No           | YES              | YES (A100)    |
+| Hackathon credits         | YES [VERIFIED]                 | No     | No           | No               | No            |
+| Multi-step agent (tested) | Limited [VERIFIED]             | Strong | Strong       | Unknown          | Moderate      |
 
 ---
 
@@ -472,6 +486,7 @@ Browser Audio Playback ◄──────────────────
 ```
 
 **Gnani model touchpoints per voice turn:**
+
 1. Prisma STT: Owner speaks → text transcript
 2. Evon LLM: Text → intent → tool calls → structured response text
 3. Timbre TTS: Response text → spoken audio output
@@ -482,13 +497,13 @@ All three models are used in every meaningful voice interaction. [INFERRED — b
 
 ## 6. Critical Unknowns That Must Be Tested Before Committing
 
-| Unknown | Why It Matters | Test Approach |
-|---|---|---|
-| Kanglish (Kannada-English) accuracy | Core NammaOps use case may break if code-mixing accuracy is poor | Record 20 Kannada-English mixed sentences; transcribe via Prisma; measure WER manually |
-| Credit consumption rate | 5,000 credits may run out before demo if consumption is high | Make 10 test calls at start; calculate burn rate |
-| Evon tool calling reliability | Multi-step agent failures will break NammaOps workflows | Build 5 tool-calling test scenarios; measure success rate |
-| Timbre Kannada naturalness | Kirana owner must trust and understand the voice output | Play 10 Kannada TTS samples to Kannada speakers; collect MOS rating |
-| Evon inference latency via API | If P95 response time > 3s, real-time voice UX breaks | Measure 50 Evon API calls under representative load |
-| Combined pipeline round-trip time | Total STT + LLM + TTS latency must be < 4s for acceptable UX | Full end-to-end timing test |
-| Prisma behavior on phone audio with market noise | Kirana stores are noisy; STT must work in-context | Test with recorded kirana store ambient noise |
-| Whether v3.0 Prisma is available under hackathon credits | v3.0 launched Oct 28, during the hackathon; unclear if credits apply | Contact Gnani AI support early |
+| Unknown                                                  | Why It Matters                                                       | Test Approach                                                                          |
+| -------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Kanglish (Kannada-English) accuracy                      | Core NammaOps use case may break if code-mixing accuracy is poor     | Record 20 Kannada-English mixed sentences; transcribe via Prisma; measure WER manually |
+| Credit consumption rate                                  | 5,000 credits may run out before demo if consumption is high         | Make 10 test calls at start; calculate burn rate                                       |
+| Evon tool calling reliability                            | Multi-step agent failures will break NammaOps workflows              | Build 5 tool-calling test scenarios; measure success rate                              |
+| Timbre Kannada naturalness                               | Kirana owner must trust and understand the voice output              | Play 10 Kannada TTS samples to Kannada speakers; collect MOS rating                    |
+| Evon inference latency via API                           | If P95 response time > 3s, real-time voice UX breaks                 | Measure 50 Evon API calls under representative load                                    |
+| Combined pipeline round-trip time                        | Total STT + LLM + TTS latency must be < 4s for acceptable UX         | Full end-to-end timing test                                                            |
+| Prisma behavior on phone audio with market noise         | Kirana stores are noisy; STT must work in-context                    | Test with recorded kirana store ambient noise                                          |
+| Whether v3.0 Prisma is available under hackathon credits | v3.0 launched Oct 28, during the hackathon; unclear if credits apply | Contact Gnani AI support early                                                         |

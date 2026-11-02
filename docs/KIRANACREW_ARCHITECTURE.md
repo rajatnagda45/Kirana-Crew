@@ -11,33 +11,33 @@ NammaOps is a fully functional kirana-store AI operations platform layered on to
 
 ### Component Status
 
-| Component | File(s) | Status |
-|---|---|---|
-| Five-agent workforce (manager, inventory, sales, procurement, finance) | `config/nammaops/workforce.json` + `workforce.mjs` | [IMPLEMENTED] |
-| stock_check workflow | `workflows.mjs` | [IMPLEMENTED] |
-| prepare_reorder workflow (with owner approval) | `workflows.mjs` + `owner-approvals.mjs` | [IMPLEMENTED] |
-| daily_report workflow | `workflows.mjs` | [IMPLEMENTED] |
-| demand_forecast workflow (with 90-day history) | `workflows.mjs` + `forecast.mjs` | [IMPLEMENTED] |
-| supplier_comparison workflow | `workflows.mjs` | [IMPLEMENTED] |
-| Natural-language command parsing | `parseCommand()` in `workflows.mjs` | [IMPLEMENTED] |
-| Deterministic business calculations | `calculations.mjs` | [IMPLEMENTED] |
-| Statistical demand forecast engine | `forecast.mjs` | [IMPLEMENTED] |
-| ERPNext binding layer | `erp-binding.mjs` | [IMPLEMENTED] |
-| MCP governance (discover, review, assign, grant, invoke, audit) | `mcp-governance.mjs` | [IMPLEMENTED] |
-| Owner approval (PIN, fingerprint, idempotent submit) | `owner-approvals.mjs` | [IMPLEMENTED] |
-| Fixture MCP server (synthetic ERPNext data) | `fixture-erpnext-server.mjs` | [IMPLEMENTED] |
-| Live ERPNext adapter (hvgerp, read-only) | `hvgerp-adapter-server.mjs` | [IMPLEMENTED] |
-| Voice router (Gemini Live → workflow → voice contract) | `voice-router.mjs` | [IMPLEMENTED] |
-| Group-chat business intent routing | `group-business.mjs` | [IMPLEMENTED] |
-| Gnani Prisma STT provider | `stt.mjs` — `gnaniProvider()` | [IMPLEMENTED — needs GNANI_API_KEY] |
-| Gemini STT provider (fallback) | `stt.mjs` — `geminiProvider()` | [IMPLEMENTED] |
-| Fixture STT provider (test) | `stt.mjs` — `fixtureProvider()` | [IMPLEMENTED] |
-| REST API (14 endpoints) | `api.mjs` + `openapi.mjs` | [IMPLEMENTED] |
-| NammaOpsPanel UI | `components/hud/NammaOpsPanel.tsx` | [IMPLEMENTED] |
-| McpGovernancePanel UI | `components/hud/McpGovernancePanel.tsx` | [IMPLEMENTED] |
-| Governed MCP proxy for OpenClaw | `governed-tools-mcp.mjs` | [IMPLEMENTED] |
-| Gnani Timbre TTS integration | NOT PRESENT in codebase | [NEEDS GNANI INTEGRATION] |
-| Voice TTS for NammaOps responses | Gemini Live voices (Kore/Puck/Aoede/Charon) used | [PARTIAL — uses Gemini, not Timbre] |
+| Component                                                              | File(s)                                            | Status                              |
+| ---------------------------------------------------------------------- | -------------------------------------------------- | ----------------------------------- |
+| Five-agent workforce (manager, inventory, sales, procurement, finance) | `config/nammaops/workforce.json` + `workforce.mjs` | [IMPLEMENTED]                       |
+| stock_check workflow                                                   | `workflows.mjs`                                    | [IMPLEMENTED]                       |
+| prepare_reorder workflow (with owner approval)                         | `workflows.mjs` + `owner-approvals.mjs`            | [IMPLEMENTED]                       |
+| daily_report workflow                                                  | `workflows.mjs`                                    | [IMPLEMENTED]                       |
+| demand_forecast workflow (with 90-day history)                         | `workflows.mjs` + `forecast.mjs`                   | [IMPLEMENTED]                       |
+| supplier_comparison workflow                                           | `workflows.mjs`                                    | [IMPLEMENTED]                       |
+| Natural-language command parsing                                       | `parseCommand()` in `workflows.mjs`                | [IMPLEMENTED]                       |
+| Deterministic business calculations                                    | `calculations.mjs`                                 | [IMPLEMENTED]                       |
+| Statistical demand forecast engine                                     | `forecast.mjs`                                     | [IMPLEMENTED]                       |
+| ERPNext binding layer                                                  | `erp-binding.mjs`                                  | [IMPLEMENTED]                       |
+| MCP governance (discover, review, assign, grant, invoke, audit)        | `mcp-governance.mjs`                               | [IMPLEMENTED]                       |
+| Owner approval (PIN, fingerprint, idempotent submit)                   | `owner-approvals.mjs`                              | [IMPLEMENTED]                       |
+| Fixture MCP server (synthetic ERPNext data)                            | `fixture-erpnext-server.mjs`                       | [IMPLEMENTED]                       |
+| Live ERPNext adapter (hvgerp, read-only)                               | `hvgerp-adapter-server.mjs`                        | [IMPLEMENTED]                       |
+| Voice router (Gemini Live → workflow → voice contract)                 | `voice-router.mjs`                                 | [IMPLEMENTED]                       |
+| Group-chat business intent routing                                     | `group-business.mjs`                               | [IMPLEMENTED]                       |
+| Gnani Prisma STT provider                                              | `stt.mjs` — `gnaniProvider()`                      | [IMPLEMENTED — needs GNANI_API_KEY] |
+| Gemini STT provider (fallback)                                         | `stt.mjs` — `geminiProvider()`                     | [IMPLEMENTED]                       |
+| Fixture STT provider (test)                                            | `stt.mjs` — `fixtureProvider()`                    | [IMPLEMENTED]                       |
+| REST API (14 endpoints)                                                | `api.mjs` + `openapi.mjs`                          | [IMPLEMENTED]                       |
+| NammaOpsPanel UI                                                       | `components/hud/NammaOpsPanel.tsx`                 | [IMPLEMENTED]                       |
+| McpGovernancePanel UI                                                  | `components/hud/McpGovernancePanel.tsx`            | [IMPLEMENTED]                       |
+| Governed MCP proxy for OpenClaw                                        | `governed-tools-mcp.mjs`                           | [IMPLEMENTED]                       |
+| Gnani Timbre TTS integration                                           | NOT PRESENT in codebase                            | [NEEDS GNANI INTEGRATION]           |
+| Voice TTS for NammaOps responses                                       | Gemini Live voices (Kore/Puck/Aoede/Charon) used   | [PARTIAL — uses Gemini, not Timbre] |
 
 ---
 
@@ -53,7 +53,7 @@ graph TB
 
     subgraph "Agent Town Server (localhost:3108)"
         RTAPI[runtime-api.mjs<br/>routes /api/nammaops/*]
-        
+
         subgraph "NammaOps Engine"
             VR[VoiceRouter<br/>voice-router.mjs]
             WF[Workflows<br/>workflows.mjs]
@@ -62,13 +62,13 @@ graph TB
             CALC[calculations.mjs]
             FORE[forecast.mjs]
         end
-        
+
         subgraph "Phase C Governance"
             GW[ToolGateway<br/>mcp-governance.mjs]
             GOV[Governance<br/>grants + decisions]
             REG[CapabilityRegistry<br/>discovered tools]
         end
-        
+
         DB[(SQLite<br/>runtime_records)]
     end
 
@@ -226,39 +226,39 @@ Every ERP call in NammaOps passes through this state machine under the identity 
 
 ### Fixture Mode [IMPLEMENTED]
 
-| Capability | Tool | Status |
-|---|---|---|
-| erp.items.list | list_items | [IMPLEMENTED] |
-| erp.stock.balance | get_stock_balance | [IMPLEMENTED] |
-| erp.warehouses.list | list_warehouses | [IMPLEMENTED] |
-| erp.stock.ledger | get_stock_ledger | [IMPLEMENTED] |
-| erp.stock.movements | list_stock_ledger | [IMPLEMENTED] |
-| erp.suppliers.list | list_suppliers | [IMPLEMENTED] |
-| erp.supplier_quotations.list | list_supplier_quotations | [IMPLEMENTED] |
-| erp.item_prices.get | get_item_prices | [IMPLEMENTED] |
-| erp.po.create_draft | create_purchase_order | [IMPLEMENTED] |
-| erp.po.get | get_purchase_order | [IMPLEMENTED] |
-| erp.po.submit | submit_purchase_order | [IMPLEMENTED] |
-| erp.sales_invoices.list | list_sales_invoices | [IMPLEMENTED] |
-| erp.pos_invoices.list | list_pos_invoices | [IMPLEMENTED] |
-| erp.customers.list | list_customers | [IMPLEMENTED] |
-| erp.pnl | get_profit_and_loss | [IMPLEMENTED] |
-| erp.gl | get_general_ledger | [IMPLEMENTED] |
-| erp.purchase_invoices.list | list_purchase_invoices | [IMPLEMENTED] |
-| erp.payments.summary | get_payment_summary | [IMPLEMENTED] |
-| erp.sales.history | list_sales_lines | [IMPLEMENTED] |
-| erp.po.open | list_open_purchase_orders | [IMPLEMENTED] |
+| Capability                   | Tool                      | Status        |
+| ---------------------------- | ------------------------- | ------------- |
+| erp.items.list               | list_items                | [IMPLEMENTED] |
+| erp.stock.balance            | get_stock_balance         | [IMPLEMENTED] |
+| erp.warehouses.list          | list_warehouses           | [IMPLEMENTED] |
+| erp.stock.ledger             | get_stock_ledger          | [IMPLEMENTED] |
+| erp.stock.movements          | list_stock_ledger         | [IMPLEMENTED] |
+| erp.suppliers.list           | list_suppliers            | [IMPLEMENTED] |
+| erp.supplier_quotations.list | list_supplier_quotations  | [IMPLEMENTED] |
+| erp.item_prices.get          | get_item_prices           | [IMPLEMENTED] |
+| erp.po.create_draft          | create_purchase_order     | [IMPLEMENTED] |
+| erp.po.get                   | get_purchase_order        | [IMPLEMENTED] |
+| erp.po.submit                | submit_purchase_order     | [IMPLEMENTED] |
+| erp.sales_invoices.list      | list_sales_invoices       | [IMPLEMENTED] |
+| erp.pos_invoices.list        | list_pos_invoices         | [IMPLEMENTED] |
+| erp.customers.list           | list_customers            | [IMPLEMENTED] |
+| erp.pnl                      | get_profit_and_loss       | [IMPLEMENTED] |
+| erp.gl                       | get_general_ledger        | [IMPLEMENTED] |
+| erp.purchase_invoices.list   | list_purchase_invoices    | [IMPLEMENTED] |
+| erp.payments.summary         | get_payment_summary       | [IMPLEMENTED] |
+| erp.sales.history            | list_sales_lines          | [IMPLEMENTED] |
+| erp.po.open                  | list_open_purchase_orders | [IMPLEMENTED] |
 
 ### Live ERPNext Mode [LIVE READY — read-only]
 
 All read capabilities above work against live ERPNext. The following are disabled on live:
 
-| Capability | Disabled reason |
-|---|---|
-| erp.po.create_draft | Live PO drafts not enabled (G2 is read-only) |
-| erp.po.get | Only needed with live PO drafts |
-| erp.po.submit | Needs PIN path and constrained tool — not enabled |
-| erp.payments.summary | No reviewed live tool yet |
+| Capability           | Disabled reason                                   |
+| -------------------- | ------------------------------------------------- |
+| erp.po.create_draft  | Live PO drafts not enabled (G2 is read-only)      |
+| erp.po.get           | Only needed with live PO drafts                   |
+| erp.po.submit        | Needs PIN path and constrained tool — not enabled |
+| erp.payments.summary | No reviewed live tool yet                         |
 
 Verified live: 36 items, 35 bins, 479 invoices, P&L reconciles, 64 governed reads, 0 writes.
 
@@ -271,6 +271,7 @@ Verified live: 36 items, 35 bins, 479 invoices, P&L reconciles, 64 governed read
 **What exists**: `lib/server/stt.mjs` — `gnaniProvider()` is fully implemented. It POSTs to `https://api.vachana.ai/stt/v3` with `X-API-Key-ID` auth, handles multipart/form-data audio upload, 60s timeout, error mapping.
 
 **What is missing**: The NammaOps voice path today uses Gemini Live's built-in speech recognition (audio goes directly to Gemini, not to Gnani). To use Gnani Prisma, a separate audio capture + STT path must be added that:
+
 1. Captures audio from the browser (existing AudioWorklet infrastructure in `lib/voice/`)
 2. Sends audio bytes to server at `POST /api/voice/transcribe` or similar
 3. Server calls `gnaniProvider().transcribe({bytes, mime, language})`
@@ -298,13 +299,13 @@ This is the recommended approach for Day 2-3 of the hackathon schedule.
 
 ## 8. What Is Fixture Only vs Live Ready
 
-| Feature | Fixture | Live ERPNext |
-|---|---|---|
-| Stock check | [IMPLEMENTED] | [LIVE READY] |
-| Daily report (sales) | [IMPLEMENTED] | [LIVE READY] |
-| Daily report (P&L profit) | [IMPLEMENTED] | [LIVE READY] |
-| Demand forecast (90-day) | [IMPLEMENTED] | [LIVE READY] |
-| Supplier comparison | [IMPLEMENTED] | [LIVE READY] |
+| Feature                    | Fixture       | Live ERPNext                      |
+| -------------------------- | ------------- | --------------------------------- |
+| Stock check                | [IMPLEMENTED] | [LIVE READY]                      |
+| Daily report (sales)       | [IMPLEMENTED] | [LIVE READY]                      |
+| Daily report (P&L profit)  | [IMPLEMENTED] | [LIVE READY]                      |
+| Demand forecast (90-day)   | [IMPLEMENTED] | [LIVE READY]                      |
+| Supplier comparison        | [IMPLEMENTED] | [LIVE READY]                      |
 | Prepare reorder (draft PO) | [IMPLEMENTED] | [FIXTURE ONLY — disabled on live] |
-| Owner approval + submit | [IMPLEMENTED] | [FIXTURE ONLY — disabled on live] |
-| Payments summary | [IMPLEMENTED] | [FIXTURE ONLY — no live tool yet] |
+| Owner approval + submit    | [IMPLEMENTED] | [FIXTURE ONLY — disabled on live] |
+| Payments summary           | [IMPLEMENTED] | [FIXTURE ONLY — no live tool yet] |

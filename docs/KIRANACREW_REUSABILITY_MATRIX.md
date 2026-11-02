@@ -4,6 +4,7 @@
 
 **Target product**: NammaOps — AI Workforce for Kirana Stores  
 A voice-first, vernacular-language, domain-specific B2B SaaS product serving small Indian grocery stores. Key characteristics:
+
 - Voice-first interface (owner speaks, AI acts)
 - Vernacular language (Hindi, Kannada, Tamil, etc.)
 - Domain: inventory, supplier orders, payments, staff scheduling, daily accounts
@@ -16,13 +17,13 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 
 ## Classification Key
 
-| Label | Meaning |
-|---|---|
-| **REUSE AS-IS** | Copy or install directly; no modification needed |
-| **REUSE WITH ADAPTATION** | Core logic is sound; needs targeted changes (interface, config, domain terms) |
-| **REFACTOR** | Useful concepts but needs significant restructuring before use |
-| **REPLACE** | Current implementation is incompatible; start fresh with same concept |
-| **NEW IMPLEMENTATION REQUIRED** | No equivalent exists; must be built from scratch |
+| Label                           | Meaning                                                                       |
+| ------------------------------- | ----------------------------------------------------------------------------- |
+| **REUSE AS-IS**                 | Copy or install directly; no modification needed                              |
+| **REUSE WITH ADAPTATION**       | Core logic is sound; needs targeted changes (interface, config, domain terms) |
+| **REFACTOR**                    | Useful concepts but needs significant restructuring before use                |
+| **REPLACE**                     | Current implementation is incompatible; start fresh with same concept         |
+| **NEW IMPLEMENTATION REQUIRED** | No equivalent exists; must be built from scratch                              |
 
 ---
 
@@ -33,11 +34,13 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 **Classification: REUSE WITH ADAPTATION**
 
 **What to keep:**
+
 - The DAG scheduler in `OrchestrationService.reconcile()` is production-quality: topological dispatch, parallel slots, evidence gating, handoff injection, schema repair, repetition detection.
 - The `TeamLead` goal decomposition loop (plan → workers → synthesize → review → revise) is directly applicable to kirana workflows: e.g., "check stock discrepancy" → planner breaks it into data retrieval + analysis + recommendation + human approval.
 - `EmergencyStop`, stall detection, and transfer-to-other-agent on failure are valuable for a commercial system.
 
 **What to adapt:**
+
 - `STALL_MS=15min` and `MAX_TRANSFERS=2` are tunable; kirana workflows may need shorter timeouts.
 - Team board UI (deep-link pages) must be rebuilt for a mobile-first experience.
 - Group chat (`OfficeGroupChat`) coupling in TeamLead should be removed or adapted to WhatsApp/SMS notification patterns.
@@ -52,12 +55,14 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 **Classification: REUSE WITH ADAPTATION**
 
 **What to keep:**
+
 - `TaskDatabase` task status machine (`queued` → `submitted` → `running` → `completed`/`failed`/`interrupted`) is solid and generic.
 - `dispatches` idempotency ledger prevents duplicate submissions.
 - Cursor-based event replay for reconnecting clients is critical for mobile (intermittent connectivity).
 - `claim()` transaction semantics prevent double-dispatch.
 
 **What to adapt:**
+
 - Task submission currently assumes a single store / single tenant. Must add `tenantId` (store ID) as a first-class field.
 - The `task_lane` index on `(gateway, session)` must be extended to include tenant scope.
 - Session key format (`agent:main:...`) needs rethinking for multi-tenant (e.g., `agent:{tenantId}:{storeId}:...`).
@@ -71,11 +76,13 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 **Classification: REUSE WITH ADAPTATION**
 
 **What to keep:**
+
 - The manifest → seat binding → permission scope pattern is excellent for controlling what each AI agent can do. This is the right security boundary for kirana store operations.
 - `executor` role requiring `approval.gateway` maps directly to: AI proposes a purchase order → owner approves via voice/tap → system executes.
 - Catalogue as static code with version-controlled permissions is the right pattern.
 
 **What to adapt:**
+
 - Replace the `specialist-catalogue.mjs` entries with kirana-specific roles: `stock-checker`, `order-placer` (executor), `payment-reconciler`, `demand-forecaster` (analyst), `supplier-negotiator`.
 - Remove `maintenance-specialist` and Zetaris-specific data steward.
 - Add vernacular instruction templates per role.
@@ -90,12 +97,14 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 **Classification: REUSE WITH ADAPTATION**
 
 **What to keep:**
+
 - The verified-memory write pattern (only writes after Critic passes + evidence chain validated) is exactly right for a business system: "what we know about supplier X is based on verified invoice data."
 - Proof-chain re-validation at read time prevents stale data from poisoning decisions.
 - `freshUntil` TTL semantics match perishable kirana data: prices change weekly, stock is daily.
 - Lexical recall with optional semantic upgrade is practical for low-resource deployment.
 
 **What to adapt:**
+
 - Memory scope is currently `(gatewayId, agentId, sessionKey, seatId, bindingRevision)`. For NammaOps, scope should be `(tenantId, storeId, sessionKey)`.
 - The `applicability` field (200 char topic) is a good fit for kirana queries like "tomato supplier reliability" or "evening milk demand patterns."
 - `DecisionMemory` (supplier decisions) is directly usable for kirana supplier management with cosmetic renaming.
@@ -110,11 +119,13 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 **Classification: REUSE WITH ADAPTATION**
 
 **What to keep:**
+
 - `events` table as append-only log with `seq` cursor is a clean, simple event store.
 - `subscribe()` fan-out pattern for SSE is solid.
 - Cursor-based replay for reconnecting clients is critical for mobile.
 
 **What to adapt:**
+
 - Add tenant-scoped event filtering: a kirana store owner should only see their store's events.
 - SSE works well but consider adding a fallback for very low-bandwidth conditions (polling fallback).
 - For multi-tenant scale, the single SQLite file approach must be replaced (see Persistence section).
@@ -128,10 +139,12 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 **Classification: REFACTOR**
 
 **What to keep:**
+
 - The schema design (task table, dispatches idempotency, runtime_records KV, events log) is well-thought-out.
 - The WAL mode + `busy_timeout=5000` + single-process ownership pattern works for single-tenant.
 
 **What must change:**
+
 - SQLite with a per-process lock cannot support multi-tenant SaaS. Must move to PostgreSQL or PlanetScale (MySQL-compatible) for proper multi-tenancy, connection pooling, and cloud deployment.
 - The `acquireOwner()` single-process lock must be replaced with row-level tenant isolation.
 - `runtime_records` as a blob KV in SQLite is fine for prototyping; for production, structured tables per namespace improve query capability and indexing.
@@ -146,6 +159,7 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 **Classification: REPLACE**
 
 **Why replace:**
+
 - `GeminiVoiceClient` requires `GEMINI_API_KEY` (USD billing, not INR-friendly for small merchants).
 - Gemini Live is English-first; vernacular support (Hindi, Kannada, Tamil) requires explicit model selection and may have quality gaps.
 - The AudioWorklet pattern requires a desktop-class browser; kirana owners typically use low-end Android phones with Chrome.
@@ -153,6 +167,7 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 - No interruption recovery that reconnects the conversation context.
 
 **What concept to carry forward:**
+
 - The `VoiceEvents` interface (`status`, `transcript`, `error`, `tool`, `announcement`) is an excellent abstraction. Reimplement it with a different backend.
 - The background context injection pattern (`flushBackground`, `sendClientContent`) for pushing task state updates during silence is worth replicating.
 - Tool-call-via-POST pattern (`/api/runtime/voice/actions`) is reusable.
@@ -168,12 +183,14 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 **Classification: REPLACE**
 
 **Why replace:**
+
 - A pixel-art office visualization of AI agents is compelling for a hackathon demo and developer tooling but is inappropriate for kirana store owners as a primary UI.
 - Phaser + Three.js adds ~2MB of JS bundle (Phaser ≈800KB, Three.js ≈600KB) that a kirana owner's low-end phone will struggle with.
 - The office metaphor (agents at desks) does not resonate with grocery store operations.
 - The Tiled map is a static asset that does not scale to multi-tenant customization.
 
 **What concept to carry forward:**
+
 - The `seats-discovered` → `seat-configs-updated` event pattern for mapping AI agents to named roles is reusable in a simpler UI (e.g., a WhatsApp-style agent list or a store dashboard with agent status cards).
 - The `GameEventBus` typed event bus is reusable — just replace Phaser event endpoints with React ones.
 
@@ -188,11 +205,13 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 **Classification: REUSE WITH ADAPTATION**
 
 **What to keep:**
+
 - The SSE + REST pattern is simple, reliable, and does not require WebSocket infrastructure.
 - Cursor-based replay via `Last-Event-ID` handles mobile network drops gracefully.
 - `runtimeRequest()` fetch wrapper with error handling is clean.
 
 **What to adapt:**
+
 - Add tenant authentication (JWT or session cookie) to all runtime API calls.
 - Add per-tenant event scoping in the SSE stream.
 - Consider a Service Worker for offline queuing of task submissions on mobile.
@@ -206,11 +225,13 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 **Classification: REUSE WITH ADAPTATION**
 
 **What to keep:**
+
 - `fenceUntrusted()` prompt injection fencing is essential and directly portable.
 - The Critic + approval gate pattern for high-stakes actions (purchase orders, payments) is exactly right for kirana operations.
 - Operation contract schemas (AJV-validated) provide machine-verifiable boundaries.
 
 **What to adapt:**
+
 - `resolveBindHost()` loopback-only binding must be replaced with proper SaaS authentication (the app will be cloud-hosted, not local).
 - `isAllowedAppOrigin()` needs tenant-aware origin allowlisting.
 - Add proper IAM: store owner vs. staff vs. admin roles with different tool grants.
@@ -225,11 +246,13 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 **Classification: REUSE WITH ADAPTATION**
 
 **What to keep:**
+
 - `ServerGateway` is a clean WebSocket adapter with protocol versioning, reconnection, and event dispatch.
 - `NightshiftGateway` demonstrates the pattern for OpenAI-compatible HTTP adaptation.
 - The `capabilities()` method for declarative capability discovery is a good pattern.
 
 **What to adapt:**
+
 - For NammaOps, the primary "gateway" may be a custom agent runtime or a managed service. The adapter pattern is directly reusable.
 - Consider replacing OpenClaw dependency with a vendor-neutral abstraction.
 - Nightshift's `maxToolCalls: 0` limit makes it unsuitable for kirana operations that require tool use (reading stock DB, placing orders).
@@ -240,20 +263,20 @@ A voice-first, vernacular-language, domain-specific B2B SaaS product serving sma
 
 ## Priority Order for NammaOps
 
-| Priority | Subsystem | Action | Weeks |
-|---|---|---|---|
-| 1 | Persistence | REFACTOR to PostgreSQL + multi-tenant schema | 3–4 |
-| 2 | Security | ADAPT for SaaS: auth, tenant isolation, mobile approval | 2–3 |
-| 3 | Agent Orchestration | ADAPT: kirana roles, mobile timeouts, event-driven tick | 2–3 |
-| 4 | Worker Management | ADAPT: new catalogue, kirana roles | 1–2 |
-| 5 | Voice Architecture | REPLACE with multilingual voice adapter | 4–6 |
-| 6 | Frontend Game Engine | REPLACE with mobile-first PWA dashboard | 4–8 |
-| 7 | Real-Time Communication | ADAPT: add auth + tenant scoping | 1–2 |
-| 8 | Task Scheduling | ADAPT: multi-tenant task lanes | 1–2 |
-| 9 | Memory | ADAPT: kirana scope fields, supplier memory | 1–2 |
-| 10 | Event Infrastructure | ADAPT: tenant filtering | 1 |
-| 11 | Provider Adapters | ADAPT: write kirana-specific adapter | 1–2 |
-| **Total** | | | **~24–38 weeks** |
+| Priority  | Subsystem               | Action                                                  | Weeks            |
+| --------- | ----------------------- | ------------------------------------------------------- | ---------------- |
+| 1         | Persistence             | REFACTOR to PostgreSQL + multi-tenant schema            | 3–4              |
+| 2         | Security                | ADAPT for SaaS: auth, tenant isolation, mobile approval | 2–3              |
+| 3         | Agent Orchestration     | ADAPT: kirana roles, mobile timeouts, event-driven tick | 2–3              |
+| 4         | Worker Management       | ADAPT: new catalogue, kirana roles                      | 1–2              |
+| 5         | Voice Architecture      | REPLACE with multilingual voice adapter                 | 4–6              |
+| 6         | Frontend Game Engine    | REPLACE with mobile-first PWA dashboard                 | 4–8              |
+| 7         | Real-Time Communication | ADAPT: add auth + tenant scoping                        | 1–2              |
+| 8         | Task Scheduling         | ADAPT: multi-tenant task lanes                          | 1–2              |
+| 9         | Memory                  | ADAPT: kirana scope fields, supplier memory             | 1–2              |
+| 10        | Event Infrastructure    | ADAPT: tenant filtering                                 | 1                |
+| 11        | Provider Adapters       | ADAPT: write kirana-specific adapter                    | 1–2              |
+| **Total** |                         |                                                         | **~24–38 weeks** |
 
 ---
 
