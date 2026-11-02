@@ -58,7 +58,7 @@ export function OfficeCanvas({ onStatus }: { onStatus?: (workers: WorkerSnapshot
     <canvas
       ref={ref}
       role="img"
-      aria-label="Local demo simulation: six pixel-art workers in Agent Town; current activities are listed in Meet the Crew"
+      aria-label="Local demo simulation: five pixel-art AI agents in the KiranaCrew store; current activities are listed in Meet the Crew"
       className="block aspect-[3/2] w-full [image-rendering:pixelated]"
       style={{
         maskImage: "radial-gradient(ellipse 85% 88% at 52% 50%, black 62%, transparent 100%)",

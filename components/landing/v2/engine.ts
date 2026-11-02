@@ -933,10 +933,10 @@ export class OfficeEngine {
     this.r(x + ox, y + oy, 48, 20, "#2a1416");
     this.r(x + ox + 1, y + oy + 1, 46, 18, "#492326");
     const on = Math.sin(this.t * 13) > -0.92;
-    c.font = "5px 'Press Start 2P', monospace";
+    c.font = "4px 'Press Start 2P', monospace";
     c.fillStyle = on ? "#f0c13a" : "#8a6a20";
-    c.fillText("AGENT", x + ox + 11, y + oy + 9);
-    c.fillText("TOWN", x + ox + 14, y + oy + 16);
+    c.fillText("KIRANA", x + ox + 8, y + oy + 9);
+    c.fillText("CREW", x + ox + 14, y + oy + 16);
     for (let k = 0; k < 6; k++)
       this.r(
         x + ox + 3 + k * 8,
@@ -961,8 +961,8 @@ export class OfficeEngine {
     this.r(bx + 16, by + 23, 18, 4, "#3a2a20");
     c.font = "3.4px 'Press Start 2P', monospace";
     c.fillStyle = "#f0c13a";
-    c.fillText("BUILD", bx + 19, by + 11);
-    c.fillText("TOGETHER", bx + 14, by + 16);
+    c.fillText("KIRANA", bx + 16, by + 11);
+    c.fillText("CREW", bx + 22, by + 16);
   }
 
   drawForeground() {
