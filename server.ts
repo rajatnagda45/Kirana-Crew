@@ -18,6 +18,9 @@ import {
 import { createInternalApiHandler } from "./lib/internal-api.mjs";
 import { resolveBindHost, validateGatewayTarget } from "./lib/server-security.mjs";
 import { createTaskService } from "./lib/server/runtime-api.mjs";
+import { agentRoute } from "./lib/server/agent-api.mjs";
+import { developerRoute } from "./lib/server/developer-api.mjs";
+import { mcpRoute } from "./lib/server/mcp-api.mjs";
 import { createInventoryStartupReader } from "./lib/server/inventory-startup.mjs";
 import { APPROVED_INVENTORY_ZETARIS_TEMPLATES } from "./lib/server/inventory-zetaris-mapping.mjs";
 import { setServerRuntime } from "./lib/server/runtime-access.mjs";
@@ -57,7 +60,10 @@ app
     const server = createServer((req, res) => {
       if (
         req.url?.startsWith("/api/runtime/") ||
-        req.url?.split("?")[0] === "/api/agents/discover"
+        req.url?.split("?")[0] === "/api/agents/discover" ||
+        agentRoute(req.url?.split("?")[0] ?? "") ||
+        developerRoute(req.url?.split("?")[0] ?? "") ||
+        mcpRoute(req.url?.split("?")[0] ?? "")
       ) {
         void tasks.handler(req, res);
         return;
