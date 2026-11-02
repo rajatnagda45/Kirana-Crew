@@ -92,6 +92,7 @@ There is no Redux or Zustand. State lives in two places:
 - **`VoiceProvider`** (`lib/voice/VoiceProvider.tsx`): a separate context for voice call state.
 
 State updates arrive via:
+
 1. Server-Sent Events (`EventSource /api/runtime/events`) — the main real-time channel.
 2. REST responses from `/api/runtime/*` — for mutations.
 3. `gameEvents` bus — for Phaser↔React communication.
@@ -100,23 +101,23 @@ State updates arrive via:
 
 `GameEventBus` is a typed in-process pub/sub singleton (`gameEvents`). All events are listed in `GameEventMap`:
 
-| Event | Payload | Direction |
-|---|---|---|
-| `seats-discovered` | `SeatDef[]` | Phaser → Store |
-| `seat-configs-updated` | `SeatState[]` | Store → Phaser |
-| `task-assigned` | taskId, message, seatId? | Store → Phaser |
-| `task-routed` | taskId, seatId, actorName | Store → Phaser |
-| `task-completed` / `task-failed` / `task-aborted` | runId | Store → Phaser |
-| `task-bubble` | runId, text, ttl | Phaser internal |
-| `subagent-assigned` | runId, parentRunId, label, seatId? | Store → Phaser |
-| `open-terminal` | seatId? | HUD → Panel |
-| `open-voice` | seatId | HUD → Voice |
-| `open-review` | id? | HUD → Reviews |
-| `stop-task` | runId, seatId | HUD → Store |
-| `gateway-disconnected` | taskIds | Store → Phaser |
-| `office-runtime` | connection, voiceSeatId, voiceStatus | Store → Phaser |
-| `office-inspect` | seatId | Phaser → HUD |
-| `office-focus` | seatId | HUD → Phaser/Three.js |
+| Event                                             | Payload                              | Direction             |
+| ------------------------------------------------- | ------------------------------------ | --------------------- |
+| `seats-discovered`                                | `SeatDef[]`                          | Phaser → Store        |
+| `seat-configs-updated`                            | `SeatState[]`                        | Store → Phaser        |
+| `task-assigned`                                   | taskId, message, seatId?             | Store → Phaser        |
+| `task-routed`                                     | taskId, seatId, actorName            | Store → Phaser        |
+| `task-completed` / `task-failed` / `task-aborted` | runId                                | Store → Phaser        |
+| `task-bubble`                                     | runId, text, ttl                     | Phaser internal       |
+| `subagent-assigned`                               | runId, parentRunId, label, seatId?   | Store → Phaser        |
+| `open-terminal`                                   | seatId?                              | HUD → Panel           |
+| `open-voice`                                      | seatId                               | HUD → Voice           |
+| `open-review`                                     | id?                                  | HUD → Reviews         |
+| `stop-task`                                       | runId, seatId                        | HUD → Store           |
+| `gateway-disconnected`                            | taskIds                              | Store → Phaser        |
+| `office-runtime`                                  | connection, voiceSeatId, voiceStatus | Store → Phaser        |
+| `office-inspect`                                  | seatId                               | Phaser → HUD          |
+| `office-focus`                                    | seatId                               | HUD → Phaser/Three.js |
 
 ### 3.4 Phaser Game Engine (`components/game/`)
 
@@ -130,20 +131,20 @@ State updates arrive via:
 
 The `EventSource` at `/api/runtime/events` receives JSON events with `.kind` and `.data` fields:
 
-| Kind | Data | Effect |
-|---|---|---|
-| `snapshot` | Full `RuntimeSnapshot` | Full state replacement |
-| `connection` | `{connection, capabilities, ...}` | Connection status update |
-| `task` | `TaskItem` | Upsert task in list |
-| `session` | `SessionRecord` | Upsert session |
-| `message` | `ChatMessage` | Upsert chat message |
-| `seat` | `SeatState` | Upsert seat config |
-| `review` | `ReviewRequest` | Upsert review request |
-| `reviewRecovery` | `Record<string,string>` | Update recovery map |
-| `management` | `ManagementSnapshot` | Update agent management |
-| `managementOperation` | `ManagementOperation` | Upsert management op |
-| `voiceCall` | Voice call record | Upsert voice call |
-| `metrics` | `{sessionKey, metrics}` | Update token/session metrics |
+| Kind                  | Data                              | Effect                       |
+| --------------------- | --------------------------------- | ---------------------------- |
+| `snapshot`            | Full `RuntimeSnapshot`            | Full state replacement       |
+| `connection`          | `{connection, capabilities, ...}` | Connection status update     |
+| `task`                | `TaskItem`                        | Upsert task in list          |
+| `session`             | `SessionRecord`                   | Upsert session               |
+| `message`             | `ChatMessage`                     | Upsert chat message          |
+| `seat`                | `SeatState`                       | Upsert seat config           |
+| `review`              | `ReviewRequest`                   | Upsert review request        |
+| `reviewRecovery`      | `Record<string,string>`           | Update recovery map          |
+| `management`          | `ManagementSnapshot`              | Update agent management      |
+| `managementOperation` | `ManagementOperation`             | Upsert management op         |
+| `voiceCall`           | Voice call record                 | Upsert voice call            |
+| `metrics`             | `{sessionKey, metrics}`           | Update token/session metrics |
 
 ---
 
@@ -157,6 +158,7 @@ The `EventSource` at `/api/runtime/events` receives JSON events with `.kind` and
 Both create an HTTP server, register the runtime handler for `/api/runtime/*` and `/api/agents/discover` before Next.js handles anything, then pass everything else to Next.js.
 
 **Provider selection** (`AGENT_PROVIDER` env var):
+
 - `openclaw` (default): WebSocket connection to an OpenClaw gateway (`GATEWAY_URL`).
 - `auggie`: Auggie bridge — WebSocket server on `/api/gateway` that spawns `auggie` CLI processes.
 - `nightshift`: HTTP adapter to Meterless Nightshift's OpenAI-compatible endpoint.
@@ -166,6 +168,7 @@ Both create an HTTP server, register the runtime handler for `/api/runtime/*` an
 `createRuntimeHandler(runtime)` handles all `/api/runtime/*` routes:
 
 **GET endpoints:**
+
 - `/api/runtime/state` — full `RuntimeSnapshot`
 - `/api/runtime/events` — SSE stream
 - `/api/runtime/tasks` — paginated task list
@@ -193,6 +196,7 @@ Both create an HTTP server, register the runtime handler for `/api/runtime/*` an
 - `/api/runtime/search?q=` — task search
 
 **POST endpoints:**
+
 - `/api/runtime/tasks` — submit seat task (or redirect to composer if data intent detected)
 - `/api/runtime/tasks/:id/cancel` — cancel task
 - `/api/runtime/seats` — upsert seat config
@@ -222,6 +226,7 @@ Both create an HTTP server, register the runtime handler for `/api/runtime/*` an
 ### 4.3 Security
 
 Origin checks are applied in `lib/server-security.mjs` and enforced in `createRuntimeHandler`:
+
 - All non-GET requests reject if `origin` is present but not same-host.
 - `sec-fetch-site: cross-site` is rejected for all methods.
 - Server binds only to loopback by default; remote binding throws an error.
@@ -236,16 +241,16 @@ Origin checks are applied in `lib/server-security.mjs` and enforced in `createRu
 
 Reviewed agent roles (static, code-defined, not user-configurable at runtime):
 
-| Role | Capabilities | Tools | Write Permission |
-|---|---|---|---|
-| `planner` | decompose_task, plan_dependencies | agent.message, sessions.list | denied |
-| `data-steward-researcher` | read_operational_records, research_external_sources | zetaris.read, tavily.search/extract, web_search/fetch, browser | denied |
-| `executor` | execute_approved_action, report_execution | approval.gateway, agent.message | approval_required |
-| `critic` | challenge_hypothesis, verify_evidence | evidence.read, sessions.history | denied |
-| `maintenance-specialist` | review_maintenance_history | (none) | denied |
-| `nightshift-planner` | decompose_task (Nightshift) | (none — HTTP only) | denied |
-| `nightshift-analyst` | analyze_evidence | (none) | denied |
-| `nightshift-critic` | challenge_hypothesis | (none) | denied |
+| Role                      | Capabilities                                        | Tools                                                          | Write Permission  |
+| ------------------------- | --------------------------------------------------- | -------------------------------------------------------------- | ----------------- |
+| `planner`                 | decompose_task, plan_dependencies                   | agent.message, sessions.list                                   | denied            |
+| `data-steward-researcher` | read_operational_records, research_external_sources | zetaris.read, tavily.search/extract, web_search/fetch, browser | denied            |
+| `executor`                | execute_approved_action, report_execution           | approval.gateway, agent.message                                | approval_required |
+| `critic`                  | challenge_hypothesis, verify_evidence               | evidence.read, sessions.history                                | denied            |
+| `maintenance-specialist`  | review_maintenance_history                          | (none)                                                         | denied            |
+| `nightshift-planner`      | decompose_task (Nightshift)                         | (none — HTTP only)                                             | denied            |
+| `nightshift-analyst`      | analyze_evidence                                    | (none)                                                         | denied            |
+| `nightshift-critic`       | challenge_hypothesis                                | (none)                                                         | denied            |
 
 ### 5.2 OrchestrationService (`lib/server/orchestration.mjs`)
 
@@ -270,6 +275,7 @@ The core multi-agent scheduler. Key methods:
 Runs a 1500 ms tick loop (`setInterval`). Each tick calls `advance(id)` for every non-terminal run.
 
 **Run lifecycle** (status field on `team.run` record):
+
 1. **`planning`**: Dispatches a single `planner`-role task via orchestration. Waits for result.
 2. Validates the Planner's JSON decomposition (`validateDecomposition`): checks task count (1–5), IDs, titles, assignments, capability values, dependency DAG, similarity between assignments.
 3. **`working`**: Calls `assign(run, tasks)` — creates a work orchestration plan: worker tasks + `synthesis` (planner role, aggregates handoffs) + `review` (critic role). Max 3 parallel. Handoffs flow from dependencies.
@@ -293,17 +299,17 @@ Maps role names to actual seat+agent bindings. `assign()` and `selectTask()` are
 
 ## 6. Provider Integration Architecture
 
-| Provider | Status | Implementation |
-|---|---|---|
-| **OpenClaw** | **Fully implemented** | `lib/server/gateway-connection.mjs` (`ServerGateway`); WebSocket protocol v3–v4; connect.challenge handshake; token auth server-side; `lib/gateway.ts` is the *browser* client (used for direct connections, now superseded by server-owned model) |
-| **Meterless Nightshift** | **Fully implemented** | `lib/server/nightshift-gateway.mjs` (`NightshiftGateway`); OpenAI-compatible HTTP; adapts completions to the durable task model; `nightshift-reasoning.mjs` reads correlated results for the Team Lead |
-| **Auggie** | **Fully implemented** | `lib/auggie-bridge.ts` (`attachAuggieBridge`); spawns `auggie` CLI child processes; implements the full OpenClaw WS protocol server-side so `TaskRuntime` sees it as a normal gateway |
-| **Gemini Live (voice)** | **Fully implemented** | `lib/voice/client.ts` (`GeminiVoiceClient`); `@google/genai` SDK; ephemeral token from `app/api/voice/session/route.ts`; 10-minute call limit; PCM16 audio worklet |
-| **NVIDIA / Nemotron** | **Adapter-ready / planned only** | Environment variables exist (`NVIDIA_API_KEY`, `NVIDIA_MODEL`); no adapter code found |
-| **SpaceXAI / Grok** | **Planned only** | Environment variables exist (`XAI_API_KEY`, `XAI_MODEL`); no adapter code found |
-| **Zetaris (data source)** | **Fully implemented** | `lib/server/data-zetaris.mjs`; SQL cursor pagination; configurable timeouts; approval required via env |
-| **Tavily (web search)** | **Fully implemented** | Listed in specialist catalogue tools; `TAVILY_API_KEY` or keyless mode |
-| **OpenAI-compatible embeddings** | **Fully implemented** | `lib/server/embeddings.mjs`; optional; falls back to lexical if absent |
+| Provider                         | Status                           | Implementation                                                                                                                                                                                                                                     |
+| -------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **OpenClaw**                     | **Fully implemented**            | `lib/server/gateway-connection.mjs` (`ServerGateway`); WebSocket protocol v3–v4; connect.challenge handshake; token auth server-side; `lib/gateway.ts` is the _browser_ client (used for direct connections, now superseded by server-owned model) |
+| **Meterless Nightshift**         | **Fully implemented**            | `lib/server/nightshift-gateway.mjs` (`NightshiftGateway`); OpenAI-compatible HTTP; adapts completions to the durable task model; `nightshift-reasoning.mjs` reads correlated results for the Team Lead                                             |
+| **Auggie**                       | **Fully implemented**            | `lib/auggie-bridge.ts` (`attachAuggieBridge`); spawns `auggie` CLI child processes; implements the full OpenClaw WS protocol server-side so `TaskRuntime` sees it as a normal gateway                                                              |
+| **Gemini Live (voice)**          | **Fully implemented**            | `lib/voice/client.ts` (`GeminiVoiceClient`); `@google/genai` SDK; ephemeral token from `app/api/voice/session/route.ts`; 10-minute call limit; PCM16 audio worklet                                                                                 |
+| **NVIDIA / Nemotron**            | **Adapter-ready / planned only** | Environment variables exist (`NVIDIA_API_KEY`, `NVIDIA_MODEL`); no adapter code found                                                                                                                                                              |
+| **SpaceXAI / Grok**              | **Planned only**                 | Environment variables exist (`XAI_API_KEY`, `XAI_MODEL`); no adapter code found                                                                                                                                                                    |
+| **Zetaris (data source)**        | **Fully implemented**            | `lib/server/data-zetaris.mjs`; SQL cursor pagination; configurable timeouts; approval required via env                                                                                                                                             |
+| **Tavily (web search)**          | **Fully implemented**            | Listed in specialist catalogue tools; `TAVILY_API_KEY` or keyless mode                                                                                                                                                                             |
+| **OpenAI-compatible embeddings** | **Fully implemented**            | `lib/server/embeddings.mjs`; optional; falls back to lexical if absent                                                                                                                                                                             |
 
 ---
 
@@ -314,12 +320,14 @@ Maps role names to actual seat+agent bindings. `assign()` and `selectTask()` are
 A local SQLite-backed implementation of a verified memory subsystem. **Not a hosted API.**
 
 **SQLite tables created by HmemMemory:**
+
 - `hmem_memories(id, gateway, agent, session, seat, binding, created, data)`
 - `hmem_ledger(seq, memory_id, action, at, data)`
 
 **Write path** (`writeVerified`): Only writes memories from completed tasks with a passing verification result (`verdict: "pass"`). Validates the full chain: task → verificationResult → evidenceItems → seat binding. Computes `freshUntil` from the minimum evidence expiry.
 
 **Read path** (`retrieve` / `retrieveSemantic`):
+
 1. Scoped to exact `(gatewayId, agentId, sessionKey, seatId, bindingRevision)`.
 2. Scores each memory: lexical overlap on applicability + content, recency decay, confidence weight.
 3. If an embedder is configured and verified: cosine similarity on pre-computed vectors (same model only).
@@ -384,6 +392,7 @@ hmem_ledger(seq INTEGER PK AUTOINCREMENT, memory_id TEXT, action TEXT,
 ```
 
 **`runtime_records` namespaces** in use:
+
 - `orchestration` — OrchestrationService plans
 - `team.run` — TeamLead runs
 - `voiceCall` — voice call records
@@ -402,16 +411,16 @@ hmem_ledger(seq INTEGER PK AUTOINCREMENT, memory_id TEXT, action TEXT,
 
 See section 4.2 for the full list of `/api/runtime/*` endpoints. Additional Next.js route handlers:
 
-| Route | File | Method | Purpose |
-|---|---|---|---|
-| `/api/voice/session` | `app/api/voice/session/route.ts` | GET | Check voice config |
-| `/api/voice/session` | `app/api/voice/session/route.ts` | POST | Provision Gemini ephemeral token |
-| `/api/agents/discover` | served by `runtime-api.mjs` | GET | List available agents |
-| `/api/internal/dispatch` | `lib/internal-api.mjs` | POST | Auggie: dispatch task to worker |
-| `/api/internal/seat-sync` | `lib/internal-api.mjs` | POST | Auggie: sync seat roster |
-| `/api/gateway` | Auggie bridge WebSocket | WS UPGRADE | Auggie: gateway protocol |
-| `/api/config` | `app/api/config/` | GET/POST | (Exists, not fully inspected) |
-| `/api/contracts` | `app/api/contracts/` | GET | (Exists, not fully inspected) |
+| Route                     | File                             | Method     | Purpose                          |
+| ------------------------- | -------------------------------- | ---------- | -------------------------------- |
+| `/api/voice/session`      | `app/api/voice/session/route.ts` | GET        | Check voice config               |
+| `/api/voice/session`      | `app/api/voice/session/route.ts` | POST       | Provision Gemini ephemeral token |
+| `/api/agents/discover`    | served by `runtime-api.mjs`      | GET        | List available agents            |
+| `/api/internal/dispatch`  | `lib/internal-api.mjs`           | POST       | Auggie: dispatch task to worker  |
+| `/api/internal/seat-sync` | `lib/internal-api.mjs`           | POST       | Auggie: sync seat roster         |
+| `/api/gateway`            | Auggie bridge WebSocket          | WS UPGRADE | Auggie: gateway protocol         |
+| `/api/config`             | `app/api/config/`                | GET/POST   | (Exists, not fully inspected)    |
+| `/api/contracts`          | `app/api/contracts/`             | GET        | (Exists, not fully inspected)    |
 
 ---
 
@@ -424,6 +433,7 @@ Published by `TaskDatabase.publish()`. Every `db.emit()` call creates a row in `
 ### 10.2 Gateway WebSocket (OpenClaw protocol)
 
 Protocol frames (JSON):
+
 ```json
 { "type": "req", "id": "aw_1_...", "method": "connect", "params": {...} }
 { "type": "res", "id": "aw_1_...", "ok": true, "payload": {"type":"hello-ok","scopes":[...]} }
@@ -512,23 +522,23 @@ Server-side tracking of voice calls in `runtime_records(namespace="voiceCall")`.
 
 ## 13. Security Architecture
 
-| Control | Implementation | File |
-|---|---|---|
-| Loopback-only binding | `resolveBindHost()` throws on non-loopback `HOST` | `lib/server-security.mjs` |
-| Origin enforcement | `isAllowedAppOrigin()` on all non-GET runtime routes | `lib/server/runtime-api.mjs` |
-| Cross-site fetch blocking | `sec-fetch-site: cross-site` check | `lib/server/runtime-api.mjs` |
-| Gateway token isolation | Token never sent to browser; held server-side only | `server.ts`, `lib/server/gateway-connection.mjs` |
-| Remote gateway TLS requirement | `validateGatewayTarget()` enforces `wss://` for non-loopback | `lib/server-security.mjs` |
-| Emergency stop | Sentinel file (`ESTOP`); pauses new dispatch, never kills in-flight | `lib/server/estop.mjs` |
-| Human approval gate | `executor` role requires `approval.gateway` tool; `ReviewService` | `lib/server/specialist-catalogue.mjs`, `lib/server/reviews.mjs` |
-| Prompt injection fencing | `fenceUntrusted()` wraps all third-party and agent output before inclusion in new messages | `lib/server/untrusted-content.mjs` |
-| Scope enforcement | `GatewayClient.hasScope()` checks granted scopes from hello-ok | `lib/gateway.ts` |
-| DB ownership lock | `acquireOwner()` uses OS process-kill probe to ensure single writer | `lib/server/task-db.mjs` |
-| Memory write guard | H-MEM writes require a validated proof chain; no model-facing write route | `lib/server/hmem-memory.mjs` |
-| Specialist permission bounds | Catalogue defines `dataAccess` and `sensitiveWrites` per role | `lib/server/specialist-catalogue.mjs` |
-| Tool scope validation | `OrchestrationService.verifyBinding()` re-checks seat binding before every dispatch | `lib/server/orchestration.mjs` |
-| Timing-safe secret comparison | `safeSecretEqual()` for dispatch secret | `lib/server-security.mjs` |
-| Voice CSRF protection | Origin + `sec-fetch-site` checked before token provisioning | `app/api/voice/session/route.ts` |
+| Control                        | Implementation                                                                             | File                                                            |
+| ------------------------------ | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| Loopback-only binding          | `resolveBindHost()` throws on non-loopback `HOST`                                          | `lib/server-security.mjs`                                       |
+| Origin enforcement             | `isAllowedAppOrigin()` on all non-GET runtime routes                                       | `lib/server/runtime-api.mjs`                                    |
+| Cross-site fetch blocking      | `sec-fetch-site: cross-site` check                                                         | `lib/server/runtime-api.mjs`                                    |
+| Gateway token isolation        | Token never sent to browser; held server-side only                                         | `server.ts`, `lib/server/gateway-connection.mjs`                |
+| Remote gateway TLS requirement | `validateGatewayTarget()` enforces `wss://` for non-loopback                               | `lib/server-security.mjs`                                       |
+| Emergency stop                 | Sentinel file (`ESTOP`); pauses new dispatch, never kills in-flight                        | `lib/server/estop.mjs`                                          |
+| Human approval gate            | `executor` role requires `approval.gateway` tool; `ReviewService`                          | `lib/server/specialist-catalogue.mjs`, `lib/server/reviews.mjs` |
+| Prompt injection fencing       | `fenceUntrusted()` wraps all third-party and agent output before inclusion in new messages | `lib/server/untrusted-content.mjs`                              |
+| Scope enforcement              | `GatewayClient.hasScope()` checks granted scopes from hello-ok                             | `lib/gateway.ts`                                                |
+| DB ownership lock              | `acquireOwner()` uses OS process-kill probe to ensure single writer                        | `lib/server/task-db.mjs`                                        |
+| Memory write guard             | H-MEM writes require a validated proof chain; no model-facing write route                  | `lib/server/hmem-memory.mjs`                                    |
+| Specialist permission bounds   | Catalogue defines `dataAccess` and `sensitiveWrites` per role                              | `lib/server/specialist-catalogue.mjs`                           |
+| Tool scope validation          | `OrchestrationService.verifyBinding()` re-checks seat binding before every dispatch        | `lib/server/orchestration.mjs`                                  |
+| Timing-safe secret comparison  | `safeSecretEqual()` for dispatch secret                                                    | `lib/server-security.mjs`                                       |
+| Voice CSRF protection          | Origin + `sec-fetch-site` checked before token provisioning                                | `app/api/voice/session/route.ts`                                |
 
 ---
 
@@ -573,59 +583,59 @@ Server-side tracking of voice calls in `runtime_records(namespace="voiceCall")`.
 
 From `.env.example` (no actual values):
 
-| Variable | Purpose |
-|---|---|
-| `PORT` | HTTP listen port (default 3000) |
-| `HOST` | Bind host (default 127.0.0.1, must be loopback) |
-| `AGENT_TOWN_DB_PATH` | SQLite database path |
-| `AGENT_PROVIDER` | `openclaw` \| `nightshift` \| `auggie` |
-| `AGENT_TOWN_SHARED_AGENT` | Shared agent ID for seat-less sessions |
-| `AGENT_TOWN_OFFICE_LEAD_SEAT` | Seat ID for Alice/office lead (default seat-0) |
-| `AGENT_TOWN_ESTOP_FILE` | Emergency stop sentinel file path |
-| `AGENT_TOWN_PUBLIC_ORIGINS` | Comma-separated HTTPS origins (requires TLS proxy) |
-| `GATEWAY_URL` | OpenClaw gateway WebSocket URL |
-| `GATEWAY_TOKEN` | OpenClaw auth token (server-side only) |
-| `ALLOW_REMOTE_GATEWAY` | Must be `true` to use non-loopback `GATEWAY_URL` |
-| `NIGHTSHIFT_BASE_URL` | Meterless Nightshift HTTP base URL |
-| `NIGHTSHIFT_API_KEY` | Nightshift auth key |
-| `NIGHTSHIFT_MODEL` | Model identifier (default `meterless/auto`) |
-| `NVIDIA_API_KEY` | NVIDIA/Nemotron hosted inference key (no adapter yet) |
-| `NVIDIA_BASE_URL` | NVIDIA API base URL |
-| `NVIDIA_MODEL` | NVIDIA model identifier |
-| `XAI_API_KEY` | SpaceXAI/Grok key (no adapter yet) |
-| `XAI_BASE_URL` | SpaceXAI API base URL |
-| `XAI_MODEL` | Grok model identifier |
-| `AGENT_TOWN_SPECIALIST_GRANTS` | JSON array of specialist binding grants |
-| `AGENT_TOWN_SPECIALIST_PROFILES` | JSON object of specialist seat profiles |
-| `AGENT_TOWN_EXECUTION_OPTIONS` | JSON array of secondary gateway configs |
-| `AGENT_TOWN_EXECUTION_PREFERENCE` | JSON array for execution routing preference |
-| `AGENT_TOWN_INVENTORY_MODE` | `synthetic` \| `zetaris` |
-| `AGENT_TOWN_INVENTORY_SYNTHETIC_CASE` | Synthetic fixture case name |
-| `ZETARIS_OPEN_URL` / `ZETARIS_PAGE_URL` / `ZETARIS_CLOSE_URL` | Zetaris SQL API endpoints |
-| `ZETARIS_BEARER_TOKEN` / `ZETARIS_ORG_ID` | Zetaris auth |
-| `TAVILY_API_KEY` | Tavily web search key |
-| `GEMINI_API_KEY` | Google Gemini Live API key |
-| `AGENT_TOWN_EMBEDDINGS_URL` / `AGENT_TOWN_EMBEDDINGS_MODEL` / `AGENT_TOWN_EMBEDDINGS_KEY_ENV` | Optional embeddings endpoint |
+| Variable                                                                                      | Purpose                                               |
+| --------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `PORT`                                                                                        | HTTP listen port (default 3000)                       |
+| `HOST`                                                                                        | Bind host (default 127.0.0.1, must be loopback)       |
+| `AGENT_TOWN_DB_PATH`                                                                          | SQLite database path                                  |
+| `AGENT_PROVIDER`                                                                              | `openclaw` \| `nightshift` \| `auggie`                |
+| `AGENT_TOWN_SHARED_AGENT`                                                                     | Shared agent ID for seat-less sessions                |
+| `AGENT_TOWN_OFFICE_LEAD_SEAT`                                                                 | Seat ID for Alice/office lead (default seat-0)        |
+| `AGENT_TOWN_ESTOP_FILE`                                                                       | Emergency stop sentinel file path                     |
+| `AGENT_TOWN_PUBLIC_ORIGINS`                                                                   | Comma-separated HTTPS origins (requires TLS proxy)    |
+| `GATEWAY_URL`                                                                                 | OpenClaw gateway WebSocket URL                        |
+| `GATEWAY_TOKEN`                                                                               | OpenClaw auth token (server-side only)                |
+| `ALLOW_REMOTE_GATEWAY`                                                                        | Must be `true` to use non-loopback `GATEWAY_URL`      |
+| `NIGHTSHIFT_BASE_URL`                                                                         | Meterless Nightshift HTTP base URL                    |
+| `NIGHTSHIFT_API_KEY`                                                                          | Nightshift auth key                                   |
+| `NIGHTSHIFT_MODEL`                                                                            | Model identifier (default `meterless/auto`)           |
+| `NVIDIA_API_KEY`                                                                              | NVIDIA/Nemotron hosted inference key (no adapter yet) |
+| `NVIDIA_BASE_URL`                                                                             | NVIDIA API base URL                                   |
+| `NVIDIA_MODEL`                                                                                | NVIDIA model identifier                               |
+| `XAI_API_KEY`                                                                                 | SpaceXAI/Grok key (no adapter yet)                    |
+| `XAI_BASE_URL`                                                                                | SpaceXAI API base URL                                 |
+| `XAI_MODEL`                                                                                   | Grok model identifier                                 |
+| `AGENT_TOWN_SPECIALIST_GRANTS`                                                                | JSON array of specialist binding grants               |
+| `AGENT_TOWN_SPECIALIST_PROFILES`                                                              | JSON object of specialist seat profiles               |
+| `AGENT_TOWN_EXECUTION_OPTIONS`                                                                | JSON array of secondary gateway configs               |
+| `AGENT_TOWN_EXECUTION_PREFERENCE`                                                             | JSON array for execution routing preference           |
+| `AGENT_TOWN_INVENTORY_MODE`                                                                   | `synthetic` \| `zetaris`                              |
+| `AGENT_TOWN_INVENTORY_SYNTHETIC_CASE`                                                         | Synthetic fixture case name                           |
+| `ZETARIS_OPEN_URL` / `ZETARIS_PAGE_URL` / `ZETARIS_CLOSE_URL`                                 | Zetaris SQL API endpoints                             |
+| `ZETARIS_BEARER_TOKEN` / `ZETARIS_ORG_ID`                                                     | Zetaris auth                                          |
+| `TAVILY_API_KEY`                                                                              | Tavily web search key                                 |
+| `GEMINI_API_KEY`                                                                              | Google Gemini Live API key                            |
+| `AGENT_TOWN_EMBEDDINGS_URL` / `AGENT_TOWN_EMBEDDINGS_MODEL` / `AGENT_TOWN_EMBEDDINGS_KEY_ENV` | Optional embeddings endpoint                          |
 
 ---
 
 ## 17. Important Dependencies
 
-| Package | Version | Purpose |
-|---|---|---|
-| `next` | 16.4.3 | React framework, SSR, routing |
-| `react` / `react-dom` | 19.2.3 | UI framework |
-| `phaser` | ^3.90.0 | 2D game engine for office visualization |
-| `three` | ^0.186.1 | 3D cinematic rendering overlay |
-| `@google/genai` | ^2.31.0 | Gemini Live voice API |
-| `ws` | ^8.22.0 | WebSocket server (Auggie bridge, production server) |
-| `ajv` | 8.20.0 | JSON schema validation (operation contracts) |
-| `tailwindcss` | ^4.3.3 | CSS utility framework |
-| `tsx` | ^4.23.15 | TypeScript execution for dev server |
-| `vitest` | ^5.0.5 | Test runner |
-| `puppeteer` | ^25.16.0 | Browser automation tests |
-| `lucide-react` | ^0.576.0 | Icon library |
-| `@tanstack/react-virtual` | ^3.14.23 | Virtualized list rendering |
+| Package                   | Version  | Purpose                                             |
+| ------------------------- | -------- | --------------------------------------------------- |
+| `next`                    | 16.4.3   | React framework, SSR, routing                       |
+| `react` / `react-dom`     | 19.2.3   | UI framework                                        |
+| `phaser`                  | ^3.90.0  | 2D game engine for office visualization             |
+| `three`                   | ^0.186.1 | 3D cinematic rendering overlay                      |
+| `@google/genai`           | ^2.31.0  | Gemini Live voice API                               |
+| `ws`                      | ^8.22.0  | WebSocket server (Auggie bridge, production server) |
+| `ajv`                     | 8.20.0   | JSON schema validation (operation contracts)        |
+| `tailwindcss`             | ^4.3.3   | CSS utility framework                               |
+| `tsx`                     | ^4.23.15 | TypeScript execution for dev server                 |
+| `vitest`                  | ^5.0.5   | Test runner                                         |
+| `puppeteer`               | ^25.16.0 | Browser automation tests                            |
+| `lucide-react`            | ^0.576.0 | Icon library                                        |
+| `@tanstack/react-virtual` | ^3.14.23 | Virtualized list rendering                          |
 
 Node.js `node:sqlite` (built-in, requires Node >= 22.19.0) is used for all database operations.
 
@@ -633,28 +643,28 @@ Node.js `node:sqlite` (built-in, requires Node >= 22.19.0) is used for all datab
 
 ## 18. Critical Implementation Files
 
-| File | Role |
-|---|---|
-| `lib/server/runtime-api.mjs` | All HTTP API routing + SSE stream |
-| `lib/server/task-runtime.mjs` | Central execution authority |
-| `lib/server/task-db.mjs` | All SQLite operations + event bus |
-| `lib/server/orchestration.mjs` | Multi-agent DAG scheduler |
-| `lib/server/team-lead.mjs` | Goal decomposition + synthesis + review cycle |
-| `lib/server/office-operations.mjs` | Service composition layer |
-| `lib/server/specialist-catalogue.mjs` | Reviewed agent role definitions |
-| `lib/server/specialist-registry.mjs` | Role-to-seat binding |
-| `lib/server/hmem-memory.mjs` | Verified memory write/retrieval |
-| `lib/server/estop.mjs` | Emergency stop mechanism |
-| `lib/server/untrusted-content.mjs` | Prompt injection fencing |
-| `lib/server/gateway-connection.mjs` | OpenClaw WebSocket client |
-| `lib/server/nightshift-gateway.mjs` | Nightshift HTTP adapter |
-| `lib/auggie-bridge.ts` | Auggie CLI bridge |
-| `lib/voice/client.ts` | Gemini Live voice client |
-| `lib/store.ts` | Browser state provider + SSE subscriber |
-| `lib/events.ts` | Typed in-process event bus |
-| `lib/server-security.mjs` | Origin + binding security checks |
-| `types/game.ts` | All shared TypeScript types |
-| `server.ts` | Dev server entry |
+| File                                  | Role                                          |
+| ------------------------------------- | --------------------------------------------- |
+| `lib/server/runtime-api.mjs`          | All HTTP API routing + SSE stream             |
+| `lib/server/task-runtime.mjs`         | Central execution authority                   |
+| `lib/server/task-db.mjs`              | All SQLite operations + event bus             |
+| `lib/server/orchestration.mjs`        | Multi-agent DAG scheduler                     |
+| `lib/server/team-lead.mjs`            | Goal decomposition + synthesis + review cycle |
+| `lib/server/office-operations.mjs`    | Service composition layer                     |
+| `lib/server/specialist-catalogue.mjs` | Reviewed agent role definitions               |
+| `lib/server/specialist-registry.mjs`  | Role-to-seat binding                          |
+| `lib/server/hmem-memory.mjs`          | Verified memory write/retrieval               |
+| `lib/server/estop.mjs`                | Emergency stop mechanism                      |
+| `lib/server/untrusted-content.mjs`    | Prompt injection fencing                      |
+| `lib/server/gateway-connection.mjs`   | OpenClaw WebSocket client                     |
+| `lib/server/nightshift-gateway.mjs`   | Nightshift HTTP adapter                       |
+| `lib/auggie-bridge.ts`                | Auggie CLI bridge                             |
+| `lib/voice/client.ts`                 | Gemini Live voice client                      |
+| `lib/store.ts`                        | Browser state provider + SSE subscriber       |
+| `lib/events.ts`                       | Typed in-process event bus                    |
+| `lib/server-security.mjs`             | Origin + binding security checks              |
+| `types/game.ts`                       | All shared TypeScript types                   |
+| `server.ts`                           | Dev server entry                              |
 
 ---
 
@@ -734,6 +744,7 @@ MCP stdio server:
 ```
 
 Owner text commands also arrive via the NammaOps REST API:
+
 ```
 Owner types in panel → POST /api/nammaops/workflows {text: "Check the stock of milk"}
                      → Workflows.start() → same path as voice
@@ -743,13 +754,13 @@ Owner types in panel → POST /api/nammaops/workflows {text: "Check the stock of
 
 Defined in `config/nammaops/workforce.json` and registered by `lib/server/nammaops/workforce.mjs` through Phases A/B/C:
 
-| Role | agent_id | Permitted capabilities | Notes |
-|---|---|---|---|
-| manager | nammaops-manager | none (coordinator only) | Optional OpenClaw reasoning turn; never reads ERP directly |
-| inventory | nammaops-inventory | erp.items.list, erp.stock.balance, erp.warehouses.list, erp.stock.ledger, erp.stock.movements | All READ |
-| sales | nammaops-sales | erp.sales_invoices.list, erp.pos_invoices.list, erp.customers.list, erp.items.list, erp.sales.history | All READ |
-| procurement | nammaops-procurement | erp.suppliers.list, erp.supplier_quotations.list, erp.item_prices.get, erp.po.create_draft, erp.po.get, erp.po.open | READ + WRITE (draft only) |
-| finance | nammaops-finance | erp.pnl, erp.gl, erp.purchase_invoices.list, erp.payments.summary | All READ |
+| Role        | agent_id             | Permitted capabilities                                                                                              | Notes                                                      |
+| ----------- | -------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| manager     | nammaops-manager     | none (coordinator only)                                                                                             | Optional OpenClaw reasoning turn; never reads ERP directly |
+| inventory   | nammaops-inventory   | erp.items.list, erp.stock.balance, erp.warehouses.list, erp.stock.ledger, erp.stock.movements                       | All READ                                                   |
+| sales       | nammaops-sales       | erp.sales_invoices.list, erp.pos_invoices.list, erp.customers.list, erp.items.list, erp.sales.history               | All READ                                                   |
+| procurement | nammaops-procurement | erp.suppliers.list, erp.supplier_quotations.list, erp.item_prices.get, erp.po.create_draft, erp.po.get, erp.po.open | READ + WRITE (draft only)                                  |
+| finance     | nammaops-finance     | erp.pnl, erp.gl, erp.purchase_invoices.list, erp.payments.summary                                                   | All READ                                                   |
 
 A sixth "principal" `nammaops-po-submit` holds only `erp.po.get` and `erp.po.submit`; it runs only inside the owner-approval flow and is never reachable via the governed proxy.
 
@@ -759,13 +770,13 @@ Voice seat labels: Alice=manager, Bob=inventory, Carol=sales, Dave=procurement. 
 
 All implemented and tested against the fixture. All take the same code path through `Workflows.execute()`:
 
-| Workflow | Intent action | Steps | Approval required |
-|---|---|---|---|
-| Stock check | stock_check | inventory → (optional) procurement for low-stock ranking | No |
-| Prepare reorder | prepare_reorder | inventory → procurement (rank+draft POs) → owner-approval requests | Yes — owner PIN via OwnerApprovals |
-| Daily report | daily_report | sales (invoices+totals) → (optional) finance (P&L) | No |
-| Demand forecast | demand_forecast | sales (90-day history) → inventory (stock+ledger) → procurement (POs+quotations) | No |
-| Supplier comparison | supplier_comparison | inventory (resolve products) → procurement (quotations+prices) | No |
+| Workflow            | Intent action       | Steps                                                                            | Approval required                  |
+| ------------------- | ------------------- | -------------------------------------------------------------------------------- | ---------------------------------- |
+| Stock check         | stock_check         | inventory → (optional) procurement for low-stock ranking                         | No                                 |
+| Prepare reorder     | prepare_reorder     | inventory → procurement (rank+draft POs) → owner-approval requests               | Yes — owner PIN via OwnerApprovals |
+| Daily report        | daily_report        | sales (invoices+totals) → (optional) finance (P&L)                               | No                                 |
+| Demand forecast     | demand_forecast     | sales (90-day history) → inventory (stock+ledger) → procurement (POs+quotations) | No                                 |
+| Supplier comparison | supplier_comparison | inventory (resolve products) → procurement (quotations+prices)                   | No                                 |
 
 Parsing of natural-language text into intents is fully deterministic (`parseCommand()` in workflows.mjs — no LLM required for routing).
 
@@ -814,6 +825,7 @@ The setup flow (`workforce.mjs setupWorkforce()`) automates: register server →
 Two binding modes exist, selected by `NAMMAOPS_BINDING` environment variable:
 
 **Fixture mode** (`config/nammaops/binding.fixture.json`) — DEFAULT:
+
 - MCP server: `lib/mcp/fixture-erpnext-server.mjs` (in-process stdio)
 - Data: `config/nammaops/fixture-data.json` — 7 products (Toned Milk, Rice, Sunflower Oil, Coconut Oil, Toor Dal, Sugar, Ghee), 2 warehouses, suppliers, quotations, 90-day synthetic demand history
 - Purchase orders: persisted to a temp file; create_draft and submit both work
@@ -821,6 +833,7 @@ Two binding modes exist, selected by `NAMMAOPS_BINDING` environment variable:
 - `source: "fixture"` on every tool response
 
 **Live ERPNext mode** (`config/nammaops/binding.hvgerp.json`):
+
 - MCP server: `lib/mcp/hvgerp-adapter-server.mjs` wrapping `@hvgllc/hvgerp-mcp@3.7.0`
 - Credentials: `ERPNEXT_URL`, `ERPNEXT_API_KEY`, `ERPNEXT_API_SECRET` in server environment only
 - Read-only: 17 named hvgerp tools, verified `readOnlyHint:true` at startup
@@ -838,6 +851,7 @@ The demo store has a seeded ERPNext Cloud instance with records marked `NAMMAOPS
 `lib/voice/agent-actions.ts` includes `nammaops_business_query` in `VOICE_ACTIONS` — the allowlist of tools the voice handler will forward to the server.
 
 `lib/server/nammaops/voice-router.mjs` (`VoiceRouter.query()`):
+
 - Validates the calling agent is a configured voice department (presentation only — no permissions flow from the voice seat)
 - Deduplicates retries using a SHA-256 hash of `[call_id, action_id]`
 - Maps voice intents to workflow actions via `VOICE_INTENTS` table
@@ -850,11 +864,11 @@ The demo store has a seeded ERPNext Cloud instance with records marked `NAMMAOPS
 
 `lib/server/stt.mjs` implements three providers, selected by `AGENT_TOWN_STT_PROVIDER`:
 
-| Provider | Env var value | Implementation | Note |
-|---|---|---|---|
-| Gnani Prisma | `gnani` | REST POST to `https://api.vachana.ai/stt/v3`, auth `X-API-Key-ID` header, multipart/form-data | [IMPLEMENTED] |
-| Gemini | `gemini` | `generateContent` with inline audio, model `gemini-2.5-flash` | [IMPLEMENTED — fallback] |
-| Fixture | `fixture` | Returns a configured fixed transcript | [TEST ONLY] |
+| Provider     | Env var value | Implementation                                                                                | Note                     |
+| ------------ | ------------- | --------------------------------------------------------------------------------------------- | ------------------------ |
+| Gnani Prisma | `gnani`       | REST POST to `https://api.vachana.ai/stt/v3`, auth `X-API-Key-ID` header, multipart/form-data | [IMPLEMENTED]            |
+| Gemini       | `gemini`      | `generateContent` with inline audio, model `gemini-2.5-flash`                                 | [IMPLEMENTED — fallback] |
+| Fixture      | `fixture`     | Returns a configured fixed transcript                                                         | [TEST ONLY]              |
 
 Unset `AGENT_TOWN_STT_PROVIDER` → STT tasks return 503 (never silently fall through).
 
@@ -868,31 +882,33 @@ Language hint: accepts BCP-47 codes (`kn-IN`, `hi-IN`, `en-IN`) or `indic-auto` 
 
 All under `/api/nammaops/` (also mirrored at `/api/runtime/nammaops/`). Loopback only.
 
-| Method | Path | Purpose |
-|---|---|---|
-| POST | /setup | Register MCP server, discover tools, configure five agents (idempotent) |
-| GET | /workforce | Current workforce state |
-| GET | /binding | Business capability → tool binding status |
-| GET | /dashboard | Latest workflow per kind + approvals + data source |
-| GET | /workflows | Recent 50 workflows (newest first) |
-| POST | /workflows | Start workflow from text or structured intent |
-| GET | /workflows/{id} | Full workflow view with tasks and timeline |
-| GET | /workflows/{id}/events | Timeline + tasks only |
-| GET | /approvals | All owner approval requests |
-| POST | /approvals/{id}/approve | Owner PIN approve → re-verify + submit to ERP |
-| POST | /approvals/{id}/reject | Owner PIN reject |
-| POST | /approvals/{id}/reconcile | Re-read ERP after uncertain/failed submission |
-| GET | /openapi.json | OpenAPI 3.1 spec |
+| Method | Path                      | Purpose                                                                 |
+| ------ | ------------------------- | ----------------------------------------------------------------------- |
+| POST   | /setup                    | Register MCP server, discover tools, configure five agents (idempotent) |
+| GET    | /workforce                | Current workforce state                                                 |
+| GET    | /binding                  | Business capability → tool binding status                               |
+| GET    | /dashboard                | Latest workflow per kind + approvals + data source                      |
+| GET    | /workflows                | Recent 50 workflows (newest first)                                      |
+| POST   | /workflows                | Start workflow from text or structured intent                           |
+| GET    | /workflows/{id}           | Full workflow view with tasks and timeline                              |
+| GET    | /workflows/{id}/events    | Timeline + tasks only                                                   |
+| GET    | /approvals                | All owner approval requests                                             |
+| POST   | /approvals/{id}/approve   | Owner PIN approve → re-verify + submit to ERP                           |
+| POST   | /approvals/{id}/reject    | Owner PIN reject                                                        |
+| POST   | /approvals/{id}/reconcile | Re-read ERP after uncertain/failed submission                           |
+| GET    | /openapi.json             | OpenAPI 3.1 spec                                                        |
 
 ### 21.12 New UI Panels
 
 **NammaOpsPanel.tsx** (`components/hud/NammaOpsPanel.tsx`):
+
 - HUD flyout titled "NammaOps"
 - Shows: workforce table (5 agents with seat, granted tools, live status), owner command textbox with 4 example buttons, workflow result sections (inventory table, reorder approval with PIN entry, demand intelligence with evidence drill-down, daily business summary), live workflow timeline
 - Subscribes to `/api/runtime/events` SSE, re-polls dashboard on `nammaops.*` or `mcp.invocation` events
 - Shows "test fixture" or "live ERPNext" banner based on data source
 
 **McpGovernancePanel.tsx** (`components/hud/McpGovernancePanel.tsx`):
+
 - Embedded as a tab inside DeveloperModeModal
 - Shows: MCP server registration form, discovered tools with schema viewer and risk review, assignments/grants editor, per-operation approval queue, last 20 invocation audit records
 
@@ -901,6 +917,7 @@ All under `/api/nammaops/` (also mirrored at `/api/runtime/nammaops/`). Loopback
 ### 21.13 Integration with Existing Agent Town Orchestration
 
 NammaOps does NOT use Agent Town's `OrchestrationService`, `TeamLead`, or task pipeline for its workflow steps. Instead:
+
 - Each specialist step is a child task in `runtime_records` under `nammaops.task` namespace
 - The workflow record lives in `nammaops.workflow` namespace
 - ERP calls go through the Phase C `ToolGateway` (same as any other MCP tool call)

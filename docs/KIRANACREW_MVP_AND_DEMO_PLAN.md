@@ -10,17 +10,18 @@
 
 All five workflows run end-to-end against the fixture and live ERPNext. The demo script `scripts/nammaops-demo.mjs` proves this without needing a browser.
 
-| Workflow | Status | Data source |
-|---|---|---|
-| Stock check (text command) | [IMPLEMENTED] | Fixture + Live ERPNext |
-| Demand forecast (90-day history) | [IMPLEMENTED] | Fixture + Live ERPNext |
-| Supplier comparison | [IMPLEMENTED] | Fixture + Live ERPNext |
-| Daily business report | [IMPLEMENTED] | Fixture + Live ERPNext |
+| Workflow                         | Status        | Data source                               |
+| -------------------------------- | ------------- | ----------------------------------------- |
+| Stock check (text command)       | [IMPLEMENTED] | Fixture + Live ERPNext                    |
+| Demand forecast (90-day history) | [IMPLEMENTED] | Fixture + Live ERPNext                    |
+| Supplier comparison              | [IMPLEMENTED] | Fixture + Live ERPNext                    |
+| Daily business report            | [IMPLEMENTED] | Fixture + Live ERPNext                    |
 | Prepare reorder + owner approval | [IMPLEMENTED] | Fixture only (PO drafts disabled on live) |
 
 Voice routing through Gemini Live sessions is also fully functional — Alice/Bob/Carol/Dave can answer business questions via voice using Gemini's built-in STT/TTS.
 
 **The only missing Gnani integration is:**
+
 1. Replacing Gemini's STT with Gnani Prisma (code is written — needs API key + routing)
 2. Adding Gnani Timbre TTS (code does not exist — must be built)
 
@@ -28,11 +29,11 @@ Voice routing through Gemini Live sessions is also fully functional — Alice/Bo
 
 ## 2. What Needs Gnani Integration to Be Complete
 
-| Component | Current state | Gap to close |
-|---|---|---|
-| STT | Gemini Live built-in | Add a standalone audio-capture → Gnani Prisma → transcript path. `gnaniProvider()` in `stt.mjs` is ready — needs API key and a browser→server audio pipeline |
-| TTS | Gemini Live voices (Kore etc.) | Build `tts.mjs` with Timbre provider + server proxy route + browser audio player |
-| Combined voice page | Exists via Gemini Live session | Create `/nammaops/voice` standalone page that uses Prisma for input and Timbre for output |
+| Component           | Current state                  | Gap to close                                                                                                                                                 |
+| ------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| STT                 | Gemini Live built-in           | Add a standalone audio-capture → Gnani Prisma → transcript path. `gnaniProvider()` in `stt.mjs` is ready — needs API key and a browser→server audio pipeline |
+| TTS                 | Gemini Live voices (Kore etc.) | Build `tts.mjs` with Timbre provider + server proxy route + browser audio player                                                                             |
+| Combined voice page | Exists via Gemini Live session | Create `/nammaops/voice` standalone page that uses Prisma for input and Timbre for output                                                                    |
 
 Estimated effort: 2 days for both gaps (Day 2-3 of schedule).
 
@@ -40,12 +41,12 @@ Estimated effort: 2 days for both gaps (Day 2-3 of schedule).
 
 ## 3. What Is Genuinely Incomplete
 
-| Feature | Status | Notes |
-|---|---|---|
-| Gnani Timbre TTS | [NOT BUILT] | Zero code exists. Must build from scratch. |
-| Standalone Gnani voice page | [NOT BUILT] | Needs Timbre TTS first. |
-| Live ERPNext PO drafting + submission | [FIXTURE ONLY] | The adapter code is ready; the live binding has drafts disabled by design. Enabling would take 1 day but is not needed for the demo. |
-| Gnani Evon LLM reasoning | [NOT BUILT] | Evon is not on the API platform (self-hosted only). The Manager reasoning turn uses OpenClaw; fallback is GPT-4o-mini or Gemini Flash. |
+| Feature                               | Status         | Notes                                                                                                                                  |
+| ------------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Gnani Timbre TTS                      | [NOT BUILT]    | Zero code exists. Must build from scratch.                                                                                             |
+| Standalone Gnani voice page           | [NOT BUILT]    | Needs Timbre TTS first.                                                                                                                |
+| Live ERPNext PO drafting + submission | [FIXTURE ONLY] | The adapter code is ready; the live binding has drafts disabled by design. Enabling would take 1 day but is not needed for the demo.   |
+| Gnani Evon LLM reasoning              | [NOT BUILT]    | Evon is not on the API platform (self-hosted only). The Manager reasoning turn uses OpenClaw; fallback is GPT-4o-mini or Gemini Flash. |
 
 ---
 
@@ -58,6 +59,7 @@ These three workflows run today with zero additional code. They are the backbone
 Owner speaks: "Check the stock of milk, rice and cooking oil. Tell me what we need to buy tomorrow."
 
 **What happens** (in the fixture demo):
+
 1. `parseCommand()` extracts intent `stock_check` with products `["milk", "rice", "cooking oil"]`
 2. Inventory agent reads items + stock balances (2 ERP calls)
 3. `analyseStock()` computes which items are below reorder level
@@ -71,6 +73,7 @@ Owner speaks: "Check the stock of milk, rice and cooking oil. Tell me what we ne
 Owner speaks: "Prepare an order for the products that are running low. Choose the cheapest suitable supplier."
 
 **What happens**:
+
 1. Inventory reads stock; finds low items
 2. Procurement ranks suppliers (using `rankSuppliers()`) and creates draft POs in ERP
 3. Owner sees draft in NammaOpsPanel: "PUR-ORD-FX-0001 from Supplier X, total ₹2,450"
@@ -85,6 +88,7 @@ Owner speaks: "Prepare an order for the products that are running low. Choose th
 Owner speaks: "What will sell next week and what should I order?"
 
 **What happens**:
+
 1. Sales agent reads 90-day history in 7-day slices
 2. Inventory reads current stock + 90-day ledger (for stockout censoring)
 3. Procurement reads open POs + supplier quotations
@@ -150,6 +154,7 @@ Show McpGovernancePanel. "Every ERP call is logged with the agent identity, capa
 **Objective**: Make the first live Gnani Prisma STT call and the first Timbre TTS call. Confirm API key works, measure latency and credit consumption.
 
 **Deliverables**:
+
 - [ ] `GNANI_API_KEY` obtained from app.gnani.ai/voice
 - [ ] `AGENT_TOWN_STT_PROVIDER=gnani` set; `stt.mjs` `gnaniProvider()` tested with a WAV file
 - [ ] Credit consumption measured: 10 Prisma calls, note credit delta
@@ -166,6 +171,7 @@ Show McpGovernancePanel. "Every ERP call is logged with the agent identity, capa
 **Objective**: A working `/nammaops/voice` page that uses Prisma for input and Timbre for output, separate from the existing Gemini Live voice path.
 
 **Deliverables**:
+
 - [ ] Browser audio capture → server `POST /api/nammaops/voice/transcribe` → Prisma STT → transcript displayed
 - [ ] Transcript → NammaOps `parseCommand()` → workflow start → wait → voice contract
 - [ ] Voice contract facts → server `POST /api/nammaops/voice/speak` → Timbre TTS → audio bytes
@@ -182,6 +188,7 @@ Show McpGovernancePanel. "Every ERP call is logged with the agent identity, capa
 **Objective**: Complete stock check workflow via Gnani voice, demo quality.
 
 **Deliverables**:
+
 - [ ] Kannada audio: "Haalindu stock enu aagide?" transcribed correctly by Prisma
 - [ ] Workflow runs against live ERPNext data
 - [ ] Timbre responds in Kannada with stock facts from workflow result
@@ -197,6 +204,7 @@ Show McpGovernancePanel. "Every ERP call is logged with the agent identity, capa
 **Objective**: Prepare reorder (with owner approval) and demand forecast both work via Gnani voice.
 
 **Deliverables**:
+
 - [ ] Reorder workflow: Prisma transcribes "Prepare an order for the running-low products" → draft PO created → owner approves via PIN in UI → ERP write confirmed
 - [ ] Demand forecast: Prisma transcribes "What will sell next week?" → 90-day forecast runs → Timbre speaks top 3 items with forecast numbers
 - [ ] Live ERPNext: all three read workflows work against live data with Gnani voice
@@ -210,6 +218,7 @@ Show McpGovernancePanel. "Every ERP call is logged with the agent identity, capa
 **Objective**: Demo-quality UI and code-mixed language validation.
 
 **Deliverables**:
+
 - [ ] NammaOps voice page polished: transcript display, agent activity animation, Timbre waveform, approval panel
 - [ ] Hinglish test: "Kya kya order karna hai check karo" — Prisma transcribes; workflow identifies prepare_reorder intent
 - [ ] Test 5 Hinglish code-mixed queries; note Prisma accuracy
@@ -225,6 +234,7 @@ Show McpGovernancePanel. "Every ERP call is logged with the agent identity, capa
 **Objective**: Final demo video recorded.
 
 **Deliverables**:
+
 - [ ] 60-second demo video: 3 clean takes; best take selected
 - [ ] 2–3 minute technical demo video recorded
 - [ ] All 5 test scenarios from each workflow passing on live data
@@ -240,6 +250,7 @@ Show McpGovernancePanel. "Every ERP call is logged with the agent identity, capa
 **Objective**: Submission-ready package.
 
 **Deliverables**:
+
 - [ ] Demo videos edited: captions, end card with hashtags, background music
 - [ ] Submission form completed and saved (can be updated until Nov 10)
 - [ ] Project description written: title, problem, users, agents, Gnani model usage
@@ -254,6 +265,7 @@ Show McpGovernancePanel. "Every ERP call is logged with the agent identity, capa
 **Objective**: Post published; submission submitted.
 
 **Deliverables**:
+
 - [ ] LinkedIn + X post published with #GreatIndianAIInternshipChallenge and #GnaniAI, Gnani AI tagged
 - [ ] Post URL captured and entered in submission form
 - [ ] Submission form finalized and submitted
@@ -268,6 +280,7 @@ Show McpGovernancePanel. "Every ERP call is logged with the agent identity, capa
 **Objective**: Monitor; fix any last-minute issues.
 
 **Deliverables**:
+
 - [ ] Submission confirmation email received and retained
 - [ ] Monitor social engagement; respond to comments
 - [ ] Hard deadline: November 10, 2026, 11:59 PM IST
@@ -276,18 +289,18 @@ Show McpGovernancePanel. "Every ERP call is logged with the agent identity, capa
 
 ## 8. Prioritized Feature List
 
-| Feature | Priority | Status | Notes |
-|---|---|---|---|
-| Gnani Prisma STT wired to NammaOps voice | MUST | [NEEDS GNANI INTEGRATION] | `gnaniProvider()` coded; needs routing |
-| Gnani Timbre TTS | MUST | [NOT BUILT] | Build `tts.mjs` on Day 2 |
-| Standalone Gnani voice page | MUST | [NOT BUILT] | Needed for Gnani demo |
-| All five workflows (fixture) | DONE | [IMPLEMENTED] | Demo-ready today |
-| All five read workflows (live ERPNext) | DONE | [IMPLEMENTED] | Demo-ready today |
-| Owner approval (fixture) | DONE | [IMPLEMENTED] | Demo-ready today |
-| NammaOpsPanel HUD | DONE | [IMPLEMENTED] | Demo-ready today |
-| McpGovernancePanel HUD | DONE | [IMPLEMENTED] | Demo-ready today |
-| Kannada voice input via Gnani | MUST | [NEEDS GNANI INTEGRATION] | Day 3-4 |
-| Hindi/Hinglish voice input | SHOULD | [NEEDS GNANI INTEGRATION] | Day 5-6 |
-| Evon LLM reasoning | CONDITIONAL | [NOT BUILT] | Use GPT-4o-mini / Gemini Flash fallback if H100 unavailable |
-| Live ERPNext PO drafts | NICE | [FIXTURE ONLY] | Not needed for demo |
-| Multi-store / multi-tenant | POST-HACKATHON | — | Out of scope |
+| Feature                                  | Priority       | Status                    | Notes                                                       |
+| ---------------------------------------- | -------------- | ------------------------- | ----------------------------------------------------------- |
+| Gnani Prisma STT wired to NammaOps voice | MUST           | [NEEDS GNANI INTEGRATION] | `gnaniProvider()` coded; needs routing                      |
+| Gnani Timbre TTS                         | MUST           | [NOT BUILT]               | Build `tts.mjs` on Day 2                                    |
+| Standalone Gnani voice page              | MUST           | [NOT BUILT]               | Needed for Gnani demo                                       |
+| All five workflows (fixture)             | DONE           | [IMPLEMENTED]             | Demo-ready today                                            |
+| All five read workflows (live ERPNext)   | DONE           | [IMPLEMENTED]             | Demo-ready today                                            |
+| Owner approval (fixture)                 | DONE           | [IMPLEMENTED]             | Demo-ready today                                            |
+| NammaOpsPanel HUD                        | DONE           | [IMPLEMENTED]             | Demo-ready today                                            |
+| McpGovernancePanel HUD                   | DONE           | [IMPLEMENTED]             | Demo-ready today                                            |
+| Kannada voice input via Gnani            | MUST           | [NEEDS GNANI INTEGRATION] | Day 3-4                                                     |
+| Hindi/Hinglish voice input               | SHOULD         | [NEEDS GNANI INTEGRATION] | Day 5-6                                                     |
+| Evon LLM reasoning                       | CONDITIONAL    | [NOT BUILT]               | Use GPT-4o-mini / Gemini Flash fallback if H100 unavailable |
+| Live ERPNext PO drafts                   | NICE           | [FIXTURE ONLY]            | Not needed for demo                                         |
+| Multi-store / multi-tenant               | POST-HACKATHON | —                         | Out of scope                                                |
