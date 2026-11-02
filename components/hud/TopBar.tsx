@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useSyncExternalStore } from "react";
 
 import { useOfficeActivity } from "@/lib/useOfficeActivity";
-import { Mic, Volume2, Share2, ListTodo, Users, Building2, Activity } from "lucide-react";
+import { Mic, Volume2, Share2, ListTodo, Users, Building2, Activity, Store } from "lucide-react";
 import type { SeatState, ConnectionStatus } from "@/types/game";
 import type { HudPanelId, HudDockItem } from "./HudDock";
 import CharacterPortrait from "./CharacterPortrait";
@@ -143,7 +143,9 @@ export default function TopBar({
                   ? ListTodo
                   : item.id === "operations"
                     ? Activity
-                    : Users;
+                    : item.id === "nammaops"
+                      ? Store
+                      : Users;
           return (
             <button
               key={item.id}

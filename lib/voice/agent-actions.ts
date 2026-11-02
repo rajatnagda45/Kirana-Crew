@@ -4,6 +4,7 @@ export const VOICE_ACTIONS = new Set([
   "get_task_progress",
   "cancel_task",
   "open_pending_review",
+  "nammaops_business_query",
 ]);
 
 /** All routing, permissions, task state and review scope are resolved by the server. */

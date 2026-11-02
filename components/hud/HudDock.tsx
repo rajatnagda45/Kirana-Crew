@@ -3,7 +3,7 @@
 import Image from "next/image";
 
 export type HudPanelId =
-  "connection" | "chat" | "tasks" | "workers" | "operations" | "music" | "voice";
+  "connection" | "chat" | "tasks" | "workers" | "operations" | "nammaops" | "music" | "voice";
 
 export interface HudDockItem {
   id: HudPanelId;

@@ -237,3 +237,55 @@ it("never lets one stuck or unavailable teammate hold the office conversation", 
   expect(skipped[0].content).toContain("agent unavailable for 2 minutes; skipped this turn");
   expect(submissions).toHaveLength(before);
 });
+
+it("answers a store question as the owning NammaOps department agent, like voice", async () => {
+  const { db, runtime, submissions } = setup();
+  for (const [seatId, label] of [
+    ["carol", "Carol"],
+    ["dave", "Dave"],
+  ])
+    db.saveSeat({
+      seatId,
+      label,
+      roleTitle: "",
+      assigned: true,
+      binding: { agentId: seatId, sessionKey: `agent:${seatId}:main`, revision: 1 },
+    });
+  type Query = { call: { id: string; name: string }; actionId: string; args: unknown };
+  const queries: Query[] = [];
+  const departments: Record<string, { department: string }> = {
+    Carol: { department: "sales" },
+    Dave: { department: "procurement" },
+  };
+  const voice = {
+    department: (label: string) => departments[label] ?? null,
+    query: async (input: Query) => {
+      queries.push(input);
+      return {
+        status: "completed",
+        source: "fixture",
+        workflow_id: "wf_1",
+        consulted: ["inventory"],
+        facts: ["Rice: about 40 expected to sell in the next 7 days."],
+        recommendations: ["Order 50 Rice."],
+        limitations: [],
+        approvals: [],
+        clarification_questions: [],
+      };
+    },
+  };
+  Object.assign(runtime, {
+    nammaops: { voice, workflows: { today: () => "2026-11-01" } },
+  });
+  const group = new OfficeGroupChat(runtime);
+  opened.push(() => group.close());
+  group.send({ turnId: "biz1", message: "tell what order i have to make for today" });
+  await tick();
+  await tick();
+  expect(submissions).toHaveLength(0);
+  expect(queries[0].call.name).toBe("Dave");
+  expect(queries[0].args).toEqual({ intent: "demand_forecast" });
+  const reply = group.messages().find((m: { id: string }) => m.id.endsWith("_business"));
+  expect(reply?.actorName).toBe("Dave");
+  expect(reply?.content).toContain("Order 50 Rice.");
+});

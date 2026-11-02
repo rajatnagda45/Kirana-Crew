@@ -18,6 +18,13 @@ export interface VoiceAgentContext {
     activeTaskIds: string[];
   };
   seatId: string;
+  /** NammaOps department this voice seat speaks for (server-provided, presentation only). */
+  department?: {
+    department: string;
+    title: string;
+    colleagues: Array<{ name: string; department: string; title: string }>;
+    background: Array<{ department: string; title: string }>;
+  };
   /** Roster position chosen by the server; selects a distinct prebuilt voice. */
   voiceIndex?: number;
   name: string;
