@@ -767,6 +767,16 @@ describe("OpenAPI contract (fixture)", () => {
 
     // Voice queries need a multipart audio upload; a JSON body is refused before any provider runs.
     expect((await call(ctx, "POST", "/api/nammaops/voice-query", {})).status).toBe(415);
+    const voices = await call(ctx, "GET", "/api/nammaops/voices");
+    expect(voices.status).toBe(200);
+    expect(new Set(Object.values(voices.body.voices).map((v: Any) => v.voice)).size).toBe(5);
+    expect(
+      (await call(ctx, "POST", "/api/nammaops/voices", { voices: { sales: "Nobody" } })).status,
+    ).toBe(400);
+    expect(
+      (await call(ctx, "POST", "/api/nammaops/voices", { voices: { sales: "Tarika" } })).body.voices
+        .sales,
+    ).toMatchObject({ voice: "Tarika", custom: true });
     const access = await call(ctx, "POST", "/api/nammaops/access-check", {});
     expect(access.status).toBe(200);
     expect(access.body.access_check.passed).toBe(true);

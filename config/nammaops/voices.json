@@ -1,0 +1,10 @@
+{
+  "_note": "Default Gnani Timbre voice per specialist. The owner can override these in Settings (stored in the database, not here). Voices must be valid for the configured model (timbre-v3.0).",
+  "roles": {
+    "manager": { "name": "Alice", "voice": "Shivani" },
+    "inventory": { "name": "Bob", "voice": "Avinash" },
+    "sales": { "name": "Carol", "voice": "Lakshmi" },
+    "procurement": { "name": "Dave", "voice": "Prakash" },
+    "finance": { "name": "Erin", "voice": "Kalpana" }
+  }
+}

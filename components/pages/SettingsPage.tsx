@@ -4,6 +4,7 @@ import { Settings, Mic, Database, Wifi, AlertCircle, CheckCircle } from "lucide-
 import { fetchNammaOps } from "@/lib/hooks/useNammaOps";
 import { runtimeRequest, useStudio } from "@/lib/store";
 import OwnerPinCard from "@/components/settings/OwnerPinCard";
+import AgentVoicesCard from "@/components/settings/AgentVoicesCard";
 
 const s = {
   page: {
@@ -367,6 +368,7 @@ export default function SettingsPage() {
 
       {/* Owner PIN */}
       <OwnerPinCard />
+      <AgentVoicesCard />
 
       {/* Runtime info */}
       <div style={s.card}>
