@@ -33,7 +33,7 @@ it("uses one goal, optional context, and displays a mutation as an unexecuted pr
     path === "composer" && body ? { task } : { tasks: [] },
   );
   render(<TaskComposer />);
-  fireEvent.change(screen.getByLabelText("Team goal"), { target: { value: task.input.goal } });
+  fireEvent.change(screen.getByLabelText("Store goal"), { target: { value: task.input.goal } });
   fireEvent.click(screen.getByText("Start task"));
   await screen.findByText("Record explicit approval");
   expect(screen.getByText(/not executed/)).toBeTruthy();
@@ -127,14 +127,14 @@ it("recovers history on runtime refresh without clearing a submission error", as
   rerender(<TaskComposer refreshToken={1} />);
   await waitFor(() => expect(screen.queryByText(/History offline/)).toBeNull());
   request.mockRejectedValueOnce(new Error("Submission rejected"));
-  fireEvent.change(screen.getByLabelText("Team goal"), { target: { value: "Prepare a report" } });
+  fireEvent.change(screen.getByLabelText("Store goal"), { target: { value: "Prepare a report" } });
   fireEvent.click(screen.getByText("Start task"));
   await screen.findByText("Submission rejected");
   request.mockResolvedValue({ tasks: [] });
   rerender(<TaskComposer refreshToken={2} />);
   await waitFor(() => expect(request).toHaveBeenCalledTimes(4));
   expect(screen.getByText("Submission rejected")).toBeTruthy();
-  expect((screen.getByLabelText("Team goal") as HTMLTextAreaElement).value).toBe(
+  expect((screen.getByLabelText("Store goal") as HTMLTextAreaElement).value).toBe(
     "Prepare a report",
   );
 });
@@ -149,7 +149,7 @@ it("locks draft inputs during submission and reuses the same identity on retry",
       : Promise.resolve({ tasks: [] }),
   );
   render(<TaskComposer />);
-  const goal = screen.getByLabelText("Team goal") as HTMLTextAreaElement;
+  const goal = screen.getByLabelText("Store goal") as HTMLTextAreaElement;
   fireEvent.change(goal, { target: { value: "Prepare a report" } });
   fireEvent.click(screen.getByText("Start task"));
   expect(goal.closest("fieldset")?.disabled).toBe(true);

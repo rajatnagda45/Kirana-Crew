@@ -509,7 +509,7 @@ canvas {
   }
 }
 
-/* ===== KiranaStore Design System (from Lovable ZIP) ===== */
+/* ===== KiranaStore Design System ===== */
 :root {
   --kirana-radius: 0.75rem;
   --kirana-background: oklch(0.13 0.008 60);

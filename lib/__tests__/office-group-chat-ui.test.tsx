@@ -48,7 +48,7 @@ it("sends Text to the office channel without selecting the Voice agent", async (
     path === "office-group" ? { messages: [], message: { id: "group_user_turn" } } : {},
   );
   render(<ChatPanel messages={[]} tasks={[]} isConnected sessions={[]} />);
-  expect(screen.getByText("Office group")).toBeTruthy();
+  expect(screen.getByText("Store crew")).toBeTruthy();
   expect(screen.queryByLabelText("Conversation agent")).toBeNull();
   fireEvent.change(screen.getByPlaceholderText("Type a message..."), {
     target: { value: "Investigate the pressure" },

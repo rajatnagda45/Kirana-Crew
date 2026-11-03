@@ -103,16 +103,16 @@ it("retains the group turn ID after uncertain failure even when switching conver
     return {};
   });
   render(<ChatCenter />);
-  fireEvent.change(screen.getByLabelText("Message Office Group"), {
+  fireEvent.change(screen.getByLabelText("Message Store Crew"), {
     target: { value: "Investigate" },
   });
   fireEvent.click(screen.getByRole("button", { name: "Send message" }));
   await screen.findByText("Lost acknowledgement");
   fireEvent.click(screen.getByRole("button", { name: /Bob.*Available/ }));
-  fireEvent.click(screen.getByRole("button", { name: /Office Group.*Shared team/ }));
+  fireEvent.click(screen.getByRole("button", { name: /Store Crew.*Shared team/ }));
   fireEvent.click(screen.getByRole("button", { name: "Send message" }));
   await waitFor(() =>
-    expect((screen.getByLabelText("Message Office Group") as HTMLTextAreaElement).value).toBe(""),
+    expect((screen.getByLabelText("Message Store Crew") as HTMLTextAreaElement).value).toBe(""),
   );
   const sends = fixture.request.mock.calls.filter((call) => call[1]);
   expect(sends).toHaveLength(2);
