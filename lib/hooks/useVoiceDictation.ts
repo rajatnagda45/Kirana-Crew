@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { startWavRecording, type WavRecording } from "@/lib/voice/wavRecorder";
 
 // ── Minimal SpeechRecognition typings (not in older TS dom libs) ──────────────
 interface SpeechRecognitionResultItem {
@@ -61,7 +62,8 @@ interface UseDictationOptions {
  * This is intentionally separate from the Gemini voice-call system
  * (VoiceProvider / GeminiVoiceClient) which drives the Live Store assistant.
  */
-export function useVoiceDictation({ onFinalTranscript, lang = "en-IN" }: UseDictationOptions) {
+/** Browser Web Speech dictation: last-resort fallback when no server speech-to-text is configured. */
+function useBrowserDictation({ onFinalTranscript, lang = "en-IN" }: UseDictationOptions) {
   const [status, setStatus] = useState<DictationStatus>("idle");
   const [interimTranscript, setInterimTranscript] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -197,5 +199,98 @@ export function useVoiceDictation({ onFinalTranscript, lang = "en-IN" }: UseDict
     error,
     start,
     stop,
+  };
+}
+
+/**
+ * Dictation for the chat composer. Gnani Prisma (server speech-to-text, with Gemini only as the
+ * server's outage fallback) is primary: tap to record, tap again to transcribe. When the server
+ * has no speech-to-text configured, it falls back to the browser's Web Speech recogniser. The
+ * transcript is placed in the composer; nothing is sent automatically.
+ */
+export function useVoiceDictation({ onFinalTranscript, lang = "en-IN" }: UseDictationOptions) {
+  const browser = useBrowserDictation({ onFinalTranscript, lang });
+  const [engine, setEngine] = useState<"gnani" | "browser">("gnani");
+  const [status, setStatus] = useState<DictationStatus>("idle");
+  const [error, setError] = useState<string | null>(null);
+  const [provider, setProvider] = useState<string | null>(null);
+  const recording = useRef<WavRecording | null>(null);
+  const finalCb = useRef(onFinalTranscript);
+  useEffect(() => {
+    finalCb.current = onFinalTranscript;
+  });
+
+  const micAvailable = typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia;
+  const useBrowser = engine === "browser" || !micAvailable;
+
+  const stop = useCallback(async () => {
+    if (useBrowser) return browser.stop();
+    const current = recording.current;
+    if (!current) return;
+    recording.current = null;
+    setStatus("processing");
+    try {
+      const audio = await current.stop();
+      const form = new FormData();
+      form.set("audio", audio, "speech.wav");
+      form.set("language", lang);
+      const res = await fetch("/api/tasks/voice/transcribe", { method: "POST", body: form });
+      const body = await res.json().catch(() => ({}));
+      if (res.status === 503) {
+        // No server speech-to-text: use the browser recogniser from now on.
+        setEngine("browser");
+        setStatus("idle");
+        setError("Gnani speech-to-text is not configured; using the browser recogniser.");
+        return;
+      }
+      if (!res.ok) throw new Error(body.error || `Transcription failed (${res.status}).`);
+      const text = String(body.transcription?.transcript ?? "").trim();
+      setProvider(body.transcription?.provider ?? null);
+      if (!text) {
+        setStatus("idle");
+        setError("No speech detected. Tap the mic and speak clearly.");
+        return;
+      }
+      finalCb.current(text);
+      setStatus("idle");
+      setError(null);
+    } catch (e) {
+      setStatus("error");
+      setError(e instanceof Error ? e.message : "Voice input failed.");
+    }
+  }, [useBrowser, browser, lang]);
+
+  const start = useCallback(async () => {
+    if (useBrowser) return browser.start();
+    if (recording.current) return;
+    setError(null);
+    try {
+      recording.current = await startWavRecording(() => void stop());
+      setStatus("listening");
+    } catch (e) {
+      const name = (e as DOMException)?.name;
+      setStatus(name === "NotAllowedError" ? "denied" : "error");
+      setError(
+        name === "NotAllowedError"
+          ? "Microphone access denied. Allow mic in browser site settings."
+          : "Could not start the microphone.",
+      );
+    }
+  }, [useBrowser, browser, stop]);
+
+  useEffect(() => () => recording.current?.cancel(), []);
+
+  if (useBrowser) return { ...browser, engine: "browser" as const, provider: null };
+  return {
+    supported: micAvailable,
+    status,
+    isListening: status === "listening",
+    // Never put placeholder text here: the composer sends interim text as part of the message.
+    interimTranscript: "",
+    error,
+    start: () => void start(),
+    stop: () => void stop(),
+    engine: "gnani" as const,
+    provider,
   };
 }

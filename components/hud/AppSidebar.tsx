@@ -18,25 +18,15 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  Truck,
+  HandCoins,
+  Receipt,
+  ScrollText,
 } from "lucide-react";
+import Link from "next/link";
+import { viewPath, type AppView } from "@/lib/app-views";
 
-export type AppView =
-  | "overview"
-  | "store"
-  | "chat"
-  | "tasks"
-  | "workforce"
-  | "workflows"
-  | "inventory"
-  | "procurement"
-  | "sales"
-  | "finance"
-  | "customers"
-  | "analytics"
-  | "reviews"
-  | "activity"
-  | "integrations"
-  | "settings";
+export type { AppView } from "@/lib/app-views";
 
 interface NavItem {
   view: AppView;
@@ -74,12 +64,16 @@ const NAV_GROUPS: NavGroup[] = [
       { view: "sales", label: "Sales & Billing", icon: BarChart3 },
       { view: "finance", label: "Finance", icon: DollarSign },
       { view: "customers", label: "Customers", icon: UserCheck },
+      { view: "suppliers", label: "Suppliers & Payables", icon: Truck },
+      { view: "credit", label: "Credit / Udhaar", icon: HandCoins },
+      { view: "stock-ledger", label: "Stock Ledger & Expiry", icon: ScrollText },
     ],
   },
   {
     label: "Business Intelligence",
     items: [
       { view: "analytics", label: "Analytics", icon: TrendingUp },
+      { view: "gst", label: "GST & Tax", icon: Receipt },
       { view: "reviews", label: "Reviews", icon: Star },
       { view: "activity", label: "Activity Logs", icon: Activity },
     ],
@@ -191,10 +185,16 @@ export default function AppSidebar({
                     : 0;
 
               return (
-                <button
+                <Link
                   key={item.view}
-                  type="button"
-                  onClick={() => onNavigate(item.view)}
+                  href={viewPath(item.view)}
+                  aria-current={active ? "page" : undefined}
+                  onClick={(e) => {
+                    // Plain clicks go through the shell; modified clicks open a new tab as usual.
+                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+                    e.preventDefault();
+                    onNavigate(item.view);
+                  }}
                   title={collapsed ? item.label : undefined}
                   style={{
                     display: "flex",
@@ -204,6 +204,8 @@ export default function AppSidebar({
                     padding: collapsed ? "8px 0" : "7px 14px",
                     justifyContent: collapsed ? "center" : "flex-start",
                     border: "none",
+                    textDecoration: "none",
+                    boxSizing: "border-box",
                     background: active
                       ? "color-mix(in oklab,var(--kirana-primary) 14%,transparent)"
                       : "transparent",
@@ -221,12 +223,12 @@ export default function AppSidebar({
                   }}
                   onMouseEnter={(e) => {
                     if (!active)
-                      (e.currentTarget as HTMLButtonElement).style.background =
+                      (e.currentTarget as HTMLAnchorElement).style.background =
                         "color-mix(in oklab,var(--kirana-foreground) 6%,transparent)";
                   }}
                   onMouseLeave={(e) => {
                     if (!active)
-                      (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                      (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
                   }}
                 >
                   <item.icon size={15} style={{ flexShrink: 0 }} />
@@ -263,7 +265,7 @@ export default function AppSidebar({
                       }}
                     />
                   )}
-                </button>
+                </Link>
               );
             })}
           </div>

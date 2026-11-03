@@ -12,6 +12,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { fetchNammaOps, type WorkflowView, useNammaOpsApprovals } from "@/lib/hooks/useNammaOps";
+import { DashboardView } from "@/components/dashboard/kit";
 import { toast } from "sonner";
 
 const s = {
@@ -88,9 +89,10 @@ function WorkflowRunner({
     setLoading(true);
     setResult(null);
     try {
-      const payload: Record<string, unknown> = { action };
+      // The workflow API takes a validated intent ({ action, products? }), not a bare action.
+      const intent: Record<string, unknown> = { action };
       if (argDef && argVal) {
-        payload[argDef.key] =
+        intent[argDef.key] =
           argDef.key === "products"
             ? argVal
                 .split(",")
@@ -98,7 +100,7 @@ function WorkflowRunner({
                 .filter(Boolean)
             : argVal;
       }
-      const r = await fetchNammaOps<{ workflow: WorkflowView }>("/workflows", payload);
+      const r = await fetchNammaOps<{ workflow: WorkflowView }>("/workflows", { intent });
       const wfId = r.workflow.id;
       for (let i = 0; i < 60; i++) {
         await new Promise((res) => setTimeout(res, 1000));
@@ -390,7 +392,25 @@ function ResultDisplay({ action, result }: { action: string; result: Record<stri
   );
 }
 
+/** ERPNext Buying dashboard above the existing supplier, reorder and owner-approval workflows. */
 export default function ProcurementPage() {
+  return (
+    <DashboardView
+      name="buying"
+      title="Procurement"
+      subtitle="Purchases, top suppliers, open orders and quotations (ERPNext Buying dashboard)"
+      charts={["purchase_trend", "top_suppliers"]}
+      tables={[
+        { id: "open_purchase_orders", title: "Purchase Orders to Receive" },
+        { id: "supplier_quotations", title: "Supplier Quotations" },
+      ]}
+    >
+      <ProcurementWorkflows />
+    </DashboardView>
+  );
+}
+
+function ProcurementWorkflows() {
   const { approvals, decide, reload: reloadApprovals } = useNammaOpsApprovals();
   const [pin, setPin] = useState("");
   const [approvingId, setApprovingId] = useState<string | null>(null);
@@ -409,14 +429,7 @@ export default function ProcurementPage() {
   };
 
   return (
-    <div style={s.page}>
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={s.title}>Suppliers & Procurement</h1>
-        <p style={{ fontSize: 13, color: "var(--kirana-muted-foreground)", margin: 0 }}>
-          Find suppliers, compare quotations, and manage purchase orders
-        </p>
-      </div>
-
+    <div>
       {/* Pending approvals */}
       {pending.length > 0 && (
         <div style={{ ...s.card, borderColor: "color-mix(in oklab,orange 40%,transparent)" }}>

@@ -712,6 +712,12 @@ describe("OpenAPI contract (fixture)", () => {
     expect((await call(ctx, "POST", "/api/nammaops/setup", {})).status).toBe(200);
     for (const path of ["workforce", "binding", "dashboard", "workflows", "approvals"])
       expect((await call(ctx, "GET", `/api/nammaops/${path}`)).status).toBe(200);
+    expect((await call(ctx, "GET", "/api/nammaops/dashboards")).status).toBe(200);
+    for (const name of ["stock", "selling", "receivables", "gst"])
+      expect((await call(ctx, "GET", `/api/nammaops/dashboards/${name}`)).status).toBe(200);
+    expect((await call(ctx, "GET", "/api/nammaops/dashboards/stock?from=bad")).status).toBe(400);
+    expect((await call(ctx, "GET", "/api/nammaops/dashboards/nope")).status).toBe(404);
+    expect((await call(fresh, "GET", "/api/nammaops/dashboards/stock")).status).toBe(409);
 
     const started = await call(ctx, "POST", "/api/nammaops/workflows", { text: W1 });
     expect(started.status).toBe(202);
@@ -759,6 +765,24 @@ describe("OpenAPI contract (fixture)", () => {
       (await call(ctx, "POST", "/api/nammaops/approvals/own_missing/reject", { pin: PIN })).status,
     ).toBe(404);
 
+    // Voice queries need a multipart audio upload; a JSON body is refused before any provider runs.
+    expect((await call(ctx, "POST", "/api/nammaops/voice-query", {})).status).toBe(415);
+    const access = await call(ctx, "POST", "/api/nammaops/access-check", {});
+    expect(access.status).toBe(200);
+    expect(access.body.access_check.passed).toBe(true);
+    expect((await call(ctx, "GET", "/api/nammaops/owner-pin")).status).toBe(200);
+    expect(
+      (await call(ctx, "POST", "/api/nammaops/owner-pin", { current_pin: PIN, new_pin: "12" }))
+        .status,
+    ).toBe(400);
+    expect(
+      (await call(ctx, "POST", "/api/nammaops/owner-pin", { current_pin: "0000", new_pin: "5678" }))
+        .status,
+    ).toBe(403);
+    expect(
+      (await call(ctx, "POST", "/api/nammaops/owner-pin", { current_pin: PIN, new_pin: PIN }))
+        .status,
+    ).toBe(200);
     expect((await call(ctx, "GET", "/api/nammaops/nope")).status).toBe(404);
     expect((await call(ctx, "DELETE", "/api/nammaops/workflows")).status).toBe(405);
 

@@ -526,6 +526,16 @@ canvas {
   --kirana-destructive: oklch(0.63 0.21 27);
   --kirana-success: oklch(0.74 0.17 150);
   --kirana-border: oklch(0.28 0.015 65);
+  /* Dashboard categorical series, fixed order (dark steps; validated against the card surface
+     for lightness band, chroma, adjacent CVD ΔE >= 8.4, normal-vision ΔE >= 19.3, 3:1 contrast). */
+  --kirana-chart-1: #3987e5;
+  --kirana-chart-2: #d95926;
+  --kirana-chart-3: #199e70;
+  --kirana-chart-4: #c98500;
+  --kirana-chart-5: #d55181;
+  --kirana-chart-6: #008300;
+  --kirana-chart-other: oklch(0.55 0.01 70);
+  --kirana-chart-grid: oklch(0.26 0.012 65);
   --kirana-glow:
     0 0 0 1px color-mix(in oklab, var(--kirana-primary) 70%, transparent),
     0 0 24px -4px color-mix(in oklab, var(--kirana-primary) 60%, transparent);

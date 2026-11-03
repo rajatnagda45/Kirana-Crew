@@ -12,6 +12,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useNammaOpsBinding, fetchNammaOps } from "@/lib/hooks/useNammaOps";
+import { toast } from "sonner";
 import { runtimeRequest, useStudio } from "@/lib/store";
 
 const s = {
@@ -255,13 +256,33 @@ function IntegrationCard({
 
 export default function IntegrationsPage() {
   const { state } = useStudio();
-  const { binding, loading: bindingLoading } = useNammaOpsBinding();
+  const { binding, loading: bindingLoading, reload: reloadBinding } = useNammaOpsBinding();
   const [dashboard, setDashboard] = useState<{ data_source?: string } | null>(null);
   const [services, setServices] = useState<Array<{ id: string; name: string; status: string }>>([]);
+  const [settingUp, setSettingUp] = useState(false);
+
+  // Discovery and grants happen only through the existing setup path (Phase C review + grants).
+  const setupWorkforce = async () => {
+    setSettingUp(true);
+    try {
+      const { setup } = await fetchNammaOps<{
+        setup: { blockers: string[]; disabled: Array<{ business_capability: string }> };
+      }>("/setup", {});
+      if (setup.blockers.length)
+        toast.error(`Setup finished with blockers: ${setup.blockers.join("; ")}`);
+      else toast.success("Workforce set up: ERP capabilities discovered, reviewed and granted.");
+      await reloadBinding();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Setup failed");
+    } finally {
+      setSettingUp(false);
+    }
+  };
 
   useEffect(() => {
-    fetchNammaOps<{ dashboard: { data_source?: string } }>("/dashboard")
-      .then((r) => setDashboard(r.dashboard))
+    // GET /dashboard returns data_source at the top level.
+    fetchNammaOps<{ data_source?: string }>("/dashboard")
+      .then((r) => setDashboard({ data_source: r.data_source }))
       .catch(() => {});
     runtimeRequest<{ services: typeof services }>("services")
       .then((r) => setServices(r.services ?? []))
@@ -276,11 +297,42 @@ export default function IntegrationsPage() {
 
   return (
     <div style={s.page}>
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={s.title}>Integrations</h1>
-        <p style={{ fontSize: 13, color: "var(--kirana-muted-foreground)", margin: 0 }}>
-          External service connections and API configuration
-        </p>
+      <div
+        style={{
+          marginBottom: 24,
+          display: "flex",
+          justifyContent: "space-between",
+          gap: 12,
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+        }}
+      >
+        <div>
+          <h1 style={s.title}>Integrations</h1>
+          <p style={{ fontSize: 13, color: "var(--kirana-muted-foreground)", margin: 0 }}>
+            External service connections and API configuration
+          </p>
+        </div>
+        {!bindingLoading && availableCapabilities < totalCapabilities && (
+          <button
+            type="button"
+            disabled={settingUp}
+            onClick={() => void setupWorkforce()}
+            title="Discover ERP tools, review them and grant each agent its capabilities (POST /api/nammaops/setup)"
+            style={{
+              padding: "8px 14px",
+              borderRadius: 9,
+              border: "none",
+              background: "var(--kirana-primary)",
+              color: "var(--kirana-primary-foreground)",
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: settingUp ? "wait" : "pointer",
+            }}
+          >
+            {settingUp ? "Setting up…" : "Set up workforce"}
+          </button>
+        )}
       </div>
 
       {/* Summary */}

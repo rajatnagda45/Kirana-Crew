@@ -10,7 +10,7 @@ const securityHeaders = [
       "img-src 'self' data: blob:",
       "font-src 'self'",
       "connect-src 'self' wss://generativelanguage.googleapis.com",
-      "media-src 'self'",
+      "media-src 'self' blob:",
       "frame-ancestors 'none'",
     ].join("; "),
   },

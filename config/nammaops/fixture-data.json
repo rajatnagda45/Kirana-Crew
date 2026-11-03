@@ -1,5 +1,5 @@
 {
-  "_note": "TEST FIXTURE. Synthetic data shaped like ERPNext records. Not real business data.",
+  "_note": "TEST FIXTURE. Synthetic data shaped like ERPNext records for an Indian kirana and wholesale store (~40 items). Not real business data.",
   "company": "Namma Kirana (fixture)",
   "items": [
     {
@@ -64,6 +64,303 @@
       "reorder_level": 5,
       "reorder_qty": 10,
       "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "ATTA-5KG",
+      "item_name": "Aashirvaad Atta 5kg",
+      "aliases": [],
+      "stock_uom": "Bag",
+      "reorder_level": 8,
+      "reorder_qty": 20,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "BESAN-500",
+      "item_name": "Besan 500g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 10,
+      "reorder_qty": 30,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "RAVA-1KG",
+      "item_name": "Bombay Rava 1kg",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 10,
+      "reorder_qty": 30,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "POHA-500",
+      "item_name": "Thick Poha 500g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 10,
+      "reorder_qty": 30,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "SALT-1KG",
+      "item_name": "Iodised Salt 1kg",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 15,
+      "reorder_qty": 40,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "JAGGERY-1KG",
+      "item_name": "Jaggery 1kg",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 8,
+      "reorder_qty": 20,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "MOONG-1KG",
+      "item_name": "Moong Whole 1kg",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 6,
+      "reorder_qty": 20,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "CHANA-1KG",
+      "item_name": "Kabuli Chana 1kg",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 6,
+      "reorder_qty": 20,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "RAJMA-500",
+      "item_name": "Rajma 500g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 6,
+      "reorder_qty": 20,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "TURMERIC-100",
+      "item_name": "Turmeric Powder 100g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 10,
+      "reorder_qty": 30,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "CHILLI-100",
+      "item_name": "Chilli Powder 100g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 10,
+      "reorder_qty": 30,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "JEERA-100",
+      "item_name": "Cumin Seeds 100g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 8,
+      "reorder_qty": 24,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "MASALA-50",
+      "item_name": "Garam Masala 50g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 8,
+      "reorder_qty": 24,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "TEA-250",
+      "item_name": "Assam Tea 250g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 8,
+      "reorder_qty": 24,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "COFFEE-200",
+      "item_name": "Filter Coffee 200g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 6,
+      "reorder_qty": 18,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "COLA-750",
+      "item_name": "Cola 750ml",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 12,
+      "reorder_qty": 36,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "BISCUIT-250",
+      "item_name": "Glucose Biscuits 250g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 20,
+      "reorder_qty": 60,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "NAMKEEN-200",
+      "item_name": "Bhujia Namkeen 200g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 12,
+      "reorder_qty": 36,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "CHOCO-40",
+      "item_name": "Five Star Chocolate 40g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 20,
+      "reorder_qty": 60,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "NOODLES-70",
+      "item_name": "Instant Noodles 70g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 30,
+      "reorder_qty": 96,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "BREAD-400",
+      "item_name": "Sandwich Bread 400g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 8,
+      "reorder_qty": 24,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "CURD-400",
+      "item_name": "Fresh Curd 400g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 8,
+      "reorder_qty": 24,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "BUTTER-100",
+      "item_name": "Table Butter 100g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 6,
+      "reorder_qty": 18,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "EGGS-6",
+      "item_name": "Eggs 6 pack",
+      "aliases": [],
+      "stock_uom": "Tray",
+      "reorder_level": 10,
+      "reorder_qty": 30,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "SOAP-100",
+      "item_name": "Bath Soap 100g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 12,
+      "reorder_qty": 48,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "PASTE-150",
+      "item_name": "Toothpaste 150g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 8,
+      "reorder_qty": 24,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "SHAMPOO-180",
+      "item_name": "Shampoo 180ml",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 6,
+      "reorder_qty": 18,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "DETERG-1KG",
+      "item_name": "Detergent Powder 1kg",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 8,
+      "reorder_qty": 24,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "DISHBAR-200",
+      "item_name": "Dishwash Bar 200g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 15,
+      "reorder_qty": 48,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "AGARBATTI",
+      "item_name": "Agarbatti Pack",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 10,
+      "reorder_qty": 30,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "MATCH-10",
+      "item_name": "Matchbox 10 pack",
+      "aliases": [],
+      "stock_uom": "Pack",
+      "reorder_level": 15,
+      "reorder_qty": 50,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "HONEY-250",
+      "item_name": "Honey 250g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 5,
+      "reorder_qty": 15,
+      "warehouse": "Stores - NK"
+    },
+    {
+      "item_code": "PICKLE-300",
+      "item_name": "Mango Pickle 300g",
+      "aliases": [],
+      "stock_uom": "Nos",
+      "reorder_level": 5,
+      "reorder_qty": 15,
+      "warehouse": "Stores - NK"
     }
   ],
   "warehouses": [
@@ -114,6 +411,221 @@
       "item_code": "GHEE-200",
       "warehouse": "Stores - NK",
       "actual_qty": 7
+    },
+    {
+      "item_code": "ATTA-5KG",
+      "warehouse": "Stores - NK",
+      "actual_qty": 22
+    },
+    {
+      "item_code": "ATTA-5KG",
+      "warehouse": "Back Room - NK",
+      "actual_qty": 10
+    },
+    {
+      "item_code": "BESAN-500",
+      "warehouse": "Stores - NK",
+      "actual_qty": 28
+    },
+    {
+      "item_code": "RAVA-1KG",
+      "warehouse": "Stores - NK",
+      "actual_qty": 26
+    },
+    {
+      "item_code": "RAVA-1KG",
+      "warehouse": "Back Room - NK",
+      "actual_qty": 12
+    },
+    {
+      "item_code": "POHA-500",
+      "warehouse": "Stores - NK",
+      "actual_qty": 31
+    },
+    {
+      "item_code": "SALT-1KG",
+      "warehouse": "Stores - NK",
+      "actual_qty": 48
+    },
+    {
+      "item_code": "SALT-1KG",
+      "warehouse": "Back Room - NK",
+      "actual_qty": 24
+    },
+    {
+      "item_code": "JAGGERY-1KG",
+      "warehouse": "Stores - NK",
+      "actual_qty": 17
+    },
+    {
+      "item_code": "MOONG-1KG",
+      "warehouse": "Stores - NK",
+      "actual_qty": 15
+    },
+    {
+      "item_code": "CHANA-1KG",
+      "warehouse": "Stores - NK",
+      "actual_qty": 14
+    },
+    {
+      "item_code": "CHANA-1KG",
+      "warehouse": "Back Room - NK",
+      "actual_qty": 6
+    },
+    {
+      "item_code": "RAJMA-500",
+      "warehouse": "Stores - NK",
+      "actual_qty": 12
+    },
+    {
+      "item_code": "TURMERIC-100",
+      "warehouse": "Stores - NK",
+      "actual_qty": 24
+    },
+    {
+      "item_code": "CHILLI-100",
+      "warehouse": "Stores - NK",
+      "actual_qty": 27
+    },
+    {
+      "item_code": "JEERA-100",
+      "warehouse": "Stores - NK",
+      "actual_qty": 19
+    },
+    {
+      "item_code": "MASALA-50",
+      "warehouse": "Stores - NK",
+      "actual_qty": 16
+    },
+    {
+      "item_code": "TEA-250",
+      "warehouse": "Stores - NK",
+      "actual_qty": 21
+    },
+    {
+      "item_code": "TEA-250",
+      "warehouse": "Back Room - NK",
+      "actual_qty": 6
+    },
+    {
+      "item_code": "COFFEE-200",
+      "warehouse": "Stores - NK",
+      "actual_qty": 13
+    },
+    {
+      "item_code": "COLA-750",
+      "warehouse": "Stores - NK",
+      "actual_qty": 30
+    },
+    {
+      "item_code": "COLA-750",
+      "warehouse": "Back Room - NK",
+      "actual_qty": 24
+    },
+    {
+      "item_code": "BISCUIT-250",
+      "warehouse": "Stores - NK",
+      "actual_qty": 46
+    },
+    {
+      "item_code": "BISCUIT-250",
+      "warehouse": "Back Room - NK",
+      "actual_qty": 36
+    },
+    {
+      "item_code": "NAMKEEN-200",
+      "warehouse": "Stores - NK",
+      "actual_qty": 25
+    },
+    {
+      "item_code": "CHOCO-40",
+      "warehouse": "Stores - NK",
+      "actual_qty": 44
+    },
+    {
+      "item_code": "NOODLES-70",
+      "warehouse": "Stores - NK",
+      "actual_qty": 64
+    },
+    {
+      "item_code": "NOODLES-70",
+      "warehouse": "Back Room - NK",
+      "actual_qty": 48
+    },
+    {
+      "item_code": "BREAD-400",
+      "warehouse": "Stores - NK",
+      "actual_qty": 12
+    },
+    {
+      "item_code": "CURD-400",
+      "warehouse": "Stores - NK",
+      "actual_qty": 14
+    },
+    {
+      "item_code": "BUTTER-100",
+      "warehouse": "Stores - NK",
+      "actual_qty": 11
+    },
+    {
+      "item_code": "EGGS-6",
+      "warehouse": "Stores - NK",
+      "actual_qty": 18
+    },
+    {
+      "item_code": "SOAP-100",
+      "warehouse": "Stores - NK",
+      "actual_qty": 35
+    },
+    {
+      "item_code": "SOAP-100",
+      "warehouse": "Back Room - NK",
+      "actual_qty": 24
+    },
+    {
+      "item_code": "PASTE-150",
+      "warehouse": "Stores - NK",
+      "actual_qty": 19
+    },
+    {
+      "item_code": "SHAMPOO-180",
+      "warehouse": "Stores - NK",
+      "actual_qty": 11
+    },
+    {
+      "item_code": "DETERG-1KG",
+      "warehouse": "Stores - NK",
+      "actual_qty": 20
+    },
+    {
+      "item_code": "DETERG-1KG",
+      "warehouse": "Back Room - NK",
+      "actual_qty": 12
+    },
+    {
+      "item_code": "DISHBAR-200",
+      "warehouse": "Stores - NK",
+      "actual_qty": 33
+    },
+    {
+      "item_code": "AGARBATTI",
+      "warehouse": "Stores - NK",
+      "actual_qty": 23
+    },
+    {
+      "item_code": "MATCH-10",
+      "warehouse": "Stores - NK",
+      "actual_qty": 40
+    },
+    {
+      "item_code": "HONEY-250",
+      "warehouse": "Stores - NK",
+      "actual_qty": 10
+    },
+    {
+      "item_code": "PICKLE-300",
+      "warehouse": "Stores - NK",
+      "actual_qty": 9
     }
   ],
   "stock_ledger": [
@@ -136,16 +648,49 @@
     {
       "name": "Bengaluru Wholesale Traders",
       "lead_time_days": 1,
-      "on_time_rate": 0.95
+      "on_time_rate": 0.95,
+      "state": "Karnataka",
+      "gstin": "29AABCB1111E1Z1",
+      "payment_terms_days": 15
     },
     {
       "name": "Mysuru Agro Supplies",
       "lead_time_days": 3,
-      "on_time_rate": 0.9
+      "on_time_rate": 0.9,
+      "state": "Karnataka",
+      "gstin": "29AACCM2222F1Z2",
+      "payment_terms_days": 30
     },
     {
       "name": "City Dairy Distributors",
-      "lead_time_days": 1
+      "lead_time_days": 1,
+      "state": "Karnataka",
+      "gstin": "29AADCC3333G1Z3",
+      "payment_terms_days": 7
+    },
+    {
+      "name": "Hubballi Spice House",
+      "lead_time_days": 4,
+      "on_time_rate": 0.82,
+      "state": "Karnataka",
+      "gstin": "29AAECH4444H1Z4",
+      "payment_terms_days": 30
+    },
+    {
+      "name": "Chennai FMCG Distributors",
+      "lead_time_days": 5,
+      "on_time_rate": 0.88,
+      "state": "Tamil Nadu",
+      "gstin": "33AAFCC5555J1Z5",
+      "payment_terms_days": 45
+    },
+    {
+      "name": "Karnataka Bakery Supplies",
+      "lead_time_days": 1,
+      "on_time_rate": 0.97,
+      "state": "Karnataka",
+      "gstin": "29AAGCK6666K1Z6",
+      "payment_terms_days": 7
     }
   ],
   "supplier_quotations": [
@@ -232,10 +777,77 @@
   ],
   "customers": [
     {
-      "name": "Walk-in Customer"
+      "name": "Walk-in Customer",
+      "customer_group": "Retail",
+      "credit_limit": 0,
+      "state": "Karnataka"
     },
     {
-      "name": "Lakshmi Stores"
+      "name": "Lakshmi Stores",
+      "customer_group": "Wholesale",
+      "credit_limit": 25000,
+      "gstin": "29AAKFL1234A1Z5",
+      "state": "Karnataka",
+      "since": "2025-04-01"
+    },
+    {
+      "name": "Sri Ganesh Hotel",
+      "customer_group": "Wholesale",
+      "credit_limit": 40000,
+      "gstin": "29ABCSG4321B1Z2",
+      "state": "Karnataka",
+      "since": "2026-07-05"
+    },
+    {
+      "name": "Annapoorna Mess",
+      "customer_group": "Wholesale",
+      "credit_limit": 20000,
+      "gstin": "29AAGFA7788C1Z9",
+      "state": "Karnataka",
+      "since": "2026-09-05"
+    },
+    {
+      "name": "Green Valley School Canteen",
+      "customer_group": "Institutional",
+      "credit_limit": 30000,
+      "state": "Karnataka",
+      "since": "2026-08-08"
+    },
+    {
+      "name": "Hosur Retail Mart",
+      "customer_group": "Wholesale",
+      "credit_limit": 50000,
+      "gstin": "33AAHFH5566D1Z4",
+      "state": "Tamil Nadu",
+      "since": "2026-07-07"
+    },
+    {
+      "name": "Ravi Kumar",
+      "customer_group": "Retail",
+      "credit_limit": 3000,
+      "state": "Karnataka",
+      "since": "2026-08-05"
+    },
+    {
+      "name": "Meena Devi",
+      "customer_group": "Retail",
+      "credit_limit": 2000,
+      "state": "Karnataka",
+      "since": "2026-09-01"
+    },
+    {
+      "name": "Suresh (Flat 12B)",
+      "customer_group": "Retail",
+      "credit_limit": 5000,
+      "state": "Karnataka",
+      "since": "2026-08-08"
+    },
+    {
+      "name": "Farida Begum",
+      "customer_group": "Retail",
+      "credit_limit": 2500,
+      "state": "Karnataka",
+      "since": "2026-07-07"
     }
   ],
   "sales_invoices": [
@@ -257,7 +869,9 @@
           "qty": 10,
           "amount": 240
         }
-      ]
+      ],
+      "due_date": "2026-11-15",
+      "outstanding_amount": 1840
     },
     {
       "name": "POS-FX-0001",
@@ -308,9 +922,1179 @@
           "amount": 500
         }
       ]
+    },
+    {
+      "name": "SINV-FX-0002",
+      "posting_date": "2026-07-20",
+      "due_date": "2026-08-19",
+      "customer": "Lakshmi Stores",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 3840,
+      "outstanding_amount": 3840,
+      "items": [
+        {
+          "item_code": "PICKLE-300",
+          "qty": 20,
+          "rate": 76,
+          "amount": 1520
+        },
+        {
+          "item_code": "BREAD-400",
+          "qty": 19,
+          "rate": 40,
+          "amount": 760
+        },
+        {
+          "item_code": "CHILLI-100",
+          "qty": 26,
+          "rate": 35,
+          "amount": 910
+        },
+        {
+          "item_code": "BESAN-500",
+          "qty": 13,
+          "rate": 50,
+          "amount": 650
+        }
+      ]
+    },
+    {
+      "name": "SINV-FX-0003",
+      "posting_date": "2026-08-05",
+      "due_date": "2026-09-04",
+      "customer": "Sri Ganesh Hotel",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 5424,
+      "outstanding_amount": 0,
+      "items": [
+        {
+          "item_code": "TEA-250",
+          "qty": 18,
+          "rate": 132,
+          "amount": 2376
+        },
+        {
+          "item_code": "BUTTER-100",
+          "qty": 27,
+          "rate": 55,
+          "amount": 1485
+        },
+        {
+          "item_code": "ATTA-5KG",
+          "qty": 6,
+          "rate": 248,
+          "amount": 1488
+        },
+        {
+          "item_code": "NOODLES-70",
+          "qty": 6,
+          "rate": 12.5,
+          "amount": 75
+        }
+      ]
+    },
+    {
+      "name": "SINV-FX-0004",
+      "posting_date": "2026-09-10",
+      "due_date": "2026-10-10",
+      "customer": "Sri Ganesh Hotel",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 9533,
+      "outstanding_amount": 5719.8,
+      "items": [
+        {
+          "item_code": "PASTE-150",
+          "qty": 11,
+          "rate": 94,
+          "amount": 1034
+        },
+        {
+          "item_code": "COLA-750",
+          "qty": 35,
+          "rate": 34,
+          "amount": 1190
+        },
+        {
+          "item_code": "DETERG-1KG",
+          "qty": 29,
+          "rate": 106,
+          "amount": 3074
+        },
+        {
+          "item_code": "CHANA-1KG",
+          "qty": 7,
+          "rate": 132,
+          "amount": 924
+        },
+        {
+          "item_code": "EGGS-6",
+          "qty": 33,
+          "rate": 42,
+          "amount": 1386
+        },
+        {
+          "item_code": "NOODLES-70",
+          "qty": 14,
+          "rate": 12.5,
+          "amount": 175
+        },
+        {
+          "item_code": "BESAN-500",
+          "qty": 35,
+          "rate": 50,
+          "amount": 1750
+        }
+      ]
+    },
+    {
+      "name": "SINV-FX-0005",
+      "posting_date": "2026-10-12",
+      "due_date": "2026-11-11",
+      "customer": "Sri Ganesh Hotel",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 11456,
+      "outstanding_amount": 11456,
+      "items": [
+        {
+          "item_code": "SOAP-100",
+          "qty": 28,
+          "rate": 35,
+          "amount": 980
+        },
+        {
+          "item_code": "SHAMPOO-180",
+          "qty": 22,
+          "rate": 135,
+          "amount": 2970
+        },
+        {
+          "item_code": "MOONG-1KG",
+          "qty": 24,
+          "rate": 120,
+          "amount": 2880
+        },
+        {
+          "item_code": "COFFEE-200",
+          "qty": 16,
+          "rate": 150,
+          "amount": 2400
+        },
+        {
+          "item_code": "DETERG-1KG",
+          "qty": 21,
+          "rate": 106,
+          "amount": 2226
+        }
+      ]
+    },
+    {
+      "name": "SINV-FX-0006",
+      "posting_date": "2026-08-25",
+      "due_date": "2026-09-09",
+      "customer": "Annapoorna Mess",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 6473.5,
+      "outstanding_amount": 6473.5,
+      "items": [
+        {
+          "item_code": "MATCH-10",
+          "qty": 11,
+          "rate": 9,
+          "amount": 99
+        },
+        {
+          "item_code": "POHA-500",
+          "qty": 21,
+          "rate": 34,
+          "amount": 714
+        },
+        {
+          "item_code": "NOODLES-70",
+          "qty": 17,
+          "rate": 12.5,
+          "amount": 212.5
+        },
+        {
+          "item_code": "MOONG-1KG",
+          "qty": 23,
+          "rate": 120,
+          "amount": 2760
+        },
+        {
+          "item_code": "HONEY-250",
+          "qty": 24,
+          "rate": 112,
+          "amount": 2688
+        }
+      ]
+    },
+    {
+      "name": "SINV-FX-0007",
+      "posting_date": "2026-10-02",
+      "due_date": "2026-10-17",
+      "customer": "Annapoorna Mess",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 10193,
+      "outstanding_amount": 10193,
+      "items": [
+        {
+          "item_code": "CHANA-1KG",
+          "qty": 7,
+          "rate": 132,
+          "amount": 924
+        },
+        {
+          "item_code": "MATCH-10",
+          "qty": 26,
+          "rate": 9,
+          "amount": 234
+        },
+        {
+          "item_code": "AGARBATTI",
+          "qty": 19,
+          "rate": 26,
+          "amount": 494
+        },
+        {
+          "item_code": "BREAD-400",
+          "qty": 26,
+          "rate": 40,
+          "amount": 1040
+        },
+        {
+          "item_code": "CHILLI-100",
+          "qty": 23,
+          "rate": 35,
+          "amount": 805
+        },
+        {
+          "item_code": "ATTA-5KG",
+          "qty": 27,
+          "rate": 248,
+          "amount": 6696
+        }
+      ]
+    },
+    {
+      "name": "SINV-FX-0008",
+      "posting_date": "2026-09-01",
+      "due_date": "2026-10-16",
+      "customer": "Green Valley School Canteen",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 12293,
+      "outstanding_amount": 0,
+      "items": [
+        {
+          "item_code": "CHANA-1KG",
+          "qty": 23,
+          "rate": 132,
+          "amount": 3036
+        },
+        {
+          "item_code": "MATCH-10",
+          "qty": 25,
+          "rate": 9,
+          "amount": 225
+        },
+        {
+          "item_code": "COLA-750",
+          "qty": 11,
+          "rate": 34,
+          "amount": 374
+        },
+        {
+          "item_code": "ATTA-5KG",
+          "qty": 26,
+          "rate": 248,
+          "amount": 6448
+        },
+        {
+          "item_code": "NAMKEEN-200",
+          "qty": 26,
+          "rate": 49,
+          "amount": 1274
+        },
+        {
+          "item_code": "CURD-400",
+          "qty": 26,
+          "rate": 36,
+          "amount": 936
+        }
+      ]
+    },
+    {
+      "name": "SINV-FX-0009",
+      "posting_date": "2026-10-15",
+      "due_date": "2026-11-29",
+      "customer": "Green Valley School Canteen",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 7486.5,
+      "outstanding_amount": 7486.5,
+      "items": [
+        {
+          "item_code": "MASALA-50",
+          "qty": 21,
+          "rate": 44,
+          "amount": 924
+        },
+        {
+          "item_code": "NOODLES-70",
+          "qty": 23,
+          "rate": 12.5,
+          "amount": 287.5
+        },
+        {
+          "item_code": "COFFEE-200",
+          "qty": 29,
+          "rate": 150,
+          "amount": 4350
+        },
+        {
+          "item_code": "RAJMA-500",
+          "qty": 25,
+          "rate": 77,
+          "amount": 1925
+        }
+      ]
+    },
+    {
+      "name": "SINV-FX-0010",
+      "posting_date": "2026-09-18",
+      "due_date": "2026-10-18",
+      "customer": "Hosur Retail Mart",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 12458,
+      "outstanding_amount": 6229,
+      "items": [
+        {
+          "item_code": "BESAN-500",
+          "qty": 19,
+          "rate": 50,
+          "amount": 950
+        },
+        {
+          "item_code": "SALT-1KG",
+          "qty": 13,
+          "rate": 21,
+          "amount": 273
+        },
+        {
+          "item_code": "NAMKEEN-200",
+          "qty": 28,
+          "rate": 49,
+          "amount": 1372
+        },
+        {
+          "item_code": "RAJMA-500",
+          "qty": 35,
+          "rate": 77,
+          "amount": 2695
+        },
+        {
+          "item_code": "ATTA-5KG",
+          "qty": 24,
+          "rate": 248,
+          "amount": 5952
+        },
+        {
+          "item_code": "PICKLE-300",
+          "qty": 16,
+          "rate": 76,
+          "amount": 1216
+        }
+      ]
+    },
+    {
+      "name": "SINV-FX-0011",
+      "posting_date": "2026-10-20",
+      "due_date": "2026-11-19",
+      "customer": "Hosur Retail Mart",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 13218,
+      "outstanding_amount": 13218,
+      "items": [
+        {
+          "item_code": "ATTA-5KG",
+          "qty": 34,
+          "rate": 248,
+          "amount": 8432
+        },
+        {
+          "item_code": "AGARBATTI",
+          "qty": 22,
+          "rate": 26,
+          "amount": 572
+        },
+        {
+          "item_code": "BESAN-500",
+          "qty": 22,
+          "rate": 50,
+          "amount": 1100
+        },
+        {
+          "item_code": "CHOCO-40",
+          "qty": 19,
+          "rate": 18,
+          "amount": 342
+        },
+        {
+          "item_code": "CHANA-1KG",
+          "qty": 21,
+          "rate": 132,
+          "amount": 2772
+        }
+      ]
+    },
+    {
+      "name": "SINV-FX-0012",
+      "posting_date": "2026-10-08",
+      "due_date": "2026-11-07",
+      "customer": "Lakshmi Stores",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 2921,
+      "outstanding_amount": 0,
+      "items": [
+        {
+          "item_code": "MASALA-50",
+          "qty": 13,
+          "rate": 44,
+          "amount": 572
+        },
+        {
+          "item_code": "BISCUIT-250",
+          "qty": 19,
+          "rate": 27,
+          "amount": 513
+        },
+        {
+          "item_code": "BESAN-500",
+          "qty": 30,
+          "rate": 50,
+          "amount": 1500
+        },
+        {
+          "item_code": "SALT-1KG",
+          "qty": 16,
+          "rate": 21,
+          "amount": 336
+        }
+      ]
+    },
+    {
+      "name": "SINV-FX-0013",
+      "posting_date": "2026-09-22",
+      "due_date": "2026-10-22",
+      "customer": "Ravi Kumar",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 525,
+      "outstanding_amount": 525,
+      "items": [
+        {
+          "item_code": "POHA-500",
+          "qty": 3,
+          "rate": 38,
+          "amount": 114
+        },
+        {
+          "item_code": "PASTE-150",
+          "qty": 1,
+          "rate": 105,
+          "amount": 105
+        },
+        {
+          "item_code": "SHAMPOO-180",
+          "qty": 1,
+          "rate": 150,
+          "amount": 150
+        },
+        {
+          "item_code": "RAVA-1KG",
+          "qty": 3,
+          "rate": 52,
+          "amount": 156
+        }
+      ]
+    },
+    {
+      "name": "SINV-FX-0014",
+      "posting_date": "2026-08-12",
+      "due_date": "2026-09-11",
+      "customer": "Meena Devi",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 252,
+      "outstanding_amount": 252,
+      "items": [
+        {
+          "item_code": "NOODLES-70",
+          "qty": 3,
+          "rate": 14,
+          "amount": 42
+        },
+        {
+          "item_code": "MOONG-1KG",
+          "qty": 1,
+          "rate": 130,
+          "amount": 130
+        },
+        {
+          "item_code": "SOAP-100",
+          "qty": 2,
+          "rate": 40,
+          "amount": 80
+        }
+      ]
+    },
+    {
+      "name": "SINV-FX-0015",
+      "posting_date": "2026-10-18",
+      "due_date": "2026-11-17",
+      "customer": "Suresh (Flat 12B)",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 335,
+      "outstanding_amount": 335,
+      "items": [
+        {
+          "item_code": "SALT-1KG",
+          "qty": 1,
+          "rate": 25,
+          "amount": 25
+        },
+        {
+          "item_code": "MOONG-1KG",
+          "qty": 1,
+          "rate": 130,
+          "amount": 130
+        },
+        {
+          "item_code": "AGARBATTI",
+          "qty": 1,
+          "rate": 30,
+          "amount": 30
+        },
+        {
+          "item_code": "MASALA-50",
+          "qty": 3,
+          "rate": 50,
+          "amount": 150
+        }
+      ]
+    },
+    {
+      "name": "SINV-FX-0016",
+      "posting_date": "2026-10-26",
+      "due_date": "2026-11-10",
+      "customer": "Farida Begum",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 289,
+      "outstanding_amount": 289,
+      "items": [
+        {
+          "item_code": "BESAN-500",
+          "qty": 1,
+          "rate": 55,
+          "amount": 55
+        },
+        {
+          "item_code": "AGARBATTI",
+          "qty": 2,
+          "rate": 30,
+          "amount": 60
+        },
+        {
+          "item_code": "DISHBAR-200",
+          "qty": 2,
+          "rate": 22,
+          "amount": 44
+        },
+        {
+          "item_code": "MOONG-1KG",
+          "qty": 1,
+          "rate": 130,
+          "amount": 130
+        }
+      ]
+    },
+    {
+      "name": "SINV-FX-0017",
+      "posting_date": "2026-07-08",
+      "due_date": "2026-08-07",
+      "customer": "Ravi Kumar",
+      "docstatus": 1,
+      "is_pos": false,
+      "grand_total": 184,
+      "outstanding_amount": 0,
+      "items": [
+        {
+          "item_code": "NOODLES-70",
+          "qty": 1,
+          "rate": 14,
+          "amount": 14
+        },
+        {
+          "item_code": "RAJMA-500",
+          "qty": 2,
+          "rate": 85,
+          "amount": 170
+        }
+      ]
     }
   ],
   "profit_and_loss": [
+    {
+      "date": "2026-08-02",
+      "income": 3769.74,
+      "expense": 3205.52,
+      "net_profit": 564.22
+    },
+    {
+      "date": "2026-08-03",
+      "income": 2936.46,
+      "expense": 2641.68,
+      "net_profit": 294.78
+    },
+    {
+      "date": "2026-08-04",
+      "income": 3502.51,
+      "expense": 2968.02,
+      "net_profit": 534.49
+    },
+    {
+      "date": "2026-08-05",
+      "income": 3016.4,
+      "expense": 2555.44,
+      "net_profit": 460.96
+    },
+    {
+      "date": "2026-08-06",
+      "income": 3657.45,
+      "expense": 3288.26,
+      "net_profit": 369.19
+    },
+    {
+      "date": "2026-08-07",
+      "income": 2831.04,
+      "expense": 2394.32,
+      "net_profit": 436.72
+    },
+    {
+      "date": "2026-08-08",
+      "income": 3574.29,
+      "expense": 3241.57,
+      "net_profit": 332.72
+    },
+    {
+      "date": "2026-08-09",
+      "income": 3856.45,
+      "expense": 3302.09,
+      "net_profit": 554.36
+    },
+    {
+      "date": "2026-08-10",
+      "income": 3898.43,
+      "expense": 3350.38,
+      "net_profit": 548.05
+    },
+    {
+      "date": "2026-08-11",
+      "income": 2960.06,
+      "expense": 2614.48,
+      "net_profit": 345.58
+    },
+    {
+      "date": "2026-08-12",
+      "income": 3362.42,
+      "expense": 2948.78,
+      "net_profit": 413.64
+    },
+    {
+      "date": "2026-08-13",
+      "income": 2897.88,
+      "expense": 2667.01,
+      "net_profit": 230.87
+    },
+    {
+      "date": "2026-08-14",
+      "income": 2899.97,
+      "expense": 2536.07,
+      "net_profit": 363.9
+    },
+    {
+      "date": "2026-08-15",
+      "income": 4231.4,
+      "expense": 3561.49,
+      "net_profit": 669.91
+    },
+    {
+      "date": "2026-08-16",
+      "income": 3997.72,
+      "expense": 3490.03,
+      "net_profit": 507.69
+    },
+    {
+      "date": "2026-08-17",
+      "income": 3398.93,
+      "expense": 3017.01,
+      "net_profit": 381.92
+    },
+    {
+      "date": "2026-08-18",
+      "income": 3479.72,
+      "expense": 3106.28,
+      "net_profit": 373.44
+    },
+    {
+      "date": "2026-08-19",
+      "income": 3077.96,
+      "expense": 2670.05,
+      "net_profit": 407.91
+    },
+    {
+      "date": "2026-08-20",
+      "income": 3348.99,
+      "expense": 3058.03,
+      "net_profit": 290.96
+    },
+    {
+      "date": "2026-08-21",
+      "income": 3399.81,
+      "expense": 2945.64,
+      "net_profit": 454.17
+    },
+    {
+      "date": "2026-08-22",
+      "income": 3932.65,
+      "expense": 3450.09,
+      "net_profit": 482.56
+    },
+    {
+      "date": "2026-08-23",
+      "income": 4059.14,
+      "expense": 3633.32,
+      "net_profit": 425.82
+    },
+    {
+      "date": "2026-08-24",
+      "income": 3412.93,
+      "expense": 3103.12,
+      "net_profit": 309.81
+    },
+    {
+      "date": "2026-08-25",
+      "income": 3902.38,
+      "expense": 3545.45,
+      "net_profit": 356.93
+    },
+    {
+      "date": "2026-08-26",
+      "income": 3789.69,
+      "expense": 3293.49,
+      "net_profit": 496.2
+    },
+    {
+      "date": "2026-08-27",
+      "income": 3813.4,
+      "expense": 3268.17,
+      "net_profit": 545.23
+    },
+    {
+      "date": "2026-08-28",
+      "income": 3667.37,
+      "expense": 3310.72,
+      "net_profit": 356.65
+    },
+    {
+      "date": "2026-08-29",
+      "income": 4181.62,
+      "expense": 3487.55,
+      "net_profit": 694.07
+    },
+    {
+      "date": "2026-08-30",
+      "income": 4574.75,
+      "expense": 3873.61,
+      "net_profit": 701.14
+    },
+    {
+      "date": "2026-08-31",
+      "income": 3846.57,
+      "expense": 3350.45,
+      "net_profit": 496.12
+    },
+    {
+      "date": "2026-09-01",
+      "income": 3320.66,
+      "expense": 2824.49,
+      "net_profit": 496.17
+    },
+    {
+      "date": "2026-09-02",
+      "income": 3174.3,
+      "expense": 2848.31,
+      "net_profit": 325.99
+    },
+    {
+      "date": "2026-09-03",
+      "income": 3082.33,
+      "expense": 2782.92,
+      "net_profit": 299.41
+    },
+    {
+      "date": "2026-09-04",
+      "income": 3907.68,
+      "expense": 3425.75,
+      "net_profit": 481.93
+    },
+    {
+      "date": "2026-09-05",
+      "income": 5021.5,
+      "expense": 4294,
+      "net_profit": 727.5
+    },
+    {
+      "date": "2026-09-06",
+      "income": 4273.23,
+      "expense": 3781.12,
+      "net_profit": 492.11
+    },
+    {
+      "date": "2026-09-07",
+      "income": 3952.23,
+      "expense": 3506.67,
+      "net_profit": 445.56
+    },
+    {
+      "date": "2026-09-08",
+      "income": 3190.27,
+      "expense": 2691.6,
+      "net_profit": 498.67
+    },
+    {
+      "date": "2026-09-09",
+      "income": 3909.05,
+      "expense": 3427.82,
+      "net_profit": 481.23
+    },
+    {
+      "date": "2026-09-10",
+      "income": 3259.2,
+      "expense": 2739.45,
+      "net_profit": 519.75
+    },
+    {
+      "date": "2026-09-11",
+      "income": 2672.96,
+      "expense": 2332.74,
+      "net_profit": 340.22
+    },
+    {
+      "date": "2026-09-12",
+      "income": 4931.44,
+      "expense": 4346.64,
+      "net_profit": 584.8
+    },
+    {
+      "date": "2026-09-13",
+      "income": 4665.12,
+      "expense": 3884.08,
+      "net_profit": 781.04
+    },
+    {
+      "date": "2026-09-14",
+      "income": 3838.93,
+      "expense": 3361.35,
+      "net_profit": 477.58
+    },
+    {
+      "date": "2026-09-15",
+      "income": 3127.55,
+      "expense": 2802.85,
+      "net_profit": 324.7
+    },
+    {
+      "date": "2026-09-16",
+      "income": 3422.86,
+      "expense": 3063.45,
+      "net_profit": 359.41
+    },
+    {
+      "date": "2026-09-17",
+      "income": 3660.1,
+      "expense": 3138.98,
+      "net_profit": 521.12
+    },
+    {
+      "date": "2026-09-18",
+      "income": 3409.02,
+      "expense": 3053.29,
+      "net_profit": 355.73
+    },
+    {
+      "date": "2026-09-19",
+      "income": 3610.35,
+      "expense": 3212.94,
+      "net_profit": 397.41
+    },
+    {
+      "date": "2026-09-20",
+      "income": 3962.1,
+      "expense": 3519.63,
+      "net_profit": 442.47
+    },
+    {
+      "date": "2026-09-21",
+      "income": 3554.09,
+      "expense": 3224.01,
+      "net_profit": 330.08
+    },
+    {
+      "date": "2026-09-22",
+      "income": 3522.9,
+      "expense": 3198.49,
+      "net_profit": 324.41
+    },
+    {
+      "date": "2026-09-23",
+      "income": 2869.26,
+      "expense": 2489.5,
+      "net_profit": 379.76
+    },
+    {
+      "date": "2026-09-24",
+      "income": 2804.63,
+      "expense": 2566.8,
+      "net_profit": 237.83
+    },
+    {
+      "date": "2026-09-25",
+      "income": 2941.99,
+      "expense": 2572.98,
+      "net_profit": 369.01
+    },
+    {
+      "date": "2026-09-26",
+      "income": 4562.35,
+      "expense": 3987.52,
+      "net_profit": 574.83
+    },
+    {
+      "date": "2026-09-27",
+      "income": 4520.58,
+      "expense": 3929.04,
+      "net_profit": 591.54
+    },
+    {
+      "date": "2026-09-28",
+      "income": 3786.05,
+      "expense": 3436.54,
+      "net_profit": 349.51
+    },
+    {
+      "date": "2026-09-29",
+      "income": 3577.6,
+      "expense": 3147.74,
+      "net_profit": 429.86
+    },
+    {
+      "date": "2026-09-30",
+      "income": 2706.05,
+      "expense": 2479.9,
+      "net_profit": 226.15
+    },
+    {
+      "date": "2026-10-01",
+      "income": 3163.7,
+      "expense": 2652.37,
+      "net_profit": 511.33
+    },
+    {
+      "date": "2026-10-02",
+      "income": 2744.58,
+      "expense": 2334.96,
+      "net_profit": 409.62
+    },
+    {
+      "date": "2026-10-03",
+      "income": 4641.28,
+      "expense": 3940.7,
+      "net_profit": 700.58
+    },
+    {
+      "date": "2026-10-04",
+      "income": 4902.28,
+      "expense": 4203.09,
+      "net_profit": 699.19
+    },
+    {
+      "date": "2026-10-05",
+      "income": 3671.04,
+      "expense": 3065.35,
+      "net_profit": 605.69
+    },
+    {
+      "date": "2026-10-06",
+      "income": 2706.2,
+      "expense": 2341.36,
+      "net_profit": 364.84
+    },
+    {
+      "date": "2026-10-07",
+      "income": 3211.32,
+      "expense": 2761.28,
+      "net_profit": 450.04
+    },
+    {
+      "date": "2026-10-08",
+      "income": 2662.67,
+      "expense": 2365.94,
+      "net_profit": 296.73
+    },
+    {
+      "date": "2026-10-09",
+      "income": 3684.83,
+      "expense": 3179.68,
+      "net_profit": 505.15
+    },
+    {
+      "date": "2026-10-10",
+      "income": 3574.67,
+      "expense": 3155.35,
+      "net_profit": 419.32
+    },
+    {
+      "date": "2026-10-11",
+      "income": 4263.57,
+      "expense": 3736.9,
+      "net_profit": 526.67
+    },
+    {
+      "date": "2026-10-12",
+      "income": 2789.67,
+      "expense": 2483.67,
+      "net_profit": 306
+    },
+    {
+      "date": "2026-10-13",
+      "income": 3871.4,
+      "expense": 3387.32,
+      "net_profit": 484.08
+    },
+    {
+      "date": "2026-10-14",
+      "income": 3687.28,
+      "expense": 3241.11,
+      "net_profit": 446.17
+    },
+    {
+      "date": "2026-10-15",
+      "income": 3878.68,
+      "expense": 3455.22,
+      "net_profit": 423.46
+    },
+    {
+      "date": "2026-10-16",
+      "income": 3415.44,
+      "expense": 2938.24,
+      "net_profit": 477.2
+    },
+    {
+      "date": "2026-10-17",
+      "income": 4881.27,
+      "expense": 4343.93,
+      "net_profit": 537.34
+    },
+    {
+      "date": "2026-10-18",
+      "income": 4703.69,
+      "expense": 3910.57,
+      "net_profit": 793.12
+    },
+    {
+      "date": "2026-10-19",
+      "income": 3881.28,
+      "expense": 3385.13,
+      "net_profit": 496.15
+    },
+    {
+      "date": "2026-10-20",
+      "income": 2661.83,
+      "expense": 2319.81,
+      "net_profit": 342.02
+    },
+    {
+      "date": "2026-10-21",
+      "income": 2669.16,
+      "expense": 2354.89,
+      "net_profit": 314.27
+    },
+    {
+      "date": "2026-10-22",
+      "income": 3097.2,
+      "expense": 2648.44,
+      "net_profit": 448.76
+    },
+    {
+      "date": "2026-10-23",
+      "income": 3744.55,
+      "expense": 3170.37,
+      "net_profit": 574.18
+    },
+    {
+      "date": "2026-10-24",
+      "income": 4566.61,
+      "expense": 3886.02,
+      "net_profit": 680.59
+    },
+    {
+      "date": "2026-10-25",
+      "income": 3775.65,
+      "expense": 3381.3,
+      "net_profit": 394.35
+    },
+    {
+      "date": "2026-10-26",
+      "income": 2850.4,
+      "expense": 2466.79,
+      "net_profit": 383.61
+    },
+    {
+      "date": "2026-10-27",
+      "income": 3454.35,
+      "expense": 2948.8,
+      "net_profit": 505.55
+    },
+    {
+      "date": "2026-10-28",
+      "income": 3139.25,
+      "expense": 2708.44,
+      "net_profit": 430.81
+    },
+    {
+      "date": "2026-10-29",
+      "income": 3056,
+      "expense": 2761.66,
+      "net_profit": 294.34
+    },
+    {
+      "date": "2026-10-30",
+      "income": 2759.59,
+      "expense": 2473.16,
+      "net_profit": 286.43
+    },
     {
       "date": "2026-10-31",
       "income": 500,
@@ -325,8 +2109,422 @@
     }
   ],
   "general_ledger": [],
-  "purchase_invoices": [],
+  "purchase_invoices": [
+    {
+      "name": "PINV-FX-0001",
+      "supplier": "Chennai FMCG Distributors",
+      "posting_date": "2026-07-25",
+      "due_date": "2026-09-08",
+      "docstatus": 1,
+      "grand_total": 14124,
+      "outstanding_amount": 14124,
+      "items": [
+        {
+          "item_code": "SOAP-100",
+          "qty": 96,
+          "rate": 30,
+          "amount": 2880
+        },
+        {
+          "item_code": "PASTE-150",
+          "qty": 48,
+          "rate": 82,
+          "amount": 3936
+        },
+        {
+          "item_code": "SHAMPOO-180",
+          "qty": 18,
+          "rate": 118,
+          "amount": 2124
+        },
+        {
+          "item_code": "DETERG-1KG",
+          "qty": 48,
+          "rate": 92,
+          "amount": 4416
+        },
+        {
+          "item_code": "DISHBAR-200",
+          "qty": 48,
+          "rate": 16,
+          "amount": 768
+        }
+      ]
+    },
+    {
+      "name": "PINV-FX-0002",
+      "supplier": "Hubballi Spice House",
+      "posting_date": "2026-08-10",
+      "due_date": "2026-09-09",
+      "docstatus": 1,
+      "grand_total": 6552,
+      "outstanding_amount": 0,
+      "items": [
+        {
+          "item_code": "TURMERIC-100",
+          "qty": 30,
+          "rate": 24,
+          "amount": 720
+        },
+        {
+          "item_code": "CHILLI-100",
+          "qty": 60,
+          "rate": 30,
+          "amount": 1800
+        },
+        {
+          "item_code": "JEERA-100",
+          "qty": 48,
+          "rate": 46,
+          "amount": 2208
+        },
+        {
+          "item_code": "MASALA-50",
+          "qty": 48,
+          "rate": 38,
+          "amount": 1824
+        }
+      ]
+    },
+    {
+      "name": "PINV-FX-0003",
+      "supplier": "Mysuru Agro Supplies",
+      "posting_date": "2026-08-28",
+      "due_date": "2026-09-27",
+      "docstatus": 1,
+      "grand_total": 11660,
+      "outstanding_amount": 4664,
+      "items": [
+        {
+          "item_code": "ATTA-5KG",
+          "qty": 20,
+          "rate": 228,
+          "amount": 4560
+        },
+        {
+          "item_code": "BESAN-500",
+          "qty": 60,
+          "rate": 44,
+          "amount": 2640
+        },
+        {
+          "item_code": "RAVA-1KG",
+          "qty": 60,
+          "rate": 42,
+          "amount": 2520
+        },
+        {
+          "item_code": "POHA-500",
+          "qty": 30,
+          "rate": 30,
+          "amount": 900
+        },
+        {
+          "item_code": "JAGGERY-1KG",
+          "qty": 20,
+          "rate": 52,
+          "amount": 1040
+        }
+      ]
+    },
+    {
+      "name": "PINV-FX-0004",
+      "supplier": "Bengaluru Wholesale Traders",
+      "posting_date": "2026-09-05",
+      "due_date": "2026-09-20",
+      "docstatus": 1,
+      "grand_total": 10320,
+      "outstanding_amount": 10320,
+      "items": [
+        {
+          "item_code": "MOONG-1KG",
+          "qty": 20,
+          "rate": 108,
+          "amount": 2160
+        },
+        {
+          "item_code": "CHANA-1KG",
+          "qty": 40,
+          "rate": 118,
+          "amount": 4720
+        },
+        {
+          "item_code": "RAJMA-500",
+          "qty": 40,
+          "rate": 68,
+          "amount": 2720
+        },
+        {
+          "item_code": "SALT-1KG",
+          "qty": 40,
+          "rate": 18,
+          "amount": 720
+        }
+      ]
+    },
+    {
+      "name": "PINV-FX-0005",
+      "supplier": "Karnataka Bakery Supplies",
+      "posting_date": "2026-10-20",
+      "due_date": "2026-10-27",
+      "docstatus": 1,
+      "grand_total": 7032,
+      "outstanding_amount": 7032,
+      "items": [
+        {
+          "item_code": "BREAD-400",
+          "qty": 48,
+          "rate": 34,
+          "amount": 1632
+        },
+        {
+          "item_code": "BISCUIT-250",
+          "qty": 120,
+          "rate": 24,
+          "amount": 2880
+        },
+        {
+          "item_code": "CURD-400",
+          "qty": 48,
+          "rate": 30,
+          "amount": 1440
+        },
+        {
+          "item_code": "EGGS-6",
+          "qty": 30,
+          "rate": 36,
+          "amount": 1080
+        }
+      ]
+    },
+    {
+      "name": "PINV-FX-0006",
+      "supplier": "Chennai FMCG Distributors",
+      "posting_date": "2026-09-28",
+      "due_date": "2026-11-12",
+      "docstatus": 1,
+      "grand_total": 7872,
+      "outstanding_amount": 7872,
+      "items": [
+        {
+          "item_code": "NOODLES-70",
+          "qty": 96,
+          "rate": 11,
+          "amount": 1056
+        },
+        {
+          "item_code": "CHOCO-40",
+          "qty": 120,
+          "rate": 16,
+          "amount": 1920
+        },
+        {
+          "item_code": "NAMKEEN-200",
+          "qty": 72,
+          "rate": 42,
+          "amount": 3024
+        },
+        {
+          "item_code": "COLA-750",
+          "qty": 72,
+          "rate": 26,
+          "amount": 1872
+        }
+      ]
+    },
+    {
+      "name": "PINV-FX-0007",
+      "supplier": "Hubballi Spice House",
+      "posting_date": "2026-10-06",
+      "due_date": "2026-11-05",
+      "docstatus": 1,
+      "grand_total": 4472,
+      "outstanding_amount": 4472,
+      "items": [
+        {
+          "item_code": "TURMERIC-100",
+          "qty": 60,
+          "rate": 24,
+          "amount": 1440
+        },
+        {
+          "item_code": "MASALA-50",
+          "qty": 24,
+          "rate": 38,
+          "amount": 912
+        },
+        {
+          "item_code": "AGARBATTI",
+          "qty": 60,
+          "rate": 22,
+          "amount": 1320
+        },
+        {
+          "item_code": "MATCH-10",
+          "qty": 100,
+          "rate": 8,
+          "amount": 800
+        }
+      ]
+    },
+    {
+      "name": "PINV-FX-0008",
+      "supplier": "Mysuru Agro Supplies",
+      "posting_date": "2026-10-22",
+      "due_date": "2026-11-21",
+      "docstatus": 1,
+      "grand_total": 18984,
+      "outstanding_amount": 18984,
+      "items": [
+        {
+          "item_code": "ATTA-5KG",
+          "qty": 20,
+          "rate": 228,
+          "amount": 4560
+        },
+        {
+          "item_code": "HONEY-250",
+          "qty": 30,
+          "rate": 98,
+          "amount": 2940
+        },
+        {
+          "item_code": "PICKLE-300",
+          "qty": 15,
+          "rate": 64,
+          "amount": 960
+        },
+        {
+          "item_code": "TEA-250",
+          "qty": 48,
+          "rate": 118,
+          "amount": 5664
+        },
+        {
+          "item_code": "COFFEE-200",
+          "qty": 36,
+          "rate": 135,
+          "amount": 4860
+        }
+      ]
+    },
+    {
+      "name": "PINV-FX-0009",
+      "supplier": "City Dairy Distributors",
+      "posting_date": "2026-10-28",
+      "due_date": "2026-11-04",
+      "docstatus": 1,
+      "grand_total": 2340,
+      "outstanding_amount": 2340,
+      "items": [
+        {
+          "item_code": "BUTTER-100",
+          "qty": 18,
+          "rate": 50,
+          "amount": 900
+        },
+        {
+          "item_code": "CURD-400",
+          "qty": 48,
+          "rate": 30,
+          "amount": 1440
+        }
+      ]
+    },
+    {
+      "name": "PINV-FX-0010",
+      "supplier": "Bengaluru Wholesale Traders",
+      "posting_date": "2026-10-14",
+      "due_date": "2026-10-29",
+      "docstatus": 1,
+      "grand_total": 7520,
+      "outstanding_amount": 0,
+      "items": [
+        {
+          "item_code": "SALT-1KG",
+          "qty": 40,
+          "rate": 18,
+          "amount": 720
+        },
+        {
+          "item_code": "JAGGERY-1KG",
+          "qty": 40,
+          "rate": 52,
+          "amount": 2080
+        },
+        {
+          "item_code": "CHANA-1KG",
+          "qty": 40,
+          "rate": 118,
+          "amount": 4720
+        }
+      ]
+    }
+  ],
   "payments": [
+    {
+      "posting_date": "2026-07-20",
+      "payment_type": "Receive",
+      "party": "Ravi Kumar",
+      "against": "SINV-FX-0017",
+      "amount": 184
+    },
+    {
+      "posting_date": "2026-08-17",
+      "payment_type": "Receive",
+      "party": "Sri Ganesh Hotel",
+      "against": "SINV-FX-0003",
+      "amount": 5424
+    },
+    {
+      "posting_date": "2026-08-20",
+      "payment_type": "Pay",
+      "party": "Hubballi Spice House",
+      "against": "PINV-FX-0002",
+      "amount": 6552
+    },
+    {
+      "posting_date": "2026-09-07",
+      "payment_type": "Pay",
+      "party": "Mysuru Agro Supplies",
+      "against": "PINV-FX-0003",
+      "amount": 6996
+    },
+    {
+      "posting_date": "2026-09-13",
+      "payment_type": "Receive",
+      "party": "Green Valley School Canteen",
+      "against": "SINV-FX-0008",
+      "amount": 12293
+    },
+    {
+      "posting_date": "2026-09-22",
+      "payment_type": "Receive",
+      "party": "Sri Ganesh Hotel",
+      "against": "SINV-FX-0004",
+      "amount": 3813.2
+    },
+    {
+      "posting_date": "2026-09-30",
+      "payment_type": "Receive",
+      "party": "Hosur Retail Mart",
+      "against": "SINV-FX-0010",
+      "amount": 6229
+    },
+    {
+      "posting_date": "2026-10-20",
+      "payment_type": "Receive",
+      "party": "Lakshmi Stores",
+      "against": "SINV-FX-0012",
+      "amount": 2921
+    },
+    {
+      "posting_date": "2026-10-24",
+      "payment_type": "Pay",
+      "party": "Bengaluru Wholesale Traders",
+      "against": "PINV-FX-0010",
+      "amount": 7520
+    },
     {
       "posting_date": "2026-11-01",
       "payment_type": "Receive",
@@ -346,7 +2544,8 @@
           "qty": 20,
           "received_qty": 0
         }
-      ]
+      ],
+      "transaction_date": "2026-10-30"
     },
     {
       "name": "PUR-ORD-FX-OPEN-02",
@@ -359,6 +2558,45 @@
           "item_code": "DAL-TOOR-1KG",
           "qty": 15,
           "received_qty": 5
+        }
+      ],
+      "transaction_date": "2026-10-29"
+    },
+    {
+      "name": "PUR-ORD-FX-OPEN-03",
+      "supplier": "City Dairy Distributors",
+      "docstatus": 1,
+      "status": "To Receive and Bill",
+      "transaction_date": "2026-10-25",
+      "schedule_date": "2026-10-27",
+      "items": [
+        {
+          "item_code": "CURD-400",
+          "qty": 24,
+          "received_qty": 10,
+          "rate": 29
+        }
+      ]
+    },
+    {
+      "name": "PUR-ORD-FX-OPEN-04",
+      "supplier": "Karnataka Bakery Supplies",
+      "docstatus": 1,
+      "status": "To Receive and Bill",
+      "transaction_date": "2026-10-27",
+      "schedule_date": "2026-10-28",
+      "items": [
+        {
+          "item_code": "BREAD-400",
+          "qty": 24,
+          "received_qty": 0,
+          "rate": 35
+        },
+        {
+          "item_code": "EGGS-6",
+          "qty": 30,
+          "received_qty": 30,
+          "rate": 36
         }
       ]
     }
@@ -405,5 +2643,525 @@
         "launched": "2026-10-24"
       }
     }
-  }
+  },
+  "item_master": [
+    {
+      "item_code": "MILK-500",
+      "item_group": "Dairy & Bakery",
+      "hsn_code": "0401",
+      "gst_rate": 0,
+      "valuation_rate": 22.5,
+      "selling_rate": 28,
+      "wholesale_rate": 26
+    },
+    {
+      "item_code": "RICE-5KG",
+      "item_group": "Staples",
+      "hsn_code": "1006",
+      "gst_rate": 5,
+      "valuation_rate": 330,
+      "selling_rate": 400,
+      "wholesale_rate": 380
+    },
+    {
+      "item_code": "OIL-SUN-1L",
+      "item_group": "Edible Oils",
+      "hsn_code": "1512",
+      "gst_rate": 5,
+      "valuation_rate": 132,
+      "selling_rate": 165,
+      "wholesale_rate": 152
+    },
+    {
+      "item_code": "OIL-COCO-500",
+      "item_group": "Edible Oils",
+      "hsn_code": "1513",
+      "gst_rate": 5,
+      "valuation_rate": 118,
+      "selling_rate": 150,
+      "wholesale_rate": 138
+    },
+    {
+      "item_code": "DAL-TOOR-1KG",
+      "item_group": "Pulses",
+      "hsn_code": "0713",
+      "gst_rate": 5,
+      "valuation_rate": 138,
+      "selling_rate": 170,
+      "wholesale_rate": 158
+    },
+    {
+      "item_code": "SUGAR-1KG",
+      "item_group": "Staples",
+      "hsn_code": "1701",
+      "gst_rate": 5,
+      "valuation_rate": 40,
+      "selling_rate": 48,
+      "wholesale_rate": 45
+    },
+    {
+      "item_code": "GHEE-200",
+      "item_group": "Dairy & Bakery",
+      "hsn_code": "0405",
+      "gst_rate": 5,
+      "valuation_rate": 128,
+      "selling_rate": 160,
+      "wholesale_rate": 148
+    },
+    {
+      "item_code": "ATTA-5KG",
+      "item_group": "Staples",
+      "hsn_code": "1101",
+      "gst_rate": 5,
+      "valuation_rate": 228,
+      "selling_rate": 265,
+      "wholesale_rate": 248
+    },
+    {
+      "item_code": "BESAN-500",
+      "item_group": "Staples",
+      "hsn_code": "1106",
+      "gst_rate": 5,
+      "valuation_rate": 44,
+      "selling_rate": 55,
+      "wholesale_rate": 50
+    },
+    {
+      "item_code": "RAVA-1KG",
+      "item_group": "Staples",
+      "hsn_code": "1103",
+      "gst_rate": 5,
+      "valuation_rate": 42,
+      "selling_rate": 52,
+      "wholesale_rate": 47
+    },
+    {
+      "item_code": "POHA-500",
+      "item_group": "Staples",
+      "hsn_code": "1904",
+      "gst_rate": 5,
+      "valuation_rate": 30,
+      "selling_rate": 38,
+      "wholesale_rate": 34
+    },
+    {
+      "item_code": "SALT-1KG",
+      "item_group": "Staples",
+      "hsn_code": "2501",
+      "gst_rate": 0,
+      "valuation_rate": 18,
+      "selling_rate": 25,
+      "wholesale_rate": 21
+    },
+    {
+      "item_code": "JAGGERY-1KG",
+      "item_group": "Staples",
+      "hsn_code": "1701",
+      "gst_rate": 5,
+      "valuation_rate": 52,
+      "selling_rate": 65,
+      "wholesale_rate": 58
+    },
+    {
+      "item_code": "MOONG-1KG",
+      "item_group": "Pulses",
+      "hsn_code": "0713",
+      "gst_rate": 5,
+      "valuation_rate": 108,
+      "selling_rate": 130,
+      "wholesale_rate": 120
+    },
+    {
+      "item_code": "CHANA-1KG",
+      "item_group": "Pulses",
+      "hsn_code": "0713",
+      "gst_rate": 5,
+      "valuation_rate": 118,
+      "selling_rate": 145,
+      "wholesale_rate": 132
+    },
+    {
+      "item_code": "RAJMA-500",
+      "item_group": "Pulses",
+      "hsn_code": "0713",
+      "gst_rate": 5,
+      "valuation_rate": 68,
+      "selling_rate": 85,
+      "wholesale_rate": 77
+    },
+    {
+      "item_code": "TURMERIC-100",
+      "item_group": "Spices",
+      "hsn_code": "0910",
+      "gst_rate": 5,
+      "valuation_rate": 24,
+      "selling_rate": 32,
+      "wholesale_rate": 28
+    },
+    {
+      "item_code": "CHILLI-100",
+      "item_group": "Spices",
+      "hsn_code": "0904",
+      "gst_rate": 5,
+      "valuation_rate": 30,
+      "selling_rate": 40,
+      "wholesale_rate": 35
+    },
+    {
+      "item_code": "JEERA-100",
+      "item_group": "Spices",
+      "hsn_code": "0909",
+      "gst_rate": 5,
+      "valuation_rate": 46,
+      "selling_rate": 60,
+      "wholesale_rate": 53
+    },
+    {
+      "item_code": "MASALA-50",
+      "item_group": "Spices",
+      "hsn_code": "0910",
+      "gst_rate": 5,
+      "valuation_rate": 38,
+      "selling_rate": 50,
+      "wholesale_rate": 44
+    },
+    {
+      "item_code": "TEA-250",
+      "item_group": "Beverages",
+      "hsn_code": "0902",
+      "gst_rate": 5,
+      "valuation_rate": 118,
+      "selling_rate": 145,
+      "wholesale_rate": 132
+    },
+    {
+      "item_code": "COFFEE-200",
+      "item_group": "Beverages",
+      "hsn_code": "0901",
+      "gst_rate": 5,
+      "valuation_rate": 135,
+      "selling_rate": 165,
+      "wholesale_rate": 150
+    },
+    {
+      "item_code": "COLA-750",
+      "item_group": "Beverages",
+      "hsn_code": "2202",
+      "gst_rate": 40,
+      "valuation_rate": 26,
+      "selling_rate": 40,
+      "wholesale_rate": 34
+    },
+    {
+      "item_code": "BISCUIT-250",
+      "item_group": "Snacks",
+      "hsn_code": "1905",
+      "gst_rate": 5,
+      "valuation_rate": 24,
+      "selling_rate": 30,
+      "wholesale_rate": 27
+    },
+    {
+      "item_code": "NAMKEEN-200",
+      "item_group": "Snacks",
+      "hsn_code": "2106",
+      "gst_rate": 5,
+      "valuation_rate": 42,
+      "selling_rate": 55,
+      "wholesale_rate": 49
+    },
+    {
+      "item_code": "CHOCO-40",
+      "item_group": "Snacks",
+      "hsn_code": "1806",
+      "gst_rate": 5,
+      "valuation_rate": 16,
+      "selling_rate": 20,
+      "wholesale_rate": 18
+    },
+    {
+      "item_code": "NOODLES-70",
+      "item_group": "Snacks",
+      "hsn_code": "1902",
+      "gst_rate": 5,
+      "valuation_rate": 11,
+      "selling_rate": 14,
+      "wholesale_rate": 12.5
+    },
+    {
+      "item_code": "BREAD-400",
+      "item_group": "Dairy & Bakery",
+      "hsn_code": "1905",
+      "gst_rate": 0,
+      "valuation_rate": 34,
+      "selling_rate": 45,
+      "wholesale_rate": 40
+    },
+    {
+      "item_code": "CURD-400",
+      "item_group": "Dairy & Bakery",
+      "hsn_code": "0403",
+      "gst_rate": 0,
+      "valuation_rate": 30,
+      "selling_rate": 40,
+      "wholesale_rate": 36
+    },
+    {
+      "item_code": "BUTTER-100",
+      "item_group": "Dairy & Bakery",
+      "hsn_code": "0405",
+      "gst_rate": 5,
+      "valuation_rate": 50,
+      "selling_rate": 60,
+      "wholesale_rate": 55
+    },
+    {
+      "item_code": "EGGS-6",
+      "item_group": "Dairy & Bakery",
+      "hsn_code": "0407",
+      "gst_rate": 0,
+      "valuation_rate": 36,
+      "selling_rate": 48,
+      "wholesale_rate": 42
+    },
+    {
+      "item_code": "SOAP-100",
+      "item_group": "Personal Care",
+      "hsn_code": "3401",
+      "gst_rate": 5,
+      "valuation_rate": 30,
+      "selling_rate": 40,
+      "wholesale_rate": 35
+    },
+    {
+      "item_code": "PASTE-150",
+      "item_group": "Personal Care",
+      "hsn_code": "3306",
+      "gst_rate": 5,
+      "valuation_rate": 82,
+      "selling_rate": 105,
+      "wholesale_rate": 94
+    },
+    {
+      "item_code": "SHAMPOO-180",
+      "item_group": "Personal Care",
+      "hsn_code": "3305",
+      "gst_rate": 5,
+      "valuation_rate": 118,
+      "selling_rate": 150,
+      "wholesale_rate": 135
+    },
+    {
+      "item_code": "DETERG-1KG",
+      "item_group": "Household",
+      "hsn_code": "3402",
+      "gst_rate": 18,
+      "valuation_rate": 92,
+      "selling_rate": 120,
+      "wholesale_rate": 106
+    },
+    {
+      "item_code": "DISHBAR-200",
+      "item_group": "Household",
+      "hsn_code": "3402",
+      "gst_rate": 18,
+      "valuation_rate": 16,
+      "selling_rate": 22,
+      "wholesale_rate": 19
+    },
+    {
+      "item_code": "AGARBATTI",
+      "item_group": "Pooja Needs",
+      "hsn_code": "3307",
+      "gst_rate": 5,
+      "valuation_rate": 22,
+      "selling_rate": 30,
+      "wholesale_rate": 26
+    },
+    {
+      "item_code": "MATCH-10",
+      "item_group": "Household",
+      "hsn_code": "3605",
+      "gst_rate": 5,
+      "valuation_rate": 8,
+      "selling_rate": 10,
+      "wholesale_rate": 9
+    },
+    {
+      "item_code": "HONEY-250",
+      "item_group": "Staples",
+      "hsn_code": "0409",
+      "gst_rate": 5,
+      "valuation_rate": 98,
+      "selling_rate": 125,
+      "wholesale_rate": 112
+    },
+    {
+      "item_code": "PICKLE-300",
+      "item_group": "Staples",
+      "hsn_code": "2001",
+      "gst_rate": 5,
+      "valuation_rate": 64,
+      "selling_rate": 85,
+      "wholesale_rate": 76
+    }
+  ],
+  "_note_item_master": "TEST FIXTURE. Item group, HSN, GST slab (rates are indicative), moving-average valuation and retail/wholesale selling rates. Served by get_item_valuation.",
+  "company_state": "Karnataka",
+  "batches": [
+    {
+      "batch_no": "B-MILK-2610A",
+      "item_code": "MILK-500",
+      "warehouse": "Stores - NK",
+      "qty": 6,
+      "expiry_date": "2026-10-30"
+    },
+    {
+      "batch_no": "B-MILK-2611A",
+      "item_code": "MILK-500",
+      "warehouse": "Stores - NK",
+      "qty": 18,
+      "expiry_date": "2026-11-04"
+    },
+    {
+      "batch_no": "B-CURD-2611",
+      "item_code": "CURD-400",
+      "warehouse": "Stores - NK",
+      "qty": 14,
+      "expiry_date": "2026-11-06"
+    },
+    {
+      "batch_no": "B-BRD-2611",
+      "item_code": "BREAD-400",
+      "warehouse": "Stores - NK",
+      "qty": 12,
+      "expiry_date": "2026-11-04"
+    },
+    {
+      "batch_no": "B-EGG-2610",
+      "item_code": "EGGS-6",
+      "warehouse": "Stores - NK",
+      "qty": 18,
+      "expiry_date": "2026-11-12"
+    },
+    {
+      "batch_no": "B-BUT-2609",
+      "item_code": "BUTTER-100",
+      "warehouse": "Stores - NK",
+      "qty": 11,
+      "expiry_date": "2027-01-20"
+    },
+    {
+      "batch_no": "B-GHE-2608",
+      "item_code": "GHEE-200",
+      "warehouse": "Stores - NK",
+      "qty": 7,
+      "expiry_date": "2027-05-10"
+    },
+    {
+      "batch_no": "B-BIS-2607",
+      "item_code": "BISCUIT-250",
+      "warehouse": "Stores - NK",
+      "qty": 30,
+      "expiry_date": "2026-11-20"
+    },
+    {
+      "batch_no": "B-BIS-2609",
+      "item_code": "BISCUIT-250",
+      "warehouse": "Stores - NK",
+      "qty": 52,
+      "expiry_date": "2027-02-28"
+    },
+    {
+      "batch_no": "B-NDL-2605",
+      "item_code": "NOODLES-70",
+      "warehouse": "Stores - NK",
+      "qty": 40,
+      "expiry_date": "2026-11-25"
+    },
+    {
+      "batch_no": "B-NDL-2608",
+      "item_code": "NOODLES-70",
+      "warehouse": "Stores - NK",
+      "qty": 72,
+      "expiry_date": "2027-03-31"
+    },
+    {
+      "batch_no": "B-NMK-2606",
+      "item_code": "NAMKEEN-200",
+      "warehouse": "Stores - NK",
+      "qty": 25,
+      "expiry_date": "2026-12-15"
+    },
+    {
+      "batch_no": "B-CHO-2607",
+      "item_code": "CHOCO-40",
+      "warehouse": "Stores - NK",
+      "qty": 44,
+      "expiry_date": "2027-01-05"
+    },
+    {
+      "batch_no": "B-COL-2604",
+      "item_code": "COLA-750",
+      "warehouse": "Stores - NK",
+      "qty": 20,
+      "expiry_date": "2026-10-25"
+    },
+    {
+      "batch_no": "B-COL-2608",
+      "item_code": "COLA-750",
+      "warehouse": "Stores - NK",
+      "qty": 34,
+      "expiry_date": "2027-02-10"
+    },
+    {
+      "batch_no": "B-ATT-2608",
+      "item_code": "ATTA-5KG",
+      "warehouse": "Stores - NK",
+      "qty": 32,
+      "expiry_date": "2027-01-31"
+    },
+    {
+      "batch_no": "B-BES-2607",
+      "item_code": "BESAN-500",
+      "warehouse": "Stores - NK",
+      "qty": 28,
+      "expiry_date": "2026-12-31"
+    },
+    {
+      "batch_no": "B-RAV-2607",
+      "item_code": "RAVA-1KG",
+      "warehouse": "Stores - NK",
+      "qty": 38,
+      "expiry_date": "2026-12-20"
+    },
+    {
+      "batch_no": "B-POH-2606",
+      "item_code": "POHA-500",
+      "warehouse": "Stores - NK",
+      "qty": 31,
+      "expiry_date": "2026-12-01"
+    },
+    {
+      "batch_no": "B-PCK-2601",
+      "item_code": "PICKLE-300",
+      "warehouse": "Stores - NK",
+      "qty": 9,
+      "expiry_date": "2027-07-01"
+    },
+    {
+      "batch_no": "B-HNY-2512",
+      "item_code": "HONEY-250",
+      "warehouse": "Stores - NK",
+      "qty": 10,
+      "expiry_date": "2027-12-01"
+    },
+    {
+      "batch_no": "B-PST-2603",
+      "item_code": "PASTE-150",
+      "warehouse": "Stores - NK",
+      "qty": 19,
+      "expiry_date": "2028-02-28"
+    }
+  ]
 }

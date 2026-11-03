@@ -14,6 +14,9 @@ import {
   Activity,
 } from "lucide-react";
 import { toast } from "sonner";
+import { usePathname, useRouter } from "next/navigation";
+import { APP_VIEWS, viewFromPath, viewPath } from "@/lib/app-views";
+import { useGnaniVoiceQuery } from "@/lib/voice/useGnaniVoiceQuery";
 import {
   KiranaStoreCanvas,
   type KiranaStoreCanvasHandle,
@@ -40,6 +43,10 @@ import SettingsPage from "@/components/pages/SettingsPage";
 import AnalyticsPage from "@/components/pages/AnalyticsPage";
 import SalesPage from "@/components/pages/SalesPage";
 import CustomersPage from "@/components/pages/CustomersPage";
+import SuppliersPage from "@/components/pages/SuppliersPage";
+import CreditPage from "@/components/pages/CreditPage";
+import GstPage from "@/components/pages/GstPage";
+import StockLedgerPage from "@/components/pages/StockLedgerPage";
 import ChatPage from "@/components/pages/ChatPage";
 
 // Existing secondary panels
@@ -86,7 +93,9 @@ export default function KiranaShell() {
   const voice = useVoice();
   const activityMap = useOfficeActivity();
 
-  const [view, setView] = useState<AppView>("overview");
+  // The URL is the source of truth for the current view (/app, /app/inventory, ...).
+  const router = useRouter();
+  const view = viewFromPath(usePathname());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [zone, setZone] = useState<string | null>(null);
@@ -176,28 +185,64 @@ export default function KiranaShell() {
     }
   };
 
-  function handleMic() {
-    if (!voice.active) {
+  // Gnani is the primary voice path (push-to-talk through the governed NammaOps workflows).
+  // Gemini Live is only the backup, started when the Gnani path is unavailable.
+  const startGeminiBackup = useCallback(
+    (reason: string) => {
+      toast(`Gnani voice unavailable (${reason}) Switching to Gemini Live.`);
       voice.setMode("voice");
       voice.start();
-    } else voice.toggleMute();
+    },
+    [voice],
+  );
+  const gnani = useGnaniVoiceQuery({
+    onUnavailable: startGeminiBackup,
+    onTurn: (turn) =>
+      toast(turn.heard ? `“${turn.heard}”` : "No speech recognised", {
+        description: turn.answer.slice(0, 400),
+        duration: 12000,
+      }),
+  });
+  useEffect(() => {
+    if (gnani.error) toast.error(gnani.error);
+  }, [gnani.error]);
+
+  function handleMic() {
+    // A Gemini backup call in progress keeps its own mute toggle.
+    if (voice.active) return voice.toggleMute();
+    gnani.toggle();
   }
 
-  const isVoiceOn = voice.active && !voice.muted;
+  const isVoiceOn = (voice.active && !voice.muted) || gnani.state === "recording";
   const voiceLabel =
-    voice.status === "listening"
-      ? "Listening..."
-      : voice.status === "speaking"
-        ? "Speaking..."
-        : voice.status === "thinking"
-          ? "Processing..."
-          : voice.status === "connecting"
-            ? "Connecting..."
-            : voice.active
-              ? "Ready"
-              : "Tap to speak";
+    gnani.state === "recording"
+      ? "Listening... tap to send"
+      : gnani.state === "thinking"
+        ? "Processing..."
+        : gnani.state === "speaking"
+          ? "Speaking..."
+          : voice.status === "listening"
+            ? "Listening... (Gemini backup)"
+            : voice.status === "speaking"
+              ? "Speaking..."
+              : voice.status === "thinking"
+                ? "Processing..."
+                : voice.status === "connecting"
+                  ? "Connecting..."
+                  : voice.active
+                    ? "Ready (Gemini backup)"
+                    : "Tap to speak";
 
-  const navigate = (v: AppView) => setView(v);
+  const navigate = (requested: AppView | string) => {
+    // Pages may pass legacy names ("workers"); anything unknown falls back to the overview.
+    const v: AppView =
+      requested === "workers"
+        ? "workforce"
+        : (APP_VIEWS as readonly string[]).includes(requested)
+          ? (requested as AppView)
+          : "overview";
+    if (v !== view) router.push(viewPath(v));
+  };
 
   // useCallback keeps canvas ref access out of useMemo factory (React Compiler requirement)
   const cbRecenter = useCallback(() => {
@@ -233,7 +278,7 @@ export default function KiranaShell() {
       case "store":
         return null; // handled below in store section
       case "overview":
-        return <OverviewPage onNavigate={(v: string) => navigate(v as AppView)} />;
+        return <OverviewPage onNavigate={navigate} />;
       case "chat":
         return (
           <div style={{ flex: 1, minHeight: 0, overflow: "hidden", height: "100%" }}>
@@ -256,6 +301,14 @@ export default function KiranaShell() {
         return <FinancePage />;
       case "customers":
         return <CustomersPage />;
+      case "suppliers":
+        return <SuppliersPage />;
+      case "credit":
+        return <CreditPage />;
+      case "stock-ledger":
+        return <StockLedgerPage />;
+      case "gst":
+        return <GstPage />;
       case "analytics":
         return <AnalyticsPage />;
       case "reviews":
@@ -267,7 +320,7 @@ export default function KiranaShell() {
       case "settings":
         return <SettingsPage />;
       default:
-        return <OverviewPage onNavigate={(v: string) => navigate(v as AppView)} />;
+        return <OverviewPage onNavigate={navigate} />;
     }
   }
 

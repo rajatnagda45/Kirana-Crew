@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Settings, Mic, Database, Shield, Wifi, AlertCircle, CheckCircle } from "lucide-react";
+import { Settings, Mic, Database, Wifi, AlertCircle, CheckCircle } from "lucide-react";
 import { fetchNammaOps } from "@/lib/hooks/useNammaOps";
 import { runtimeRequest, useStudio } from "@/lib/store";
+import OwnerPinCard from "@/components/settings/OwnerPinCard";
 
 const s = {
   page: {
@@ -365,52 +366,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Owner PIN */}
-      <div style={s.card}>
-        <p style={s.sectionTitle}>
-          <Shield size={16} style={{ color: "var(--kirana-primary)" }} />
-          Owner PIN (Approval Gate)
-        </p>
-        <div style={{ ...s.row, borderBottom: "none" }}>
-          <div>
-            <p
-              style={{
-                fontSize: 13,
-                color: "var(--kirana-foreground)",
-                fontWeight: 500,
-                margin: 0,
-              }}
-            >
-              Purchase order approval PIN
-            </p>
-            <p style={{ fontSize: 12, color: "var(--kirana-muted-foreground)", margin: "2px 0 0" }}>
-              Required before any purchase order is submitted to ERPNext. Set via{" "}
-              <code
-                style={{
-                  fontFamily: "monospace",
-                  background: "var(--kirana-accent)",
-                  padding: "1px 5px",
-                  borderRadius: 4,
-                }}
-              >
-                NAMMAOPS_OWNER_PIN
-              </code>{" "}
-              in .env.local.
-            </p>
-          </div>
-          <span
-            style={{
-              fontSize: 12,
-              padding: "4px 10px",
-              borderRadius: 8,
-              fontWeight: 600,
-              background: "color-mix(in oklab,var(--kirana-success) 12%,transparent)",
-              color: "var(--kirana-success)",
-            }}
-          >
-            Active
-          </span>
-        </div>
-      </div>
+      <OwnerPinCard />
 
       {/* Runtime info */}
       <div style={s.card}>

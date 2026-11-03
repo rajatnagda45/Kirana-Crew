@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { runtimeRequest } from "@/lib/store";
 
 import { taskRecord, type ComposedTask } from "@/lib/task-record";
@@ -154,7 +155,7 @@ export default function TaskComposer({ refreshToken = 0 }: { refreshToken?: numb
             <summary>Setup details</summary>
             <p>{readiness.reason}</p>
           </details>
-          <a href="/app/chat">Open Chat &amp; Tasks</a>
+          <Link href="/app/chat">Open Chat &amp; Tasks</Link>
           <p>You can review a goal here; specialist execution remains unavailable.</p>
         </div>
       )}
