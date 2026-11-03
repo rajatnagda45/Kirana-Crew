@@ -29,8 +29,9 @@ import {
 } from "lucide-react";
 import { runtimeRequest, useStudio } from "@/lib/store";
 import { useVoice } from "@/lib/voice/VoiceProvider";
+import { useVoiceDictation } from "@/lib/hooks/useVoiceDictation";
 import { isVisibleChatMessage } from "@/lib/constants";
-import { mergeConversationMessages, OFFICE_GROUP } from "@/lib/conversations";
+import { mergeConversationMessages, OFFICE_GROUP, seatSessions } from "@/lib/conversations";
 import type { ChatMessage, SeatState, SessionRecord, TaskItem } from "@/types/game";
 
 // ─── CREW DEFINITIONS ──────────────────────────────────────────────────────────
@@ -101,12 +102,32 @@ const SUGGESTIONS = [
 
 // ─── UTILITIES ─────────────────────────────────────────────────────────────────
 
-function resolveSessionKey(convId: string, sessions: SessionRecord[]): string | undefined {
+/**
+ * Find the actual SeatState for a given CREW convId by matching display label.
+ * We cannot match by convId alone because actual seatIds in state.seats may differ
+ * from the hardcoded convId strings (e.g. real seatId could be "nammaops-manager",
+ * while convId is "alice").
+ */
+function findSeat(convId: string, seats: SeatState[]): SeatState | undefined {
+  const def = CREW.find((c) => c.convId === convId);
+  if (!def || convId === "group") return undefined;
+  return seats.find((s) => s.label?.toLowerCase() === def.label.toLowerCase() && s.assigned);
+}
+
+/**
+ * Resolve the active session key for a conversation.
+ * For individual agents uses seatSessions() which correctly filters by agentId
+ * extracted from the session key, preventing cross-agent session leakage.
+ */
+function resolveSessionKey(
+  convId: string,
+  seats: SeatState[],
+  sessions: SessionRecord[],
+): string | undefined {
   if (convId === "group") return OFFICE_GROUP;
-  const convSessions = sessions
-    .filter((s) => s.seatId === convId)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  return convSessions[0]?.key;
+  const seat = findSeat(convId, seats);
+  if (!seat) return undefined;
+  return seatSessions(sessions, seat.seatId, seat.binding?.agentId)[0]?.key;
 }
 
 function parseSource(content: string): { body: string; source?: string } {
@@ -911,6 +932,15 @@ function ContextPanel({
 
 // ─── MESSAGE COMPOSER ───────────────────────────────────────────────────────────
 
+interface DictationHandle {
+  supported: boolean;
+  isListening: boolean;
+  interimTranscript: string;
+  error: string | null;
+  start: () => void;
+  stop: () => void;
+}
+
 interface ComposerProps {
   draft: string;
   onDraftChange: (v: string) => void;
@@ -920,7 +950,8 @@ interface ComposerProps {
   disabledReason?: string;
   sendError: string | null;
   onRetry: () => void;
-  voice: ReturnType<typeof useVoice>;
+  dictation: DictationHandle;
+  voiceCallActive: boolean;
   convId: string;
   onSuggestion: (s: string) => void;
   showSuggestions: boolean;
@@ -935,7 +966,8 @@ function MessageComposer({
   disabledReason,
   sendError,
   onRetry,
-  voice,
+  dictation,
+  voiceCallActive,
   convId,
   onSuggestion,
   showSuggestions,
@@ -946,18 +978,24 @@ function MessageComposer({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      if (!disabled && !sending && draft.trim()) onSend();
+      if (!disabled && !sending && (draft.trim() || dictation.interimTranscript.trim())) onSend();
     }
   };
 
-  const handleVoice = () => {
-    if (voice.active) {
-      voice.stop?.();
+  // Mic button toggles STT dictation (not the Gemini voice call).
+  // Gemini voice call remains in KiranaVoicePanel; this is STT-only.
+  const handleMic = () => {
+    if (dictation.isListening) {
+      dictation.stop();
     } else {
-      voice.setMode?.("voice");
-      voice.start?.();
+      dictation.start();
     }
   };
+
+  // The displayed value is the typed draft plus any live interim transcript.
+  const displayValue = dictation.interimTranscript
+    ? draft + (draft ? " " : "") + dictation.interimTranscript
+    : draft;
 
   return (
     <div
@@ -1072,15 +1110,22 @@ function MessageComposer({
           ref={textRef}
           aria-label={convId === "group" ? "Message Store Crew" : `Message ${def.label}`}
           placeholder={
-            disabled && disabledReason
-              ? disabledReason
-              : convId === "group"
-                ? "Ask the whole store crew…"
-                : `Ask ${def.label}…`
+            dictation.isListening
+              ? "Listening… speak now"
+              : disabled && disabledReason
+                ? disabledReason
+                : convId === "group"
+                  ? "Ask the whole store crew…"
+                  : `Ask ${def.label}…`
           }
-          value={draft}
+          value={displayValue}
           disabled={disabled}
-          onChange={(e) => onDraftChange(e.target.value)}
+          onChange={(e) => {
+            // When the user edits the textarea, keep only the manually-typed part.
+            // If dictation is active, the user override stops dictation gracefully.
+            if (dictation.isListening) dictation.stop();
+            onDraftChange(e.target.value);
+          }}
           onKeyDown={handleKeyDown}
           rows={1}
           style={{
@@ -1088,7 +1133,9 @@ function MessageComposer({
             background: "transparent",
             border: "none",
             outline: "none",
-            color: "var(--kirana-foreground, #f0ebe0)",
+            color: dictation.interimTranscript
+              ? "var(--kirana-muted-foreground, #9ca3af)"
+              : "var(--kirana-foreground, #f0ebe0)",
             fontSize: "14px",
             resize: "none",
             lineHeight: 1.5,
@@ -1098,31 +1145,61 @@ function MessageComposer({
           }}
         />
         <div style={{ display: "flex", gap: "6px", flexShrink: 0, alignItems: "center" }}>
+          {/* Dictation error badge */}
+          {dictation.error && !dictation.isListening && (
+            <span
+              style={{
+                fontSize: "10px",
+                color: "#f87171",
+                maxWidth: "80px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+              title={dictation.error}
+            >
+              {dictation.error.split(".")[0]}
+            </span>
+          )}
           <button
             type="button"
-            onClick={handleVoice}
-            title={voice.active ? "Stop voice" : "Start voice"}
+            onClick={handleMic}
+            disabled={voiceCallActive || !dictation.supported}
+            title={
+              voiceCallActive
+                ? "Voice call active — use voice panel"
+                : dictation.isListening
+                  ? "Stop dictation"
+                  : dictation.supported
+                    ? "Dictate message"
+                    : "Voice input not supported in this browser"
+            }
             style={{
               width: "32px",
               height: "32px",
               borderRadius: "50%",
-              background: voice.active ? "rgba(242,180,65,0.2)" : "transparent",
-              border: voice.active
-                ? "1px solid rgba(242,180,65,0.4)"
+              background: dictation.isListening ? "rgba(239,68,68,0.15)" : "transparent",
+              border: dictation.isListening
+                ? "1px solid rgba(239,68,68,0.4)"
                 : "1px solid rgba(255,255,255,0.1)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              cursor: "pointer",
-              color: voice.active ? "#f2b441" : "var(--kirana-muted-foreground, #9ca3af)",
+              cursor: voiceCallActive || !dictation.supported ? "not-allowed" : "pointer",
+              color: dictation.isListening
+                ? "#ef4444"
+                : voiceCallActive || !dictation.supported
+                  ? "#4b5563"
+                  : "var(--kirana-muted-foreground, #9ca3af)",
+              opacity: voiceCallActive || !dictation.supported ? 0.5 : 1,
             }}
           >
-            {voice.active ? <MicOff size={14} /> : <Mic size={14} />}
+            {dictation.isListening ? <MicOff size={14} /> : <Mic size={14} />}
           </button>
           <button
             type="button"
             onClick={onSend}
-            disabled={disabled || sending || !draft.trim()}
+            disabled={disabled || sending || (!draft.trim() && !dictation.interimTranscript.trim())}
             title="Send"
             aria-label="Send message"
             style={{
@@ -1130,15 +1207,21 @@ function MessageComposer({
               height: "32px",
               borderRadius: "50%",
               background:
-                disabled || sending || !draft.trim()
+                disabled || sending || (!draft.trim() && !dictation.interimTranscript.trim())
                   ? "rgba(255,255,255,0.06)"
                   : "linear-gradient(135deg, #f2b441, #e09a28)",
               border: "none",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              cursor: disabled || sending || !draft.trim() ? "not-allowed" : "pointer",
-              color: disabled || sending || !draft.trim() ? "#6b7280" : "#0f1117",
+              cursor:
+                disabled || sending || (!draft.trim() && !dictation.interimTranscript.trim())
+                  ? "not-allowed"
+                  : "pointer",
+              color:
+                disabled || sending || (!draft.trim() && !dictation.interimTranscript.trim())
+                  ? "#6b7280"
+                  : "#0f1117",
               transition: "all 0.15s",
             }}
           >
@@ -1157,7 +1240,7 @@ function MessageComposer({
 // ─── MAIN PAGE ─────────────────────────────────────────────────────────────────
 
 export default function ChatPage() {
-  const { state, assignTask, loadSessionChat } = useStudio();
+  const { state, assignTask, loadSessionChat, reconcile } = useStudio();
   const voice = useVoice();
 
   const [selectedConv, setSelectedConv] = useState<string>("group");
@@ -1172,12 +1255,23 @@ export default function ChatPage() {
   const [sidebarSearch, setSidebarSearch] = useState("");
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Track the last session key we loaded history for to avoid duplicate loads.
+  const loadedKeyRef = useRef<string | null>(null);
 
-  // Resolve session key
+  // Resolve session key using proper seat-based session matching.
+  // Depends on state.seats AND state.sessions so it updates when sessions are created.
   const currentSessionKey = useMemo(
-    () => resolveSessionKey(selectedConv, state.sessions ?? []),
-    [selectedConv, state.sessions],
+    () => resolveSessionKey(selectedConv, state.seats ?? [], state.sessions ?? []),
+    [selectedConv, state.seats, state.sessions],
   );
+
+  // Wire voice dictation (STT-only) for the chat composer.
+  // This is separate from the Gemini voice call (VoiceProvider).
+  const dictation = useVoiceDictation({
+    onFinalTranscript: useCallback((text: string) => {
+      setDraft((prev) => (prev.trim() ? `${prev} ${text}` : text));
+    }, []),
+  });
 
   // Live messages filtered to current session
   const liveMessages = useMemo(
@@ -1191,12 +1285,11 @@ export default function ChatPage() {
     return mergeConversationMessages(currentSessionKey, history, liveMessages);
   }, [currentSessionKey, history, liveMessages]);
 
-  // Last message per conversation for sidebar preview
+  // Last message per conversation for sidebar preview (uses correct seat-based session resolution)
   const lastMessages = useMemo(() => {
     const map = new Map<string, ChatMessage>();
     for (const def of CREW) {
-      const sessKey =
-        def.convId === "group" ? OFFICE_GROUP : resolveSessionKey(def.convId, state.sessions ?? []);
+      const sessKey = resolveSessionKey(def.convId, state.seats ?? [], state.sessions ?? []);
       if (!sessKey) continue;
       const msgs = (state.chatMessages ?? []).filter(
         (m) =>
@@ -1209,31 +1302,30 @@ export default function ChatPage() {
       }
     }
     return map;
-  }, [state.chatMessages, state.sessions]);
+  }, [state.chatMessages, state.sessions, state.seats]);
 
-  // Load history when conversation changes
+  // Load history when the resolved session key changes (covers both conv switch
+  // and the moment a new session is created after the first message to an agent).
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect */
-    const sessKey =
-      selectedConv === "group"
-        ? OFFICE_GROUP
-        : (state.sessions ?? [])
-            .filter((s) => s.seatId === selectedConv)
-            .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]?.key;
-
-    if (!sessKey) {
+    if (!currentSessionKey) {
       setHistory([]);
       setHistoryLoading(false);
       setHistoryError(null);
+      loadedKeyRef.current = null;
       return;
     }
+    // Avoid redundant reloads when only unrelated state fields update.
+    if (currentSessionKey === loadedKeyRef.current) return;
+    loadedKeyRef.current = currentSessionKey;
 
     setHistoryLoading(true);
     setHistoryError(null);
 
+    const key = currentSessionKey;
     const doLoad = async () => {
       try {
-        const h = await loadSessionChat(sessKey);
+        const h = await loadSessionChat(key);
         setHistory(h);
       } catch (err) {
         setHistoryError(err instanceof Error ? err.message : "History unavailable");
@@ -1243,8 +1335,7 @@ export default function ChatPage() {
     };
     void doLoad();
     /* eslint-enable react-hooks/set-state-in-effect */
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only reload when the selected conversation changes
-  }, [selectedConv]);
+  }, [currentSessionKey, loadSessionChat]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -1255,8 +1346,17 @@ export default function ChatPage() {
   }, [messages.length]);
 
   const handleSend = useCallback(async () => {
-    const msg = draft.trim();
+    // Commit any in-flight interim dictation transcript into draft before sending.
+    const effectiveDraft = dictation.interimTranscript
+      ? draft.trim()
+        ? `${draft} ${dictation.interimTranscript}`
+        : dictation.interimTranscript
+      : draft;
+    const msg = effectiveDraft.trim();
     if (!msg || sending) return;
+
+    // Stop dictation when user explicitly sends.
+    if (dictation.isListening) dictation.stop();
 
     setSending(true);
     setSendError(null);
@@ -1268,16 +1368,48 @@ export default function ChatPage() {
         setDraft("");
         setFailedTurnId(null);
       } else {
-        const seat = (state.seats ?? []).find((s) => s.seatId === selectedConv);
-        const sessKey = (state.sessions ?? [])
-          .filter((s) => s.seatId === selectedConv)
-          .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]?.key;
-        const taskId = await assignTask(msg, seat?.seatId, { sessionKey: sessKey });
-        if (taskId !== undefined) {
+        // Find the actual seat by matching display label — seatId in state.seats
+        // may not match the hardcoded convId string (e.g. production seatId could
+        // be "nammaops-manager" while convId is "alice").
+        const seat = findSeat(selectedConv, state.seats ?? []);
+        if (!seat) {
+          setSendError(
+            `${getCrewDef(selectedConv).label} is not currently assigned. Configure your team in AI Workforce.`,
+          );
+          return;
+        }
+
+        // Resolve existing session using seatSessions (checks agentId from key).
+        let sessKey = seatSessions(state.sessions ?? [], seat.seatId, seat.binding?.agentId)[0]
+          ?.key;
+
+        // No session yet — create one via the runtime sessions endpoint.
+        if (!sessKey) {
+          const r = await runtimeRequest<{ session: SessionRecord }>("sessions", {
+            seatId: seat.seatId,
+          });
+          sessKey = r.session.key;
+          // Refresh state so the new session appears in the sidebar and history loads.
+          await reconcile();
+          // Reset loadedKeyRef so the history effect picks up the new key.
+          loadedKeyRef.current = null;
+        }
+
+        let redirected = false;
+        const taskId = await assignTask(msg, seat.seatId, {
+          sessionKey: sessKey,
+          onRedirect: () => {
+            redirected = true;
+          },
+        });
+
+        if (taskId !== undefined || redirected) {
           setDraft("");
           setFailedTurnId(null);
         } else {
-          setSendError("Task was not confirmed");
+          setSendError(
+            "Task was not confirmed. Your draft is preserved — check diagnostics and retry.",
+          );
         }
       }
     } catch (err) {
@@ -1289,7 +1421,17 @@ export default function ChatPage() {
     } finally {
       setSending(false);
     }
-  }, [draft, sending, selectedConv, failedTurnId, state.seats, state.sessions, assignTask]);
+  }, [
+    draft,
+    dictation,
+    sending,
+    selectedConv,
+    failedTurnId,
+    state.seats,
+    state.sessions,
+    assignTask,
+    reconcile,
+  ]);
 
   const handleSelectConv = useCallback((convId: string) => {
     setSelectedConv(convId);
@@ -1306,13 +1448,20 @@ export default function ChatPage() {
   }, [handleSend]);
 
   const handleRetryHistory = useCallback(() => {
+    // Force history reload by clearing the cached key, then the effect will re-fire.
+    loadedKeyRef.current = null;
     setHistoryError(null);
-    // Re-trigger by bumping a counter via conv reselect
-    const conv = selectedConv;
-    setSelectedConv("__reset__");
-    // small tick to allow state update
-    setTimeout(() => setSelectedConv(conv), 0);
-  }, [selectedConv]);
+    setHistoryLoading(true);
+    const key = currentSessionKey;
+    if (!key) {
+      setHistoryLoading(false);
+      return;
+    }
+    loadSessionChat(key)
+      .then((h) => setHistory(h))
+      .catch((err) => setHistoryError(err instanceof Error ? err.message : "History unavailable"))
+      .finally(() => setHistoryLoading(false));
+  }, [currentSessionKey, loadSessionChat]);
 
   const isConnected = state.connection === "connected";
   const isOffline = !isConnected;
@@ -1321,10 +1470,9 @@ export default function ChatPage() {
   const sendDisabled = isOffline || sendBlocked;
 
   const currentDef = getCrewDef(selectedConv);
+  // Look up current seat by label (not by convId) to get real seatId and status.
   const currentSeat =
-    selectedConv !== "group"
-      ? (state.seats ?? []).find((s) => s.seatId === selectedConv)
-      : undefined;
+    selectedConv !== "group" ? findSeat(selectedConv, state.seats ?? []) : undefined;
 
   const filteredCrew = useMemo(() => {
     if (!sidebarSearch.trim()) return CREW;
@@ -1423,14 +1571,15 @@ export default function ChatPage() {
         {/* Conversation list */}
         <div style={{ flex: 1, overflowY: "auto", padding: "8px 8px" }}>
           {filteredCrew.map((def) => {
-            const seat = (state.seats ?? []).find((s) => s.seatId === def.convId);
+            // Match by label, not by convId — real seatIds may differ from convId strings.
+            const seat = findSeat(def.convId, state.seats ?? []);
             return (
               <SidebarItem
                 key={def.convId}
                 def={def}
                 seat={seat}
                 lastMsg={lastMessages.get(def.convId)}
-                sessionKey={resolveSessionKey(def.convId, state.sessions ?? [])}
+                sessionKey={resolveSessionKey(def.convId, state.seats ?? [], state.sessions ?? [])}
                 isSelected={selectedConv === def.convId}
                 onClick={() => handleSelectConv(def.convId)}
                 isConnected={isConnected}
@@ -1669,7 +1818,8 @@ export default function ChatPage() {
           disabledReason={isOffline ? "Offline — reconnect to send" : capabilitySend?.reason}
           sendError={sendError}
           onRetry={handleRetry}
-          voice={voice}
+          dictation={dictation}
+          voiceCallActive={voice.active}
           convId={selectedConv}
           onSuggestion={handleSuggestion}
           showSuggestions={showSuggestions}
