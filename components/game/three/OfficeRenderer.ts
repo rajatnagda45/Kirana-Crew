@@ -8,7 +8,7 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { OfficeAssets } from "./assets";
 import { buildEnvironment, buildStoreCollisions } from "./environment";
-import { OfficeCharacter } from "./character";
+import { CrewCharacter as OfficeCharacter } from "./character";
 import { CREW, CrewSim, type CrewDef } from "./crew";
 import { worldPosition, type OfficeSource, type OfficeActor } from "./types";
 
@@ -85,7 +85,7 @@ export class OfficeRenderer {
     this.composer.addPass(this.ao);
     this.output = new OutputPass();
     this.composer.addPass(this.output);
-    this.renderer.setClearColor("#101719", 1);
+    this.renderer.setClearColor("#080808", 1);
     this.renderer.domElement.className = "office-three-canvas";
     this.renderer.domElement.setAttribute(
       "aria-label",
@@ -150,7 +150,7 @@ export class OfficeRenderer {
     }
     const ground = new THREE.Mesh(
       new THREE.PlaneGeometry(200, 200),
-      new THREE.MeshBasicMaterial({ color: "#101719" }),
+      new THREE.MeshBasicMaterial({ color: "#080808" }),
     );
     ground.rotation.x = -Math.PI / 2;
     ground.position.y = -0.47;
@@ -341,10 +341,12 @@ export class OfficeRenderer {
       const displayName = backend?.label ?? crewActor.name;
       const name = entry.label.firstElementChild!;
       if (name.textContent !== displayName) name.textContent = displayName;
-      const activityText = backend?.bubble || backend?.activity || crewActor.activity;
-      if (entry.activity.textContent !== activityText) entry.activity.textContent = activityText;
-      entry.activity.hidden =
-        !backend?.bubble && backend?.voice === "idle" && (!backend || backend.status === "idle");
+      const rawActivity = backend?.bubble || backend?.activity || crewActor.activity || "";
+      const activityLine = crewActor.role
+        ? `• ${crewActor.role}${rawActivity ? ` · ${rawActivity}` : ""}`
+        : rawActivity;
+      if (entry.activity.textContent !== activityLine) entry.activity.textContent = activityLine;
+      entry.activity.hidden = false;
       entry.label.dataset.status = backend?.status ?? "idle";
       if (process.env.NODE_ENV === "development") {
         entry.label.dataset.x = crewActor.x.toFixed(1);
@@ -352,7 +354,7 @@ export class OfficeRenderer {
       }
       entry.label.setAttribute(
         "aria-label",
-        `${displayName}${activityText ? `: ${activityText}` : ""}. Inspect worker`,
+        `${displayName}${rawActivity ? `: ${rawActivity}` : ""}. Inspect worker`,
       );
     }
     if (this.target) {

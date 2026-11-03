@@ -256,7 +256,7 @@ function TeamWorkspace({ onClose, seats }: { onClose: () => void; seats: SeatSta
                       patch({ type, agent: type === "worker" ? undefined : draft.agent })
                     }
                   >
-                    {type === "worker" ? "Worker" : "Agent"}
+                    {type === "worker" ? "Crew member" : "Agent"}
                   </button>
                 ))}
               </div>

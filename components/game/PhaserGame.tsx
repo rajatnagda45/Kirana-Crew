@@ -107,7 +107,7 @@ export default function PhaserGame() {
         } catch (err) {
           log.error("3D renderer unavailable", err);
           setError(
-            "3D rendering is unavailable on this device. The original office remains fully usable.",
+            "3D rendering is unavailable on this device. The original store view remains fully usable.",
           );
           setCinematic(false);
         }
@@ -119,7 +119,7 @@ export default function PhaserGame() {
     init().catch((err) => {
       log.error("Office initialization failed", err);
       if (mounted) {
-        setError("The office could not load. Refresh to try again.");
+        setError("The store could not load. Refresh to try again.");
         setLoading(false);
       }
     });
@@ -162,8 +162,8 @@ export default function PhaserGame() {
       <div className="office-three" ref={threeRef} hidden={!cinematic} />
       {loading && (
         <div className="office-loading" role="status">
-          <span className="office-loading__mark">AT</span>
-          <strong>Opening the office</strong>
+          <span className="office-loading__mark">KC</span>
+          <strong>Opening the store</strong>
           <span>Preparing your workspace…</span>
         </div>
       )}

@@ -508,3 +508,187 @@ canvas {
     scroll-behavior: auto !important;
   }
 }
+
+/* ===== KiranaStore Design System (from Lovable ZIP) ===== */
+:root {
+  --kirana-radius: 0.75rem;
+  --kirana-background: oklch(0.13 0.008 60);
+  --kirana-foreground: oklch(0.96 0.015 85);
+  --kirana-card: oklch(0.175 0.01 60);
+  --kirana-card-foreground: oklch(0.96 0.015 85);
+  --kirana-popover: oklch(0.19 0.01 60);
+  --kirana-primary: oklch(0.8 0.155 75);
+  --kirana-primary-foreground: oklch(0.18 0.02 60);
+  --kirana-secondary: oklch(0.22 0.012 60);
+  --kirana-muted: oklch(0.21 0.01 60);
+  --kirana-muted-foreground: oklch(0.7 0.02 75);
+  --kirana-accent: oklch(0.26 0.03 70);
+  --kirana-destructive: oklch(0.63 0.21 27);
+  --kirana-success: oklch(0.74 0.17 150);
+  --kirana-border: oklch(0.28 0.015 65);
+  --kirana-glow:
+    0 0 0 1px color-mix(in oklab, var(--kirana-primary) 70%, transparent),
+    0 0 24px -4px color-mix(in oklab, var(--kirana-primary) 60%, transparent);
+  --kirana-gradient-mic: radial-gradient(
+    circle at 40% 35%,
+    oklch(0.9 0.15 85),
+    var(--kirana-primary) 55%,
+    oklch(0.62 0.15 60)
+  );
+}
+
+/* Store shell */
+.ks-shell {
+  background: var(--kirana-background);
+  color: var(--kirana-foreground);
+  font-family: var(--font-body, system-ui, sans-serif);
+}
+.ks-card {
+  background: var(--kirana-card);
+  border: 1px solid var(--kirana-border);
+  border-radius: var(--kirana-radius);
+}
+.ks-text-primary {
+  color: var(--kirana-primary);
+}
+.ks-text-muted {
+  color: var(--kirana-muted-foreground);
+}
+.ks-text-success {
+  color: var(--kirana-success);
+}
+.ks-text-destructive {
+  color: var(--kirana-destructive);
+}
+.ks-bg-accent {
+  background: var(--kirana-accent);
+}
+
+/* Crew labels */
+.crew-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.crew-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  width: 146px;
+  max-width: calc(100% - 12px);
+  transition: box-shadow 0.2s;
+  white-space: normal;
+  background: color-mix(in oklab, var(--kirana-background) 92%, transparent);
+  backdrop-filter: blur(6px);
+  border: 1px solid color-mix(in oklab, var(--kirana-foreground) 12%, transparent);
+  color: var(--kirana-foreground);
+  font-family: var(--font-body, system-ui, sans-serif);
+  line-height: 1.15;
+  box-shadow: 0 4px 14px -4px oklch(0 0 0 / 0.6);
+}
+.crew-label strong {
+  font-family: var(--font-display, system-ui, sans-serif);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.crew-label-sub {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  font-size: 9px;
+  color: var(--kirana-muted-foreground);
+}
+.crew-role {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.3;
+}
+.crew-label[hidden] {
+  display: none;
+}
+.crew-tether {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1px;
+  transform-origin: left center;
+  pointer-events: none;
+  background: color-mix(in oklab, var(--kirana-foreground) 30%, transparent);
+}
+.crew-tether[hidden] {
+  display: none;
+}
+.crew-dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--kirana-success);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--kirana-success) 25%, transparent);
+  animation: ks-voice 2.4s ease-in-out infinite;
+}
+.crew-label[data-selected="true"] {
+  box-shadow: var(--kirana-glow);
+}
+.store-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+.ks-voice-bar {
+  width: 3px;
+  border-radius: 3px;
+  background: var(--kirana-primary);
+  animation: ks-voice 1.1s ease-in-out infinite;
+}
+.ks-mic-orb {
+  background: var(--kirana-gradient-mic);
+  box-shadow:
+    0 0 0 10px color-mix(in oklab, var(--kirana-primary) 14%, transparent),
+    0 0 60px color-mix(in oklab, var(--kirana-primary) 55%, transparent);
+}
+
+@keyframes ks-voice {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crew-dot,
+  .ks-voice-bar {
+    animation: none;
+  }
+}
+
+/* KiranaShell nav */
+.ks-nav-tab-active {
+  background: color-mix(in oklab, var(--kirana-primary) 15%, transparent);
+  color: var(--kirana-primary);
+  border: 1px solid color-mix(in oklab, var(--kirana-primary) 40%, transparent);
+  border-radius: 12px;
+}
+.ks-nav-tab {
+  color: oklch(0.96 0.015 85 / 0.7);
+}
+.ks-nav-tab:hover {
+  background: var(--kirana-accent);
+  border-radius: 12px;
+}

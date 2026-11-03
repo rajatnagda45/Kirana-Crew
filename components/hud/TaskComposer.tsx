@@ -160,7 +160,7 @@ export default function TaskComposer({ refreshToken = 0 }: { refreshToken?: numb
       )}
       <form onSubmit={submit}>
         <fieldset disabled={busy} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
-          <label htmlFor="team-goal">Team goal</label>
+          <label htmlFor="team-goal">Store goal</label>
           <textarea
             id="team-goal"
             required

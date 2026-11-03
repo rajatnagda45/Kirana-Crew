@@ -76,20 +76,51 @@ export class OfficeAssets {
     parent.add(mesh);
     return mesh;
   }
-  texture(kind: "wood" | "floorwood" | "stone" | "rug" | "screen" | "board") {
+  texture(
+    kind: "wood" | "floorwood" | "stone" | "rug" | "screen" | "board" | "cardboard" | "sack",
+  ) {
     const key = `texture:${kind}`;
     const cached = this.materials.get(key);
     if (cached) return cached;
     const canvas = document.createElement("canvas");
     canvas.width = 512;
     canvas.height = 512;
-    const c = canvas.getContext("2d")!;
+    const c = canvas.getContext("2d");
+    if (!c) throw new Error("Surface canvas unavailable");
     let seed = 117;
     const rand = () => {
       seed = (seed * 1664525 + 1013904223) >>> 0;
       return seed / 4294967296;
     };
-    if (kind === "wood" || kind === "floorwood") {
+    if (kind === "cardboard" || kind === "sack") {
+      c.fillStyle = kind === "cardboard" ? "#bd935f" : "#e8ddc6";
+      c.fillRect(0, 0, 512, 512);
+      for (let i = 0; i < 512; i += 3) {
+        c.strokeStyle = i % 2 ? "rgba(70,45,20,.09)" : "rgba(255,248,222,.2)";
+        c.beginPath();
+        c.moveTo(i, 0);
+        c.lineTo(i, 512);
+        c.stroke();
+        if (kind === "sack") {
+          c.beginPath();
+          c.moveTo(0, i);
+          c.lineTo(512, i);
+          c.stroke();
+        }
+      }
+      if (kind === "cardboard") {
+        c.fillStyle = "#dfc599";
+        c.fillRect(226, 0, 60, 512);
+        c.fillStyle = "#403a2c";
+        c.font = "bold 28px sans-serif";
+        c.fillText("HANDLE WITH CARE", 32, 410);
+        c.font = "bold 50px sans-serif";
+        c.fillText("↑ ↑", 36, 360);
+        c.strokeStyle = "#403a2c";
+        c.lineWidth = 3;
+        c.strokeRect(30, 280, 150, 155);
+      }
+    } else if (kind === "wood" || kind === "floorwood") {
       c.fillStyle = kind === "floorwood" ? "#77756b" : "#70553c";
       c.fillRect(0, 0, 512, 512);
       for (let i = 0; i < 400; i++) {
@@ -136,7 +167,7 @@ export class OfficeAssets {
       c.fillRect(24, 22, 464, 28);
       if (kind === "screen") {
         for (let i = 0; i < 20; i++) {
-          c.fillStyle = ["#61bdcb", "#daae66", "#668aaa"][i % 3];
+          c.fillStyle = ["#61bdcb", "#daae66", "#668aaa"][i % 3] ?? "#61bdcb";
           c.fillRect(28 + (i % 3) * 12, 80 + i * 19, 40 + rand() * 230, 4);
         }
         c.fillStyle = "#172d3d";
@@ -174,6 +205,8 @@ export class OfficeAssets {
     this.textures.push(texture);
     const mat = new THREE.MeshStandardMaterial({
       map: texture,
+      bumpMap: kind === "screen" || kind === "board" ? null : texture,
+      bumpScale: kind === "sack" ? 0.015 : 0.006,
       roughness: kind === "stone" ? 0.38 : 0.72,
       metalness: kind === "stone" ? 0.12 : 0,
     });
@@ -184,6 +217,78 @@ export class OfficeAssets {
     }
     this.materials.set(key, mat);
     return mat;
+  }
+  /** Create a canvas-text sign material (used by furniture signs). */
+  signLabel(text: string, bg: string, fg: string, subtext?: string): THREE.MeshStandardMaterial {
+    const key = `sign:${text}:${bg}:${fg}:${subtext ?? ""}`;
+    const cached = this.materials.get(key);
+    if (cached) return cached;
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 128;
+    const c = canvas.getContext("2d");
+    if (!c) {
+      const m = this.material(bg);
+      this.materials.set(key, m);
+      return m;
+    }
+    c.fillStyle = bg;
+    c.fillRect(0, 0, 512, 128);
+    c.fillStyle = fg;
+    c.textAlign = "center";
+    c.textBaseline = "middle";
+    if (subtext) {
+      c.font = "bold 52px sans-serif";
+      c.fillText(text, 256, 54);
+      c.font = "28px sans-serif";
+      c.globalAlpha = 0.75;
+      c.fillText(subtext, 256, 96);
+      c.globalAlpha = 1;
+    } else {
+      c.font = "bold 64px sans-serif";
+      c.fillText(text, 256, 64);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    this.textures.push(texture);
+    const mat = new THREE.MeshStandardMaterial({
+      map: texture,
+      emissive: new THREE.Color(fg),
+      emissiveMap: texture,
+      emissiveIntensity: 0.35,
+      roughness: 0.6,
+    });
+    this.materials.set(key, mat);
+    return mat;
+  }
+  cylinderMesh(
+    parent: THREE.Object3D,
+    x: number,
+    y: number,
+    z: number,
+    radius: number,
+    height: number,
+    color: string | THREE.Material,
+  ) {
+    return this.round(parent, x, y, z, radius, height, color);
+  }
+  sphereMesh(
+    parent: THREE.Object3D,
+    x: number,
+    y: number,
+    z: number,
+    radius: number,
+    color: string | THREE.Material,
+  ) {
+    const mesh = new THREE.Mesh(
+      this.sphere,
+      typeof color === "string" ? this.material(color) : color,
+    );
+    mesh.position.set(x, y, z);
+    mesh.scale.setScalar(radius);
+    mesh.castShadow = true;
+    parent.add(mesh);
+    return mesh;
   }
   dispose() {
     this.cube.dispose();

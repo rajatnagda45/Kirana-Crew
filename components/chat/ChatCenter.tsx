@@ -405,7 +405,7 @@ export default function ChatCenter() {
         >
           <Users size={20} />
           <span>
-            <strong>Office Group</strong>
+            <strong>Store Crew</strong>
             <small>Shared team conversation</small>
           </span>
         </button>
@@ -430,7 +430,7 @@ export default function ChatCenter() {
               <span>
                 <strong>{s.label}</strong>
                 <small>
-                  {s.roleTitle ?? "Worker"} ·{" "}
+                  {s.roleTitle ?? "Crew member"} ·{" "}
                   {state.connection !== "connected"
                     ? "Offline"
                     : s.binding?.available
@@ -529,7 +529,7 @@ export default function ChatCenter() {
               {view === "tasks"
                 ? "Task center"
                 : group
-                  ? "Office Group"
+                  ? "Store Crew"
                   : (seat?.label ?? "Choose an agent")}
             </h1>
             <p>
@@ -668,7 +668,7 @@ export default function ChatCenter() {
               {loading && <p role="status">Loading saved history…</p>}
               {!loading && !display.length && (
                 <ConversationEmpty
-                  name={group ? "Office Group" : (seat?.label ?? "Agent")}
+                  name={group ? "Store Crew" : (seat?.label ?? "Agent")}
                   spritePath={seat?.spritePath}
                   group={group}
                   query={messageQuery}
@@ -699,7 +699,7 @@ export default function ChatCenter() {
                 </div>
               )}
               <label htmlFor="center-draft">
-                {group ? "Message Office Group" : `Message ${seat?.label ?? "selected agent"}`}
+                {group ? "Message Store Crew" : `Message ${seat?.label ?? "selected agent"}`}
               </label>
               <textarea
                 id="center-draft"
@@ -739,7 +739,7 @@ export default function ChatCenter() {
           <div className="center-eyebrow">Context & execution</div>
           {group && (
             <div className="center-group-context">
-              <h2>Office Group</h2>
+              <h2>Store Crew</h2>
               <p>
                 {
                   new Set(

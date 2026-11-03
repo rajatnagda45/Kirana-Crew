@@ -145,7 +145,7 @@ export default function ChatPanel({
   return (
     <HudFlyout
       title="Chat"
-      subtitle="Your conversation in the office"
+      subtitle="Your conversation in the store"
       headerAction={
         voice.mode === "voice" ? (
           <SessionSwitcher sessions={sessions} activeKey={activeSessionKey} />
@@ -184,9 +184,9 @@ export default function ChatPanel({
             </button>
           </div>
           {voice.mode === "text" ? (
-            <div className="chat-agent-row" aria-label="Office group chat">
+            <div className="chat-agent-row" aria-label="Store crew chat">
               <div className="chat-agent-identity">
-                <strong>Office group</strong>
+                <strong>Store crew</strong>
                 <span>
                   {groupAgents.length} available teammate{groupAgents.length === 1 ? "" : "s"} ·
                   shared work

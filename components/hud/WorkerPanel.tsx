@@ -78,8 +78,8 @@ export default function WorkerPanel({
   );
   return (
     <HudFlyout
-      title="Employees"
-      subtitle="Your people, their roles, and live assignments"
+      title="AI Workforce"
+      subtitle="Your crew, their kirana roles, and live assignments"
       headerAction={
         <>
           {onOpenDeveloper ? (
@@ -155,8 +155,9 @@ export default function WorkerPanel({
                 <strong>{seat.assigned ? seat.label : "Available seat"}</strong>
                 <span>
                   {seat.assigned
-                    ? seat.roleTitle || (seat.seatType === "agent" ? "Independent agent" : "Worker")
-                    : "Add someone to your office"}
+                    ? seat.roleTitle ||
+                      (seat.seatType === "agent" ? "Independent agent" : "Crew member")
+                    : "Add someone to your store"}
                 </span>
                 {seat.taskSnippet && <small>{seat.taskSnippet}</small>}
               </span>

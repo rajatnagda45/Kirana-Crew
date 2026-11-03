@@ -21,19 +21,19 @@ export type AmbientIntensity = "off" | "calm" | "lively";
 export const activityNames: Record<OfficeActivity, string> = {
   idle: "Available",
   thinking: "Thinking",
-  coding: "At workstation",
+  coding: "At billing terminal",
   reading: "Reading",
-  researching: "Browsing references",
-  reviewing: "Reviewing notes",
-  planning: "Planning",
+  researching: "Checking inventory",
+  reviewing: "Reviewing stock notes",
+  planning: "Planning orders",
   taking_break: "On a break",
-  getting_coffee: "Coffee break",
+  getting_coffee: "At checkout counter",
   walking: "Walking",
-  exploring: "Exploring",
+  exploring: "Checking shelves",
   looking_out_window: "Looking outside",
   stretching: "Stretching",
-  collaborating: "At meeting area",
-  returning_to_desk: "Returning to desk",
+  collaborating: "Coordinating with team",
+  returning_to_desk: "Returning to station",
   working_on_task: "Working",
   waiting_for_input: "Waiting for input",
 };
@@ -85,8 +85,8 @@ export class AmbientRoutine {
   destinationActivity(name: string): OfficeActivity {
     if (/window/i.test(name)) return "looking_out_window";
     if (/book/i.test(name)) return this.random() > 0.5 ? "reading" : "researching";
-    if (/coffee/i.test(name)) return "getting_coffee";
-    if (/meeting/i.test(name)) return "collaborating";
+    if (/coffee|checkout/i.test(name)) return "getting_coffee";
+    if (/meeting|stock management/i.test(name)) return "collaborating";
     if (/water|sofa/i.test(name)) return "taking_break";
     return "exploring";
   }

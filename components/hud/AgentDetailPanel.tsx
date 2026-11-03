@@ -142,7 +142,7 @@ export default function AgentDetailPanel({
     );
   }
 
-  const typeLabel = seat.roleTitle ?? (seat.seatType === "agent" ? "Agent" : "Worker");
+  const typeLabel = seat.roleTitle ?? (seat.seatType === "agent" ? "Agent" : "Crew member");
 
   return (
     <HudFlyout
@@ -179,7 +179,7 @@ export default function AgentDetailPanel({
             <dd>{state.connection === "connected" ? "Online" : "Offline"}</dd>
           </div>
           <div>
-            <dt>Office activity</dt>
+            <dt>Store activity</dt>
             <dd>
               {state.connection !== "connected"
                 ? "Paused"
@@ -190,11 +190,11 @@ export default function AgentDetailPanel({
           </div>
           <div>
             <dt>Location</dt>
-            <dd>{office?.location ?? "Office"}</dd>
+            <dd>{office?.location ?? "Store"}</dd>
           </div>
         </dl>
         <p className="office-ambient-note">
-          Office activity shows where your teammate is. Assigned work appears below.
+          Store activity shows where your teammate is. Assigned work appears below.
         </p>
         {/* Current Task */}
         <div className="obs-section-label">Current Task</div>

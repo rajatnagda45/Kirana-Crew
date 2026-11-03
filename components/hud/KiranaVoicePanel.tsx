@@ -94,10 +94,10 @@ export default function KiranaVoicePanel() {
       {/* Header */}
       <div className="kv-header">
         <div className="kv-header__title">
-          <Zap size={13} aria-hidden="true" className="kv-header__zap" />
+          <Zap size={14} aria-hidden="true" className="kv-header__zap" />
           KiranaCrew Assistant
         </div>
-        <span className="kv-badge">Voice First</span>
+        <span className="kv-badge">AI</span>
       </div>
 
       <p className="kv-tagline">Talk to your AI store team in Kannada, Hindi or English.</p>
@@ -123,7 +123,7 @@ export default function KiranaVoicePanel() {
           aria-label={isActive ? (isMuted ? "Unmute" : "Mute mic") : "Start voice assistant"}
           title={statusLabel}
         >
-          {isMuted ? <MicOff size={26} /> : <Mic size={26} />}
+          {isMuted ? <MicOff size={32} /> : <Mic size={32} />}
         </button>
         <div
           className={`kv-waveform kv-waveform--right ${isActive && !isMuted ? "kv-waveform--active" : ""}`}

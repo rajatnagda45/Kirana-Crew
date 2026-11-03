@@ -75,7 +75,7 @@ export class Worker implements WorkerCtx {
   reservedPOI: POI | null = null;
   lastPOI: POI | null = null;
   reservations = new Set<POI>();
-  role = "Worker";
+  role = "Crew member";
   connection: ConnectionStatus = "disconnected";
   voice: VoiceStatus = "idle";
   reducedMotion = false;

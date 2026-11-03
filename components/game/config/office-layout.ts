@@ -34,9 +34,9 @@ export const WINDOWS = [
 ];
 export const AMBIENT_POIS = [
   ...WINDOWS.map((w, i) => ({ name: `Window ${i + 1}`, ...w.observation, facing: w.facing })),
-  { name: "Coffee station", x: 360, y: 754, facing: "left" as const },
-  { name: "Meeting area", x: 947, y: 537, facing: "up" as const },
-  { name: "Meeting area north", x: 947, y: 490, facing: "down" as const },
+  { name: "Checkout counter", x: 360, y: 754, facing: "left" as const },
+  { name: "Stock management area", x: 947, y: 537, facing: "up" as const },
+  { name: "Stock management area north", x: 947, y: 490, facing: "down" as const },
 ];
 export function deskFootprint(seat: SeatDef): Rect {
   const horizontal = seat.facing === "left" || seat.facing === "right";

@@ -249,7 +249,7 @@ export function WorkReportView({ task, lifecycle }: { task: WorkTask; lifecycle?
                   <li key={approval}>{approval}</li>
                 ))}
               </ul>
-              <p>Agent Town only recommends: no payment was approved and no record was changed.</p>
+              <p>KiranaCrew only recommends: no payment was approved and no record was changed.</p>
             </div>
           )}
           <table>

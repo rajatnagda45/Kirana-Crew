@@ -46,7 +46,7 @@ export class WorkerManager {
       initialFacing,
     );
     worker.reservations = this.reservations;
-    worker.role = seat.roleTitle ?? "Worker";
+    worker.role = seat.roleTitle ?? "Crew member";
     worker.runtimeBusy = seat.status === "running" || seat.status === "returning";
     worker.setPOIs(this.pois);
     worker.setPathfinder(this.pathfinder);
@@ -86,7 +86,7 @@ export class WorkerManager {
       }
 
       existing.updateAppearance(seat.label, seat.spriteKey!);
-      existing.role = seat.roleTitle ?? "Worker";
+      existing.role = seat.roleTitle ?? "Crew member";
       existing.runtimeBusy = seat.status === "running" || seat.status === "returning";
       nextWorkers.push(existing);
       existingBySeatId.delete(seatDef.seatId);

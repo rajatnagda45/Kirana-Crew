@@ -5,7 +5,7 @@
 
 ## Shipped engine: lib/vendor/hmem-reference/dist/index.mjs  (pnpm hmem:conformance)
 
-H-MEM conformance: implementation = I:/Project/agent_house/agent-town/lib/vendor/hmem-reference/dist/index.mjs
+H-MEM conformance: implementation = I:/Project/agent_house/kiranacrew/lib/vendor/hmem-reference/dist/index.mjs
 
   record-validation
     PASS rv-001 a record with no source is rejected by construction

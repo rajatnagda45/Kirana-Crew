@@ -27,6 +27,7 @@ import { useVoice } from "@/lib/voice/VoiceProvider";
 import { useWorkspaceView } from "./WorkspaceView";
 import PendingReviews from "./PendingReviews";
 import OperationsPanel from "./OperationsPanel";
+import KiranaVoicePanel from "./KiranaVoicePanel";
 
 export default function GameHud() {
   const { state } = useStudio();
@@ -156,11 +157,11 @@ export default function GameHud() {
         icon: "/ui/icons/icon-tasks.png",
         iconActive: "/ui/icons/icon-tasks-active.png",
       },
-      { id: "operations", label: "Office operations", icon: "", iconActive: "" },
+      { id: "operations", label: "Store operations", icon: "", iconActive: "" },
       { id: "nammaops", label: "KiranaCrew", icon: "", iconActive: "" },
       {
         id: "workers",
-        label: "Employees",
+        label: "AI Workforce",
         icon: "/ui/icons/icon-workers.png",
         iconActive: "/ui/icons/icon-workers-active.png",
       },
@@ -253,6 +254,7 @@ export default function GameHud() {
             }
             sessionMetrics={state.sessionMetrics}
             seats={state.seats}
+            contextName="KiranaCrew"
           />
         </div>
         {/* Spacer pushes chat to right */}
@@ -305,6 +307,9 @@ export default function GameHud() {
         onClose={() => setDeveloperOpen(false)}
         seats={state.seats}
       />
+
+      {/* Permanent right-side voice panel */}
+      <KiranaVoicePanel />
 
       {showOnboarding && <OnboardingOverlay onDone={() => setShowOnboarding(false)} />}
     </div>

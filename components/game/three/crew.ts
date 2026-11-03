@@ -1,4 +1,5 @@
 import { AGENT_RADIUS, CollisionRegistry, StoreNavigation, type Point } from "./navigation";
+/** Pure crew simulation: the same KiranaCrew characters, now running a kirana store. No three.js/React here. */
 
 export type Pose = "standing" | "working" | "seated" | "reading" | "talking" | "reaching";
 export type CrewStatus = "idle" | "working" | "done";
@@ -20,7 +21,7 @@ export interface CrewActor {
 interface Stop {
   x: number;
   z: number;
-  facing: number;
+  facing: number; // radians; 0 = facing camera (+z)
   pose: Pose;
   activity: string;
   wait: number;
@@ -36,7 +37,7 @@ export interface CrewDef {
   stops: Stop[];
 }
 
-const UP = Math.PI;
+const UP = Math.PI; // facing the back wall
 const DOWN = 0;
 const LEFT = -Math.PI / 2;
 const RIGHT = Math.PI / 2;
@@ -141,7 +142,6 @@ export const CREW: CrewDef[] = [
 ];
 
 export const WALK_SPEED = 1.65;
-
 interface Runner {
   def: CrewDef;
   index: number;
@@ -151,6 +151,7 @@ interface Runner {
   blocked: number;
 }
 
+/** Tasks use each role's configured stations; live activity text can choose a matching station. */
 export const TASK_DESTINATIONS: Record<string, Array<{ pattern: RegExp; station: number }>> = {
   alice: [{ pattern: /board|review|visit/i, station: 1 }],
   bob: [
@@ -176,7 +177,6 @@ export class CrewSim {
     if (v) for (const r of this.runners) r.actor.moving = false;
   }
   readonly navigation: StoreNavigation;
-
   constructor(defs: CrewDef[] = CREW, collisions = new CollisionRegistry()) {
     this.navigation = new StoreNavigation(collisions);
     const placed: Point[] = [];
@@ -210,31 +210,25 @@ export class CrewSim {
       ];
     });
   }
-
   setActivities(map: Record<string, string>) {
     this.live = new Map(Object.entries(map).filter(([, activity]) => !!activity));
     for (const r of this.runners) if (!r.actor.moving) r.actor.activity = this.activityFor(r);
   }
-
   private activityFor(r: Runner) {
     return this.live.get(r.actor.id) ?? r.def.stops[r.index]?.activity ?? "Waiting";
   }
-
   get actors(): CrewActor[] {
     return this.runners.map((r) => r.actor);
   }
-
   private others(r: Runner) {
     return this.runners.filter((o) => o !== r).map((o) => o.actor);
   }
-
   private plan(r: Runner) {
     const stop = r.def.stops[r.index];
     if (!stop) return;
     r.path = this.navigation.route(r.actor, stop, this.others(r));
     r.blocked = 0;
   }
-
   step(dtRaw: number) {
     if (this.paused) return;
     const dt = Math.max(0, Math.min(dtRaw, 0.05));

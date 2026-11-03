@@ -511,8 +511,10 @@
   }
 }
 
-/* A rail only occupies workspace while it contains an open panel. */
+/* A rail only occupies workspace while it contains an open panel.
+   The canvas starts below the 62px solid header. */
 .office-app .office-world {
+  top: 62px;
   right: 0;
   bottom: 0;
 }
@@ -572,7 +574,7 @@
   }
 }
 .office-app {
-  background: var(--pixel-bg);
+  background: #080808;
   height: 100dvh;
 }
 @media (max-width: 760px) {

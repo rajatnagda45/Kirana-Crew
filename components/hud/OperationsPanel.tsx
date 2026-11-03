@@ -215,7 +215,7 @@ export default function OperationsPanel() {
 
   return (
     <HudFlyout
-      title="Office operations"
+      title="Store operations"
       subtitle="Live execution and evidence ledger"
       bodyClass="office-ledger"
     >
@@ -262,7 +262,7 @@ export default function OperationsPanel() {
                   {seat.label}
                   <small>
                     {seat.seatId === lead?.seatId
-                      ? "Office Lead"
+                      ? "Store Lead"
                       : (seat.roleTitle ?? seat.binding?.agentId ?? "Agent")}
                     {known ? ` · ${known.runtime}` : ""}
                   </small>

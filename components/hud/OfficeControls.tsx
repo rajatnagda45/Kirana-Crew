@@ -33,7 +33,7 @@ type Props = {
 const routines = [
   { value: "off", label: "Off", description: "Pause ambient routines" },
   { value: "calm", label: "Calm", description: "Occasional breaks and movement" },
-  { value: "lively", label: "Lively", description: "More frequent office activity" },
+  { value: "lively", label: "Lively", description: "More frequent store activity" },
 ] as const;
 
 export default function OfficeControls(props: Props) {
@@ -93,7 +93,7 @@ export default function OfficeControls(props: Props) {
     >
       <div className="office-controlbar__identity">
         <span />
-        {props.cinematic ? "Office" : "Classic"}
+        {props.cinematic ? "Store" : "Classic"}
       </div>
       <div className="office-controlbar__group">
         <button
@@ -185,7 +185,7 @@ export default function OfficeControls(props: Props) {
           <div className="office-control-menu__heading">
             <span>
               {menu === "life"
-                ? "Office life"
+                ? "Store life"
                 : menu === "light"
                   ? "Lighting"
                   : "Controls & shortcuts"}
@@ -196,7 +196,7 @@ export default function OfficeControls(props: Props) {
           </div>
           {menu === "life" ? (
             <>
-              <p>Set the pace of ambient office activity.</p>
+              <p>Set the pace of ambient store activity.</p>
               {routines.map((item) => (
                 <button
                   className="office-control-option"

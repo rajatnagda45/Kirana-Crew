@@ -139,6 +139,7 @@ export class StoreNavigation {
     if (!path.length) return [];
     const last = path[path.length - 1];
     if (last && this.collisions.segmentFree(last, target)) path.push(target);
+    // Keep every grid corner: smoothing must not cut through inflated fixture bounds.
     let previous = from;
     for (const p of path) {
       if (!this.collisions.segmentFree(previous, p)) return [];

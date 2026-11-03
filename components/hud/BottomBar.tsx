@@ -10,6 +10,7 @@ interface BottomBarProps {
   sessionMetrics: SessionMetrics;
   seats: SeatState[];
   setupReason?: string;
+  contextName?: string;
 }
 
 export default function BottomBar({
@@ -17,6 +18,7 @@ export default function BottomBar({
   sessionMetrics,
   seats,
   setupReason,
+  contextName,
 }: BottomBarProps) {
   const totalSeats = seats.length;
   const assignedSeats = seats.filter((s) => s.assigned).length;
@@ -50,6 +52,7 @@ export default function BottomBar({
         maxTokens={sessionMetrics.maxContextTokens}
         fresh={sessionMetrics.fresh}
         inline
+        contextLabel={contextName ? `Store: ${contextName}` : undefined}
       />
       <div className="hud-pill hud-pill--metric" title="Live seat allocation and active tasks">
         <Users size={10} />

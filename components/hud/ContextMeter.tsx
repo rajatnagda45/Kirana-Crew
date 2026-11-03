@@ -8,6 +8,8 @@ interface ContextMeterProps {
   fresh: boolean;
   /** Inline single-row variant for bottom bar */
   inline?: boolean;
+  /** Override label text shown before the bar, e.g. "Store: KiranaCrew" */
+  contextLabel?: string;
 }
 
 export default function ContextMeter({
@@ -15,6 +17,7 @@ export default function ContextMeter({
   maxTokens,
   fresh,
   inline = false,
+  contextLabel,
 }: ContextMeterProps) {
   const hasValues =
     typeof usedTokens === "number" &&
@@ -34,6 +37,21 @@ export default function ContextMeter({
         : "linear-gradient(90deg, #a61123, #ef4444)";
 
   if (inline) {
+    if (contextLabel) {
+      return (
+        <div
+          className="hud-pill hud-context-pill"
+          title={
+            hasValues
+              ? `${formatCompact(usedTokens!)} of ${formatCompact(maxTokens!)} tokens used${fresh ? "" : " (last reported)"}`
+              : "Context window usage not reported"
+          }
+        >
+          <span className="hud-context-pill__label">CONTEXT</span>
+          <span className="hud-context-pill__value">{contextLabel}</span>
+        </div>
+      );
+    }
     return (
       <div
         className="hud-meter-inline"

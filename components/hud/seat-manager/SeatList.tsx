@@ -93,7 +93,7 @@ export default function SeatList({
                 </div>
                 <div style={{ color: "var(--pixel-muted)", marginTop: 4 }}>
                   {seat.assigned
-                    ? (seat.roleTitle ?? (seat.seatType === "agent" ? "Agent" : "Worker"))
+                    ? (seat.roleTitle ?? (seat.seatType === "agent" ? "Agent" : "Crew member"))
                     : "Unassigned"}
                 </div>
               </div>
