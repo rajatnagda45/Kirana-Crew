@@ -14,6 +14,12 @@ export const NAMMAOPS_VOICE_INTENTS = [
   "demand_forecast",
   "supplier_comparison",
   "prepare_purchase_order",
+  "receivables_report",
+  "expiry_check",
+  "purchase_status",
+  "supplier_performance",
+  "customer_insights",
+  "store_health_report",
 ];
 
 /** Gemini declaration for store business questions. Blocking: the model waits for evidence. */
@@ -22,7 +28,7 @@ export const NAMMAOPS_BUSINESS_TOOL = {
   description:
     "Ask the store's NammaOps specialists (Inventory, Sales, Procurement, Finance) a business question. " +
     "They read the store's ERP records and return verified facts, recommendations, evidence and limitations. " +
-    "Use for stock levels, a day's sales, top-selling products, posted profit, demand forecasts, supplier quotation comparisons, and preparing draft purchase orders. " +
+    "Use for stock levels, sales for a day or several days, top-selling products, posted profit, demand forecasts, supplier quotation comparisons, preparing draft purchase orders, pending udhaar, expiring stock, purchase orders and late suppliers, customer buying patterns, and the shop's biggest problems. " +
     "Never use it to approve, submit, cancel or change anything.",
   parameters: {
     type: Type.OBJECT,
@@ -34,7 +40,10 @@ export const NAMMAOPS_BUSINESS_TOOL = {
           "list_products: every product the store sells, grouped by category, with stock (use for 'which products', 'list all items', 'how many items in a category'; pass products only to name a category). " +
           "check_stock: current stock vs reorder level. sales_summary: a day's sales total. top_selling_products: a day's best sellers. " +
           "business_profit: a day's net profit from posted accounting only. demand_forecast: expected demand and what to order (historical sales). " +
-          "supplier_comparison: compare supplier quotations for named products. prepare_purchase_order: create draft purchase orders for low-stock products for the owner to approve.",
+          "supplier_comparison: compare supplier quotations for named products. prepare_purchase_order: create draft purchase orders for low-stock products for the owner to approve. " +
+          "receivables_report: pending udhaar, who has not paid for 30+ days, collection priority. expiry_check: stock expiring in 7, 15 and 30 days. " +
+          "purchase_status: open purchase orders, late deliveries, unpaid supplier bills. supplier_performance: which supplier is delaying (optionally for named products). " +
+          "customer_insights: who buys every week, best customers, inactive regulars. store_health_report: the five biggest problems in the shop today.",
       },
       products: {
         type: Type.ARRAY,
@@ -45,7 +54,12 @@ export const NAMMAOPS_BUSINESS_TOOL = {
       day: {
         type: Type.STRING,
         description:
-          "For sales, top products and profit: today, yesterday, or YYYY-MM-DD. Default today.",
+          "For sales, top products and profit: today, yesterday, or YYYY-MM-DD (the first day of a multi-day range). Default today.",
+      },
+      to: {
+        type: Type.STRING,
+        description:
+          "Only for a multi-day sales summary: the last day, as yesterday or YYYY-MM-DD, with day as the first. 'Previous 3 days' = day three days ago, to yesterday.",
       },
       qty: {
         type: Type.INTEGER,

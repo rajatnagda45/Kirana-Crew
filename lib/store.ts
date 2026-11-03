@@ -445,9 +445,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       submissionIds.current.set(dedupe, taskId);
       lsSet("agent-town:pending-submissions", [...submissionIds.current.entries()].slice(-20));
       try {
-        const { task, redirected } = await runtimeRequest<{
+        const { task, redirected, answered } = await runtimeRequest<{
           task?: TaskItem;
           redirected?: { composerTaskId: string; reason: string };
+          /** A store question answered by the governed workflows; the reply is already saved. */
+          answered?: { workflowId: string | null; intent: string | null };
         }>("tasks", {
           taskId,
           message,
@@ -459,6 +461,15 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         });
         submissionIds.current.delete(dedupe);
         lsSet("agent-town:pending-submissions", [...submissionIds.current.entries()].slice(-20));
+        if (answered) {
+          // No seat task exists and no work report either: the messages arrive on the event stream.
+          setState((old) => ({ ...old, runtimeError: undefined }));
+          options?.onRedirect?.({
+            composerTaskId: answered.workflowId ?? "",
+            reason: "Answered by the NammaOps specialists.",
+          });
+          return undefined;
+        }
         if (redirected || !task) {
           // No seat task exists: the request runs in the verified work pipeline.
           setState((old) => ({ ...old, runtimeError: undefined, workRedirect: redirected }));

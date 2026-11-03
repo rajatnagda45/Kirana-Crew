@@ -186,9 +186,10 @@
       { "voice_name": "Alice", "department": "manager", "title": "Store Manager" },
       { "voice_name": "Bob", "department": "inventory", "title": "Inventory" },
       { "voice_name": "Carol", "department": "sales", "title": "Sales" },
-      { "voice_name": "Dave", "department": "procurement", "title": "Procurement" }
+      { "voice_name": "Dave", "department": "procurement", "title": "Procurement" },
+      { "voice_name": "Erin", "department": "finance", "title": "Finance" }
     ],
-    "background": [{ "department": "finance", "title": "Finance" }]
+    "background": []
   },
   "principals": [
     {

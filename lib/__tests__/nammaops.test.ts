@@ -888,6 +888,12 @@ describe("F2 voice department agents (fixture)", () => {
       demand_forecast: "demand_forecast",
       supplier_comparison: "supplier_comparison",
       prepare_purchase_order: "prepare_reorder",
+      receivables_report: "receivables_report",
+      expiry_check: "expiry_check",
+      purchase_status: "purchase_status",
+      supplier_performance: "supplier_performance",
+      customer_insights: "customer_insights",
+      store_health_report: "store_health_report",
     });
     // Typed commands: a comparison request compares; ordering with a supplier preference reorders.
     expect(parseCommand("Compare supplier quotations for milk and sugar", TODAY)).toEqual({
@@ -897,16 +903,16 @@ describe("F2 voice department agents (fixture)", () => {
     expect(parseCommand(W2, TODAY)).toEqual({ action: "prepare_reorder", products: [] });
   });
 
-  it("maps Alice, Bob, Carol and Dave to departments from configuration only", async () => {
+  it("maps Alice, Bob, Carol, Dave and Erin to departments from configuration only", async () => {
     const ctx = await ready();
     const router = ctx.nammaops.voice;
     expect(router.department("Alice")).toMatchObject({ department: "manager" });
     expect(router.department("bob")).toMatchObject({ department: "inventory" });
     expect(router.department("Carol")).toMatchObject({ department: "sales" });
     expect(router.department("Dave")).toMatchObject({ department: "procurement" });
-    expect(router.department("Alice")?.background).toEqual([
-      { department: "finance", title: "Finance" },
-    ]);
+    expect(router.department("Erin")).toMatchObject({ department: "finance", title: "Finance" });
+    expect(router.department("Alice")?.background).toEqual([]);
+    expect(router.department("Alice")?.colleagues.map((c: Any) => c.name)).toContain("Erin");
     expect(router.department("Rahul")).toBeNull();
     // A seat that is not a department gets nothing, and a department grants no ERP capability.
     await expect(
@@ -955,7 +961,7 @@ describe("F2 voice department agents (fixture)", () => {
     expect(all.facts[0]).toMatch(new RegExp(`^${count} products in \\d+ categor`));
     // Never truncated: every product name appears.
     for (const row of view.result.rows) expect(all.facts.join(" ")).toContain(row.item_name);
-    const unknown = await ask({ intent: "check_stock", products: ["pulses"] });
+    const unknown = await ask({ intent: "check_stock", products: ["electronics"] });
     expect(unknown.status).toBe("clarification_required");
     expect(unknown.facts.join(" ")).toContain("Toned Milk 500ml");
     expect(unknown.limitations.join(" ")).toMatch(/closest recorded products/);
@@ -972,7 +978,7 @@ describe("F2 voice department agents (fixture)", () => {
       "RICE",
     ]);
     expect(resolveProducts(["dal"], items).resolved[0].item.item_code).toBe("DAL");
-    const missing = resolveProducts(["pulses"], items).clarifications[0];
+    const missing = resolveProducts(["electronics"], items).clarifications[0];
     expect(missing).toMatchObject({ reason: "unknown" });
     expect(missing.categories).toEqual({ Staples: ["Toor Dal 1kg", "Rice 5kg"], Dairy: ["Milk"] });
   });
