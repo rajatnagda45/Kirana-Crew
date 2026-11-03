@@ -99,6 +99,27 @@
     "erp.po.open": {
       "tool": "list_open_purchase_orders",
       "risk": "READ"
+    },
+    "erp.items.valuation": {
+      "tool": "get_item_valuation",
+      "risk": "READ"
+    },
+    "erp.batches.list": {
+      "tool": "list_batches",
+      "risk": "READ"
+    },
+    "erp.receivables.aging": {
+      "tool": "list_receivables",
+      "risk": "READ"
+    },
+    "erp.payables.aging": {
+      "tool": "list_payables",
+      "risk": "READ"
+    },
+    "erp.gst.summary": {
+      "tool": null,
+      "risk": "READ",
+      "disabled": "GST line extraction from live Sales/Purchase Taxes and Charges is not reviewed yet."
     }
   }
 }

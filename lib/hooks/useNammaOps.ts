@@ -239,12 +239,18 @@ export function useNammaOpsBinding() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchNammaOps<{ binding: BindingStatus[] }>("/binding")
+  const reload = useCallback(() => {
+    setLoading(true);
+    return fetchNammaOps<{ binding: BindingStatus[] }>("/binding")
       .then((r) => setBinding(r.binding ?? []))
       .catch((e) => setError(e instanceof Error ? e.message : "Failed"))
       .finally(() => setLoading(false));
   }, []);
 
-  return { binding, loading, error };
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void reload();
+  }, [reload]);
+
+  return { binding, loading, error, reload };
 }

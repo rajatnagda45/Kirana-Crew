@@ -14,6 +14,8 @@ import {
   Activity,
 } from "lucide-react";
 import { toast } from "sonner";
+import { usePathname, useRouter } from "next/navigation";
+import { APP_VIEWS, viewFromPath, viewPath } from "@/lib/app-views";
 import {
   KiranaStoreCanvas,
   type KiranaStoreCanvasHandle,
@@ -40,6 +42,10 @@ import SettingsPage from "@/components/pages/SettingsPage";
 import AnalyticsPage from "@/components/pages/AnalyticsPage";
 import SalesPage from "@/components/pages/SalesPage";
 import CustomersPage from "@/components/pages/CustomersPage";
+import SuppliersPage from "@/components/pages/SuppliersPage";
+import CreditPage from "@/components/pages/CreditPage";
+import GstPage from "@/components/pages/GstPage";
+import StockLedgerPage from "@/components/pages/StockLedgerPage";
 
 // Existing secondary panels
 import ChatPanel from "@/components/hud/ChatPanel";
@@ -85,7 +91,9 @@ export default function KiranaShell() {
   const voice = useVoice();
   const activityMap = useOfficeActivity();
 
-  const [view, setView] = useState<AppView>("overview");
+  // The URL is the source of truth for the current view (/app, /app/inventory, ...).
+  const router = useRouter();
+  const view = viewFromPath(usePathname());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [zone, setZone] = useState<string | null>(null);
@@ -196,7 +204,16 @@ export default function KiranaShell() {
               ? "Ready"
               : "Tap to speak";
 
-  const navigate = (v: AppView) => setView(v);
+  const navigate = (requested: AppView | string) => {
+    // Pages may pass legacy names ("workers"); anything unknown falls back to the overview.
+    const v: AppView =
+      requested === "workers"
+        ? "workforce"
+        : (APP_VIEWS as readonly string[]).includes(requested)
+          ? (requested as AppView)
+          : "overview";
+    if (v !== view) router.push(viewPath(v));
+  };
 
   // useCallback keeps canvas ref access out of useMemo factory (React Compiler requirement)
   const cbRecenter = useCallback(() => {
@@ -232,7 +249,7 @@ export default function KiranaShell() {
       case "store":
         return null; // handled below in store section
       case "overview":
-        return <OverviewPage onNavigate={(v: string) => navigate(v as AppView)} />;
+        return <OverviewPage onNavigate={navigate} />;
       case "chat":
         return (
           <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
@@ -261,6 +278,14 @@ export default function KiranaShell() {
         return <FinancePage />;
       case "customers":
         return <CustomersPage />;
+      case "suppliers":
+        return <SuppliersPage />;
+      case "credit":
+        return <CreditPage />;
+      case "stock-ledger":
+        return <StockLedgerPage />;
+      case "gst":
+        return <GstPage />;
       case "analytics":
         return <AnalyticsPage />;
       case "reviews":
@@ -272,7 +297,7 @@ export default function KiranaShell() {
       case "settings":
         return <SettingsPage />;
       default:
-        return <OverviewPage onNavigate={(v: string) => navigate(v as AppView)} />;
+        return <OverviewPage onNavigate={navigate} />;
     }
   }
 

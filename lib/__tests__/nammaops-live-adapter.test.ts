@@ -17,6 +17,7 @@ import { loadWorkforce } from "../server/nammaops/workforce.mjs";
 import {
   ADAPTER_TOOLS,
   HVGERP_READS,
+  DOC_LIST_FIELDS,
   createAdapter,
   createAdapterServer,
 } from "../mcp/hvgerp-adapter-server.mjs";
@@ -226,6 +227,35 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
       if (doctype === "POS Invoice") return list([]);
       if (doctype === "Item Price")
         return list([{ item_code: "MILK", price_list: "Standard Buying", price_list_rate: 25 }]);
+      if (doctype === "Bin")
+        return list([
+          { item_code: "MILK", warehouse: "Stores - X", actual_qty: 10, stock_value: 250 },
+          { item_code: "MILK", warehouse: "Back - X", actual_qty: 10, stock_value: 230 },
+        ]);
+      if (doctype === "Batch")
+        return list([{ name: "B1", item: "MILK", batch_qty: 6, expiry_date: "2026-11-04" }]);
+      if (doctype === "Sales Invoice")
+        return list([
+          {
+            name: "SINV-1",
+            customer: "Lakshmi",
+            posting_date: "2026-10-01",
+            due_date: "2026-10-31",
+            grand_total: 500,
+            outstanding_amount: 200,
+          },
+        ]);
+      if (doctype === "Purchase Invoice")
+        return list([
+          {
+            name: "PINV-1",
+            supplier: "Dairy",
+            posting_date: "2026-10-01",
+            due_date: null,
+            grand_total: 900,
+            outstanding_amount: 900,
+          },
+        ]);
       const from = filters.find((row: Any) => row[1] === ">=")?.[2] ?? "0000";
       const to = filters.find((row: Any) => row[1] === "<=")?.[2] ?? "9999";
       return list(ledger.filter((row) => row.posting_date >= from && row.posting_date <= to));
@@ -337,9 +367,21 @@ describe("hvgerp adapter (unit, fake hvgerp)", () => {
         name: "PO-1",
         supplier: "Alpha Traders",
         schedule_date: "2026-11-03",
-        items: [{ item_code: "SUGAR", pending_qty: 15 }],
+        transaction_date: null,
+        items: [
+          {
+            item_code: "SUGAR",
+            ordered_qty: expect.any(Number),
+            received_qty: expect.any(Number),
+            pending_qty: 15,
+            rate: expect.any(Number),
+          },
+        ],
       },
     ]);
+    // Ordered and received quantities reconcile with the pending quantity.
+    const [line] = out.purchase_orders[0].items;
+    expect(line.ordered_qty - line.received_qty).toBe(line.pending_qty);
   });
 
   it("reads quotation rates, lead times and validity from the quotation document", async () => {
@@ -424,7 +466,9 @@ describe("hvgerp adapter (unit, fake hvgerp)", () => {
       const args =
         tool.name === "get_stock_ledger"
           ? { item_code: "MILK" }
-          : { from_date: "2026-10-31", to_date: "2026-11-01" };
+          : ["list_receivables", "list_payables"].includes(String(tool.name))
+            ? { as_of: "2026-11-01" }
+            : { from_date: "2026-10-31", to_date: "2026-11-01" };
       await adapter.call(tool.name, args);
     }
     expect(hv.calls.length).toBeGreaterThan(10);
@@ -432,11 +476,32 @@ describe("hvgerp adapter (unit, fake hvgerp)", () => {
       expect(HVGERP_READS).toContain(call.name);
       if (call.name === "erpnext_doc_get")
         expect(["Supplier Quotation", "POS Invoice"]).toContain(call.arguments.doctype);
-      if (call.name === "erpnext_doc_list")
-        expect(["Stock Ledger Entry", "POS Invoice", "Item Price"]).toContain(
-          call.arguments.doctype,
-        );
+      if (call.name === "erpnext_doc_list") {
+        expect([
+          "Stock Ledger Entry",
+          "POS Invoice",
+          "Item Price",
+          "Bin",
+          "Batch",
+          "Sales Invoice",
+          "Purchase Invoice",
+        ]).toContain(call.arguments.doctype);
+        // The dashboard doctypes may only be read through their reviewed field lists.
+        const allowed = (DOC_LIST_FIELDS as Record<string, readonly string[]>)[
+          call.arguments.doctype
+        ];
+        if (allowed)
+          for (const field of call.arguments.fields ?? []) expect(allowed).toContain(field);
+      }
     }
+    await expect(
+      adapter.call("list_receivables", { as_of: "2026-11-01" }).then(parse),
+    ).resolves.toMatchObject({
+      invoices: [{ name: "SINV-1", outstanding_amount: 200, due_date: "2026-10-31" }],
+    });
+    await expect(adapter.call("get_item_valuation", {}).then(parse)).resolves.toMatchObject({
+      valuations: [{ item_code: "MILK", valuation_rate: 24 }],
+    });
     await expect(adapter.call("erpnext_doc_submit", {})).rejects.toThrow(/Unknown tool/);
   });
 });
@@ -515,6 +580,7 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
     const { runtime, report } = await liveSetup();
     expect(report.blockers).toEqual([]);
     expect(report.disabled.map((row: Any) => row.business_capability).sort()).toEqual([
+      "erp.gst.summary",
       "erp.payments.summary",
       "erp.po.create_draft",
       "erp.po.get",
@@ -524,7 +590,7 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
     expect(granted.join(" ")).not.toMatch(/create_purchase_order|submit/);
     expect(
       runtime.nammaops.binding.status().filter((row: Any) => row.state === "unbound"),
-    ).toHaveLength(4);
+    ).toHaveLength(5);
   });
 
   it("answers stock, sales, profit and supplier questions from live-shaped data, labelled as live", async () => {

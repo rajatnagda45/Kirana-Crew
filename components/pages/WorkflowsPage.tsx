@@ -14,6 +14,12 @@ import {
   TrendingUp,
   ShoppingCart,
   Users,
+  HandCoins,
+  CalendarClock,
+  Truck,
+  Gauge,
+  UserCheck,
+  HeartPulse,
 } from "lucide-react";
 import {
   useNammaOpsWorkflows,
@@ -118,6 +124,54 @@ const WORKFLOW_DEFS = [
     args: [
       { key: "products", label: "Products (comma-separated)", placeholder: "Atta, Rice, Sugar" },
     ],
+  },
+  {
+    action: "receivables_report",
+    icon: HandCoins,
+    label: "Udhaar Report",
+    desc: "Finance Agent ages customer dues, finds who has not paid for 30+ days and partial payments, and builds a collection-priority list.",
+    color: "oklch(0.72 0.16 60)",
+    args: [],
+  },
+  {
+    action: "expiry_check",
+    icon: CalendarClock,
+    label: "Expiry Check",
+    desc: "Inventory Agent finds batches expiring within 7, 15 and 30 days, values the stock at risk and puts perishables first.",
+    color: "oklch(0.65 0.2 25)",
+    args: [],
+  },
+  {
+    action: "purchase_status",
+    icon: Truck,
+    label: "Purchase Status",
+    desc: "Procurement Agent tracks ordered vs received quantities, late deliveries and unpaid supplier bills.",
+    color: "oklch(0.7 0.14 200)",
+    args: [],
+  },
+  {
+    action: "supplier_performance",
+    icon: Gauge,
+    label: "Supplier Performance",
+    desc: "Procurement Agent scores suppliers on late deliveries, on-time rate, quoted vs invoiced price and dues.",
+    color: "oklch(0.7 0.15 150)",
+    args: [{ key: "products", label: "Products (optional)", placeholder: "Milk, Curd" }],
+  },
+  {
+    action: "customer_insights",
+    icon: UserCheck,
+    label: "Customer Insights",
+    desc: "Sales Agent finds weekly buyers, high-value and inactive regular customers, favourite products and returns.",
+    color: "oklch(0.72 0.14 290)",
+    args: [],
+  },
+  {
+    action: "store_health_report",
+    icon: HeartPulse,
+    label: "Store Health",
+    desc: "Manager combines sales, low stock, expiry, udhaar, supplier delays and profit into the five biggest problems today.",
+    color: "var(--kirana-primary)",
+    args: [],
   },
 ];
 
@@ -264,7 +318,8 @@ export default function WorkflowsPage() {
           .map((s) => s.trim())
           .filter(Boolean);
       }
-      await start(wfArgs);
+      // The workflow API takes a validated intent; a bare { action } body is rejected.
+      await start({ intent: wfArgs });
       toast.success(`${action.replace(/_/g, " ")} started`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to start workflow");

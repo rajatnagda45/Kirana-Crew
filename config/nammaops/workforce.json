@@ -68,7 +68,9 @@
         "erp.stock.balance",
         "erp.warehouses.list",
         "erp.stock.ledger",
-        "erp.stock.movements"
+        "erp.stock.movements",
+        "erp.items.valuation",
+        "erp.batches.list"
       ]
     },
     {
@@ -98,7 +100,8 @@
         "erp.pos_invoices.list",
         "erp.customers.list",
         "erp.items.list",
-        "erp.sales.history"
+        "erp.sales.history",
+        "erp.receivables.aging"
       ]
     },
     {
@@ -134,7 +137,10 @@
         "erp.item_prices.get",
         "erp.po.create_draft",
         "erp.po.get",
-        "erp.po.open"
+        "erp.po.open",
+        "erp.payables.aging",
+        "erp.purchase_invoices.list",
+        "erp.items.list"
       ]
     },
     {
@@ -167,7 +173,10 @@
         "erp.pnl",
         "erp.gl",
         "erp.purchase_invoices.list",
-        "erp.payments.summary"
+        "erp.payments.summary",
+        "erp.receivables.aging",
+        "erp.payables.aging",
+        "erp.gst.summary"
       ]
     }
   ],
@@ -186,6 +195,35 @@
       "id": "nammaops-po-submit",
       "purpose": "Submits a purchase order only after the store owner approved that exact order.",
       "business_capabilities": ["erp.po.get", "erp.po.submit"]
+    },
+    {
+      "id": "nammaops-dashboard-reader",
+      "purpose": "Reads ERP data for the management dashboards. READ capabilities only; never drafts, submits or changes anything.",
+      "business_capabilities": [
+        "erp.items.list",
+        "erp.stock.balance",
+        "erp.warehouses.list",
+        "erp.stock.ledger",
+        "erp.stock.movements",
+        "erp.items.valuation",
+        "erp.batches.list",
+        "erp.suppliers.list",
+        "erp.supplier_quotations.list",
+        "erp.item_prices.get",
+        "erp.po.get",
+        "erp.po.open",
+        "erp.sales_invoices.list",
+        "erp.pos_invoices.list",
+        "erp.customers.list",
+        "erp.sales.history",
+        "erp.pnl",
+        "erp.gl",
+        "erp.purchase_invoices.list",
+        "erp.payments.summary",
+        "erp.receivables.aging",
+        "erp.payables.aging",
+        "erp.gst.summary"
+      ]
     }
   ]
 }
