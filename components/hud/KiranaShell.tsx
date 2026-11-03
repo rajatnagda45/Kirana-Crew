@@ -40,6 +40,7 @@ import SettingsPage from "@/components/pages/SettingsPage";
 import AnalyticsPage from "@/components/pages/AnalyticsPage";
 import SalesPage from "@/components/pages/SalesPage";
 import CustomersPage from "@/components/pages/CustomersPage";
+import ChatPage from "@/components/pages/ChatPage";
 
 // Existing secondary panels
 import ChatPanel from "@/components/hud/ChatPanel";
@@ -235,14 +236,8 @@ export default function KiranaShell() {
         return <OverviewPage onNavigate={(v: string) => navigate(v as AppView)} />;
       case "chat":
         return (
-          <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
-            <ChatPanel
-              messages={visibleMessages}
-              tasks={visibleTasks}
-              isConnected={state.connection === "connected"}
-              sessions={state.sessions ?? []}
-              activeSessionKey={activeSessionKey}
-            />
+          <div style={{ flex: 1, minHeight: 0, overflow: "hidden", height: "100%" }}>
+            <ChatPage />
           </div>
         );
       case "tasks":
