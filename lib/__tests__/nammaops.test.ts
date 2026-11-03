@@ -765,6 +765,8 @@ describe("OpenAPI contract (fixture)", () => {
       (await call(ctx, "POST", "/api/nammaops/approvals/own_missing/reject", { pin: PIN })).status,
     ).toBe(404);
 
+    // Voice queries need a multipart audio upload; a JSON body is refused before any provider runs.
+    expect((await call(ctx, "POST", "/api/nammaops/voice-query", {})).status).toBe(415);
     const access = await call(ctx, "POST", "/api/nammaops/access-check", {});
     expect(access.status).toBe(200);
     expect(access.body.access_check.passed).toBe(true);

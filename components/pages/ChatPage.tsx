@@ -934,6 +934,7 @@ function ContextPanel({
 
 interface DictationHandle {
   supported: boolean;
+  status: string;
   isListening: boolean;
   interimTranscript: string;
   error: string | null;
@@ -1111,12 +1112,14 @@ function MessageComposer({
           aria-label={convId === "group" ? "Message Store Crew" : `Message ${def.label}`}
           placeholder={
             dictation.isListening
-              ? "Listening… speak now"
-              : disabled && disabledReason
-                ? disabledReason
-                : convId === "group"
-                  ? "Ask the whole store crew…"
-                  : `Ask ${def.label}…`
+              ? "Listening… tap the mic again when you finish"
+              : dictation.status === "processing"
+                ? "Transcribing with Gnani…"
+                : disabled && disabledReason
+                  ? disabledReason
+                  : convId === "group"
+                    ? "Ask the whole store crew…"
+                    : `Ask ${def.label}…`
           }
           value={displayValue}
           disabled={disabled}

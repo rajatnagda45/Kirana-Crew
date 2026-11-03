@@ -84,27 +84,63 @@ describe("TTS providers", () => {
     });
   });
 
-  it("returns 503 when unset or when the Gnani Timbre endpoint is not configured", () => {
+  it("is unset without a provider, needs a Gnani key, and rejects an unknown Timbre model", () => {
     expect(createTtsProvider({})).toBeNull();
+    expect(() => createTtsProvider({ AGENT_TOWN_TTS_PROVIDER: "gnani" })).toThrow(/GNANI_API_KEY/);
     expect(() =>
-      createTtsProvider({ AGENT_TOWN_TTS_PROVIDER: "gnani", GNANI_API_KEY: "k" }),
-    ).toThrow(/GNANI_TTS_URL/);
+      createTtsProvider({
+        AGENT_TOWN_TTS_PROVIDER: "gnani",
+        GNANI_API_KEY: "k",
+        GNANI_TTS_MODEL: "timbre-v9",
+      }),
+    ).toThrow(/GNANI_TTS_MODEL/);
   });
 
-  it("Gnani: key only in the header, audio body passed through, contract marked unverified", async () => {
+  it("Gnani Timbre: verified request shape, key only in the header, raw PCM wrapped as 24 kHz WAV", async () => {
+    const pcm = new Uint8Array(480); // 10 ms of 24 kHz 16-bit mono
     const fetchImpl = vi
       .fn()
       .mockResolvedValue(
-        new Response(new Uint8Array([1, 2, 3]), { headers: { "content-type": "audio/mpeg" } }),
+        new Response(pcm, { headers: { "content-type": "application/octet-stream" } }),
       );
-    const tts = gnaniTtsProvider({ apiKey: "secret", url: "https://tts.example/v1", fetchImpl });
-    const out = await tts.synthesize({ text: "hello", language: "hi-IN" });
-    expect(out).toMatchObject({ mime: "audio/mpeg", provider: "gnani-timbre" });
-    expect([...out.bytes]).toEqual([1, 2, 3]);
-    expect(tts.contractVerified).toBe(false);
-    const [, init] = fetchImpl.mock.calls[0];
+    // A host-only URL (as it was configured) gets the inference path; a model name in the
+    // voice setting falls back to a real voice.
+    const tts = gnaniTtsProvider({
+      apiKey: "secret",
+      url: "https://api.vachana.ai",
+      voice: "timbre-v3.0",
+      language: "kn-IN",
+      fetchImpl,
+    });
+    const out = await tts.synthesize({ text: "Stock check complete" });
+    expect(tts.contractVerified).toBe(true);
+    const [url, init] = fetchImpl.mock.calls[0];
+    expect(url).toBe("https://api.vachana.ai/api/v1/tts/inference");
     expect(init.headers["X-API-Key-ID"]).toBe("secret");
+    expect(JSON.parse(init.body)).toEqual({
+      text: "Stock check complete",
+      model: "timbre-v3.0",
+      voice: "Avinash",
+      language_code: "kn-IN",
+    });
     expect(init.body).not.toContain("secret");
+    expect(out).toMatchObject({ mime: "audio/wav", provider: "gnani-timbre" });
+    expect(out.bytes.subarray(0, 4).toString()).toBe("RIFF");
+    expect(out.bytes.readUInt32LE(24)).toBe(24000);
+    expect(out.bytes.length).toBe(44 + pcm.length);
+  });
+
+  it("Gnani Timbre: a named voice is passed through and a real audio container is not re-wrapped", async () => {
+    const wav = pcmToWav(Buffer.alloc(4), 24000);
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(new Response(wav, { headers: { "content-type": "audio/wav" } }));
+    const out = await gnaniTtsProvider({ apiKey: "k", fetchImpl }).synthesize({
+      text: "hi",
+      voice: "Lakshmi",
+    });
+    expect(JSON.parse(fetchImpl.mock.calls[0][1].body).voice).toBe("Lakshmi");
+    expect(out.bytes.length).toBe(wav.length);
   });
 
   it("Gemini: wraps raw PCM in a WAV container", async () => {
@@ -192,5 +228,88 @@ describe("POST /api/tasks/voice/speak", () => {
     };
     expect((await call(stopped, { text: "x" })).status).toBe(423);
     expect((await call(base(), { text: "" })).status).toBe(400);
+  });
+});
+
+describe("Gnani Prisma STT request", () => {
+  it("names the upload by its real extension and always sends a language", async () => {
+    const { gnaniProvider } = await import("../server/stt.mjs");
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ success: true, transcript: "check milk stock" }), {
+        headers: { "content-type": "application/json" },
+      }),
+    );
+    const out = await gnaniProvider({ apiKey: "k", fetchImpl }).transcribe({
+      bytes: Buffer.from("RIFF"),
+      mime: "audio/wav",
+    });
+    expect(out.transcript).toBe("check milk stock");
+    const form = fetchImpl.mock.calls[0][1].body as FormData;
+    // Gnani returns 400 for a bare "audio" filename and 422 without language_code.
+    expect((form.get("audio_file") as File).name).toBe("audio.wav");
+    expect(form.get("language_code")).toBe("en-IN");
+  });
+});
+
+describe("Gnani-first voice pipeline", () => {
+  it("voiceQuery: audio -> transcript -> governed workflow -> spoken summary, no agent task", async () => {
+    const { ready } = await import("./nammaops-harness");
+    const { voiceQuery } = await import("../server/voice-pipeline.mjs");
+    const ctx: Any = await ready();
+    ctx.runtime.sttFactory = () => ({
+      name: "gnani-prisma",
+      verifiesRecognition: true,
+      transcribe: async () => ({
+        transcript: "How much udhaar is pending?",
+        provider: "gnani-prisma",
+      }),
+    });
+    ctx.runtime.ttsFactory = () => createTtsProvider({ AGENT_TOWN_TTS_PROVIDER: "fixture" });
+    const out: Any = await voiceQuery(ctx.runtime, {
+      bytes: pcmToWav(Buffer.alloc(320), 16000),
+      mime: "audio/wav",
+      language: "en-IN",
+    });
+    expect(out.heard).toMatchObject({
+      transcript: "How much udhaar is pending?",
+      provider: "gnani-prisma",
+    });
+    expect(out.workflow).toMatchObject({ action: "receivables_report", status: "completed" });
+    expect(out.answer).toMatch(/Udhaar pending/);
+    expect(out.speech).toMatchObject({ provider: "fixture", mime: "audio/wav" });
+    expect(ctx.runtime.seatOwner().submit).not.toHaveBeenCalled(); // no OpenClaw task was started
+  });
+
+  it("voiceQuery: an unsupported request is answered with the explanation, not guessed", async () => {
+    const { ready } = await import("./nammaops-harness");
+    const { voiceQuery } = await import("../server/voice-pipeline.mjs");
+    const ctx: Any = await ready();
+    ctx.runtime.sttFactory = () => ({
+      name: "gnani-prisma",
+      transcribe: async () => ({ transcript: "sing me a song", provider: "gnani-prisma" }),
+    });
+    ctx.runtime.ttsFactory = () => null;
+    const out: Any = await voiceQuery(ctx.runtime, {
+      bytes: pcmToWav(Buffer.alloc(320), 16000),
+      mime: "audio/wav",
+    });
+    expect(out.workflow).toBeNull();
+    expect(out.answer).toMatch(/Please rephrase/);
+    expect(out.speech).toBeNull();
+    expect(out.speech_unavailable).toMatch(/text-to-speech/);
+  });
+
+  it("reports providers without secrets", async () => {
+    const { voiceProviders } = await import("../server/voice-pipeline.mjs");
+    const p = voiceProviders({
+      AGENT_TOWN_STT_PROVIDER: "gnani",
+      AGENT_TOWN_STT_FALLBACK: "gemini",
+      AGENT_TOWN_TTS_PROVIDER: "gnani",
+      GNANI_API_KEY: "super-secret-key",
+      GEMINI_API_KEY: "another-secret",
+    });
+    expect(p.stt).toMatchObject({ primary: "gnani", fallback: "gemini", configured: true });
+    expect(p.tts).toMatchObject({ primary: "gnani", configured: true });
+    expect(JSON.stringify(p)).not.toMatch(/secret/);
   });
 });
