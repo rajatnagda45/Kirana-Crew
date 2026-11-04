@@ -66,12 +66,12 @@ The critical difference from a chatbot: agents **take autonomous action**. The P
 
 ## Live Demo / Screenshots
 
-|                                                      |                                                          |
-| :--------------------------------------------------: | :------------------------------------------------------: |
-| ![Live Store](public/readme-screenshots/live-store.png) | ![Chat & Inbox](public/readme-screenshots/chat-inbox.png) |
-|               _Live Store — 3D store overview_       |       _Chat & Inbox — shared crew conversations_        |
-| ![AI Workforce](public/readme-screenshots/ai-workforce.png) | ![Customers](public/readme-screenshots/customers.png) |
-| _AI Workforce — agent status and ERP capabilities_   |    _Customers — sales and customer insights_            |
+|                                                             |                                                           |
+| :---------------------------------------------------------: | :-------------------------------------------------------: |
+|   ![Live Store](public/readme-screenshots/live-store.png)   | ![Chat & Inbox](public/readme-screenshots/chat-inbox.png) |
+|              _Live Store — 3D store overview_               |        _Chat & Inbox — shared crew conversations_         |
+| ![AI Workforce](public/readme-screenshots/ai-workforce.png) |   ![Customers](public/readme-screenshots/customers.png)   |
+|     _AI Workforce — agent status and ERP capabilities_      |         _Customers — sales and customer insights_         |
 
 ---
 
