@@ -2,8 +2,8 @@
 import { DashboardView } from "@/components/dashboard/kit";
 
 /**
- * CRM / customers dashboard. Reads customers through the governed ERP binding, so it works with
- * the fixture as well as live ERPNext (the old direct /api/erp/customers call did not).
+ * CRM / customers dashboard. Reads customers through the governed, read-only ERP binding, from
+ * live ERPNext, under the same grants as every other dashboard.
  */
 export default function CustomersPage() {
   return (

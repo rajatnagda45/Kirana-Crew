@@ -1,5 +1,5 @@
 import { afterEach, expect, vi } from "vitest";
-import { copyFileSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Readable } from "node:stream";
@@ -110,7 +110,18 @@ export function setup({
       now: () => new Date("2026-11-01T10:00:00Z"),
     },
   );
-  return { runtime, nammaops: runtime.nammaops, data: JSON.parse(readFileSync(dataPath, "utf8")) };
+  return {
+    runtime,
+    nammaops: runtime.nammaops,
+    data: JSON.parse(readFileSync(dataPath, "utf8")),
+    dataPath,
+    /** Change the fixture's data between steps to simulate ERP changes. */
+    editData: (edit: (data: Any) => void) => {
+      const data = JSON.parse(readFileSync(dataPath, "utf8"));
+      edit(data);
+      writeFileSync(dataPath, JSON.stringify(data));
+    },
+  };
 }
 
 export async function ready(options: Any = {}) {

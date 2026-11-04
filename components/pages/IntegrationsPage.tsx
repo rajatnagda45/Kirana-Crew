@@ -60,19 +60,11 @@ const INTEGRATIONS = [
     configKeys: ["GATEWAY_URL", "GATEWAY_TOKEN"],
   },
   {
-    id: "erp-fixture",
-    name: "ERPNext (Fixture)",
-    provider: "Synthetic fixture data",
-    desc: "TEST FIXTURE — 40-item kirana store with synthetic data. All 5 agents can read from this. Not real business data.",
-    docs: "Active by default. Switch to live ERPNext with NAMMAOPS_BINDING=config/nammaops/binding.hvgerp.json",
-    configKeys: [],
-  },
-  {
     id: "erp-live",
-    name: "ERPNext (Live)",
-    provider: "Real ERPNext instance",
-    desc: "Connect your production ERPNext for real inventory, sales, and financial data.",
-    docs: "Requires ERPNEXT_URL, ERPNEXT_API_KEY, ERPNEXT_API_SECRET env vars + binding.hvgerp.json.",
+    name: "ERPNext (live)",
+    provider: "Your ERPNext site, read-only",
+    desc: "All inventory, sales, procurement and finance answers and dashboards are read from your live ERPNext through governed, read-only tools. The app has no built-in data.",
+    docs: "Requires ERPNEXT_URL, ERPNEXT_API_KEY, ERPNEXT_API_SECRET and NAMMAOPS_BINDING=config/nammaops/binding.hvgerp.json.",
     configKeys: ["ERPNEXT_URL", "ERPNEXT_API_KEY (secret)", "ERPNEXT_API_SECRET (secret)"],
   },
   {
@@ -80,8 +72,12 @@ const INTEGRATIONS = [
     name: "Gnani AI (Voice)",
     provider: "Gnani.ai",
     desc: "Prisma STT (speech-to-text) and Timbre TTS (text-to-speech) for Kannada, Hindi, and English voice interaction.",
-    docs: "Requires GNANI_API_KEY. Currently not connected — API key not configured.",
-    configKeys: ["GNANI_API_KEY (secret)"],
+    docs: "Primary voice provider: speech-to-text, spoken replies and the hands-free Live mode. Gemini is used only if Gnani is unreachable.",
+    configKeys: [
+      "GNANI_API_KEY (secret)",
+      "AGENT_TOWN_STT_PROVIDER=gnani",
+      "AGENT_TOWN_TTS_PROVIDER=gnani",
+    ],
   },
   {
     id: "nightshift",
@@ -101,32 +97,50 @@ const INTEGRATIONS = [
   },
 ];
 
+interface ServiceStatus {
+  id: string;
+  status: string;
+  available?: boolean;
+}
+interface VoiceProviders {
+  stt: { configured: boolean };
+  tts: { configured: boolean };
+}
+
 function IntegrationCard({
   integ,
   gatewayConnected,
-  dataSource,
+  serviceById,
+  voice,
 }: {
   integ: (typeof INTEGRATIONS)[0];
   gatewayConnected: boolean;
-  dataSource: string;
+  serviceById: Record<string, ServiceStatus>;
+  voice: VoiceProviders | null;
 }) {
   const [open, setOpen] = useState(false);
 
   let status: "connected" | "partial" | "disconnected" = "disconnected";
   if (integ.id === "openclaw") status = gatewayConnected ? "connected" : "disconnected";
-  if (integ.id === "erp-fixture")
+  // Every status below comes from the running server, never from a constant.
+  const fromService = (id: string) => {
+    const service = serviceById[id];
+    if (!service) return "disconnected" as const;
+    return service.available
+      ? ("connected" as const)
+      : service.status === "unverified"
+        ? ("partial" as const)
+        : ("disconnected" as const);
+  };
+  if (integ.id === "erp-live") status = fromService("erpnext");
+  if (integ.id === "nightshift") status = fromService("nightshift");
+  if (integ.id === "gnani")
     status =
-      dataSource === "fixture (synthetic, not real ERPNext data)" || !dataSource
+      voice?.stt.configured && voice?.tts.configured
         ? "connected"
-        : "disconnected";
-  if (integ.id === "erp-live")
-    status =
-      dataSource === "erpnext_live" || dataSource?.includes("erpnext")
-        ? "connected"
-        : "disconnected";
-  if (integ.id === "gnani") status = "disconnected";
-  if (integ.id === "nightshift") status = "disconnected";
-  if (integ.id === "evon") status = "partial";
+        : voice?.stt.configured || voice?.tts.configured
+          ? "partial"
+          : "disconnected";
 
   const statusColor =
     status === "connected"
@@ -138,7 +152,9 @@ function IntegrationCard({
     status === "connected"
       ? "Connected"
       : status === "partial"
-        ? "Manual setup required"
+        ? integ.id === "erp-live" || integ.id === "nightshift"
+          ? "Configured, not checked recently"
+          : "Manual setup required"
         : "Not configured";
 
   return (
@@ -258,7 +274,8 @@ export default function IntegrationsPage() {
   const { state } = useStudio();
   const { binding, loading: bindingLoading, reload: reloadBinding } = useNammaOpsBinding();
   const [dashboard, setDashboard] = useState<{ data_source?: string } | null>(null);
-  const [services, setServices] = useState<Array<{ id: string; name: string; status: string }>>([]);
+  const [services, setServices] = useState<ServiceStatus[]>([]);
+  const [voice, setVoice] = useState<VoiceProviders | null>(null);
   const [settingUp, setSettingUp] = useState(false);
 
   // Discovery and grants happen only through the existing setup path (Phase C review + grants).
@@ -284,13 +301,18 @@ export default function IntegrationsPage() {
     fetchNammaOps<{ data_source?: string }>("/dashboard")
       .then((r) => setDashboard({ data_source: r.data_source }))
       .catch(() => {});
-    runtimeRequest<{ services: typeof services }>("services")
+    runtimeRequest<{ services: ServiceStatus[] }>("services")
       .then((r) => setServices(r.services ?? []))
+      .catch(() => {});
+    fetch("/api/tasks/voice/providers")
+      .then((r) => r.json())
+      .then((r) => setVoice(r.providers ?? null))
       .catch(() => {});
   }, []);
 
   const gatewayConnected = state.connection === "connected";
   const dataSource = dashboard?.data_source ?? "";
+  const serviceById = Object.fromEntries(services.map((service) => [service.id, service]));
 
   const availableCapabilities = binding.filter((b) => b.availability === "available").length;
   const totalCapabilities = binding.length;
@@ -352,12 +374,10 @@ export default function IntegrationsPage() {
           },
           {
             label: "Data Source",
-            value: dataSource.includes("erpnext")
-              ? "ERPNext live"
-              : dataSource.includes("fixture")
-                ? "Fixture (test)"
-                : "Unknown",
-            color: dataSource.includes("erpnext") ? "var(--kirana-success)" : "orange",
+            value: dataSource.includes("erpnext") ? "ERPNext live" : "Not connected",
+            color: dataSource.includes("erpnext")
+              ? "var(--kirana-success)"
+              : "var(--kirana-destructive)",
           },
         ].map(({ label, value, color }) => (
           <div key={label} style={{ ...s.card, padding: 16, marginBottom: 0 }}>
@@ -405,7 +425,8 @@ export default function IntegrationsPage() {
             key={integ.id}
             integ={integ}
             gatewayConnected={gatewayConnected}
-            dataSource={dataSource}
+            serviceById={serviceById}
+            voice={voice}
           />
         ))}
       </div>

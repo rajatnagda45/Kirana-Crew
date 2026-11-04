@@ -271,3 +271,24 @@ describe("store questions versus investigations", () => {
     expect(isStoreQuestion(ctx.runtime, "seat-research", "check stock of milk")).toBe(false);
   });
 });
+
+describe("a date that cannot be read", () => {
+  it("tells the owner so instead of showing a generic help line", async () => {
+    const ctx: Any = await ready();
+    const { sales } = seats(ctx);
+    const taskId = "t-baddate-1";
+    await send(ctx, sales, "sales on 31 feb", taskId);
+    expect(saved(ctx, taskId).reply.content).toMatch(/could not read that date/);
+    expect(ctx.nammaops.workflows.list()).toHaveLength(0);
+  });
+
+  it("does not repeat the data-source note when the Source line already names it", async () => {
+    const ctx: Any = await ready();
+    const { sales } = seats(ctx);
+    const taskId = "t-source-1";
+    await send(ctx, sales, "sales yesterday", taskId);
+    const content = saved(ctx, taskId).reply.content as string;
+    expect(content).not.toMatch(/Data source:/);
+    expect(content).toMatch(/\nSource: .*consulted sales/);
+  });
+});

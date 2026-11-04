@@ -987,16 +987,25 @@ describe("F2 voice department agents (fixture)", () => {
     const ctx = await ready();
     const ask = voiceFor(ctx, "Carol", "seat-2");
     const today = await ask({ intent: "sales_summary", day: "today" });
-    expect(today.facts).toEqual(["Sales on 2026-11-01: 3186 from 3 submitted transactions."]);
+    expect(today.facts[0]).toBe(
+      "Sales on 2026-11-01: ₹3,186 from 3 bills, an average of ₹1,062 a bill.",
+    );
+    expect(today.facts[1]).toBe(
+      "Top sellers: Sona Masoori Rice 5kg (4 sold, ₹1,600), Toned Milk 500ml (42 sold, ₹1,136), Sunflower Oil 1L (3 sold, ₹450).",
+    );
+    // A sales question stays about sales: the P&L is not read and no accounting caveats appear.
+    expect(today.consulted).toEqual(["sales"]);
+    expect(today.limitations.join(" ")).not.toMatch(/non-trading|Net profit/);
     expect(today.documents.length).toBe(3);
     const top = await ask({ intent: "top_selling_products", day: "today" });
-    expect(top.facts[0]).toMatch(/^#1 on 2026-11-01: Sona Masoori Rice 5kg, \d+ sold for 1600\.$/);
+    expect(top.facts[0]).toMatch(
+      /^#1 on 2026-11-01: Sona Masoori Rice 5kg, \d+ sold for ₹1,600\.$/,
+    );
     const yesterday = await ask({ intent: "sales_summary", day: "yesterday" });
     const report = ctx.nammaops.workflows.view(yesterday.workflow_id);
     expect(report.intent.date).toBe("2026-10-31");
-    expect(yesterday.facts[0]).toContain(
-      `${report.result.total_sales} from ${report.result.transaction_count}`,
-    );
+    expect(report.result.profit).toEqual({ status: "not_requested" });
+    expect(yesterday.facts[0]).toContain(`from ${report.result.transaction_count} bill`);
     const future = await ask({ intent: "sales_summary", day: "2026-12-01" });
     expect(future).toMatchObject({
       status: "clarification_required",
@@ -1010,7 +1019,7 @@ describe("F2 voice department agents (fixture)", () => {
     const ask = voiceFor(ctx);
     const verified = await ask({ intent: "business_profit", day: "today" });
     expect(verified.facts[0]).toMatch(
-      /^Net profit on 2026-11-01: 484 .*posted Profit and Loss report\.$/,
+      /^Net profit on 2026-11-01: ₹484 .*posted Profit and Loss report\.$/,
     );
     expect(verified.consulted).toContain("finance");
     ctx.editData((data) => (data.profit_and_loss = []));

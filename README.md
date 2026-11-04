@@ -266,12 +266,10 @@ The KiranaCrew panel is the kirana-specific interface. Configure these variables
 # Required for owner purchase order approval
 NAMMAOPS_OWNER_PIN=your_secure_pin
 
-# Use the test fixture (no ERPNext account needed) or point at live ERPNext
-# Fixture (default):
-NAMMAOPS_BINDING=config/nammaops/binding.fixture.json
-
-# Live ERPNext (read-only, requires ERPNEXT_* below):
-# NAMMAOPS_BINDING=config/nammaops/binding.hvgerp.json
+# The app reads live ERPNext only; there is no built-in data. Read-only, requires ERPNEXT_* below:
+NAMMAOPS_BINDING=config/nammaops/binding.hvgerp.json
+# (The synthetic test fixture is for automated tests; it is refused at startup unless
+# NAMMAOPS_ALLOW_FIXTURE=1 is also set, for development only.)
 ERPNEXT_URL=https://your-site.m.frappe.cloud
 ERPNEXT_API_KEY=your_erpnext_api_key
 ERPNEXT_API_SECRET=your_erpnext_api_secret
@@ -297,32 +295,32 @@ node --import tsx scripts/nammaops-demo.mjs
 
 All variables are safe placeholders. Never commit real credentials.
 
-| Variable                         | Purpose                                                                 | Required                   |
-| -------------------------------- | ----------------------------------------------------------------------- | -------------------------- |
-| `AGENT_PROVIDER`                 | AI gateway provider (`openclaw`, `nightshift`, `auggie`)                | Required                   |
-| `GATEWAY_URL`                    | OpenClaw gateway WebSocket URL                                          | Required for OpenClaw      |
-| `GATEWAY_TOKEN`                  | OpenClaw gateway auth token                                             | Required for OpenClaw      |
-| `GEMINI_API_KEY`                 | Google Gemini Live voice sessions and Gemini STT fallback               | Optional                   |
-| `GNANI_API_KEY`                  | Gnani Prisma v2.5 STT — set `AGENT_TOWN_STT_PROVIDER=gnani` to activate | Optional                   |
-| `GNANI_STT_URL`                  | Override Gnani STT endpoint (default: `https://api.vachana.ai/stt/v3`)  | Optional                   |
-| `GNANI_TTS_URL`                  | Gnani Timbre TTS endpoint [PLANNED — not read yet]                      | Planned                    |
-| `GNANI_TTS_VOICE`                | Gnani Timbre voice ID [PLANNED — not read yet]                          | Planned                    |
-| `NAMMAOPS_OWNER_PIN`             | Store-owner PIN for approving purchase orders                           | Required for approvals     |
-| `NAMMAOPS_BINDING`               | Binding file path (`binding.fixture.json` or `binding.hvgerp.json`)     | Optional (fixture default) |
-| `NAMMAOPS_WORKFORCE`             | Workforce file path (default: `config/nammaops/workforce.json`)         | Optional                   |
-| `NAMMAOPS_REASONING`             | `off` (deterministic) or `manager` (one OpenClaw turn per workflow)     | Optional                   |
-| `ERPNEXT_URL`                    | ERPNext / Frappe Cloud base URL                                         | Required for live ERP      |
-| `ERPNEXT_API_KEY`                | ERPNext API key (dedicated `nammaops.api` user)                         | Required for live ERP      |
-| `ERPNEXT_API_SECRET`             | ERPNext API secret                                                      | Required for live ERP      |
-| `AGENT_TOWN_STT_PROVIDER`        | STT provider: `gnani`, `gemini`, or `fixture`                           | Optional (unset = 503)     |
-| `AGENT_TOWN_DB_PATH`             | SQLite database path (default: `data/agent-town.sqlite`)                | Optional                   |
-| `NIGHTSHIFT_BASE_URL`            | Meterless Nightshift API base URL                                       | Required for Nightshift    |
-| `NIGHTSHIFT_API_KEY`             | Nightshift API key                                                      | Required for Nightshift    |
-| `NVIDIA_API_KEY`                 | NVIDIA hosted inference key                                             | Optional                   |
-| `TAVILY_API_KEY`                 | Tavily web search key for evidence retrieval                            | Optional                   |
-| `OPENCLAW_PROTOCOL_MODULE`       | Absolute path to OpenClaw protocol module                               | Optional (auto-discovery)  |
-| `AGENT_TOWN_MCP_STDIO_ALLOWLIST` | JSON array of allowed MCP stdio server commands                         | Optional                   |
-| `AGENT_TOWN_MCP_PROXY_SECRET`    | Shared secret for the governed MCP proxy                                | Optional                   |
+| Variable                         | Purpose                                                                 | Required                    |
+| -------------------------------- | ----------------------------------------------------------------------- | --------------------------- |
+| `AGENT_PROVIDER`                 | AI gateway provider (`openclaw`, `nightshift`, `auggie`)                | Required                    |
+| `GATEWAY_URL`                    | OpenClaw gateway WebSocket URL                                          | Required for OpenClaw       |
+| `GATEWAY_TOKEN`                  | OpenClaw gateway auth token                                             | Required for OpenClaw       |
+| `GEMINI_API_KEY`                 | Google Gemini Live voice sessions and Gemini STT fallback               | Optional                    |
+| `GNANI_API_KEY`                  | Gnani Prisma v2.5 STT — set `AGENT_TOWN_STT_PROVIDER=gnani` to activate | Optional                    |
+| `GNANI_STT_URL`                  | Override Gnani STT endpoint (default: `https://api.vachana.ai/stt/v3`)  | Optional                    |
+| `GNANI_TTS_URL`                  | Gnani Timbre TTS endpoint [PLANNED — not read yet]                      | Planned                     |
+| `GNANI_TTS_VOICE`                | Gnani Timbre voice ID [PLANNED — not read yet]                          | Planned                     |
+| `NAMMAOPS_OWNER_PIN`             | Store-owner PIN for approving purchase orders                           | Required for approvals      |
+| `NAMMAOPS_BINDING`               | Binding file path (`binding.fixture.json` or `binding.hvgerp.json`)     | **Required** (live binding) |
+| `NAMMAOPS_WORKFORCE`             | Workforce file path (default: `config/nammaops/workforce.json`)         | Optional                    |
+| `NAMMAOPS_REASONING`             | `off` (deterministic) or `manager` (one OpenClaw turn per workflow)     | Optional                    |
+| `ERPNEXT_URL`                    | ERPNext / Frappe Cloud base URL                                         | Required for live ERP       |
+| `ERPNEXT_API_KEY`                | ERPNext API key (dedicated `nammaops.api` user)                         | Required for live ERP       |
+| `ERPNEXT_API_SECRET`             | ERPNext API secret                                                      | Required for live ERP       |
+| `AGENT_TOWN_STT_PROVIDER`        | STT provider: `gnani`, `gemini`, or `fixture`                           | Optional (unset = 503)      |
+| `AGENT_TOWN_DB_PATH`             | SQLite database path (default: `data/agent-town.sqlite`)                | Optional                    |
+| `NIGHTSHIFT_BASE_URL`            | Meterless Nightshift API base URL                                       | Required for Nightshift     |
+| `NIGHTSHIFT_API_KEY`             | Nightshift API key                                                      | Required for Nightshift     |
+| `NVIDIA_API_KEY`                 | NVIDIA hosted inference key                                             | Optional                    |
+| `TAVILY_API_KEY`                 | Tavily web search key for evidence retrieval                            | Optional                    |
+| `OPENCLAW_PROTOCOL_MODULE`       | Absolute path to OpenClaw protocol module                               | Optional (auto-discovery)   |
+| `AGENT_TOWN_MCP_STDIO_ALLOWLIST` | JSON array of allowed MCP stdio server commands                         | Optional                    |
+| `AGENT_TOWN_MCP_PROXY_SECRET`    | Shared secret for the governed MCP proxy                                | Optional                    |
 
 ---
 
