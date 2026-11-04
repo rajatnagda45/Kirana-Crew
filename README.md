@@ -66,12 +66,12 @@ The critical difference from a chatbot: agents **take autonomous action**. The P
 
 ## Live Demo / Screenshots
 
-|                                                        |                                                              |
-| :----------------------------------------------------: | :----------------------------------------------------------: |
-|   ![KiranaCrew hero](public/landing-v2/kc-hero.png)    |  ![Voice workflow demo](public/landing-v2/kc-workflow.png)   |
-|         _KiranaCrew — pixel-art kirana store_          |      _"One voice command. Your entire store responds."_      |
-| ![How it works](public/landing-v2/kc-how-it-works.png) |     ![Gnani Voice AI](public/landing-v2/kc-voice-ai.png)     |
-|       _4-step workflow · Gnani Voice AI section_       | _"Your Language. Your Store. Your Voice." · Prisma + Timbre_ |
+|                                                      |                                                          |
+| :--------------------------------------------------: | :------------------------------------------------------: |
+| ![Live Store](public/readme-screenshots/live-store.png) | ![Chat & Inbox](public/readme-screenshots/chat-inbox.png) |
+|               _Live Store — 3D store overview_       |       _Chat & Inbox — shared crew conversations_        |
+| ![AI Workforce](public/readme-screenshots/ai-workforce.png) | ![Customers](public/readme-screenshots/customers.png) |
+| _AI Workforce — agent status and ERP capabilities_   |    _Customers — sales and customer insights_            |
 
 ---
 
