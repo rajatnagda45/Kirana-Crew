@@ -5,6 +5,8 @@ export const VOICE_ACTIONS = new Set([
   "cancel_task",
   "open_pending_review",
   "nammaops_business_query",
+  "transfer_to_agent",
+  "confirm_handoff",
 ]);
 
 /** All routing, permissions, task state and review scope are resolved by the server. */

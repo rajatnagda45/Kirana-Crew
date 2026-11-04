@@ -16,7 +16,6 @@ import {
 import { toast } from "sonner";
 import { usePathname, useRouter } from "next/navigation";
 import { APP_VIEWS, viewFromPath, viewPath } from "@/lib/app-views";
-import { useGnaniVoiceQuery } from "@/lib/voice/useGnaniVoiceQuery";
 import {
   KiranaStoreCanvas,
   type KiranaStoreCanvasHandle,
@@ -185,53 +184,26 @@ export default function KiranaShell() {
     }
   };
 
-  // Gnani is the primary voice path (push-to-talk through the governed NammaOps workflows).
-  // Gemini Live is only the backup, started when the Gnani path is unavailable.
-  const startGeminiBackup = useCallback(
-    (reason: string) => {
-      toast(`Gnani voice unavailable (${reason}) Switching to Gemini Live.`);
+  function handleMic() {
+    if (!voice.active) {
       voice.setMode("voice");
       voice.start();
-    },
-    [voice],
-  );
-  const gnani = useGnaniVoiceQuery({
-    onUnavailable: startGeminiBackup,
-    onTurn: (turn) =>
-      toast(turn.heard ? `“${turn.heard}”` : "No speech recognised", {
-        description: turn.answer.slice(0, 400),
-        duration: 12000,
-      }),
-  });
-  useEffect(() => {
-    if (gnani.error) toast.error(gnani.error);
-  }, [gnani.error]);
-
-  function handleMic() {
-    // A Gemini backup call in progress keeps its own mute toggle.
-    if (voice.active) return voice.toggleMute();
-    gnani.toggle();
+    } else voice.toggleMute();
   }
 
-  const isVoiceOn = (voice.active && !voice.muted) || gnani.state === "recording";
+  const isVoiceOn = voice.active && !voice.muted;
   const voiceLabel =
-    gnani.state === "recording"
-      ? "Listening... tap to send"
-      : gnani.state === "thinking"
-        ? "Processing..."
-        : gnani.state === "speaking"
-          ? "Speaking..."
-          : voice.status === "listening"
-            ? "Listening... (Gemini backup)"
-            : voice.status === "speaking"
-              ? "Speaking..."
-              : voice.status === "thinking"
-                ? "Processing..."
-                : voice.status === "connecting"
-                  ? "Connecting..."
-                  : voice.active
-                    ? "Ready (Gemini backup)"
-                    : "Tap to speak";
+    voice.status === "listening"
+      ? "Listening..."
+      : voice.status === "speaking"
+        ? "Speaking..."
+        : voice.status === "thinking"
+          ? "Processing..."
+          : voice.status === "connecting"
+            ? "Connecting..."
+            : voice.active
+              ? "Ready"
+              : "Tap to speak";
 
   const navigate = (requested: AppView | string) => {
     // Pages may pass legacy names ("workers"); anything unknown falls back to the overview.

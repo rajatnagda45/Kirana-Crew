@@ -6,6 +6,8 @@ export interface VoiceSelection {
   bindingRevision?: number;
   /** Task outcomes that must remain visible even outside the recent-task window. */
   taskIds?: string[];
+  /** Start the call as the target of an accepted handoff; the server derives everything else. */
+  handoffId?: string;
 }
 
 export interface VoiceAgentContext {
@@ -24,6 +26,25 @@ export interface VoiceAgentContext {
     title: string;
     colleagues: Array<{ name: string; department: string; title: string }>;
     background: Array<{ department: string; title: string }>;
+  };
+  /** What every other teammate is doing and last answered (server-provided, bounded, read-only). */
+  team?: Array<{
+    name: string;
+    role: string;
+    department?: string;
+    status: string;
+    lastTask?: { message: string; status: string; result: string };
+    lastAnswer?: string;
+  }>;
+  /** Set only when this call continues a handoff; built and signed off by the server. */
+  handoff?: {
+    from: string;
+    to: string;
+    owner_request?: string;
+    reason?: string;
+    recent_turns: Array<{ role: string; by: string | null; text: string; unverified?: boolean }>;
+    workflows: Array<{ id: string; intent: string | null }>;
+    note: string;
   };
   /** Roster position chosen by the server; selects a distinct prebuilt voice. */
   voiceIndex?: number;

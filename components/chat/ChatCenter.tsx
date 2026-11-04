@@ -188,6 +188,14 @@ export default function ChatCenter() {
   useEffect(() => {
     if (follow.current) historyRef.current?.scrollTo({ top: historyRef.current.scrollHeight });
   }, [messages]);
+  // Opening another conversation always lands on its latest message.
+  useEffect(() => {
+    follow.current = true;
+    const frame = requestAnimationFrame(() =>
+      historyRef.current?.scrollTo({ top: historyRef.current.scrollHeight }),
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [key]);
   const select = (id: string, sessionKey = "") => {
     if (blocked) return;
     setSeatId(id);

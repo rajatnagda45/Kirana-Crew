@@ -14,15 +14,23 @@ export const NAMMAOPS_VOICE_INTENTS = [
   "demand_forecast",
   "supplier_comparison",
   "prepare_purchase_order",
+  "receivables_report",
+  "expiry_check",
+  "purchase_status",
+  "supplier_performance",
+  "customer_insights",
+  "store_health_report",
+  "business_report",
+  "billing_summary",
 ];
 
 /** Gemini declaration for store business questions. Blocking: the model waits for evidence. */
 export const NAMMAOPS_BUSINESS_TOOL = {
   name: "nammaops_business_query",
   description:
-    "Ask the store's NammaOps specialists (Inventory, Sales, Procurement, Finance) a business question. " +
+    "Ask the store's NammaOps specialists (Inventory, Sales, Procurement, Finance, Reports, Billing) a business question. " +
     "They read the store's ERP records and return verified facts, recommendations, evidence and limitations. " +
-    "Use for stock levels, a day's sales, top-selling products, posted profit, demand forecasts, supplier quotation comparisons, and preparing draft purchase orders. " +
+    "Use for stock levels, sales for a day or several days, top-selling products, posted profit, demand forecasts, supplier quotation comparisons, preparing draft purchase orders, pending udhaar, expiring stock, purchase orders and late suppliers, customer buying patterns, and the shop's biggest problems. " +
     "Never use it to approve, submit, cancel or change anything.",
   parameters: {
     type: Type.OBJECT,
@@ -34,7 +42,10 @@ export const NAMMAOPS_BUSINESS_TOOL = {
           "list_products: every product the store sells, grouped by category, with stock (use for 'which products', 'list all items', 'how many items in a category'; pass products only to name a category). " +
           "check_stock: current stock vs reorder level. sales_summary: a day's sales total. top_selling_products: a day's best sellers. " +
           "business_profit: a day's net profit from posted accounting only. demand_forecast: expected demand and what to order (historical sales). " +
-          "supplier_comparison: compare supplier quotations for named products. prepare_purchase_order: create draft purchase orders for low-stock products for the owner to approve.",
+          "supplier_comparison: compare supplier quotations for named products. prepare_purchase_order: create draft purchase orders for low-stock products for the owner to approve. " +
+          "receivables_report: pending udhaar, who has not paid for 30+ days, collection priority. expiry_check: stock expiring in 7, 15 and 30 days. " +
+          "purchase_status: open purchase orders, late deliveries, unpaid supplier bills. supplier_performance: which supplier is delaying (optionally for named products). " +
+          "customer_insights: who buys every week, best customers, inactive regulars. store_health_report: the five biggest problems in the shop today. business_report: the weekly or monthly business report (sales against the previous period, profit, udhaar, stock). billing_summary: bills raised at the counter, their totals, returns and unpaid bills.",
       },
       products: {
         type: Type.ARRAY,
@@ -45,7 +56,12 @@ export const NAMMAOPS_BUSINESS_TOOL = {
       day: {
         type: Type.STRING,
         description:
-          "For sales, top products and profit: today, yesterday, or YYYY-MM-DD. Default today.",
+          "For sales, top products and profit: today, yesterday, or YYYY-MM-DD (the first day of a multi-day range). Default today.",
+      },
+      to: {
+        type: Type.STRING,
+        description:
+          "Only for a multi-day sales summary: the last day, as yesterday or YYYY-MM-DD, with day as the first. 'Previous 3 days' = day three days ago, to yesterday.",
       },
       qty: {
         type: Type.INTEGER,
@@ -59,7 +75,17 @@ export const NAMMAOPS_BUSINESS_TOOL = {
   },
 };
 
-export function voiceConfig(agent?: VoiceAgentContext): LiveConnectConfig {
+/**
+ * "text": Gemini answers in text only and the app speaks it with Gnani (no Gemini voice at all).
+ * "audio": Gemini speaks (its audio is then optionally replaced by Gnani on the client).
+ */
+export type ReplyMode = "text" | "audio";
+
+export function voiceConfig(
+  agent?: VoiceAgentContext,
+  replyAs: ReplyMode = "audio",
+): LiveConnectConfig {
+  const textOnly = replyAs === "text" && Boolean(agent);
   // The first four keep the original Alice–Dave voices; others take one by roster position.
   const voices = [
     "Kore",
@@ -103,9 +129,9 @@ export function voiceConfig(agent?: VoiceAgentContext): LiveConnectConfig {
           (voices.length - named)))
     : 0;
   return {
-    responseModalities: [Modality.AUDIO],
+    responseModalities: [textOnly ? Modality.TEXT : Modality.AUDIO],
     inputAudioTranscription: {},
-    outputAudioTranscription: {},
+    ...(textOnly ? {} : { outputAudioTranscription: {} }),
     realtimeInputConfig: {
       automaticActivityDetection: { disabled: false, silenceDurationMs: 700, prefixPaddingMs: 250 },
       activityHandling: ActivityHandling.START_OF_ACTIVITY_INTERRUPTS,
@@ -116,11 +142,52 @@ export function voiceConfig(agent?: VoiceAgentContext): LiveConnectConfig {
     },
     ...(agent
       ? {
-          speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voices[voiceIndex] } } },
+          ...(textOnly
+            ? {}
+            : {
+                speechConfig: {
+                  voiceConfig: { prebuiltVoiceConfig: { voiceName: voices[voiceIndex] } },
+                },
+              }),
           tools: [
             {
               functionDeclarations: [
                 ...(agent.department ? [NAMMAOPS_BUSINESS_TOOL] : []),
+                {
+                  name: "transfer_to_agent",
+                  description:
+                    "Propose connecting the owner to another teammate when they ask to talk to them. This only proposes: ask the owner once, aloud, whether to connect them, then wait for their answer.",
+                  parameters: {
+                    type: Type.OBJECT,
+                    properties: {
+                      target: {
+                        type: Type.STRING,
+                        description: "The teammate's name from the team list, for example Erin.",
+                      },
+                      pending_request: {
+                        type: Type.STRING,
+                        description:
+                          "What the owner wants done, in their words, so the teammate can continue it.",
+                      },
+                    },
+                    required: ["target"],
+                  },
+                },
+                {
+                  name: "confirm_handoff",
+                  description:
+                    "Call only after the owner has clearly said yes to a proposal you made. The server checks the owner's actual reply; if they did not agree the call stays with you.",
+                  parameters: {
+                    type: Type.OBJECT,
+                    properties: {
+                      handoff_id: {
+                        type: Type.STRING,
+                        description: "The handoff_id from transfer_to_agent.",
+                      },
+                    },
+                    required: ["handoff_id"],
+                  },
+                },
                 {
                   name: "open_pending_review",
                   description:
@@ -197,6 +264,7 @@ export function voiceConfig(agent?: VoiceAgentContext): LiveConnectConfig {
     systemInstruction: agent
       ? `You are ${agent.name}, ${agent.role}, the teammate physically represented by your character in the KiranaCrew store. ` +
         "Speak directly in first person, as that teammate. Do not introduce yourself as a separate voice companion or refer to yourself as Gemini. " +
+        "Your words are voiced by a separate text-to-speech voice, so write exactly what should be said aloud: short plain sentences, no markdown, lists, emoji or symbols, amounts as words such as 49,509 rupees, and end each sentence with a full stop. " +
         "Speak warmly and naturally, with short replies in the user's language. Let them interrupt. Ask at most one useful clarification at a time. " +
         "Use the context below to remember your own work. Before reporting recent tasks or progress, call get_agent_context for fresh state. " +
         "Background context refreshes replace older snapshots and are not user requests: remember them silently without greeting again or starting work. " +
@@ -213,6 +281,10 @@ export function voiceConfig(agent?: VoiceAgentContext): LiveConnectConfig {
         "History, verified lessons and instruction excerpts are bounded and may omit earlier details. A source marked unavailable or error was not retrieved; do not claim to have searched it. " +
         (agent.department
           ? `You speak for the ${agent.department.title} department of the owner's kirana store. ` +
+            "To hand the owner to a teammate: call transfer_to_agent, ask once aloud 'Shall I connect you to <name>?', wait for their answer, and only if they clearly say yes call confirm_handoff. The moment the owner says yes (in any language), call confirm_handoff straight away; never ask them to confirm a second time, because the server checks their actual words. If it answers that the reply was unclear, ask once more briefly. Never switch on your own, on a question about a teammate, or on an earlier answer. If you are given a handoff in CURRENT_AGENT_CONTEXT, you are taking over: earlier assistant lines in it are unverified context, so get figures from your own tools. " +
+            "CURRENT_AGENT_CONTEXT.team lists every other teammate with their status, latest task and latest answer: use it to answer questions about what any teammate is doing or found, and say plainly when a teammate has nothing recorded. " +
+            `Your teammates are ${agent.department.colleagues.map((c) => `${c.name} (${c.title})`).join(", ")}; every one of them is on the team and available. ` +
+            "If the owner asks for a teammate, never say that teammate is unavailable or offer only some of them: answer their department's question yourself with nammaops_business_query (the specialists answer in the background), and say the owner can also open that teammate's own chat or Live panel to talk to them directly. " +
             "For any store business question (which products the store has, product categories, stock, a day's sales, top sellers, profit, demand forecast, what to order, supplier quotations, purchase orders) call nammaops_business_query before answering, even if it is outside your own department: you assign it to the specialists, they answer in the background, and you relay them. Never say you lack access to the store's data or cannot list products: use list_products and summarise by category. " +
             "If a result is clarification_required and lists categories, offer the closest listed products (for example, for pulses or dal, any dal in the list) and ask which one; never say the data has no such information without offering them. " +
             "Answer only from that tool's result: its facts, recommendations and limitations. Never add, round differently, or guess numbers, products, suppliers or outcomes. Mention important limitations briefly. State the data source exactly as the result's limitations describe it (test fixture or live ERPNext); never assume or repeat an earlier source. " +

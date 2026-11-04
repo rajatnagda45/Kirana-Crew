@@ -96,7 +96,7 @@ describe("TTS providers", () => {
     ).toThrow(/GNANI_TTS_MODEL/);
   });
 
-  it("Gnani Timbre: verified request shape, key only in the header, raw PCM wrapped as 24 kHz WAV", async () => {
+  it("Gnani Timbre: verified request shape, key only in the header, raw PCM wrapped as a 44.1 kHz WAV", async () => {
     const pcm = new Uint8Array(480); // 10 ms of 24 kHz 16-bit mono
     const fetchImpl = vi
       .fn()
@@ -126,8 +126,16 @@ describe("TTS providers", () => {
     expect(init.body).not.toContain("secret");
     expect(out).toMatchObject({ mime: "audio/wav", provider: "gnani-timbre" });
     expect(out.bytes.subarray(0, 4).toString()).toBe("RIFF");
-    expect(out.bytes.readUInt32LE(24)).toBe(24000);
+    expect(out.bytes.readUInt32LE(24)).toBe(44100);
     expect(out.bytes.length).toBe(44 + pcm.length);
+    // The rate is configurable.
+    const fast = gnaniTtsProvider({
+      apiKey: "k",
+      sampleRate: 48000,
+      fetchImpl: vi.fn().mockResolvedValue(new Response(pcm)),
+    });
+    expect((await fast.synthesize({ text: "x" })).bytes.readUInt32LE(24)).toBe(48000);
+    expect(() => gnaniTtsProvider({ apiKey: "k", sampleRate: 5 })).toThrow(/SAMPLE_RATE/);
   });
 
   it("Gnani Timbre: a named voice is passed through and a real audio container is not re-wrapped", async () => {

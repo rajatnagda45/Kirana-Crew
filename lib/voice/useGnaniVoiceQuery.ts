@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { askGnani } from "@/lib/voice/gnaniClient";
 import { playBase64Audio, startWavRecording, type WavRecording } from "@/lib/voice/wavRecorder";
 
 export type GnaniVoiceState = "idle" | "recording" | "thinking" | "speaking";
@@ -10,6 +11,7 @@ export interface GnaniVoiceTurn {
   sttProvider: string | null;
   ttsProvider: string | null;
   workflow: { id: string; action: string | null; status: string } | null;
+  agent: { role: string; name: string; voice: string } | null;
 }
 
 /**
@@ -43,36 +45,26 @@ export function useGnaniVoiceQuery({
     setState("thinking");
     try {
       const audio = await current.stop();
-      const form = new FormData();
-      form.set("audio", audio, "question.wav");
-      form.set("language", language);
-      let res: Response;
-      try {
-        res = await fetch("/api/runtime/nammaops/voice-query", { method: "POST", body: form });
-      } catch {
+      const result = await askGnani(audio, language);
+      if (result.kind === "unavailable") {
         setState("idle");
-        callbacks.current.onUnavailable("The voice service could not be reached.");
+        callbacks.current.onUnavailable(result.reason);
         return;
       }
-      const body = await res.json().catch(() => ({}));
-      if (res.status === 503 || res.status >= 500) {
-        setState("idle");
-        callbacks.current.onUnavailable(body.error || `Voice service error ${res.status}.`);
-        return;
-      }
-      if (!res.ok) throw new Error(body.error || `Voice request failed (${res.status}).`);
+      if (result.kind === "refused") throw new Error(result.message);
       const turn: GnaniVoiceTurn = {
-        heard: body.heard?.transcript ?? "",
-        answer: body.answer ?? "",
-        sttProvider: body.heard?.provider ?? null,
-        ttsProvider: body.speech?.provider ?? null,
-        workflow: body.workflow ?? null,
+        heard: result.value.heard,
+        answer: result.value.answer,
+        sttProvider: result.value.sttProvider,
+        ttsProvider: result.value.ttsProvider,
+        workflow: result.value.workflow,
+        agent: result.value.agent,
       };
       setLastTurn(turn);
       callbacks.current.onTurn?.(turn);
-      if (body.speech?.audio_base64) {
+      if (result.value.audio) {
         setState("speaking");
-        await playBase64Audio(body.speech.audio_base64, body.speech.mime ?? "audio/wav");
+        await playBase64Audio(result.value.audio.base64, result.value.audio.mime);
       }
       setState("idle");
       setError(null);

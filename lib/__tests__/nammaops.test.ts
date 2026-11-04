@@ -42,7 +42,7 @@ afterEach(async () => {
 
 const TODAY = "2026-11-01";
 const PIN = "4826";
-const SEATS = ["seat-m", "seat-i", "seat-s", "seat-p", "seat-f"];
+const SEATS = ["seat-m", "seat-i", "seat-s", "seat-p", "seat-f", "seat-r", "seat-b"];
 
 function setup({ reasoning = "off", gatewayStatus = "connected" } = {}) {
   const dir = mkdtempSync(join(tmpdir(), "nammaops-test-"));
@@ -162,10 +162,12 @@ describe("workforce configuration", () => {
     const { runtime, nammaops } = await ready();
     const workforce = nammaops.workforce();
     expect(Object.keys(workforce.agents).sort()).toEqual([
+      "billing",
       "finance",
       "inventory",
       "manager",
       "procurement",
+      "reports",
       "sales",
     ]);
     for (const agent of Object.values(workforce.agents) as Any[]) {
@@ -179,11 +181,11 @@ describe("workforce configuration", () => {
       );
     }
     expect(new Set(Object.values(workforce.agents).map((agent: Any) => agent.seat_id)).size).toBe(
-      5,
+      7,
     );
     const again = await nammaops.setup({});
     expect(again.blockers).toEqual([]);
-    expect(runtime.profiles.list()).toHaveLength(5);
+    expect(runtime.profiles.list()).toHaveLength(7);
   });
 
   it("2. restricts each specialist to its capabilities; only the principal can submit", async () => {
@@ -767,6 +769,16 @@ describe("OpenAPI contract (fixture)", () => {
 
     // Voice queries need a multipart audio upload; a JSON body is refused before any provider runs.
     expect((await call(ctx, "POST", "/api/nammaops/voice-query", {})).status).toBe(415);
+    const voices = await call(ctx, "GET", "/api/nammaops/voices");
+    expect(voices.status).toBe(200);
+    expect(new Set(Object.values(voices.body.voices).map((v: Any) => v.voice)).size).toBe(7);
+    expect(
+      (await call(ctx, "POST", "/api/nammaops/voices", { voices: { sales: "Nobody" } })).status,
+    ).toBe(400);
+    expect(
+      (await call(ctx, "POST", "/api/nammaops/voices", { voices: { sales: "Tarika" } })).body.voices
+        .sales,
+    ).toMatchObject({ voice: "Tarika", custom: true });
     const access = await call(ctx, "POST", "/api/nammaops/access-check", {});
     expect(access.status).toBe(200);
     expect(access.body.access_check.passed).toBe(true);
@@ -783,6 +795,10 @@ describe("OpenAPI contract (fixture)", () => {
       (await call(ctx, "POST", "/api/nammaops/owner-pin", { current_pin: PIN, new_pin: PIN }))
         .status,
     ).toBe(200);
+    for (const action of ["accept", "decline"])
+      expect(
+        (await call(ctx, "POST", `/api/nammaops/handoffs/hof_unknown/${action}`, {})).status,
+      ).toBe(404);
     expect((await call(ctx, "GET", "/api/nammaops/nope")).status).toBe(404);
     expect((await call(ctx, "DELETE", "/api/nammaops/workflows")).status).toBe(405);
 
@@ -878,6 +894,14 @@ describe("F2 voice department agents (fixture)", () => {
       demand_forecast: "demand_forecast",
       supplier_comparison: "supplier_comparison",
       prepare_purchase_order: "prepare_reorder",
+      receivables_report: "receivables_report",
+      expiry_check: "expiry_check",
+      purchase_status: "purchase_status",
+      supplier_performance: "supplier_performance",
+      customer_insights: "customer_insights",
+      store_health_report: "store_health_report",
+      business_report: "business_report",
+      billing_summary: "billing_summary",
     });
     // Typed commands: a comparison request compares; ordering with a supplier preference reorders.
     expect(parseCommand("Compare supplier quotations for milk and sugar", TODAY)).toEqual({
@@ -887,16 +911,16 @@ describe("F2 voice department agents (fixture)", () => {
     expect(parseCommand(W2, TODAY)).toEqual({ action: "prepare_reorder", products: [] });
   });
 
-  it("maps Alice, Bob, Carol and Dave to departments from configuration only", async () => {
+  it("maps Alice, Bob, Carol, Dave and Erin to departments from configuration only", async () => {
     const ctx = await ready();
     const router = ctx.nammaops.voice;
     expect(router.department("Alice")).toMatchObject({ department: "manager" });
     expect(router.department("bob")).toMatchObject({ department: "inventory" });
     expect(router.department("Carol")).toMatchObject({ department: "sales" });
     expect(router.department("Dave")).toMatchObject({ department: "procurement" });
-    expect(router.department("Alice")?.background).toEqual([
-      { department: "finance", title: "Finance" },
-    ]);
+    expect(router.department("Erin")).toMatchObject({ department: "finance", title: "Finance" });
+    expect(router.department("Alice")?.background).toEqual([]);
+    expect(router.department("Alice")?.colleagues.map((c: Any) => c.name)).toContain("Erin");
     expect(router.department("Rahul")).toBeNull();
     // A seat that is not a department gets nothing, and a department grants no ERP capability.
     await expect(
@@ -945,7 +969,7 @@ describe("F2 voice department agents (fixture)", () => {
     expect(all.facts[0]).toMatch(new RegExp(`^${count} products in \\d+ categor`));
     // Never truncated: every product name appears.
     for (const row of view.result.rows) expect(all.facts.join(" ")).toContain(row.item_name);
-    const unknown = await ask({ intent: "check_stock", products: ["pulses"] });
+    const unknown = await ask({ intent: "check_stock", products: ["electronics"] });
     expect(unknown.status).toBe("clarification_required");
     expect(unknown.facts.join(" ")).toContain("Toned Milk 500ml");
     expect(unknown.limitations.join(" ")).toMatch(/closest recorded products/);
@@ -962,7 +986,7 @@ describe("F2 voice department agents (fixture)", () => {
       "RICE",
     ]);
     expect(resolveProducts(["dal"], items).resolved[0].item.item_code).toBe("DAL");
-    const missing = resolveProducts(["pulses"], items).clarifications[0];
+    const missing = resolveProducts(["electronics"], items).clarifications[0];
     expect(missing).toMatchObject({ reason: "unknown" });
     expect(missing.categories).toEqual({ Staples: ["Toor Dal 1kg", "Rice 5kg"], Dairy: ["Milk"] });
   });
@@ -971,16 +995,25 @@ describe("F2 voice department agents (fixture)", () => {
     const ctx = await ready();
     const ask = voiceFor(ctx, "Carol", "seat-2");
     const today = await ask({ intent: "sales_summary", day: "today" });
-    expect(today.facts).toEqual(["Sales on 2026-11-01: 3186 from 3 submitted transactions."]);
+    expect(today.facts[0]).toBe(
+      "Sales on 2026-11-01: ₹3,186 from 3 bills, an average of ₹1,062 a bill.",
+    );
+    expect(today.facts[1]).toBe(
+      "Top sellers: Sona Masoori Rice 5kg (4 sold, ₹1,600), Toned Milk 500ml (42 sold, ₹1,136), Sunflower Oil 1L (3 sold, ₹450).",
+    );
+    // A sales question stays about sales: the P&L is not read and no accounting caveats appear.
+    expect(today.consulted).toEqual(["sales"]);
+    expect(today.limitations.join(" ")).not.toMatch(/non-trading|Net profit/);
     expect(today.documents.length).toBe(3);
     const top = await ask({ intent: "top_selling_products", day: "today" });
-    expect(top.facts[0]).toMatch(/^#1 on 2026-11-01: Sona Masoori Rice 5kg, \d+ sold for 1600\.$/);
+    expect(top.facts[0]).toMatch(
+      /^#1 on 2026-11-01: Sona Masoori Rice 5kg, \d+ sold for ₹1,600\.$/,
+    );
     const yesterday = await ask({ intent: "sales_summary", day: "yesterday" });
     const report = ctx.nammaops.workflows.view(yesterday.workflow_id);
     expect(report.intent.date).toBe("2026-10-31");
-    expect(yesterday.facts[0]).toContain(
-      `${report.result.total_sales} from ${report.result.transaction_count}`,
-    );
+    expect(report.result.profit).toEqual({ status: "not_requested" });
+    expect(yesterday.facts[0]).toContain(`from ${report.result.transaction_count} bill`);
     const future = await ask({ intent: "sales_summary", day: "2026-12-01" });
     expect(future).toMatchObject({
       status: "clarification_required",
@@ -994,7 +1027,7 @@ describe("F2 voice department agents (fixture)", () => {
     const ask = voiceFor(ctx);
     const verified = await ask({ intent: "business_profit", day: "today" });
     expect(verified.facts[0]).toMatch(
-      /^Net profit on 2026-11-01: 484 .*posted Profit and Loss report\.$/,
+      /^Net profit on 2026-11-01: ₹484 .*posted Profit and Loss report\.$/,
     );
     expect(verified.consulted).toContain("finance");
     ctx.editData((data) => (data.profit_and_loss = []));

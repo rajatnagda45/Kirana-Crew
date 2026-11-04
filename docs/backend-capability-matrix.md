@@ -72,7 +72,9 @@ All five agents are fully implemented as NammaOps specializations registered via
 | Procurement (Dave) | `nammaops-procurement` | `erp.suppliers.list`, `erp.supplier_quotations.list`, `erp.item_prices.get`, `erp.po.create_draft`, `erp.po.get`, `erp.po.open` | `workflows.mjs` → `prepare_reorder` + `supplier_comparison` | **A**  |
 | Finance (Erin)     | `nammaops-finance`     | `erp.pnl`, `erp.gl`, `erp.purchase_invoices.list`, `erp.payments.summary`                                                       | `workflows.mjs` → `daily_report`                            | **A**  |
 
-**Frank (Billing) and Grace (Reports)** — Visual characters only in the 3D CrewSim. NOT independent backend agents. Frank's counter position is cosmetic; Grace has no backend agent.
+| Reports (Grace) | `nammaops-reports` | `erp.sales_invoices.list`, `erp.pos_invoices.list`, `erp.items.list`, `erp.stock.balance`, `erp.pnl`, `erp.receivables.aging`, `erp.payables.aging` | `workflows-v2.mjs` → `business_report` | **A** |
+
+| Billing (Frank) | `nammaops-billing` | `erp.sales_invoices.list`, `erp.pos_invoices.list`, `erp.customers.list`, `erp.items.list`, `erp.receivables.aging` | `workflows-v2.mjs` → `billing_summary` | **A** |
 
 ---
 

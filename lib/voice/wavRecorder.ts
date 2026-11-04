@@ -7,13 +7,14 @@
 const TARGET_RATE = 16000;
 const LEAD_IN_SECONDS = 0.3;
 export const MAX_RECORDING_MS = 30_000;
+export const TARGET_SAMPLE_RATE = TARGET_RATE;
 
 export interface WavRecording {
   stop: () => Promise<Blob>;
   cancel: () => void;
 }
 
-function downsample(input: Float32Array, from: number, to: number): Float32Array {
+export function downsample(input: Float32Array, from: number, to: number): Float32Array {
   if (from === to) return input;
   const ratio = from / to;
   const out = new Float32Array(Math.floor(input.length / ratio));
@@ -28,8 +29,12 @@ function downsample(input: Float32Array, from: number, to: number): Float32Array
   return out;
 }
 
-function encodeWav(samples: Float32Array, rate: number): Blob {
-  const lead = Math.round(rate * LEAD_IN_SECONDS);
+export function encodeWav(
+  samples: Float32Array,
+  rate: number,
+  leadInSeconds = LEAD_IN_SECONDS,
+): Blob {
+  const lead = Math.round(rate * leadInSeconds);
   const total = lead + samples.length;
   const buffer = new ArrayBuffer(44 + total * 2);
   const view = new DataView(buffer);
@@ -100,18 +105,36 @@ export async function startWavRecording(onAutoStop?: () => void): Promise<WavRec
   };
 }
 
-/** Plays a base64 audio clip returned by the server; resolves when playback ends. */
-export function playBase64Audio(base64: string, mime: string): Promise<void> {
-  return new Promise((resolve) => {
-    const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-    const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
-    const audio = new Audio(url);
-    const done = () => {
+export interface Playback {
+  done: Promise<void>;
+  stop: () => void;
+}
+
+/** Plays a base64 audio clip; `stop()` cuts it off (barge-in) and resolves `done`. */
+export function playClip(base64: string, mime: string): Playback {
+  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
+  const audio = new Audio(url);
+  let finish: () => void = () => {};
+  const done = new Promise<void>((resolve) => {
+    finish = () => {
       URL.revokeObjectURL(url);
       resolve();
     };
-    audio.onended = done;
-    audio.onerror = done;
-    void audio.play().catch(done);
   });
+  audio.onended = finish;
+  audio.onerror = finish;
+  void audio.play().catch(finish);
+  return {
+    done,
+    stop: () => {
+      audio.pause();
+      finish();
+    },
+  };
+}
+
+/** Plays a base64 audio clip; resolves when playback ends. */
+export function playBase64Audio(base64: string, mime: string): Promise<void> {
+  return playClip(base64, mime).done;
 }
