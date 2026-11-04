@@ -7,8 +7,10 @@ import {
   CheckCircle2,
   ChevronLeft,
   DollarSign,
+  FileText,
   Hash,
   Loader2,
+  Receipt,
   Mic,
   MicOff,
   Package,
@@ -88,6 +90,20 @@ const CREW: ConvDef[] = [
     sublabel: "Finance",
     colorHex: "#fb923c",
     Icon: DollarSign,
+  },
+  {
+    convId: "grace",
+    label: "Grace",
+    sublabel: "Reports",
+    colorHex: "#2dd4bf",
+    Icon: FileText,
+  },
+  {
+    convId: "frank",
+    label: "Frank",
+    sublabel: "Billing",
+    colorHex: "#f472b6",
+    Icon: Receipt,
   },
 ];
 
@@ -318,6 +334,51 @@ function UserBubble({ msg }: { msg: ChatMessage }) {
   );
 }
 
+/** The owner's click that agrees to a server-proposed handoff; the server decides everything else. */
+function HandoffButton({ handoffId, target }: { handoffId: string; target: string }) {
+  const [state, setState] = useState<"idle" | "busy" | "done" | "failed">("idle");
+  const connId = CREW.find((c) => c.label.toLowerCase() === target.toLowerCase())?.convId;
+  if (state === "done") return null;
+  return (
+    <button
+      type="button"
+      disabled={state === "busy"}
+      onClick={async () => {
+        setState("busy");
+        try {
+          const res = await fetch(
+            `/api/runtime/nammaops/handoffs/${encodeURIComponent(handoffId)}/accept`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: "{}",
+            },
+          );
+          if (!res.ok) throw new Error("handoff refused");
+          setState("done");
+          if (connId)
+            window.dispatchEvent(new CustomEvent("kirana:handoff", { detail: { convId: connId } }));
+        } catch {
+          setState("failed");
+        }
+      }}
+      style={{
+        marginTop: 8,
+        padding: "6px 12px",
+        borderRadius: 8,
+        border: "1px solid var(--kirana-primary)",
+        background: "color-mix(in oklab, var(--kirana-primary) 14%, transparent)",
+        color: "var(--kirana-primary)",
+        fontWeight: 700,
+        fontSize: 12,
+        cursor: "pointer",
+      }}
+    >
+      {state === "failed" ? `Could not switch to ${target}. Try again?` : `Switch to ${target}`}
+    </button>
+  );
+}
+
 function AgentBubble({ msg }: { msg: ChatMessage }) {
   const def = getAgentCrewDef(msg.actorName);
   const isStreaming = "streaming" in msg && msg.streaming;
@@ -400,6 +461,9 @@ function AgentBubble({ msg }: { msg: ChatMessage }) {
             </span>
           ) : (
             <MessageContent content={msg.content} />
+          )}
+          {msg.handoffId && msg.handoffTarget && (
+            <HandoffButton handoffId={msg.handoffId} target={msg.handoffTarget} />
           )}
         </div>
       </div>
@@ -1340,13 +1404,23 @@ export default function ChatPage() {
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [currentSessionKey, loadSessionChat]);
 
-  // Scroll to bottom on new messages
+  // Follow new messages when the reader is at the bottom; always jump to the latest when a
+  // conversation is opened or its history finishes loading, or when the owner just sent one.
+  const lastMessage = messages[messages.length - 1];
+  const lastIsOwner = lastMessage?.role === "user";
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 200;
-    if (isNearBottom) el.scrollTop = el.scrollHeight;
-  }, [messages.length]);
+    if (isNearBottom || lastIsOwner) el.scrollTop = el.scrollHeight;
+  }, [messages.length, lastMessage?.content, lastIsOwner]);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const el = scrollRef.current;
+      if (el) el.scrollTop = el.scrollHeight;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [selectedConv, currentSessionKey, historyLoading]);
 
   const handleSend = useCallback(async () => {
     // Commit any in-flight interim dictation transcript into draft before sending.
@@ -1441,6 +1515,15 @@ export default function ChatPage() {
     setSendError(null);
     setFailedTurnId(null);
   }, []);
+  // The owner agreed to a handoff: open the teammate's conversation (the server wrote the handover note).
+  useEffect(() => {
+    const open = (event: Event) => {
+      const convId = (event as CustomEvent<{ convId: string }>).detail?.convId;
+      if (convId) handleSelectConv(convId);
+    };
+    window.addEventListener("kirana:handoff", open);
+    return () => window.removeEventListener("kirana:handoff", open);
+  }, [handleSelectConv]);
 
   const handleSuggestion = useCallback((s: string) => {
     setDraft(s);

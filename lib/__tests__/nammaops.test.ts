@@ -42,7 +42,7 @@ afterEach(async () => {
 
 const TODAY = "2026-11-01";
 const PIN = "4826";
-const SEATS = ["seat-m", "seat-i", "seat-s", "seat-p", "seat-f"];
+const SEATS = ["seat-m", "seat-i", "seat-s", "seat-p", "seat-f", "seat-r", "seat-b"];
 
 function setup({ reasoning = "off", gatewayStatus = "connected" } = {}) {
   const dir = mkdtempSync(join(tmpdir(), "nammaops-test-"));
@@ -162,10 +162,12 @@ describe("workforce configuration", () => {
     const { runtime, nammaops } = await ready();
     const workforce = nammaops.workforce();
     expect(Object.keys(workforce.agents).sort()).toEqual([
+      "billing",
       "finance",
       "inventory",
       "manager",
       "procurement",
+      "reports",
       "sales",
     ]);
     for (const agent of Object.values(workforce.agents) as Any[]) {
@@ -179,11 +181,11 @@ describe("workforce configuration", () => {
       );
     }
     expect(new Set(Object.values(workforce.agents).map((agent: Any) => agent.seat_id)).size).toBe(
-      5,
+      7,
     );
     const again = await nammaops.setup({});
     expect(again.blockers).toEqual([]);
-    expect(runtime.profiles.list()).toHaveLength(5);
+    expect(runtime.profiles.list()).toHaveLength(7);
   });
 
   it("2. restricts each specialist to its capabilities; only the principal can submit", async () => {
@@ -769,7 +771,7 @@ describe("OpenAPI contract (fixture)", () => {
     expect((await call(ctx, "POST", "/api/nammaops/voice-query", {})).status).toBe(415);
     const voices = await call(ctx, "GET", "/api/nammaops/voices");
     expect(voices.status).toBe(200);
-    expect(new Set(Object.values(voices.body.voices).map((v: Any) => v.voice)).size).toBe(5);
+    expect(new Set(Object.values(voices.body.voices).map((v: Any) => v.voice)).size).toBe(7);
     expect(
       (await call(ctx, "POST", "/api/nammaops/voices", { voices: { sales: "Nobody" } })).status,
     ).toBe(400);
@@ -793,6 +795,10 @@ describe("OpenAPI contract (fixture)", () => {
       (await call(ctx, "POST", "/api/nammaops/owner-pin", { current_pin: PIN, new_pin: PIN }))
         .status,
     ).toBe(200);
+    for (const action of ["accept", "decline"])
+      expect(
+        (await call(ctx, "POST", `/api/nammaops/handoffs/hof_unknown/${action}`, {})).status,
+      ).toBe(404);
     expect((await call(ctx, "GET", "/api/nammaops/nope")).status).toBe(404);
     expect((await call(ctx, "DELETE", "/api/nammaops/workflows")).status).toBe(405);
 
@@ -894,6 +900,8 @@ describe("F2 voice department agents (fixture)", () => {
       supplier_performance: "supplier_performance",
       customer_insights: "customer_insights",
       store_health_report: "store_health_report",
+      business_report: "business_report",
+      billing_summary: "billing_summary",
     });
     // Typed commands: a comparison request compares; ordering with a supplier preference reorders.
     expect(parseCommand("Compare supplier quotations for milk and sugar", TODAY)).toEqual({

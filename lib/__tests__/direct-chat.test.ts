@@ -263,12 +263,12 @@ describe("store questions versus investigations", () => {
     const { isStoreQuestion } = await import("../server/nammaops/direct-chat.mjs");
     const ctx: Any = await ready();
     const { inventory } = seats(ctx);
-    expect(isStoreQuestion(ctx.runtime, inventory, "check stock of pulses")).toBe(true);
-    expect(isStoreQuestion(ctx.runtime, inventory, "how much udhaar is pending")).toBe(true);
+    expect(await isStoreQuestion(ctx.runtime, inventory, "check stock of pulses")).toBe(true);
+    expect(await isStoreQuestion(ctx.runtime, inventory, "how much udhaar is pending")).toBe(true);
     expect(
-      isStoreQuestion(ctx.runtime, inventory, "why does the stock count not match the books"),
+      await isStoreQuestion(ctx.runtime, inventory, "why does the stock count not match the books"),
     ).toBe(false);
-    expect(isStoreQuestion(ctx.runtime, "seat-research", "check stock of milk")).toBe(false);
+    expect(await isStoreQuestion(ctx.runtime, "seat-research", "check stock of milk")).toBe(false);
   });
 });
 
@@ -290,5 +290,62 @@ describe("a date that cannot be read", () => {
     const content = saved(ctx, taskId).reply.content as string;
     expect(content).not.toMatch(/Data source:/);
     expect(content).toMatch(/\nSource: .*consulted sales/);
+  });
+});
+
+describe("Grace (Reports) is a real specialist", () => {
+  it("is a voice department and runs the weekly report under her own identity", async () => {
+    const ctx: Any = await ready();
+    const response: Any = await ctx.nammaops.voice.query({
+      call: { id: "call-grace", name: "Grace" },
+      actionId: "a1",
+      args: { intent: "business_report" },
+    });
+    expect(["completed", "partial"]).toContain(response.status);
+    expect(response.voice_department).toBe("reports");
+    expect(response.facts[0]).toMatch(/^Report for /);
+    expect(response.consulted).toContain("reports");
+    // Her reads ran as her, never as Carol or Erin.
+    const view = ctx.nammaops.workflows.view(response.workflow_id);
+    expect(view.tasks.map((t: Any) => t.role)[0]).toBe("reports");
+  });
+
+  it("answers a one-to-one weekly report request and routes the wording to her", async () => {
+    const ctx: Any = await ready();
+    const seat = ctx.runtime.profiles
+      .list()
+      .find((p: Any) => p.agent_id === "nammaops-reports").seat_id;
+    const out: Any = await send(ctx, seat, "Give me the weekly report", "t-grace-1");
+    expect(out.answered).toMatchObject({ intent: "business_report" });
+    expect(saved(ctx, "t-grace-1").reply.content).toMatch(/Report for /);
+    expect(parseCommand("weekly report", TODAY)).toMatchObject({ action: "business_report" });
+    // A sales question stays Carol's.
+    expect(parseCommand("give summary on previous 3 day sales", TODAY).action).toBe("daily_report");
+    const routed = classifyIntent("give me the monthly report") as Any;
+    expect(routed.voiceIntents.reports).toBe("business_report");
+  });
+});
+
+describe("Frank (Billing) is a real specialist", () => {
+  it("answers a bills question under his own identity and keeps udhaar and sales elsewhere", async () => {
+    const ctx: Any = await ready();
+    const response: Any = await ctx.nammaops.voice.query({
+      call: { id: "call-frank", name: "Frank" },
+      actionId: "a1",
+      args: { intent: "billing_summary" },
+    });
+    expect(["completed", "partial"]).toContain(response.status);
+    expect(response.voice_department).toBe("billing");
+    expect(response.consulted).toContain("billing");
+    const view = ctx.nammaops.workflows.view(response.workflow_id);
+    expect(view.tasks.map((t: Any) => t.role)[0]).toBe("billing");
+    expect(parseCommand("how many bills did we make yesterday", TODAY)).toMatchObject({
+      action: "billing_summary",
+      date: "2026-10-31",
+    });
+    expect(parseCommand("who has not paid their invoices", TODAY).action).toBe(
+      "receivables_report",
+    );
+    expect(parseCommand("give summary on previous 3 day sales", TODAY).action).toBe("daily_report");
   });
 });

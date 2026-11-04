@@ -269,3 +269,25 @@ See `docs/GNANI_INTEGRATION.md` for the planned implementation.
 **ERP calls:** `erp.items.list` (Inventory), `erp.suppliers.list` + `erp.supplier_quotations.list` + `erp.item_prices.get` (Procurement)
 
 **Ranking rules:** Suitable = can supply quantity AND quotation not expired. Among suitable: lowest rate → shortest lead time → best on-time rate.
+
+---
+
+## Current voice design (supersedes the diagram above where they differ)
+
+- **Primary path: Gemini Live.** The owner talks to one agent (Alice, Bob, Carol, Dave, Erin, Grace or Frank). Gemini listens,
+  understands, and calls tools (`nammaops_business_query`, `assign_task`, ...). Business questions run the same governed
+  NammaOps workflows as text chat; every specialist reads live ERPNext under its own identity.
+- **Voice out: Gnani only.** Gemini Live cannot be made text-only (the model rejects TEXT replies), so its audio is discarded
+  on the client. The reply text is cut into sentences and spoken by Gnani Timbre in the agent's own voice, streamed over
+  `POST /api/runtime/voice/speak-stream` (raw 24 kHz PCM, first sentence alone, later ones batched). The microphone is held
+  back from Gemini while Gnani speaks, unless the owner clearly talks over it.
+- **Context of every agent.** Each call carries `team`: every other teammate's status, latest task and latest answer.
+- **Handoff (switching teammates).** `transfer_to_agent` only _proposes_. The server stores the proposal against the source
+  call, resolves the target from the roster, and accepts only the owner's own next transcript (a plain yes, or a constrained
+  Gemini yes/no/other check); a no, a question or a different request cancels it. Acceptance is a compare-and-set on the record
+  revision, single use, expires in 2 minutes, and is re-validated (binding revision, availability, EmergencyStop). The new call
+  starts from `handoffId` alone; the seat, session and revision come from the stored record, and the server builds the packet
+  and bridge prompt. In text chat the owner clicks "Switch to X" (or types yes) and the server writes the handover message.
+  Earlier assistant statements are marked unverified; figures come from workflow results. A handoff moves the conversation,
+  never permissions. Code: `lib/server/nammaops/handoff.mjs`.
+- Gnani speech-to-text and the hands-free "Live" mode still exist in the repo but are not wired into the shell.

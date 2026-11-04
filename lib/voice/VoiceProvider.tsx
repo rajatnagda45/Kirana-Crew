@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import {
   createContext,
   useCallback,
@@ -97,6 +98,8 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   const [elapsed, setElapsed] = useState(0);
   const connected = status !== "idle" && status !== "connecting";
   const callRef = useRef<ActiveCall | null>(null);
+  /** A server-accepted handoff waiting for the next call to start as the target teammate. */
+  const pendingHandoff = useRef<{ id: string; seatId: string } | null>(null);
   const sequence = useRef(0);
   const selectionRequest = useRef(0);
 
@@ -347,8 +350,36 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     [selected],
   );
 
+  /** Let the handover line finish, then end this call and start the target teammate's. */
+  const switchAfterSpeaking = useCallback(
+    (call: ActiveCall, handoffId: string, targetName: string) => {
+      const seat = latest.current.state.seats.find(
+        (item) => item.assigned && item.label.toLowerCase() === targetName.toLowerCase(),
+      );
+      if (!seat) return;
+      const startedAt = Date.now();
+      const timer = setInterval(() => {
+        if (callRef.current !== call) return clearInterval(timer);
+        // Give the model a moment to begin its one-sentence handover, then wait for it to end.
+        if (
+          Date.now() - startedAt < 1200 ||
+          (call.client.isBusy() && Date.now() - startedAt < 12000)
+        )
+          return;
+        clearInterval(timer);
+        pendingHandoff.current = { id: handoffId, seatId: seat.seatId };
+        stop(); // flushes the Gnani speaker and aborts anything in flight
+        setSelected((previous) => ({ ...previous, [call.sessionKey]: seat.seatId }));
+      }, 250);
+    },
+    [stop],
+  );
+
   const start = useCallback(async () => {
     if (callRef.current || !agent) return;
+    const handoffId =
+      pendingHandoff.current?.seatId === agent.seatId ? pendingHandoff.current.id : undefined;
+    pendingHandoff.current = null;
     const context = selectionFor(agent.seatId, sessionKey);
     if (!context) return;
     setSelected((previous) => ({ ...previous, [sessionKey]: agent.seatId }));
@@ -430,6 +461,9 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       status: (next) => {
         if (isCurrentCall(call)) setStatus(next);
       },
+      warn: (message) => {
+        if (isCurrentCall(call)) toast.warning(message, { id: "gnani-voice-warning" });
+      },
       error: (message) => {
         if (isCurrentCall(call)) {
           call.abort.abort();
@@ -485,7 +519,21 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
           if (!isCurrentCall(call) || signal?.aborted)
             return { error: "Call ended or interrupted. No action was taken." };
           if (name !== "assign_task") {
-            const result = await call.client.action(name, parameters, { actionId, signal });
+            const result = await call.client.action(name, parameters, {
+              actionId,
+              signal,
+              // The owner's own transcript is the evidence the server checks for a handoff.
+              ...(name === "transfer_to_agent" || name === "confirm_handoff"
+                ? { sourceMessageId: call.user?.id }
+                : {}),
+            });
+            if (
+              name === "confirm_handoff" &&
+              result.accepted === true &&
+              typeof result.handoff_id === "string" &&
+              typeof result.target === "string"
+            )
+              switchAfterSpeaking(call, result.handoff_id, result.target);
             if (name === "open_pending_review" && typeof result.reviewId === "string") {
               if (!isCurrentCall(call) || signal?.aborted)
                 return { error: "Call ended. Review was not opened." };
@@ -531,7 +579,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     });
     callRef.current = call;
     try {
-      await call.client.start(context);
+      await call.client.start(handoffId ? { ...context, handoffId } : context);
     } catch (cause) {
       if (callRef.current !== call) return;
       stop();
@@ -547,6 +595,16 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       );
     }
   }, [agent, selectionFor, sessionKey, studio.state.tasks, stop, isCurrentCall, refreshCall]);
+
+  useEffect(() => {
+    // After a handoff the teammate is selected; start their call as soon as the old one is gone.
+    if (
+      pendingHandoff.current &&
+      agent?.seatId === pendingHandoff.current.seatId &&
+      !callRef.current
+    )
+      void start();
+  }, [agent?.seatId, start, status]);
 
   useEffect(() => {
     if (!connected) return;

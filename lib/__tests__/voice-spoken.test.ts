@@ -98,7 +98,7 @@ describe("each agent has its own voice", () => {
   it("ships five distinct default voices and lets the owner override them", async () => {
     const ctx: Any = await ready();
     const defaults = agentVoices(ctx.runtime);
-    expect(new Set(Object.values(defaults).map((v: Any) => v.voice)).size).toBe(5);
+    expect(new Set(Object.values(defaults).map((v: Any) => v.voice)).size).toBe(7);
     const saved = saveAgentVoices(ctx.runtime, { sales: "Tarika" });
     expect(saved.sales).toMatchObject({ voice: "Tarika", custom: true });
     expect(saved.finance.custom).toBe(false);

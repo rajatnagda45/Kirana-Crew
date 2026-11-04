@@ -145,6 +145,9 @@ export interface ChatMessageBase {
   taskId?: string;
   /** The assistant fragment was cut short by the user's interruption. */
   interrupted?: boolean;
+  /** Set by the server when this reply proposes moving the conversation to a teammate. */
+  handoffId?: string;
+  handoffTarget?: string;
 }
 
 interface TextChatMessage extends ChatMessageBase {

@@ -16,8 +16,6 @@ import {
 import { toast } from "sonner";
 import { usePathname, useRouter } from "next/navigation";
 import { APP_VIEWS, viewFromPath, viewPath } from "@/lib/app-views";
-import { useGnaniVoiceQuery } from "@/lib/voice/useGnaniVoiceQuery";
-import { useGnaniLive } from "@/lib/voice/useGnaniLive";
 import {
   KiranaStoreCanvas,
   type KiranaStoreCanvasHandle,
@@ -186,76 +184,26 @@ export default function KiranaShell() {
     }
   };
 
-  // Gnani is the primary voice path (push-to-talk through the governed NammaOps workflows).
-  // Gemini Live is only the backup, started when the Gnani path is unavailable.
-  const startGeminiBackup = useCallback(
-    (reason: string) => {
-      toast(`Gnani voice unavailable (${reason}) Switching to Gemini Live.`);
+  function handleMic() {
+    if (!voice.active) {
       voice.setMode("voice");
       voice.start();
-    },
-    [voice],
-  );
-  const gnani = useGnaniVoiceQuery({
-    onUnavailable: startGeminiBackup,
-    onTurn: (turn) =>
-      toast(turn.heard ? `“${turn.heard}”` : "No speech recognised", {
-        description: turn.answer.slice(0, 400),
-        duration: 12000,
-      }),
-  });
-  useEffect(() => {
-    if (gnani.error) toast.error(gnani.error);
-  }, [gnani.error]);
-
-  // Hands-free "Live" mode: local voice-activity detection, so only real speech is uploaded.
-  const live = useGnaniLive({
-    onUnavailable: startGeminiBackup,
-    onTurn: (turn) =>
-      toast(turn.heard ? `“${turn.heard}”` : "No speech recognised", {
-        description: `${turn.agent ? `${turn.agent.name}: ` : ""}${turn.answer.slice(0, 400)}`,
-        duration: 12000,
-      }),
-  });
-  useEffect(() => {
-    if (live.error) toast.error(live.error);
-  }, [live.error]);
-
-  function handleMic() {
-    // A Gemini backup call in progress keeps its own mute toggle.
-    if (voice.active) return voice.toggleMute();
-    if (live.active) return live.toggle(); // the mic button also ends live mode
-    gnani.toggle();
+    } else voice.toggleMute();
   }
 
-  const isVoiceOn =
-    (voice.active && !voice.muted) || gnani.state === "recording" || live.state === "hearing";
+  const isVoiceOn = voice.active && !voice.muted;
   const voiceLabel =
-    live.state === "hearing"
-      ? "Hearing you..."
-      : live.state === "listening"
-        ? "Live: listening, just speak"
-        : live.state === "thinking"
-          ? "Live: thinking..."
-          : live.state === "speaking"
-            ? "Live: speaking (talk to interrupt)"
-            : gnani.state === "recording"
-              ? "Listening... tap to send"
-              : gnani.state === "thinking"
-                ? "Processing..."
-                : gnani.state === "speaking"
-                  ? "Speaking..."
-                  : voice.status === "listening"
-                    ? "Listening... (Gemini backup)"
-                    : voice.status === "speaking"
-                      ? "Speaking..."
-                      : voice.status === "thinking"
-                        ? "Processing..."
-                        : voice.status === "connecting"
-                          ? "Connecting..."
-                          : voice.active
-                            ? "Ready (Gemini backup)"
-                            : "Tap to speak";
+    voice.status === "listening"
+      ? "Listening..."
+      : voice.status === "speaking"
+        ? "Speaking..."
+        : voice.status === "thinking"
+          ? "Processing..."
+          : voice.status === "connecting"
+            ? "Connecting..."
+            : voice.active
+              ? "Ready"
+              : "Tap to speak";
 
   const navigate = (requested: AppView | string) => {
     // Pages may pass legacy names ("workers"); anything unknown falls back to the overview.
@@ -440,62 +388,6 @@ export default function KiranaShell() {
                 ? "Connecting…"
                 : "Offline"}
           </span>
-          <button
-            type="button"
-            onClick={() => {
-              if (voice.active || gnani.state !== "idle") return;
-              live.toggle();
-            }}
-            title={
-              live.active
-                ? `Live voice is on (${live.state}). Click to turn off.`
-                : "Live voice: hands-free, just speak. Only speech is sent, silence is free."
-            }
-            aria-label="Toggle live hands-free voice"
-            aria-pressed={live.active}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              height: 36,
-              padding: "0 11px",
-              borderRadius: 9,
-              border: `1px solid ${live.active ? "var(--kirana-primary)" : "var(--kirana-border)"}`,
-              background: live.active
-                ? "color-mix(in oklab, var(--kirana-primary) 18%, transparent)"
-                : "var(--kirana-card)",
-              color: "var(--kirana-primary)",
-              cursor: "pointer",
-              fontSize: 12,
-              fontWeight: 700,
-            }}
-          >
-            <span
-              aria-hidden
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                background: live.active
-                  ? "var(--kirana-success)"
-                  : "var(--kirana-muted-foreground)",
-                boxShadow:
-                  live.active && live.state === "hearing"
-                    ? `0 0 0 ${2 + Math.round(live.level * 6)}px color-mix(in oklab, var(--kirana-success) 35%, transparent)`
-                    : "none",
-                transition: "box-shadow 80ms",
-              }}
-            />
-            {live.active
-              ? {
-                  listening: "Listening",
-                  hearing: "Hearing",
-                  thinking: "Thinking",
-                  speaking: "Speaking",
-                  off: "Live",
-                }[live.state]
-              : "Live"}
-          </button>
           <button
             type="button"
             onClick={handleMic}

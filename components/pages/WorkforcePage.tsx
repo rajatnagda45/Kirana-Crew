@@ -467,12 +467,12 @@ export default function WorkforcePage() {
                 margin: "0 0 3px",
               }}
             >
-              5 Active Backend Agents · Alice, Bob, Carol, Dave, Erin
+              7 Active Backend Agents · Alice, Bob, Carol, Dave, Erin, Grace, Frank
             </p>
             <p style={{ fontSize: 12, color: "var(--kirana-muted-foreground)", margin: 0 }}>
               These agents have real ERP capabilities — they read your actual inventory, sales, and
-              financial records through governed MCP tools. Frank and Grace are visual characters in
-              the 3D store; they do not have independent agent backends.
+              financial records through governed MCP tools. Every character in the 3D store is a
+              real agent with its own governed access.
             </p>
           </div>
         </div>

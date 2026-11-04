@@ -543,7 +543,7 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
       taskOwner: () => owner,
       estop: { status: () => ({ engaged: false }) },
       rosterSeats: () =>
-        ["s1", "s2", "s3", "s4", "s5"].map((seatId) => ({
+        ["s1", "s2", "s3", "s4", "s5", "s6", "s7"].map((seatId) => ({
           seatId,
           assigned: true,
           binding: { available: true },

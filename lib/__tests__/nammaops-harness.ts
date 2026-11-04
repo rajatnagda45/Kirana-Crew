@@ -73,7 +73,7 @@ export function setup({
     taskOwner: () => owner,
     estop: { status: () => ({ engaged: false }) },
     rosterSeats: () =>
-      ["a", "b", "c", "d", "e"].map((seatId) => ({
+      ["a", "b", "c", "d", "e", "f", "g"].map((seatId) => ({
         seatId,
         assigned: true,
         binding: { available: true, ...(backend ? { agentId: backend } : {}) },

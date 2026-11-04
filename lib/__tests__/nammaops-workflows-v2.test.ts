@@ -188,9 +188,9 @@ describe("workforce identities on a shared backend agent", () => {
     const profiles = ctx.runtime.profiles
       .list()
       .filter((p: Any) => p.agent_id.startsWith("nammaops-"));
-    expect(profiles).toHaveLength(5);
+    expect(profiles).toHaveLength(7);
     const sessions = profiles.map((p: Any) => p.session_key);
-    expect(new Set(sessions).size).toBe(5);
+    expect(new Set(sessions).size).toBe(7);
     for (const p of profiles) expect(p.session_key).toBe(`agent:main:${p.agent_id}`);
     // Separate governance subjects: each specialist keeps only its own grants.
     const grants = ctx.runtime.governance.grants();

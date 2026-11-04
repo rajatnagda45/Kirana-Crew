@@ -49,13 +49,25 @@ export async function POST(request: Request) {
   }
   let agent;
   let selection;
+  let claimed: { selection: object; packet: object; bridge: string } | undefined;
   try {
     if (Number(request.headers.get("content-length") ?? 0) > 40000)
       throw new Error("Context too large");
     const body = await request.text();
     if (body.length > 40000) throw new Error("Context too large");
     selection = body ? JSON.parse(body) : undefined;
+    if (selection?.handoffId !== undefined) {
+      // A handoff start is trusted only through the server's own record: the seat, session and
+      // binding revision come from it, whatever the browser sent. It can be claimed exactly once.
+      const handoffs = getServerRuntime().nammaops?.handoffs;
+      if (!handoffs || typeof selection.handoffId !== "string")
+        throw Object.assign(new Error("Handoff unavailable"), { status: 409 });
+      const result = handoffs.claimForCall(selection.handoffId);
+      claimed = result;
+      selection = { ...result.selection };
+    }
     agent = await getServerRuntime().voice.retrieveContext(selection);
+    if (claimed && agent) agent = { ...agent, handoff: claimed.packet };
   } catch (error) {
     const status = error instanceof Error && "status" in error ? Number(error.status) : 400;
     return setupError(status >= 500 ? "service_unavailable" : "selection", status);
@@ -71,10 +83,12 @@ export async function POST(request: Request) {
     .filter((seat: { assigned?: boolean }) => seat.assigned)
     .map((seat: { seatId: string }) => seat.seatId)
     .sort();
+  // Gemini listens and thinks; Gnani speaks. "audio" keeps Gemini's own voice (VOICE_REPLY=audio).
   const config = voiceConfig(
     agent && roster.includes(agent.seatId)
       ? { ...agent, voiceIndex: roster.indexOf(agent.seatId) }
       : agent,
+    process.env.VOICE_REPLY === "text" ? "text" : "audio", // the Live model rejects TEXT-only replies
   );
   let tokenName: string;
   try {
@@ -108,7 +122,14 @@ export async function POST(request: Request) {
     // Token provisioning awaits a network request; reject a binding changed during that wait.
     const callId = getServerRuntime().voice.createCall(selection);
     return NextResponse.json(
-      { token: tokenName, model: VOICE_MODEL, config, maxSeconds: VOICE_SESSION_SECONDS, callId },
+      {
+        token: tokenName,
+        model: VOICE_MODEL,
+        config,
+        maxSeconds: VOICE_SESSION_SECONDS,
+        callId,
+        ...(claimed ? { bridge: claimed.bridge } : {}),
+      },
       { headers: noStore },
     );
   } catch (error) {

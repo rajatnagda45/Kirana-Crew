@@ -178,16 +178,118 @@
         "erp.payables.aging",
         "erp.gst.summary"
       ]
+    },
+    {
+      "agent_id": "nammaops-reports",
+      "role": "reports",
+      "name": "Reports Agent",
+      "specialization": "Kirana business reporting",
+      "purpose": "Compile the owner's weekly and monthly business reports from verified store records.",
+      "responsibilities": [
+        "Compile sales for the period and compare them with the previous period",
+        "Include posted profit when the accounts have it, and say when they do not",
+        "Include udhaar pending and the stock that is low or out",
+        "State exactly which figures could not be read"
+      ],
+      "allowed_actions": ["Read sales, posted profit, udhaar, supplier bills and stock balances"],
+      "forbidden_actions": [
+        {
+          "text": "Create or change any ERP document",
+          "category": "write"
+        },
+        {
+          "text": "Estimate profit from sales or purchases",
+          "category": "other"
+        },
+        {
+          "text": "Submit purchase orders",
+          "category": "write"
+        }
+      ],
+      "business_capabilities": [
+        "erp.sales_invoices.list",
+        "erp.pos_invoices.list",
+        "erp.items.list",
+        "erp.stock.balance",
+        "erp.pnl",
+        "erp.receivables.aging",
+        "erp.payables.aging"
+      ]
+    },
+    {
+      "agent_id": "nammaops-billing",
+      "role": "billing",
+      "name": "Billing Agent",
+      "specialization": "Kirana counter billing",
+      "purpose": "Report the bills raised at the counter and which of them are still unpaid, from posted invoices.",
+      "responsibilities": [
+        "Count and total the bills raised for a day or period",
+        "Separate counter (POS) bills from invoices, and named customers from walk-ins",
+        "Report returns and the biggest bill",
+        "State which of those bills are still unpaid, from the receivables ledger"
+      ],
+      "allowed_actions": ["Read sales invoices, POS invoices, customers and unpaid balances"],
+      "forbidden_actions": [
+        {
+          "text": "Create, edit, cancel or return any invoice",
+          "category": "write"
+        },
+        {
+          "text": "Take or record payments",
+          "category": "write"
+        },
+        {
+          "text": "Apply discounts or change prices",
+          "category": "write"
+        }
+      ],
+      "business_capabilities": [
+        "erp.sales_invoices.list",
+        "erp.pos_invoices.list",
+        "erp.customers.list",
+        "erp.items.list",
+        "erp.receivables.aging"
+      ]
     }
   ],
   "voice_departments": {
     "_note": "Presentation only. Maps a voice seat (by seat label) to the department it speaks for. It grants no permission: every ERP read still runs as the NammaOps specialist that owns the capability, through Phase C governance.",
     "seats": [
-      { "voice_name": "Alice", "department": "manager", "title": "Store Manager" },
-      { "voice_name": "Bob", "department": "inventory", "title": "Inventory" },
-      { "voice_name": "Carol", "department": "sales", "title": "Sales" },
-      { "voice_name": "Dave", "department": "procurement", "title": "Procurement" },
-      { "voice_name": "Erin", "department": "finance", "title": "Finance" }
+      {
+        "voice_name": "Alice",
+        "department": "manager",
+        "title": "Store Manager"
+      },
+      {
+        "voice_name": "Bob",
+        "department": "inventory",
+        "title": "Inventory"
+      },
+      {
+        "voice_name": "Carol",
+        "department": "sales",
+        "title": "Sales"
+      },
+      {
+        "voice_name": "Dave",
+        "department": "procurement",
+        "title": "Procurement"
+      },
+      {
+        "voice_name": "Erin",
+        "department": "finance",
+        "title": "Finance"
+      },
+      {
+        "voice_name": "Grace",
+        "department": "reports",
+        "title": "Reports"
+      },
+      {
+        "voice_name": "Frank",
+        "department": "billing",
+        "title": "Billing"
+      }
     ],
     "background": []
   },

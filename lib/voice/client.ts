@@ -5,6 +5,7 @@ import {
   type Session,
 } from "@google/genai";
 import { encodePcm16, VoicePlayback } from "./audio";
+import { GnaniSpeaker } from "./gnaniSpeaker";
 import type { VoiceAgentContext, VoiceSelection } from "./agent-context";
 import {
   VOICE_API_VERSION,
@@ -12,6 +13,10 @@ import {
   sanitizeDiagnostic,
   sanitizeUsage,
 } from "./diagnostics.mjs";
+
+/** Microphone level, and how long it must last, before it counts as the owner talking over Gnani. */
+const BARGE_IN_RMS = 0.08;
+const BARGE_IN_MS = 250;
 
 export type VoiceStatus = "idle" | "connecting" | "listening" | "speaking" | "thinking" | "muted";
 export interface VoiceTaskAnnouncement {
@@ -29,6 +34,8 @@ export interface VoiceEvents {
     detail?: { interrupted: boolean },
   ) => void;
   error: (message: string) => void;
+  /** A non-fatal problem (for example Gnani could not speak a sentence). */
+  warn?: (message: string) => void;
   activity?: () => void;
   announcement?: (taskId: string) => void;
   telemetryError?: () => void;
@@ -50,6 +57,10 @@ export class GeminiVoiceClient {
   private capture?: AudioWorkletNode;
   private source?: MediaStreamAudioSourceNode;
   private playback?: VoicePlayback;
+  /** Speaks Gemini's reply text in the agent's Gnani voice; Gemini's own audio is held back. */
+  private speaker?: GnaniSpeaker;
+  private speakerEndedAt = 0;
+  private bargeSince = 0;
   private session?: Session;
   private timer?: ReturnType<typeof setTimeout>;
   private meter?: ReturnType<typeof setInterval>;
@@ -151,6 +162,7 @@ export class GeminiVoiceClient {
           seatId: agent.seatId,
           sessionKey: agent.sessionKey,
           bindingRevision: agent.bindingRevision,
+          ...(agent.handoffId ? { handoffId: agent.handoffId } : {}),
         },
       ),
     });
@@ -161,6 +173,8 @@ export class GeminiVoiceClient {
       config: LiveConnectConfig;
       maxSeconds: number;
       callId: string;
+      /** Server-fixed first instruction when this call continues a handoff. */
+      bridge?: string;
       diagnostic?: ReturnType<typeof sanitizeDiagnostic>;
     };
     if (!response.ok) {
@@ -237,6 +251,15 @@ export class GeminiVoiceClient {
     await setup;
     if (this.closed) return;
     clearTimeout(this.timer);
+    // An agent call is voiced by Gnani only: Gemini's own audio is never played. If the agent's
+    // voice cannot be looked up the server's default Gnani voice speaks instead.
+    if (agent && this.context) {
+      const voice = await this.gnaniVoiceFor(agent.seatId);
+      this.speaker = new GnaniSpeaker(this.context, voice, "en-IN", (reason) =>
+        this.events.warn?.(`Gnani voice could not speak: ${reason}`),
+      );
+    }
+    if (this.closed) return;
     this.source = this.context.createMediaStreamSource(stream);
     this.capture = new AudioWorkletNode(this.context, "voice-capture");
     this.capture.port.onmessage = ({ data: samples }: MessageEvent<Float32Array>) => {
@@ -244,8 +267,24 @@ export class GeminiVoiceClient {
       // Conservative quiet-period guard only; Gemini VAD still determines speech turns.
       let energy = 0;
       for (const sample of samples) energy += sample * sample;
-      if (samples.length && Math.sqrt(energy / samples.length) > 0.018)
-        this.lastActivityAt = Date.now();
+      const rms = samples.length ? Math.sqrt(energy / samples.length) : 0;
+      if (rms > 0.018) this.lastActivityAt = Date.now();
+      // While Gnani is speaking, the speakers can leak into the microphone and Gemini would hear
+      // its own reply as the owner talking (cutting the answer short). So the microphone is
+      // held back from Gemini during Gnani speech, unless the owner clearly talks over it: loud
+      // speech for a quarter of a second stops the reply and the call carries on as normal.
+      if (this.speaker && (this.speaker.speaking || Date.now() - this.speakerEndedAt < 600)) {
+        if (this.speaker.speaking) this.speakerEndedAt = Date.now();
+        if (rms > BARGE_IN_RMS) {
+          this.bargeSince ||= Date.now();
+          if (Date.now() - this.bargeSince < BARGE_IN_MS) return;
+          this.speaker.stop();
+          this.bargeSince = 0;
+        } else {
+          this.bargeSince = 0;
+          return;
+        }
+      } else this.bargeSince = 0;
       try {
         session.sendRealtimeInput({
           audio: {
@@ -269,7 +308,9 @@ export class GeminiVoiceClient {
             role: "user",
             parts: [
               {
-                text: "We just connected for a voice call. Greet me briefly as yourself, then let me speak.",
+                text:
+                  data.bridge ??
+                  "We just connected for a voice call. Greet me briefly as yourself, then let me speak.",
               },
             ],
           },
@@ -280,7 +321,7 @@ export class GeminiVoiceClient {
     this.meter = setInterval(() => {
       if (!this.closed)
         this.events.status(
-          this.playback?.speaking
+          this.playback?.speaking || this.speaker?.speaking
             ? "speaking"
             : this.muted
               ? "muted"
@@ -296,6 +337,33 @@ export class GeminiVoiceClient {
     );
   }
 
+  /**
+   * The Gnani voice configured for this agent in Settings, or null (then Gemini's own voice is
+   * used as before). Matched by the seat's name so every agent keeps its own voice.
+   */
+  private async gnaniVoiceFor(seatId: string): Promise<string | null> {
+    try {
+      const [voices, state] = await Promise.all([
+        fetch("/api/runtime/nammaops/voices", { signal: this.abort.signal }).then((r) =>
+          r.ok ? r.json() : null,
+        ),
+        fetch("/api/runtime/state", { signal: this.abort.signal }).then((r) =>
+          r.ok ? r.json() : null,
+        ),
+      ]);
+      const label: string | undefined = state?.seats?.find(
+        (seat: { seatId: string; label: string }) => seat.seatId === seatId,
+      )?.label;
+      if (!label || !voices?.voices) return null;
+      const match = Object.values(
+        voices.voices as Record<string, { name: string; voice: string }>,
+      ).find((entry) => entry.name.toLowerCase() === label.toLowerCase());
+      return match?.voice ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   private handleMessage(message: LiveServerMessage) {
     const usage = sanitizeUsage(message.usageMetadata);
     if (usage) {
@@ -306,6 +374,7 @@ export class GeminiVoiceClient {
     const content = message.serverContent;
     if (content?.interrupted) {
       this.playback?.stop();
+      this.speaker?.stop();
       this.modelBusy = false;
       this.interrupted = true;
       this.lastActivityAt = Date.now();
@@ -388,13 +457,15 @@ export class GeminiVoiceClient {
       this.modelBusy = true;
       this.assistantText += content.outputTranscription.text;
       this.events.transcript("assistant", this.assistantText, false);
+      this.speaker?.feed(this.assistantText);
     }
     for (const part of this.interrupted ? [] : (content.modelTurn?.parts ?? [])) {
       if (part.inlineData?.data && part.inlineData.mimeType?.startsWith("audio/pcm")) {
         this.modelBusy = true;
         const rate = Number(part.inlineData.mimeType.match(/rate=(\d+)/)?.[1] ?? 24000);
         try {
-          this.playback?.play(part.inlineData.data, rate);
+          // With a Gnani speaker the reply is voiced from its text; Gemini's audio is dropped.
+          if (!this.speaker) this.playback?.play(part.inlineData.data, rate);
         } catch {
           this.fail("Received invalid audio. Start a new call to reconnect.");
           return;
@@ -402,6 +473,11 @@ export class GeminiVoiceClient {
       }
     }
     if (content.turnComplete) {
+      if (!this.interrupted && this.speaker) {
+        this.speaker.feed(this.assistantText, true);
+        this.speaker.reset();
+        this.speaker.failed = false; // try Gnani again for the next reply
+      }
       this.modelBusy = false;
       // A previous model turn may end while the user is still interrupting it.
       if (!this.activityKnown) this.userSpeaking = false;
@@ -455,6 +531,7 @@ export class GeminiVoiceClient {
       this.awaitingResponse ||
       this.modelBusy ||
       this.playback?.speaking ||
+      this.speaker?.speaking ||
       Date.now() - this.lastActivityAt < 1200
     )
       return;
@@ -614,6 +691,16 @@ export class GeminiVoiceClient {
       .catch(unavailable);
   }
 
+  /** True while the agent is still thinking or speaking (used to let a handover line finish). */
+  isBusy() {
+    return (
+      this.modelBusy ||
+      Boolean(this.playback?.speaking) ||
+      Boolean(this.speaker?.speaking) ||
+      Date.now() - this.speakerEndedAt < 600
+    );
+  }
+
   setMuted(muted: boolean) {
     this.muted = muted;
     this.stream?.getAudioTracks().forEach((track) => {
@@ -690,6 +777,7 @@ export class GeminiVoiceClient {
       track.stop();
     });
     this.playback?.stop();
+    this.speaker?.stop();
     this.session?.close();
     void this.context?.close().catch(() => {});
     this.finishTranscript("user");
