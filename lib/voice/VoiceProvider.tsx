@@ -69,6 +69,10 @@ export function useVoice() {
   return value;
 }
 
+/** Context safety-net poll while a task is running / when nothing is running (see the effect). */
+export const VOICE_POLL_BUSY_MS = 5000;
+export const VOICE_POLL_IDLE_MS = 60_000;
+
 export function VoiceProvider({ children }: { children: ReactNode }) {
   const studio = useStudio();
   const latest = useRef(studio);
@@ -633,14 +637,23 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     if (call && connected) void refreshCall(call);
   }, [connected, studio.state.tasks, finalizedMessage, studio.state.connection, refreshCall]);
 
+  // Each refresh reads chat history plus three instruction files from the gateway, so it is not
+  // polled blindly. Task, message and connection changes already trigger a refresh (above); the
+  // timer is only a safety net. It runs every 5 s while a task of this conversation is still
+  // in flight (a result may be confirmed by the backend before the browser hears about it, and a
+  // spoken announcement waits for that), and every 60 s otherwise.
+  const taskInFlight = studio.state.tasks.some(
+    (task) => task.sessionKey === sessionKey && !isTerminalTask(task),
+  );
+  const pollMs = taskInFlight ? VOICE_POLL_BUSY_MS : VOICE_POLL_IDLE_MS;
   useEffect(() => {
     if (!connected) return;
     const timer = setInterval(() => {
       const call = callRef.current;
       if (call) void refreshCall(call);
-    }, 5000);
+    }, pollMs);
     return () => clearInterval(timer);
-  }, [connected, refreshCall]);
+  }, [connected, refreshCall, pollMs]);
 
   useEffect(() => {
     const call = callRef.current;

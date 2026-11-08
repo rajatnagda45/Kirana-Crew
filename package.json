@@ -23,6 +23,7 @@
     "test": "vitest --run",
     "contracts:check": "node --env-file-if-exists=.env.local scripts/audit-contracts.mjs",
     "sponsors:config": "node --env-file-if-exists=.env.local scripts/check-sponsor-config.mjs",
+    "db:maintain": "node --env-file-if-exists=.env.local scripts/db-maintain.mjs",
     "nightshift:check": "node --env-file-if-exists=.env.local scripts/check-nightshift.mjs",
     "nightshift:queue:check": "node --env-file-if-exists=.env.local scripts/check-nightshift-queue.mjs",
     "voice:check": "node scripts/check-voice.mjs",
