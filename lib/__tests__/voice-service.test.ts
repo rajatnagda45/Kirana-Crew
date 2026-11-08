@@ -1,5 +1,39 @@
 import { describe, expect, it } from "vitest";
-import { VoiceService } from "../server/voice.mjs";
+import { VoiceService, sanitizeTurns } from "../server/voice.mjs";
+
+describe("client-relayed turn timings", () => {
+  it("keeps only known fields as bounded integers, at most 20 turns", () => {
+    const turns = sanitizeTurns([
+      {
+        speech_to_tool_ms: 900,
+        tool_ms: 7600,
+        speech_to_text_ms: 9100,
+        speech_to_audio_ms: 9700,
+        transcript: "owner said something private",
+      },
+      { speech_to_tool_ms: -5, tool_ms: 1.5, speech_to_text_ms: "fast", speech_to_audio_ms: 9e9 },
+      null,
+      ...Array.from({ length: 30 }, () => ({ tool_ms: 1 })),
+    ]);
+    expect(turns).toHaveLength(20);
+    const all = sanitizeTurns([
+      { speech_to_tool_ms: 900, tool_ms: 7600, speech_to_text_ms: 9100, speech_to_audio_ms: 9700, transcript: "x" },
+      { speech_to_tool_ms: -5, tool_ms: 1.5, speech_to_text_ms: "fast", speech_to_audio_ms: 9e9 },
+    ]);
+    expect(all[0]).toEqual({
+      speech_to_tool_ms: 900,
+      tool_ms: 7600,
+      speech_to_text_ms: 9100,
+      speech_to_audio_ms: 9700,
+    });
+    expect(all[1]).toEqual({
+      speech_to_tool_ms: null,
+      tool_ms: null,
+      speech_to_text_ms: null,
+      speech_to_audio_ms: null,
+    });
+  });
+});
 
 const selection = { seatId: "alice", bindingRevision: 1, sessionKey: "agent:main:main" };
 const identity = {

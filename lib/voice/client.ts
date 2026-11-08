@@ -17,6 +17,23 @@ import {
 /** Microphone level, and how long it must last, before it counts as the owner talking over Gnani. */
 const BARGE_IN_RMS = 0.08;
 const BARGE_IN_MS = 250;
+/** How many recent turn timings travel with each usage report. */
+const TURNS_REPORTED = 20;
+
+interface TurnMarks {
+  speechEnd?: number;
+  toolCall?: number;
+  toolResponse?: number;
+  text?: number;
+  audio?: number;
+}
+/** Milliseconds from the end of the owner's speech (tool_ms: from tool call to tool response). */
+export interface TurnTiming {
+  speech_to_tool_ms: number | null;
+  tool_ms: number | null;
+  speech_to_text_ms: number | null;
+  speech_to_audio_ms: number | null;
+}
 
 export type VoiceStatus = "idle" | "connecting" | "listening" | "speaking" | "thinking" | "muted";
 export interface VoiceTaskAnnouncement {
@@ -85,6 +102,10 @@ export class GeminiVoiceClient {
   private connectedAt?: number;
   private sequence = 0;
   private usageSequence = 0;
+  /** Per-turn latency marks (performance.now), relative to the end of the owner's speech. */
+  private turn: TurnMarks = {};
+  private closingTurn?: TurnMarks;
+  private turns: TurnTiming[] = [];
   private usage?: ReturnType<typeof sanitizeUsage>;
   private heartbeat?: ReturnType<typeof setInterval>;
   private reports = Promise.resolve();
@@ -258,6 +279,7 @@ export class GeminiVoiceClient {
       this.speaker = new GnaniSpeaker(this.context, voice, "en-IN", (reason) =>
         this.events.warn?.(`Gnani voice could not speak: ${reason}`),
       );
+      this.speaker.onAudio = () => this.mark("audio");
     }
     if (this.closed) return;
     this.source = this.context.createMediaStreamSource(stream);
@@ -393,6 +415,7 @@ export class GeminiVoiceClient {
       this.activityKnown = true;
       this.userSpeaking = false;
       this.lastActivityAt = Date.now();
+      this.turn = { speechEnd: performance.now() };
     }
     for (const id of message.toolCallCancellation?.ids ?? []) {
       this.canceledCalls.add(id);
@@ -408,6 +431,7 @@ export class GeminiVoiceClient {
         continue;
       this.modelBusy = true;
       this.handledCalls.add(call.id);
+      this.mark("toolCall");
       const controller = new AbortController();
       const signal = controller.signal;
       this.activeTools.set(call.id, controller);
@@ -424,6 +448,7 @@ export class GeminiVoiceClient {
             response = { error: "Could not run the agent action. Do not claim success." };
           }
           if (!this.closed && !signal.aborted && !this.canceledCalls.has(call.id!)) {
+            this.turn.toolResponse = performance.now();
             try {
               this.session?.sendToolResponse({
                 functionResponses: [{ id: call.id, name: call.name, response }],
@@ -450,10 +475,14 @@ export class GeminiVoiceClient {
       this.events.transcript("user", this.userText, false);
     }
     if (content.inputTranscription?.finished) {
-      if (!this.activityKnown) this.userSpeaking = false;
+      if (!this.activityKnown) {
+        this.userSpeaking = false;
+        this.turn = { speechEnd: performance.now() };
+      }
       this.finishTranscript("user");
     }
     if (!this.interrupted && content.outputTranscription?.text) {
+      this.mark("text");
       this.modelBusy = true;
       this.assistantText += content.outputTranscription.text;
       this.events.transcript("assistant", this.assistantText, false);
@@ -465,7 +494,10 @@ export class GeminiVoiceClient {
         const rate = Number(part.inlineData.mimeType.match(/rate=(\d+)/)?.[1] ?? 24000);
         try {
           // With a Gnani speaker the reply is voiced from its text; Gemini's audio is dropped.
-          if (!this.speaker) this.playback?.play(part.inlineData.data, rate);
+          if (!this.speaker) {
+            this.playback?.play(part.inlineData.data, rate);
+            this.mark("audio");
+          }
         } catch {
           this.fail("Received invalid audio. Start a new call to reconnect.");
           return;
@@ -473,6 +505,7 @@ export class GeminiVoiceClient {
       }
     }
     if (content.turnComplete) {
+      this.closeTurn();
       if (!this.interrupted && this.speaker) {
         this.speaker.feed(this.assistantText, true);
         this.speaker.reset();
@@ -716,6 +749,33 @@ export class GeminiVoiceClient {
     this.events.status(muted ? "muted" : "listening");
   }
 
+  /** First occurrence of each mark in the current turn wins. */
+  private mark(name: "toolCall" | "text" | "audio") {
+    const turn = this.turn.speechEnd !== undefined ? this.turn : this.closingTurn;
+    if (turn && turn[name] === undefined) turn[name] = performance.now();
+  }
+
+  /** Turn the marks into durations; audio may still arrive after turnComplete, so it is kept open briefly. */
+  private closeTurn() {
+    const turn = this.turn;
+    if (turn.speechEnd === undefined) return;
+    const since = (at?: number, from = turn.speechEnd!) =>
+      at === undefined ? null : Math.max(0, Math.round(at - from));
+    const record = (): TurnTiming => ({
+      speech_to_tool_ms: since(turn.toolCall),
+      tool_ms: turn.toolCall !== undefined ? since(turn.toolResponse, turn.toolCall) : null,
+      speech_to_text_ms: since(turn.text),
+      speech_to_audio_ms: since(turn.audio),
+    });
+    this.turn = {};
+    this.closingTurn = turn;
+    // Gnani audio can still be scheduled after turnComplete; record once it has had time to land.
+    setTimeout(() => {
+      if (this.closingTurn === turn) this.closingTurn = undefined;
+      this.turns = [...this.turns, record()].slice(-TURNS_REPORTED);
+    }, 4000);
+  }
+
   private report(status: "connected" | "ended" | "error") {
     if (!this.callId) return;
     const body = JSON.stringify({
@@ -729,6 +789,7 @@ export class GeminiVoiceClient {
       usage: this.usage,
       usageSequence: this.usageSequence,
       diagnostic: this.diagnostic,
+      turns: this.turns.slice(-TURNS_REPORTED),
     });
     this.reports = this.reports
       .then(async () => {

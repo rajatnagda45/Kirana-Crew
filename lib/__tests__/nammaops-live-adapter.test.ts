@@ -622,4 +622,27 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
     expect(runtime.nammaops.approvals.list()).toEqual([]);
     expect(hv.calls.some((call: Any) => /create|submit/.test(call.name))).toBe(false);
   });
+
+  it("records timing on each audited invocation without changing the audit fields or result", async () => {
+    const { runtime } = await liveSetup();
+    const view = await runtime.nammaops.workflows.start({
+      intent: { action: "stock_check", products: ["milk"] },
+    }).done;
+    expect(view.status).toBe("completed");
+    const rows = runtime.mcpGateway
+      .invocations()
+      .filter((row: Any) => row.correlation_id === view.id);
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) {
+      // Audit evidence is intact.
+      expect(row).toMatchObject({ status: "completed", decision: "ALLOW", operation: "READ" });
+      expect(row.invocation_id).toMatch(/^inv/);
+      expect(row.args_fingerprint).toBeTruthy();
+      // Timing is additive metadata, and never leaks into the business payload.
+      expect(row.timing.duration_ms).toBeGreaterThanOrEqual(0);
+      expect(row.timing.tool_ms).toBeGreaterThanOrEqual(0);
+      expect(row.timing.adapter.hv_calls).toBeGreaterThanOrEqual(0);
+      expect(row.result.structuredContent).not.toHaveProperty("_meta");
+    }
+  });
 });
