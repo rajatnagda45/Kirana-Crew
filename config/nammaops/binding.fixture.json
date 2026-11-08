@@ -52,8 +52,8 @@
     "erp.po.submit": {
       "tool": "submit_purchase_order",
       "risk": "EXTERNAL_ACTION",
-      "approval_required": false,
-      "_note": "Granted only to the owner-approval workflow principal; the business owner's PIN approval is the gate."
+      "approval_required": true,
+      "_note": "Granted only to the owner-approval workflow principal. The ToolGateway runs it only with an owner approval issued after the owner PIN, bound to the exact purchase order, this principal and the approving session, and consumed once."
     },
     "erp.sales_invoices.list": {
       "tool": "list_sales_invoices",

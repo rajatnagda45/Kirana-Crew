@@ -14,6 +14,10 @@ import {
 import { createNammaOps } from "../server/nammaops/index.mjs";
 import { loadBinding } from "../server/nammaops/erp-binding.mjs";
 import { loadWorkforce } from "../server/nammaops/workforce.mjs";
+import { answerDirect } from "../server/nammaops/direct-chat.mjs";
+import { VoiceService } from "../server/voice.mjs";
+import { runVoiceAgentTool } from "../voice/agent-actions";
+import { NAMMAOPS_BUSINESS_TOOL } from "../voice/config";
 import {
   ADAPTER_TOOLS,
   HVGERP_READS,
@@ -63,9 +67,27 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
         qty,
         amount,
         rate: amount / qty,
+        // ERPNext (India Compliance) puts the GST of each line on the line itself. RICE is taxed
+        // at 5% (CGST 2.5 + SGST 2.5); everything else is nil-rated.
+        gst_hsn_code: item_code === "RICE" ? "1006" : "0401",
+        gst_treatment: item_code === "RICE" ? "Taxable" : "Nil-Rated",
+        taxable_value: item_code === "RICE" ? amount : 0,
+        cgst_rate: item_code === "RICE" ? 2.5 : 0,
+        sgst_rate: item_code === "RICE" ? 2.5 : 0,
+        igst_rate: 0,
+        cgst_amount: item_code === "RICE" ? amount * 0.025 : 0,
+        sgst_amount: item_code === "RICE" ? amount * 0.025 : 0,
+        igst_amount: 0,
       })),
     };
   }
+  const paymentEntries: Any[] = [
+    { name: "PE-1", payment_type: "Receive", posting_date: "2026-11-01", base_received_amount: 500, base_paid_amount: 500, docstatus: 1 },
+    { name: "PE-2", payment_type: "Receive", posting_date: "2026-11-01", base_received_amount: 250.5, base_paid_amount: 250.5, docstatus: 1 },
+    { name: "PE-3", payment_type: "Pay", posting_date: "2026-11-01", base_received_amount: 300, base_paid_amount: 300, docstatus: 1 },
+    { name: "PE-4", payment_type: "Receive", posting_date: "2026-11-01", base_received_amount: 9999, base_paid_amount: 9999, docstatus: 0 },
+    { name: "PE-5", payment_type: "Receive", posting_date: "2026-10-01", base_received_amount: 70, base_paid_amount: 70, docstatus: 1 },
+  ];
   const ledger = [
     {
       item_code: "MILK",
@@ -182,21 +204,53 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
     erpnext_customer_list: () => list([{ name: "Walk-in Customer" }]),
     erpnext_gl_entry_list: () => list([{ account: "Sales - X", credit: 1100, debit: 0 }]),
     erpnext_purchase_invoice_list: () => list([{ name: "PINV-1", grand_total: 500 }]),
+    erpnext_purchase_invoice_get: ({ name }) => ({
+      data: {
+        name,
+        docstatus: 1,
+        supplier: "Alpha Traders",
+        posting_date: "2026-11-01",
+        items: [
+          {
+            item_code: "SUGAR",
+            qty: 10,
+            gst_hsn_code: "1701",
+            gst_treatment: "Taxable",
+            taxable_value: 500,
+            igst_rate: 0,
+            cgst_rate: 2.5,
+            sgst_rate: 2.5,
+            cgst_amount: 12.5,
+            sgst_amount: 12.5,
+            igst_amount: 0,
+          },
+        ],
+      },
+    }),
     erpnext_purchase_order_list: () =>
       list([
         { name: "PO-1", status: "Draft" }, // submitted but labelled Draft (docstatus 1)
         { name: "PO-2", status: "Draft" }, // a real draft
         { name: "PO-3", status: "Completed" },
       ]),
-    erpnext_purchase_order_get: ({ name }) => ({
-      data: {
-        name,
-        supplier: "Alpha Traders",
-        docstatus: name === "PO-1" ? 1 : 0,
-        schedule_date: "2026-11-03",
-        items: [{ item_code: "SUGAR", qty: 20, received_qty: 5 }],
-      },
-    }),
+    erpnext_purchase_order_get: ({ name }) => {
+      if (name === "PO-MISSING")
+        throw new Error(
+          `[FrappeClient] GET /api/resource/Purchase%20Order/${name} failed: DoesNotExistError: Purchase Order ${name} not found (HTTP 404)`,
+        );
+      return {
+        data: {
+          name,
+          supplier: "Alpha Traders",
+          docstatus: name === "PO-1" ? 1 : 0,
+          status: "Draft",
+          transaction_date: "2026-10-30",
+          schedule_date: "2026-11-03",
+          grand_total: 500,
+          items: [{ item_code: "SUGAR", qty: 20, received_qty: 5, rate: 25, amount: 500 }],
+        },
+      };
+    },
     erpnext_financial_report: () => ({
       report_summary: [
         { label: "Total Income", value: 1100 },
@@ -225,6 +279,19 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
     }),
     erpnext_doc_list: ({ doctype, filters = [] }) => {
       if (doctype === "POS Invoice") return list([]);
+      if (doctype === "Payment Entry") {
+        const from = filters.find((row: Any) => row[1] === ">=")?.[2] ?? "0000";
+        const to = filters.find((row: Any) => row[1] === "<=")?.[2] ?? "9999";
+        const submitted = filters.some((row: Any) => row[0] === "docstatus" && row[2] === 1);
+        return list(
+          paymentEntries.filter(
+            (row) =>
+              row.posting_date >= from &&
+              row.posting_date <= to &&
+              (!submitted || row.docstatus === 1),
+          ),
+        );
+      }
       if (doctype === "Item Price")
         return list([{ item_code: "MILK", price_list: "Standard Buying", price_list_rate: 25 }]);
       if (doctype === "Bin")
@@ -276,7 +343,11 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
       calls.push({ name, arguments: args });
       const handler = handlers[name];
       if (!handler) return { isError: true, content: [{ type: "text", text: `unknown ${name}` }] };
-      return { content: [{ type: "text", text: JSON.stringify(handler(args ?? {})) }] };
+      try {
+        return { content: [{ type: "text", text: JSON.stringify(handler(args ?? {})) }] };
+      } catch (error: Any) {
+        return { isError: true, content: [{ type: "text", text: String(error.message) }] };
+      }
     },
   };
 }
@@ -367,7 +438,7 @@ describe("hvgerp adapter (unit, fake hvgerp)", () => {
         name: "PO-1",
         supplier: "Alpha Traders",
         schedule_date: "2026-11-03",
-        transaction_date: null,
+        transaction_date: "2026-10-30",
         items: [
           {
             item_code: "SUGAR",
@@ -466,9 +537,11 @@ describe("hvgerp adapter (unit, fake hvgerp)", () => {
       const args =
         tool.name === "get_stock_ledger"
           ? { item_code: "MILK" }
-          : ["list_receivables", "list_payables"].includes(String(tool.name))
-            ? { as_of: "2026-11-01" }
-            : { from_date: "2026-10-31", to_date: "2026-11-01" };
+          : tool.name === "get_purchase_order"
+            ? { name: "PO-1" }
+            : ["list_receivables", "list_payables"].includes(String(tool.name))
+              ? { as_of: "2026-11-01" }
+              : { from_date: "2026-10-31", to_date: "2026-11-01" };
       await adapter.call(tool.name, args);
     }
     expect(hv.calls.length).toBeGreaterThan(10);
@@ -485,6 +558,7 @@ describe("hvgerp adapter (unit, fake hvgerp)", () => {
           "Batch",
           "Sales Invoice",
           "Purchase Invoice",
+          "Payment Entry",
         ]).toContain(call.arguments.doctype);
         // The dashboard doctypes may only be read through their reviewed field lists.
         const allowed = (DOC_LIST_FIELDS as Record<string, readonly string[]>)[
@@ -503,6 +577,98 @@ describe("hvgerp adapter (unit, fake hvgerp)", () => {
       valuations: [{ item_code: "MILK", valuation_rate: 24 }],
     });
     await expect(adapter.call("erpnext_doc_submit", {})).rejects.toThrow(/Unknown tool/);
+  });
+
+  it("reads one purchase order in any state, and says plainly when it does not exist", async () => {
+    const adapter = createAdapter({ client: fakeHvgerp() as Any });
+    const { purchase_order: po, source } = parse(
+      await adapter.call("get_purchase_order", { name: "PO-1" }),
+    );
+    expect(source).toBe("erpnext_live");
+    expect(po).toMatchObject({
+      name: "PO-1",
+      supplier: "Alpha Traders",
+      docstatus: 1,
+      status: "Draft",
+      grand_total: 500,
+      items: [{ item_code: "SUGAR", qty: 20, rate: 25, amount: 500, received_qty: 5 }],
+    });
+    // A draft is readable too: this is a read, not a submit.
+    expect(
+      parse(await adapter.call("get_purchase_order", { name: "PO-2" })).purchase_order.docstatus,
+    ).toBe(0);
+    await expect(adapter.call("get_purchase_order", { name: "PO-MISSING" })).rejects.toThrow(
+      /not found/,
+    );
+  });
+
+  it("sums only submitted payment entries in the period, received and paid separately", async () => {
+    const hv: Any = fakeHvgerp();
+    const adapter = createAdapter({ client: hv });
+    const day = parse(
+      await adapter.call("get_payment_summary", { from_date: "2026-11-01", to_date: "2026-11-01" }),
+    );
+    // PE-4 is a draft and PE-5 is another day: neither counts.
+    expect(day).toMatchObject({ source: "erpnext_live", received: 750.5, paid: 300, count: 3 });
+    const month = parse(
+      await adapter.call("get_payment_summary", { from_date: "2026-10-01", to_date: "2026-11-01" }),
+    );
+    expect(month).toMatchObject({ received: 820.5, paid: 300, count: 4 });
+    const none = parse(
+      await adapter.call("get_payment_summary", { from_date: "2020-01-01", to_date: "2020-01-31" }),
+    );
+    expect(none).toMatchObject({ received: 0, paid: 0, count: 0 });
+    const listed = hv.calls.filter((call: Any) => call.name === "erpnext_doc_list");
+    expect(listed.every((call: Any) => call.arguments.doctype === "Payment Entry")).toBe(true);
+    expect(
+      listed.every((call: Any) =>
+        call.arguments.filters.some((row: Any) => row[0] === "docstatus" && row[2] === 1),
+      ),
+    ).toBe(true);
+  });
+
+  it("builds GST lines from each invoice line's own tax fields and reports unknowns as null", async () => {
+    const hv: Any = fakeHvgerp();
+    const adapter = createAdapter({ client: hv });
+    const gst = parse(
+      await adapter.call("list_gst_lines", { from_date: "2026-10-31", to_date: "2026-11-01" }),
+    );
+    expect(gst.source).toBe("erpnext_live");
+    // Draft and cancelled invoices are skipped, as for the other invoice reads.
+    const outward = gst.lines.filter((row: Any) => row.direction === "outward");
+    expect(outward.map((row: Any) => row.document).sort()).toEqual(["SINV-1", "SINV-2", "SINV-5"]);
+    expect(outward.find((row: Any) => row.document === "SINV-1")).toMatchObject({
+      item_code: "RICE",
+      hsn_code: "1006",
+      gst_treatment: "Taxable",
+      gst_rate: 5,
+      taxable_value: 800,
+      cgst: 20,
+      sgst: 20,
+      igst: 0,
+    });
+    expect(outward.find((row: Any) => row.document === "SINV-2")).toMatchObject({
+      gst_treatment: "Nil-Rated",
+      gst_rate: 0,
+      taxable_value: 0,
+      cgst: 0,
+    });
+    const inward = gst.lines.filter((row: Any) => row.direction === "inward");
+    expect(inward).toHaveLength(1);
+    expect(inward[0]).toMatchObject({ document: "PINV-1", cgst: 12.5, sgst: 12.5, taxable_value: 500 });
+    // Nothing is guessed: party GSTIN and place of supply were not on these invoices, so those
+    // fields are absent (not sent as null or defaulted) and named in data_gaps.
+    for (const line of outward) {
+      expect(line).not.toHaveProperty("gstin");
+      expect(line).not.toHaveProperty("party_type");
+      expect(line).not.toHaveProperty("place_of_supply");
+      expect(line).not.toHaveProperty("cess");
+      expect(line).not.toHaveProperty("is_return");
+    }
+    expect(gst.company_state).toBeNull();
+    expect(gst.data_gaps).toEqual(["gstin", "place_of_supply"]);
+    // Only the reviewed read tools were used.
+    for (const call of hv.calls) expect(HVGERP_READS).toContain(call.name);
   });
 });
 
@@ -579,18 +745,22 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
   it("sets up with writes disabled (not as errors) and grants no write capability", async () => {
     const { runtime, report } = await liveSetup();
     expect(report.blockers).toEqual([]);
+    // Only the two write capabilities stay off in live; the three new reads are bound.
     expect(report.disabled.map((row: Any) => row.business_capability).sort()).toEqual([
-      "erp.gst.summary",
-      "erp.payments.summary",
       "erp.po.create_draft",
-      "erp.po.get",
       "erp.po.submit",
     ]);
     const granted = runtime.governance.grants().map((row: Any) => row.capability_id);
     expect(granted.join(" ")).not.toMatch(/create_purchase_order|submit/);
+    const status = runtime.nammaops.binding.status();
+    expect(status).toHaveLength(25);
     expect(
-      runtime.nammaops.binding.status().filter((row: Any) => row.state === "unbound"),
-    ).toHaveLength(5);
+      status.filter((row: Any) => row.state === "unbound").map((row: Any) => row.business_capability),
+    ).toEqual(["erp.po.create_draft", "erp.po.submit"]);
+    expect(
+      status.filter((row: Any) => row.risk === "READ").every((row: Any) => row.tool !== null),
+    ).toBe(true);
+    expect(status.filter((row: Any) => row.tool !== null)).toHaveLength(23);
   });
 
   it("answers stock, sales, profit and supplier questions from live-shaped data, labelled as live", async () => {
@@ -644,5 +814,316 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
       expect(row.timing.adapter.hv_calls).toBeGreaterThanOrEqual(0);
       expect(row.result.structuredContent).not.toHaveProperty("_meta");
     }
+  });
+
+  describe("the three newly bound reads: payments, GST and one purchase order", () => {
+    const ask = (runtime: Any, intent: Any) => runtime.nammaops.workflows.start({ intent }).done;
+    const invocationsOf = (runtime: Any, view: Any) =>
+      runtime.mcpGateway.invocations().filter((row: Any) => row.correlation_id === view.id);
+
+    it("payments_summary runs as Finance through governance and returns real submitted totals", async () => {
+      const { runtime } = await liveSetup();
+      const view = await ask(runtime, { action: "payments_summary", date: "2026-11-01" });
+      expect(view.status).toBe("completed");
+      expect(view.result).toMatchObject({
+        kind: "payments_summary",
+        received: 750.5,
+        paid: 300,
+        net: 450.5,
+        payments: 3,
+        period: { from_date: "2026-11-01", to_date: "2026-11-01" },
+      });
+      const rows = invocationsOf(runtime, view);
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toMatchObject({
+        status: "completed",
+        decision: "ALLOW",
+        operation: "READ",
+        agent_id: "nammaops-finance",
+        capability_id: "mcp.erpnext-live.get_payment_summary",
+      });
+      expect(rows[0].invocation_id).toMatch(/^inv/);
+      expect(view.tasks.find((task: Any) => task.role === "finance").evidence[0]).toMatchObject({
+        business_capability: "erp.payments.summary",
+      });
+      // No date means the month so far.
+      const monthToDate = await ask(runtime, { action: "payments_summary" });
+      expect(monthToDate.result.period).toMatchObject({
+        from_date: "2026-11-01",
+        to_date: "2026-11-01",
+      });
+    });
+
+    it("gst_summary runs as Finance, reports nothing it was not given, and is labelled indicative", async () => {
+      const { runtime } = await liveSetup();
+      const view = await ask(runtime, { action: "gst_summary", date: "2026-11-01" });
+      expect(view.status).toBe("completed");
+      expect(view.result).toMatchObject({
+        kind: "gst_summary",
+        indicative: true,
+        outward: { lines: 2, taxable_value: 800, cgst: 20, sgst: 20, igst: 0, tax: 40 },
+        inward: { lines: 1, taxable_value: 500, tax: 25 },
+        net_tax: 15,
+      });
+      expect(view.result.slabs.map((slab: Any) => slab.gst_rate)).toEqual([0, 5]);
+      expect(view.result.notes.join(" ")).toMatch(/GSTIN/);
+      expect(view.result.notes.join(" ")).toMatch(/place of supply/i);
+      const rows = invocationsOf(runtime, view);
+      expect(rows.length).toBeGreaterThan(0);
+      for (const row of rows)
+        expect(row).toMatchObject({
+          agent_id: "nammaops-finance",
+          capability_id: "mcp.erpnext-live.list_gst_lines",
+          decision: "ALLOW",
+          operation: "READ",
+        });
+    });
+
+    it("gst_summary reads one day per governed call, so no response nears the gateway cap", async () => {
+      const { runtime, hv } = await liveSetup();
+      const view = await ask(runtime, {
+        action: "gst_summary",
+        date: "2026-10-30",
+        to: "2026-11-01",
+      });
+      expect(view.status).toBe("completed");
+      // Three days, three audited calls (a week-sized slice returned too many lines on a real store).
+      expect(invocationsOf(runtime, view)).toHaveLength(3);
+      const windows = hv.calls
+        .filter((call: Any) => call.name === "erpnext_sales_invoice_list")
+        .map((call: Any) => [call.arguments.date_from, call.arguments.date_to])
+        .sort();
+      expect(windows).toEqual([
+        ["2026-10-30", "2026-10-30"],
+        ["2026-10-31", "2026-10-31"],
+        ["2026-11-01", "2026-11-01"],
+      ]);
+    });
+
+    it("purchase_order_lookup runs as Procurement; a missing order is a clear answer, a missing number is refused", async () => {
+      const { runtime, hv } = await liveSetup();
+      const found = await ask(runtime, { action: "purchase_order_lookup", po_name: "PO-1" });
+      expect(found.result).toMatchObject({
+        kind: "purchase_order_lookup",
+        found: true,
+        name: "PO-1",
+        supplier: "Alpha Traders",
+        state: "submitted",
+        erp_status: "Draft", // ERPNext labels it Draft although docstatus is 1; both are shown
+        total: 500,
+        lines: 1,
+      });
+      expect(invocationsOf(runtime, found)[0]).toMatchObject({
+        agent_id: "nammaops-procurement",
+        capability_id: "mcp.erpnext-live.get_purchase_order",
+        operation: "READ",
+      });
+      const draft = await ask(runtime, { action: "purchase_order_lookup", po_name: "PO-2" });
+      expect(draft.result.state).toBe("draft");
+      const missing = await ask(runtime, { action: "purchase_order_lookup", po_name: "PO-MISSING" });
+      expect(missing.status).toBe("completed");
+      expect(missing.result).toMatchObject({ found: false, name: "PO-MISSING" });
+      expect(() =>
+        runtime.nammaops.workflows.start({ intent: { action: "purchase_order_lookup" } }),
+      ).toThrow(/Which purchase order/);
+      // Reading a draft never writes: nothing but read tools reached ERPNext.
+      expect(hv.calls.some((call: Any) => /create|submit|update|cancel/.test(call.name))).toBe(
+        false,
+      );
+    });
+
+    it("keeps specialist grants: another specialist is denied each new read", async () => {
+      const { runtime } = await liveSetup();
+      const call = (agent: string, id: string, args: Any) =>
+        runtime.nammaops.binding.call(agent, id, args, { correlationId: "t" });
+      const period = { from_date: "2026-11-01", to_date: "2026-11-01" };
+      await expect(call("nammaops-sales", "erp.gst.summary", period)).rejects.toThrow(/denied/);
+      await expect(call("nammaops-inventory", "erp.payments.summary", period)).rejects.toThrow(
+        /denied/,
+      );
+      await expect(call("nammaops-finance", "erp.po.get", { name: "PO-1" })).rejects.toThrow(
+        /denied/,
+      );
+      await expect(call("nammaops-manager", "erp.gst.summary", period)).rejects.toThrow(/denied/);
+      await expect(call("nammaops-manager", "erp.payments.summary", period)).rejects.toThrow(
+        /denied/,
+      );
+      await expect(call("nammaops-manager", "erp.po.get", { name: "PO-1" })).rejects.toThrow(
+        /denied/,
+      );
+      // The owners of each read are allowed.
+      await expect(call("nammaops-finance", "erp.gst.summary", period)).resolves.toBeTruthy();
+      await expect(call("nammaops-procurement", "erp.po.get", { name: "PO-1" })).resolves.toBeTruthy();
+    });
+
+    it("keeps both live writes disabled: no tool, no PIN, no approval can reach them", async () => {
+      const { runtime, hv } = await liveSetup();
+      const call = (agent: string, id: string, args: Any) =>
+        runtime.nammaops.binding.call(agent, id, args);
+      await expect(
+        call("nammaops-procurement", "erp.po.create_draft", {
+          supplier: "Alpha Traders",
+          items: [{ item_code: "SUGAR", qty: 1, rate: 1 }],
+        }),
+      ).rejects.toThrow(/erp\.po\.create_draft is not enabled in this deployment/);
+      await expect(call("nammaops-po-submit", "erp.po.submit", { name: "PO-2" })).rejects.toThrow(
+        /erp\.po\.submit is not enabled in this deployment/,
+      );
+      const status = runtime.nammaops.binding.status();
+      for (const id of ["erp.po.create_draft", "erp.po.submit"])
+        expect(status.find((row: Any) => row.business_capability === id)).toMatchObject({
+          tool: null,
+          state: "unbound",
+          availability: "unavailable",
+        });
+      expect(hv.calls.some((entry: Any) => /create|submit/.test(entry.name))).toBe(false);
+      // The adapter has no write tool to bind, whatever the binding file said.
+      expect(ADAPTER_TOOLS.every((tool) => tool.annotations.readOnlyHint === true)).toBe(true);
+    });
+
+    describe("through the text chat and the Live Voice tool, with the same specialists", () => {
+      const roleSeat = (runtime: Any, role: string) =>
+        runtime.profiles.list().find((p: Any) => p.agent_id === `nammaops-${role}`).seat_id;
+      const text = (runtime: Any, role: string, message: string, taskId: string) =>
+        answerDirect(runtime, {
+          taskId,
+          message,
+          seatId: roleSeat(runtime, role),
+          sessionKey: "agent:main:dm-live-test",
+        }) as Promise<Any>;
+      /** Gemini's tool call is simulated; the client allowlist and VoiceService.action are the real ones. */
+      const voiceFor = (runtime: Any, name: string, seatId = "seat-0") => {
+        const callId = `voice_${name.toLowerCase()}`;
+        const db = Object.create(runtime.db);
+        db.getSeat = (id: string) =>
+          id === seatId
+            ? { seatId, assigned: true, binding: { revision: 1, agentId: "main" } }
+            : null;
+        db.saveRecord("voiceCall", callId, {
+          seatId,
+          name,
+          agentId: "main",
+          sessionKey: `agent:main:${seatId}`,
+          bindingRevision: 1,
+          gatewayId: "gw",
+          createdAt: new Date().toISOString(),
+        });
+        const service = new VoiceService({ gatewayId: "gw", db, nammaops: runtime.nammaops });
+        let n = 0;
+        return (args: Any) =>
+          runVoiceAgentTool("nammaops_business_query", args, (tool: string, parameters: Any) =>
+            service.action({ tool, callId, actionId: `act_${++n}`, args: parameters }),
+          ) as Promise<Any>;
+      };
+
+      it("the voice tool declaration offers the three intents and the purchase order number", () => {
+        expect(NAMMAOPS_BUSINESS_TOOL.parameters.properties.intent.enum).toEqual(
+          expect.arrayContaining(["payments_summary", "gst_summary", "purchase_order_lookup"]),
+        );
+        expect(NAMMAOPS_BUSINESS_TOOL.parameters.properties).toHaveProperty("po_name");
+      });
+
+      it("text chat: Erin answers GST and payments, Dave answers a named purchase order", async () => {
+        const { runtime } = await liveSetup();
+        const gst: Any = await text(runtime, "finance", "what is our gst for 2026-11-01", "t-gst");
+        expect(gst.answered).toMatchObject({ intent: "gst_summary" });
+        expect(runtime.db.getMessage("dm_reply_t-gst").content).toMatch(/GST/);
+        const gstView = runtime.nammaops.workflows.view(gst.answered.workflowId);
+        expect(gstView.result).toMatchObject({ kind: "gst_summary", net_tax: 15 });
+
+        const pay: Any = await text(
+          runtime,
+          "finance",
+          "payments received on 2026-11-01",
+          "t-pay",
+        );
+        expect(pay.answered).toMatchObject({ intent: "payments_summary" });
+        expect(
+          runtime.nammaops.workflows.view(pay.answered.workflowId).result,
+        ).toMatchObject({ received: 750.5, paid: 300 });
+
+        const named: Any = await text(
+          runtime,
+          "procurement",
+          "what is the status of purchase order PUR-ORD-2026-00004",
+          "t-po2",
+        );
+        expect(named.answered).toMatchObject({ intent: "purchase_order_lookup" });
+        const poView = runtime.nammaops.workflows.view(named.answered.workflowId);
+        expect(poView.intent).toMatchObject({
+          action: "purchase_order_lookup",
+          po_name: "PUR-ORD-2026-00004",
+        });
+        expect(poView.result).toMatchObject({ found: true, supplier: "Alpha Traders" });
+        expect(runtime.db.getMessage("dm_reply_t-po2").content).toMatch(/PUR-ORD-2026-00004/);
+      });
+
+      it("text chat: a question for another department is handed to its owner, not answered by the asker", async () => {
+        const { runtime } = await liveSetup();
+        const out: Any = await text(runtime, "inventory", "what is our gst for 2026-11-01", "t-h1");
+        expect(out.answered).toMatchObject({ intent: "gst_summary" });
+        expect(runtime.db.getMessage("dm_reply_t-h1").content).toMatch(/^Erin \(Finance\) covers this/);
+        // The read still ran as Finance, never as Inventory.
+        const view = runtime.nammaops.workflows.view(out.answered.workflowId);
+        expect(view.tasks.map((task: Any) => task.role)).toContain("finance");
+        expect(view.tasks.find((task: Any) => task.role === "inventory")).toBeUndefined();
+      });
+
+      it("live voice tool: runs the same governed workflows as text and relays the live source", async () => {
+        const { runtime } = await liveSetup();
+        const erin = voiceFor(runtime, "Erin", "seat-4");
+        const gst = await erin({ intent: "gst_summary", day: "2026-11-01" });
+        expect(gst.status).toBe("completed");
+        expect(gst.facts.join(" ")).toMatch(/Net GST/);
+        expect(gst.facts.join(" ")).toMatch(/Indicative only/);
+        expect(gst.limitations.join(" ")).toMatch(/Data source: Live ERPNext Cloud/);
+        expect(gst.limitations.join(" ")).toMatch(/GSTIN/);
+        // The ERP read is Finance's; the Manager only consolidates and reads nothing.
+        const readers = (answer: Any) =>
+          answer.evidence.filter((row: Any) => row.capabilities.length > 0);
+        expect(readers(gst)).toEqual([
+          expect.objectContaining({ department: "finance", capabilities: ["erp.gst.summary"] }),
+        ]);
+        expect(readers(gst)[0].invocation_ids.length).toBeGreaterThan(0);
+
+        const payments = await erin({ intent: "payments_summary" });
+        expect(payments.status).toBe("completed");
+        expect(payments.facts.join(" ")).toMatch(/₹75[01] received and ₹300 paid out/);
+
+        const dave = voiceFor(runtime, "Dave", "seat-3");
+        const po = await dave({ intent: "purchase_order_lookup", po_name: "po-1" });
+        expect(po.status).toBe("completed");
+        expect(po.facts.join(" ")).toMatch(/Purchase order PO-1 for Alpha Traders is submitted/);
+        expect(po.documents).toEqual(["PO-1"]);
+        expect(readers(po)).toEqual([
+          expect.objectContaining({ department: "procurement", capabilities: ["erp.po.get"] }),
+        ]);
+        const missing = await dave({ intent: "purchase_order_lookup", po_name: "PO-MISSING" });
+        expect(missing.status).toBe("no_data");
+        expect(missing.facts.join(" ")).toMatch(/was not found/);
+        const noNumber = await dave({ intent: "purchase_order_lookup" });
+        expect(noNumber.status).toBe("unavailable");
+        expect(noNumber.limitations.join(" ")).toMatch(/Which purchase order/);
+
+        // Every invocation behind those answers ran under a specialist's own identity.
+        const agents = new Set(
+          runtime.mcpGateway
+            .invocations()
+            .filter((row: Any) =>
+              /get_payment_summary|list_gst_lines|get_purchase_order/.test(row.capability_id),
+            )
+            .map((row: Any) => row.agent_id),
+        );
+        expect([...agents].sort()).toEqual(["nammaops-finance", "nammaops-procurement"]);
+      });
+
+      it("live voice tool: refuses a PIN or any unknown argument, and cannot approve or write", async () => {
+        const { runtime, hv } = await liveSetup();
+        const erin = voiceFor(runtime, "Erin", "seat-4");
+        await expect(erin({ intent: "gst_summary", pin: "4826" })).rejects.toThrow();
+        await expect(erin({ intent: "submit_purchase_order", po_name: "PO-2" })).rejects.toThrow();
+        expect(hv.calls.some((entry: Any) => /create|submit/.test(entry.name))).toBe(false);
+      });
+    });
   });
 });

@@ -19,6 +19,7 @@ import { GeminiVoiceClient, type VoiceStatus } from "./client";
 import type { VoiceAgentContext } from "./agent-context";
 import { runVoiceAgentTool, VOICE_ACTIONS } from "./agent-actions";
 import { inferConversationAgent, isTerminalTask, voiceExecutionContext } from "./conversation";
+import { hideSpokenDigits } from "./hide-pin";
 
 type Mode = "text" | "voice";
 type Turn = { id: string; timestamp: string; finished: boolean };
@@ -40,6 +41,8 @@ type ActiveCall = {
   refreshAgain: boolean;
   contextReady: boolean;
   closing?: boolean;
+  /** An approval is waiting for the owner to say their PIN: the screen must not show digits. */
+  awaitingPin?: boolean;
   startedAt: number;
 };
 interface VoiceState {
@@ -433,7 +436,9 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         sessionKey: call.sessionKey,
         actorName: call.name,
         role,
-        content: text,
+        // The raw words still go to the server below (it checks the PIN and stores the turn
+        // redacted); only the on-screen copy hides digits while a PIN is awaited.
+        content: call.awaitingPin && role === "user" ? hideSpokenDigits(text) : text,
         streaming: !finished,
         timestamp: turn.timestamp,
         ...(metadata?.interrupted ? { interrupted: true } : {}),
@@ -519,6 +524,8 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
           if (!isCurrentCall(call) || signal?.aborted)
             return { error: "Call ended or interrupted. No action was taken." };
           if (name !== "assign_task") {
+            // Hide spoken digits on screen from the moment the owner is asked for the PIN.
+            if (name === "approve_by_voice") call.awaitingPin = true;
             const result = await call.client.action(name, parameters, {
               actionId,
               signal,
@@ -527,6 +534,12 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
                 ? { sourceMessageId: call.user?.id }
                 : {}),
             });
+            if (
+              name === "approve_by_voice" &&
+              result.status !== "pin_required" &&
+              result.status !== "waiting_for_pin"
+            )
+              call.awaitingPin = false; // finished (approved, rejected or failed): show speech normally
             if (
               name === "confirm_handoff" &&
               result.accepted === true &&

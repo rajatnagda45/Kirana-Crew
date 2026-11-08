@@ -103,6 +103,23 @@ export interface BindingStatus {
 
 // ── Fetchers ───────────────────────────────────────────────────────────────
 
+let memorySession: string | null = null;
+/** One id per browser tab. The PIN proof and the approval it unlocks are bound to this session. */
+export function approvalSession(): string {
+  try {
+    let id = window.sessionStorage.getItem("nammaops-approval-session");
+    if (!id) {
+      id = `panel_${crypto.randomUUID()}`;
+      window.sessionStorage.setItem("nammaops-approval-session", id);
+    }
+    return id;
+  } catch {
+    // Storage can be blocked; a per-page id still binds the approval to this page.
+    memorySession ??= `panel_${crypto.randomUUID()}`;
+    return memorySession;
+  }
+}
+
 export async function fetchNammaOps<T>(path: string, body?: unknown): Promise<T> {
   const url = `/api/runtime/nammaops${path}`;
   const res = await fetch(url, {
@@ -218,10 +235,8 @@ export function useNammaOpsApprovals() {
 
   const decide = useCallback(
     async (id: string, action: "approve" | "reject", pin?: string) => {
-      await fetchNammaOps(
-        `/approvals/${encodeURIComponent(id)}/${action}`,
-        pin ? { owner_pin: pin } : {},
-      );
+      // The server reads `pin`; this call used to send `owner_pin`, so these pages could not approve.
+      await fetchNammaOps(`/approvals/${encodeURIComponent(id)}/${action}`, { pin, session: approvalSession() });
       await load();
     },
     [load],
