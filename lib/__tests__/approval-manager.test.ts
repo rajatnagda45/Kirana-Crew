@@ -588,7 +588,7 @@ describe("live writes stay disabled, whatever the PIN or approval", () => {
     const live = new OwnerApprovals(ctx.runtime, { binding: liveLike, pin: PIN });
     await expect(live.approve(approvalId, PIN)).rejects.toMatchObject({
       status: 409,
-      message: expect.stringMatching(/Live ERP writes are disabled/),
+      message: expect.stringMatching(/Live ERP writes of this kind are disabled/),
     });
     await expect(live.approveByVoice({ call: { id: "v1" }, approvalId })).rejects.toMatchObject({
       status: 409,

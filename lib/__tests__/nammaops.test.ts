@@ -905,6 +905,7 @@ describe("F2 voice department agents (fixture)", () => {
       payments_summary: "payments_summary",
       gst_summary: "gst_summary",
       purchase_order_lookup: "purchase_order_lookup",
+      prepare_bill: "prepare_bill",
     });
     // Typed commands: a comparison request compares; ordering with a supplier preference reorders.
     expect(parseCommand("Compare supplier quotations for milk and sugar", TODAY)).toEqual({

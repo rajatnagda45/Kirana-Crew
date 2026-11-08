@@ -1,5 +1,5 @@
 {
-  "_note": "LIVE ERPNext binding (read-only). Tools are served by lib/mcp/hvgerp-adapter-server.mjs, which calls the pinned @hvgllc/hvgerp-mcp@3.7.0 and exposes only the business read tools below (23 reads). The two write capabilities (erp.po.create_draft, erp.po.submit) have tool:null and a disabled reason on purpose: live writes stay off. Select with NAMMAOPS_BINDING=config/nammaops/binding.hvgerp.json.",
+  "_note": "LIVE ERPNext binding. Tools are served by lib/mcp/hvgerp-adapter-server.mjs, which calls the pinned @hvgllc/hvgerp-mcp@3.7.0 and exposes only the business tools below: 25 reads plus two owner-enabled customer-bill writes (erp.sales_invoice.create_draft, erp.sales_invoice.submit). The two purchase-order writes (erp.po.create_draft, erp.po.submit) have tool:null and a disabled reason on purpose and stay off. Select with NAMMAOPS_BINDING=config/nammaops/binding.hvgerp.json.",
   "shape": "hvgerp",
   "data_label": "Live ERPNext Cloud (demo store; records marked NAMMAOPS-SEED are synthetic demo data)",
   "server": {
@@ -117,6 +117,26 @@
     "erp.gst.summary": {
       "tool": "list_gst_lines",
       "risk": "READ"
+    },
+    "erp.sales_invoice.get": {
+      "tool": "get_sales_invoice",
+      "risk": "READ"
+    },
+    "erp.selling_prices.get": {
+      "tool": "get_selling_prices",
+      "risk": "READ"
+    },
+    "erp.sales_invoice.create_draft": {
+      "tool": "create_sales_invoice_draft",
+      "risk": "WRITE",
+      "approval_required": false,
+      "_note": "Owner-enabled 2026-11-08. Creates a DRAFT customer bill only (no accounts or stock effect). Granted to Frank only."
+    },
+    "erp.sales_invoice.submit": {
+      "tool": "submit_sales_invoice",
+      "risk": "EXTERNAL_ACTION",
+      "approval_required": true,
+      "_note": "Owner-enabled 2026-11-08. Runs only for the nammaops-bill-submit principal with an owner approval (PIN) bound to the exact draft, call and session."
     }
   }
 }

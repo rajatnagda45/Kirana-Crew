@@ -236,3 +236,19 @@ Known limits and findings:
   would need an approval under the policy table once live writes are ever enabled.
 - Live writes need a separate security review before activation: see
   `KIRANACREW_ERP_WRITE_SECURITY_REVIEW.md` (not yet written; this work does not enable them).
+
+## 11. Update: customer bills enabled live (2026-11-08)
+
+The binding now has 29 capabilities. The 25 above are unchanged (23 live reads; the two purchase-order
+writes still `tool:null` and disabled in live). Four were added, by the owner's decision:
+
+| Capability | Tool | Risk | Granted to | Live |
+|---|---|---|---|---|
+| `erp.sales_invoice.get` | `get_sales_invoice` | READ | Frank, `nammaops-bill-submit` | yes |
+| `erp.selling_prices.get` | `get_selling_prices` | READ | Frank | yes |
+| `erp.sales_invoice.create_draft` | `create_sales_invoice_draft` | WRITE (draft only) | Frank | yes |
+| `erp.sales_invoice.submit` | `submit_sales_invoice` | EXTERNAL_ACTION | `nammaops-bill-submit` only | yes, owner PIN + gateway approval |
+
+Live: 27 of 29 are bound (25 reads and the 2 bill writes); only the 2 purchase-order writes are unbound.
+The policy table marks the bill writes `live_write: "enabled"` and the purchase-order writes `"disabled"`.
+Design, limits, the live test and open points: `KIRANACREW_BILLING_WRITE_CONTRACT.md`.

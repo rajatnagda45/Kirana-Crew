@@ -25,6 +25,7 @@ export const NAMMAOPS_VOICE_INTENTS = [
   "payments_summary",
   "gst_summary",
   "purchase_order_lookup",
+  "prepare_bill",
 ];
 
 /** Gemini declaration for store business questions. Blocking: the model waits for evidence. */
@@ -33,7 +34,7 @@ export const NAMMAOPS_BUSINESS_TOOL = {
   description:
     "Ask the store's NammaOps specialists (Inventory, Sales, Procurement, Finance, Reports, Billing) a business question. " +
     "They read the store's ERP records and return verified facts, recommendations, evidence and limitations. " +
-    "Use for stock levels, sales for a day or several days, top-selling products, posted profit, demand forecasts, supplier quotation comparisons, preparing draft purchase orders, pending udhaar, expiring stock, purchase orders and late suppliers, customer buying patterns, the shop's biggest problems, payments received and paid, GST, and the status of one named purchase order. " +
+    "Use for stock levels, sales for a day or several days, top-selling products, posted profit, demand forecasts, supplier quotation comparisons, preparing draft purchase orders, pending udhaar, expiring stock, purchase orders and late suppliers, customer buying patterns, the shop's biggest problems, payments received and paid, GST, the status of one named purchase order, and preparing a draft customer bill. " +
     "Never use it to approve, submit, cancel or change anything.",
   parameters: {
     type: Type.OBJECT,
@@ -50,7 +51,30 @@ export const NAMMAOPS_BUSINESS_TOOL = {
           "purchase_status: open purchase orders, late deliveries, unpaid supplier bills. supplier_performance: which supplier is delaying (optionally for named products). " +
           "customer_insights: who buys every week, best customers, inactive regulars. store_health_report: the five biggest problems in the shop today. business_report: the weekly or monthly business report (sales against the previous period, profit, udhaar, stock). billing_summary: bills raised at the counter, their totals, returns and unpaid bills. " +
           "payments_summary: payments actually received and paid out in a period (not udhaar owed; default the month so far). gst_summary: GST charged on sales, GST paid on purchases and the net, by rate (default the month so far). " +
-          "purchase_order_lookup: the state, supplier and total of ONE purchase order the owner names by its number (pass po_name).",
+          "purchase_order_lookup: the state, supplier and total of ONE purchase order the owner names by its number (pass po_name). " +
+          "prepare_bill: CREATE a draft customer bill when the owner asks to create, make or raise a bill (pass customer if a name was said, and lines). It is only a draft until the owner approves it with their PIN. Asking about existing bills is billing_summary.",
+      },
+      customer: {
+        type: Type.STRING,
+        description:
+          "Only for prepare_bill: the customer's name exactly as the owner said it. Omit if no name was said (the walk-in customer is used).",
+      },
+      lines: {
+        type: Type.ARRAY,
+        description:
+          "Only for prepare_bill: what the customer bought, one entry per product as spoken. Leave quantity out if the owner did not say it: the specialist will ask.",
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            product: { type: Type.STRING, description: "The product name, in English, as in the store." },
+            quantity: { type: Type.NUMBER, description: "How many, only if said." },
+            unit: {
+              type: Type.STRING,
+              description: "kg, g, l or ml only if the owner said a weight or volume; not for packets or pieces.",
+            },
+          },
+          required: ["product"],
+        },
       },
       po_name: {
         type: Type.STRING,
@@ -203,7 +227,7 @@ export function voiceConfig(
                       {
                         name: "approve_by_voice",
                         description:
-                          "Approve a draft purchase order for the owner, only when they ask you to approve it. Pass only the approval_id from the draft's result. The first call tells you to ask the owner to say their approval PIN; after they say it, call this tool again with the same approval_id to finish. You never receive, pass, repeat or write down the PIN: the server hears it from the owner's own words. Report the returned status honestly and never claim an approval or submission that the result does not show.",
+                          "Approve a draft purchase order or a draft customer bill for the owner, only when they ask you to approve it. Pass only the approval_id from the draft's result. The first call tells you to ask the owner to say their approval PIN; after they say it, call this tool again with the same approval_id to finish. You never receive, pass, repeat or write down the PIN: the server hears it from the owner's own words. Report the returned status honestly and never claim an approval or submission that the result does not show.",
                         parameters: {
                           type: Type.OBJECT,
                           properties: {
@@ -318,6 +342,7 @@ export function voiceConfig(
             "If a result is clarification_required and lists categories, offer the closest listed products (for example, for pulses or dal, any dal in the list) and ask which one; never say the data has no such information without offering them. " +
             "Answer only from that tool's result: its facts, recommendations and limitations. Never add, round differently, or guess numbers, products, suppliers or outcomes. Mention important limitations briefly. State the data source exactly as the result's limitations describe it (test fixture or live ERPNext); never assume or repeat an earlier source. " +
             "If status is clarification_required, ask the clarification question. If status is unavailable or no_data, say honestly that the information is not available and why. If status is running, say it is still being checked and ask again with the workflow_id. " +
+            "To create a customer bill, call nammaops_business_query with prepare_bill (customer only if the owner named one, and each product with its quantity as said). Before you call it, if a product or a quantity is unclear, ask the owner; after it returns, read back each product, quantity, rate and the total from the result and ask the owner to check them. A bill from prepare_bill is only a draft: nothing is billed until the owner approves it with their PIN through approve_by_voice, and you only say a bill was created when approve_by_voice returns status submitted. Never invent a customer, product, rate or quantity. " +
             "Draft purchase orders are only drafts and you never approve one yourself. The owner approves with their PIN, either in the NammaOps panel or aloud: if they ask you to approve a draft, call approve_by_voice with its approval_id, then ask them to say their PIN and call it again. Never ask for the PIN in any other way, never repeat, spell out, summarise or write the PIN or any digits they say, and never pass it to a tool. If the result is pin_required, ask for the PIN; if pin_rejected, say it was not accepted; only say a purchase order was submitted when the result status is submitted. Approving never works on the live ERP: if the result says live writes are disabled, tell the owner so. Rejecting a draft is done in the panel. " +
             "For non-business conversation, talk normally without the tool. "
           : "") +

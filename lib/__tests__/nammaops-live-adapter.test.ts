@@ -20,6 +20,9 @@ import { runVoiceAgentTool } from "../voice/agent-actions";
 import { NAMMAOPS_BUSINESS_TOOL } from "../voice/config";
 import {
   ADAPTER_TOOLS,
+  ADAPTER_WRITE_TOOLS,
+  HVGERP_WRITES,
+  STOCK_FIELDS,
   HVGERP_READS,
   DOC_LIST_FIELDS,
   createAdapter,
@@ -35,6 +38,16 @@ const cleanup: Array<() => unknown> = [];
 afterEach(async () => {
   for (const close of cleanup.splice(0).reverse()) await close();
 });
+
+/** Live-shaped selling rates and customers for the bill flow (the fake ERP). */
+const SELLING: Record<string, number> = { MILK: 30, RICE: 420, SUGAR: 48 };
+const CUSTOMERS = [
+  { name: "Walk-in Customer", disabled: 0 },
+  { name: "Lakshmi Stores", disabled: 0 },
+  { name: "Closed Shop", disabled: 1 },
+];
+/** The adapter's clock in tests: a bill's date window is relative to it, so it must not drift. */
+const NOW = () => Date.parse("2026-11-01T10:00:00Z");
 
 const list = (data: Any[], extra: Any = {}) => ({
   doctype: "X",
@@ -139,6 +152,10 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
     erpnext_item_get: ({ name }) => ({
       data: {
         name,
+        item_name: name === "SUGAR" ? "Sugar 1kg" : name === "RICE" ? "Sona Rice 5kg" : "Toned Milk 500ml",
+        is_stock_item: name === "SERVICE" ? 0 : 1,
+        disabled: name === "RETIRED" ? 1 : 0,
+        standard_rate: name === "NOPRICE" ? 0 : SELLING[name] ?? 10,
         reorder_levels:
           name === "MILK"
             ? [
@@ -292,8 +309,23 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
           ),
         );
       }
-      if (doctype === "Item Price")
+      if (doctype === "Price List")
+        return list([{ name: "Standard Selling", selling: 1, enabled: 1, currency: "INR" }]);
+      if (doctype === "Customer") {
+        const wanted = filters.find((row: Any) => row[0] === "name")?.[2];
+        return list(
+          CUSTOMERS.filter((row) => row.name === wanted).map(({ name, disabled }) => ({ name, disabled })),
+        );
+      }
+      if (doctype === "Item Price") {
+        if (filters.some((row: Any) => row[0] === "selling")) {
+          const code = filters.find((row: Any) => row[0] === "item_code")?.[2];
+          return list(
+            SELLING[code] ? [{ item_code: code, price_list: "Standard Selling", price_list_rate: SELLING[code] }] : [],
+          );
+        }
         return list([{ item_code: "MILK", price_list: "Standard Buying", price_list_rate: 25 }]);
+      }
       if (doctype === "Bin")
         return list([
           { item_code: "MILK", warehouse: "Stores - X", actual_qty: 10, stock_value: 250 },
@@ -328,20 +360,78 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
       return list(ledger.filter((row) => row.posting_date >= from && row.posting_date <= to));
     },
   };
+  // The three ERPNext writes the bill flow may use. `behaviour` lets a test make ERPNext misbehave.
+  const behaviour: { createShape: "data" | "bare" | "nameless"; failUpdate: boolean } = {
+    createShape: "data",
+    failUpdate: false,
+  };
+  let drafts = 0;
+  const writeHandlers: Record<string, (args: Any) => Any> = {
+    erpnext_sales_invoice_create: (args) => {
+      drafts += 1;
+      const items = args.items.map((row: Any) => ({
+        item_code: row.item_code,
+        item_name: row.item_code,
+        qty: row.qty,
+        rate: row.rate,
+        amount: row.qty * row.rate,
+        warehouse: row.warehouse,
+      }));
+      const doc = {
+        name: `SINV-NEW-${drafts}`,
+        customer: args.customer,
+        posting_date: args.posting_date,
+        docstatus: 0,
+        status: "Draft",
+        update_stock: 0,
+        set_warehouse: args.set_warehouse ?? null,
+        currency: args.currency,
+        company: args.company,
+        selling_price_list: args.selling_price_list,
+        grand_total: items.reduce((sum: number, row: Any) => sum + row.amount, 0),
+        items,
+      };
+      invoices.push(doc);
+      return behaviour.createShape === "data"
+        ? { data: doc }
+        : behaviour.createShape === "bare"
+          ? doc
+          : { data: { customer: doc.customer } };
+    },
+    erpnext_doc_update: ({ doctype, name, data }) => {
+      if (behaviour.failUpdate) throw new Error("PermissionError: cannot update");
+      const doc = invoices.find((row) => row.name === name);
+      if (doctype !== "Sales Invoice" || !doc) throw new Error(`${doctype} ${name} not found`);
+      Object.assign(doc, data);
+      return { data: doc };
+    },
+    erpnext_sales_invoice_submit: ({ name }) => {
+      const doc = invoices.find((row) => row.name === name);
+      if (!doc) throw new Error(`Sales Invoice ${name} not found`);
+      doc.docstatus = 1;
+      doc.status = "Unpaid";
+      return { data: doc };
+    },
+  };
   const readOnly = new Set(Object.keys(handlers));
   return {
     calls,
+    behaviour,
+    invoices,
     asReadOnly: readOnly,
     listTools: async () => ({
       tools: [
         ...HVGERP_READS.map((name) => ({ name, annotations: { readOnlyHint: true } })),
         { name: "erpnext_doc_submit", annotations: { destructiveHint: true } },
         { name: "erpnext_purchase_order_create", annotations: {} },
+        { name: "erpnext_sales_invoice_create", annotations: { readOnlyHint: false } },
+        { name: "erpnext_doc_update", annotations: { readOnlyHint: false, destructiveHint: true } },
+        { name: "erpnext_sales_invoice_submit", annotations: { readOnlyHint: false, destructiveHint: true } },
       ],
     }),
     callTool: async ({ name, arguments: args }: Any) => {
       calls.push({ name, arguments: args });
-      const handler = handlers[name];
+      const handler = handlers[name] ?? writeHandlers[name];
       if (!handler) return { isError: true, content: [{ type: "text", text: `unknown ${name}` }] };
       try {
         return { content: [{ type: "text", text: JSON.stringify(handler(args ?? {})) }] };
@@ -539,9 +629,11 @@ describe("hvgerp adapter (unit, fake hvgerp)", () => {
           ? { item_code: "MILK" }
           : tool.name === "get_purchase_order"
             ? { name: "PO-1" }
-            : ["list_receivables", "list_payables"].includes(String(tool.name))
-              ? { as_of: "2026-11-01" }
-              : { from_date: "2026-10-31", to_date: "2026-11-01" };
+            : tool.name === "get_sales_invoice"
+              ? { name: "SINV-1" }
+              : ["list_receivables", "list_payables"].includes(String(tool.name))
+                ? { as_of: "2026-11-01" }
+                : { from_date: "2026-10-31", to_date: "2026-11-01" };
       await adapter.call(tool.name, args);
     }
     expect(hv.calls.length).toBeGreaterThan(10);
@@ -559,6 +651,8 @@ describe("hvgerp adapter (unit, fake hvgerp)", () => {
           "Sales Invoice",
           "Purchase Invoice",
           "Payment Entry",
+          "Price List",
+          "Customer",
         ]).toContain(call.arguments.doctype);
         // The dashboard doctypes may only be read through their reviewed field lists.
         const allowed = (DOC_LIST_FIELDS as Record<string, readonly string[]>)[
@@ -672,11 +766,220 @@ describe("hvgerp adapter (unit, fake hvgerp)", () => {
   });
 });
 
+describe("customer bill writes (unit, fake hvgerp)", () => {
+  const writeNames = () => [...HVGERP_WRITES];
+  const adapterFor = (hv: Any) => createAdapter({ client: hv, now: NOW });
+  const draft = (adapter: Any, args: Any = {}) =>
+    adapter.call("create_sales_invoice_draft", {
+      customer: "Walk-in Customer",
+      posting_date: "2026-11-01",
+      items: [{ item_code: "MILK", qty: 1 }],
+      ...args,
+    });
+  const writesMade = (hv: Any) => hv.calls.filter((call: Any) => writeNames().includes(call.name));
+  const noWrites = (hv: Any) => expect(writesMade(hv)).toEqual([]);
+
+  it("keeps the write allowlist tiny and apart from the read path", () => {
+    expect([...HVGERP_WRITES]).toEqual([
+      "erpnext_sales_invoice_create",
+      "erpnext_doc_update",
+      "erpnext_sales_invoice_submit",
+    ]);
+    expect([...STOCK_FIELDS]).toEqual(["update_stock", "set_warehouse"]);
+    // No write tool is ever reachable through the read allowlist.
+    for (const name of HVGERP_WRITES) expect(HVGERP_READS).not.toContain(name);
+    expect(ADAPTER_WRITE_TOOLS.map((tool) => tool.name)).toEqual([
+      "create_sales_invoice_draft",
+      "submit_sales_invoice",
+    ]);
+    // The read tools are still all read-only and name no write.
+    expect(ADAPTER_TOOLS.every((tool) => tool.annotations.readOnlyHint === true)).toBe(true);
+    expect(ADAPTER_WRITE_TOOLS.every((tool) => tool.annotations.readOnlyHint === false)).toBe(true);
+    // No rate, price list, warehouse or account can be passed in.
+    const props = Object.keys((ADAPTER_WRITE_TOOLS[0].inputSchema as Any).properties);
+    expect(props.sort()).toEqual(["customer", "items", "posting_date"]);
+    const line = (ADAPTER_WRITE_TOOLS[0].inputSchema as Any).properties.items.items.properties;
+    expect(Object.keys(line).sort()).toEqual(["item_code", "qty"]);
+  });
+
+  it("creates a DRAFT with rates, company, price list, currency and warehouse taken from ERPNext", async () => {
+    const hv: Any = fakeHvgerp();
+    const out = parse(
+      await draft(adapterFor(hv), {
+        items: [
+          { item_code: "MILK", qty: 2 },
+          { item_code: "RICE", qty: 1, rate: 1 }, // a caller-supplied rate is ignored
+        ],
+      }),
+    );
+    expect(out.source).toBe("erpnext_live");
+    expect(out.invoice).toMatchObject({
+      docstatus: 0,
+      status: "Draft",
+      customer: "Walk-in Customer",
+      update_stock: 1,
+      set_warehouse: "Stores",
+      grand_total: 480, // 2 x 30 + 1 x 420, from the selling prices
+    });
+    expect(out.invoice.items.map((row: Any) => [row.item_code, row.qty, row.rate])).toEqual([
+      ["MILK", 2, 30],
+      ["RICE", 1, 420],
+    ]);
+    const [create, update, ...more] = writesMade(hv);
+    expect(more).toEqual([]);
+    expect(create).toMatchObject({
+      name: "erpnext_sales_invoice_create",
+      arguments: {
+        customer: "Walk-in Customer",
+        posting_date: "2026-11-01",
+        company: "Shop Co",
+        selling_price_list: "Standard Selling",
+        currency: "INR",
+        set_warehouse: "Stores",
+        items: [
+          { item_code: "MILK", qty: 2, rate: 30, warehouse: "Stores" },
+          { item_code: "RICE", qty: 1, rate: 420, warehouse: "Stores" },
+        ],
+      },
+    });
+    // The one follow-up write sets exactly the two stock fields, on exactly this draft.
+    expect(update).toMatchObject({
+      name: "erpnext_doc_update",
+      arguments: {
+        doctype: "Sales Invoice",
+        name: "SINV-NEW-1",
+        data: { update_stock: 1, set_warehouse: "Stores" },
+      },
+    });
+    expect(Object.keys(update.arguments.data).sort()).toEqual(["set_warehouse", "update_stock"]);
+    // It never submits.
+    expect(hv.calls.some((call: Any) => call.name === "erpnext_sales_invoice_submit")).toBe(false);
+    for (const call of hv.calls) expect([...HVGERP_READS, ...HVGERP_WRITES]).toContain(call.name);
+  });
+
+  it("merges a repeated item into one line, and falls back to the item's standard rate", async () => {
+    const hv: Any = fakeHvgerp();
+    const out = parse(
+      await draft(adapterFor(hv), {
+        items: [
+          { item_code: "MILK", qty: 1 },
+          { item_code: "MILK", qty: 2 },
+        ],
+      }),
+    );
+    expect(out.invoice.items).toHaveLength(1);
+    expect(out.invoice.items[0]).toMatchObject({ item_code: "MILK", qty: 3, rate: 30 });
+    // GHEE has no selling price row, so its own standard rate (10 in this fake) is used.
+    const hv2: Any = fakeHvgerp();
+    const fallback = parse(await draft(adapterFor(hv2), { items: [{ item_code: "GHEE", qty: 1 }] }));
+    expect(fallback.invoice.items[0]).toMatchObject({ item_code: "GHEE", rate: 10 });
+  });
+
+  it("refuses, writing nothing, an unknown or disabled customer", async () => {
+    for (const customer of ["Nobody Ltd", "Closed Shop"]) {
+      const hv: Any = fakeHvgerp();
+      await expect(draft(adapterFor(hv), { customer })).rejects.toThrow(/does not exist|disabled/);
+      noWrites(hv);
+    }
+  });
+
+  it("refuses, writing nothing, bad items, quantities and dates", async () => {
+    const cases: Array<[Any, RegExp]> = [
+      [{ items: [{ item_code: "RETIRED", qty: 1 }] }, /not an active stock item/],
+      [{ items: [{ item_code: "SERVICE", qty: 1 }] }, /not an active stock item/],
+      [{ items: [{ item_code: "NOPRICE", qty: 1 }] }, /no selling price/],
+      [{ items: [{ item_code: "MILK", qty: 51 }] }, /at most 50/],
+      [{ items: [{ item_code: "MILK", qty: 30 }, { item_code: "MILK", qty: 30 }] }, /at most 50/],
+      [{ items: [{ item_code: "MILK", qty: 0 }] }, /above 0/],
+      [{ posting_date: "2026-10-20" }, /must be between/],
+      [{ posting_date: "2026-11-09" }, /must be between/],
+    ];
+    for (const [args, message] of cases) {
+      const hv: Any = fakeHvgerp();
+      await expect(draft(adapterFor(hv), args)).rejects.toThrow(message);
+      noWrites(hv);
+    }
+    // The edges are allowed: 7 days back, and tomorrow (a timezone's slack).
+    const hv: Any = fakeHvgerp();
+    await expect(draft(adapterFor(hv), { posting_date: "2026-10-25" })).resolves.toBeTruthy();
+    await expect(draft(adapterFor(hv), { posting_date: "2026-11-02" })).resolves.toBeTruthy();
+  });
+
+  it("accepts either shape ERPNext may answer a create with, and says so when it names no draft", async () => {
+    const bare: Any = fakeHvgerp();
+    bare.behaviour.createShape = "bare";
+    expect(parse(await draft(adapterFor(bare))).invoice.name).toBe("SINV-NEW-1");
+    const nameless: Any = fakeHvgerp();
+    nameless.behaviour.createShape = "nameless";
+    await expect(draft(adapterFor(nameless))).rejects.toThrow(/did not say which draft/);
+    // It did create something, so it must not go on to update or submit an unknown document.
+    expect(writesMade(nameless).map((call: Any) => call.name)).toEqual(["erpnext_sales_invoice_create"]);
+  });
+
+  it("names the draft, and does not submit it, when it could not be set to update stock", async () => {
+    const hv: Any = fakeHvgerp();
+    hv.behaviour.failUpdate = true;
+    await expect(draft(adapterFor(hv))).rejects.toThrow(
+      /Draft SINV-NEW-1 was created but could not be set to update stock.*not submitted/,
+    );
+    expect(hv.calls.some((call: Any) => call.name === "erpnext_sales_invoice_submit")).toBe(false);
+  });
+
+  it("submits only a draft that updates stock, and checks it before and after", async () => {
+    const hv: Any = fakeHvgerp();
+    const adapter = adapterFor(hv);
+    const { invoice } = parse(await draft(adapter));
+    const done = parse(await adapter.call("submit_sales_invoice", { name: invoice.name }));
+    expect(done.invoice).toMatchObject({ name: invoice.name, docstatus: 1, status: "Unpaid" });
+    // Already submitted: refused, nothing more is written.
+    const before = writesMade(hv).length;
+    await expect(adapter.call("submit_sales_invoice", { name: invoice.name })).rejects.toThrow(/not a draft/);
+    // An unknown invoice, and a draft this adapter did not make (no stock update): refused.
+    await expect(adapter.call("submit_sales_invoice", { name: "SINV-404" })).rejects.toThrow(/not found/);
+    hv.invoices.push({ name: "SINV-OTHER", customer: "x", docstatus: 0, update_stock: 0, items: [] });
+    await expect(adapter.call("submit_sales_invoice", { name: "SINV-OTHER" })).rejects.toThrow(
+      /not one of the bills created here/,
+    );
+    expect(writesMade(hv)).toHaveLength(before);
+  });
+
+  it("offers no other write: no update, cancel, delete or generic tool", async () => {
+    const adapter = adapterFor(fakeHvgerp() as Any);
+    for (const name of ["erpnext_doc_update", "erpnext_doc_delete", "cancel_sales_invoice", "erpnext_sales_invoice_cancel"])
+      await expect(adapter.call(name, { name: "SINV-1" })).rejects.toThrow(/Unknown tool/);
+  });
+
+  it("refuses to write if hvgerp now describes a write tool as read-only", async () => {
+    const hv: Any = fakeHvgerp();
+    const real = hv.listTools;
+    hv.listTools = async () => ({
+      tools: (await real()).tools.map((tool: Any) =>
+        tool.name === "erpnext_doc_update" ? { ...tool, annotations: { readOnlyHint: true } } : tool,
+      ),
+    });
+    await expect(draft(adapterFor(hv))).rejects.toThrow(/now marks erpnext_doc_update read-only/);
+    noWrites(hv);
+  });
+
+  it("reads one invoice and the selling prices, read-only", async () => {
+    const hv: Any = fakeHvgerp();
+    const adapter = adapterFor(hv);
+    expect(parse(await adapter.call("get_sales_invoice", { name: "SINV-1" })).invoice).toMatchObject({
+      name: "SINV-1",
+      docstatus: 1,
+    });
+    await expect(adapter.call("get_sales_invoice", { name: "SINV-404" })).rejects.toThrow(/not found/);
+    const prices = parse(await adapter.call("get_selling_prices", { item_code: "MILK" }));
+    expect(prices).toMatchObject({ price_list: "Standard Selling", currency: "INR", prices: [{ item_code: "MILK", rate: 30 }] });
+    noWrites(hv);
+  });
+});
+
 describe("NammaOps workflows over the live binding (fixture double for hvgerp)", () => {
   async function liveSetup() {
     const db = new TaskDatabase(":memory:") as Any;
     const hv: Any = fakeHvgerp();
-    const adapterServer = createAdapterServer(createAdapter({ client: hv }));
+    const adapterServer = createAdapterServer(createAdapter({ client: hv, now: NOW }));
     const transportFactory = () => {
       const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
       void adapterServer.connect(serverSide);
@@ -745,22 +1048,31 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
   it("sets up with writes disabled (not as errors) and grants no write capability", async () => {
     const { runtime, report } = await liveSetup();
     expect(report.blockers).toEqual([]);
-    // Only the two write capabilities stay off in live; the three new reads are bound.
+    // The purchase-order writes stay off in live; every read, and the owner-enabled bill writes, are bound.
     expect(report.disabled.map((row: Any) => row.business_capability).sort()).toEqual([
       "erp.po.create_draft",
       "erp.po.submit",
     ]);
-    const granted = runtime.governance.grants().map((row: Any) => row.capability_id);
-    expect(granted.join(" ")).not.toMatch(/create_purchase_order|submit/);
+    const grants = runtime.governance.grants();
+    const granted = grants.map((row: Any) => row.capability_id);
+    // No purchase-order write is granted to anyone.
+    expect(granted.join(" ")).not.toMatch(/create_purchase_order|submit_purchase_order/);
+    // The only live write grants: Frank may draft a bill, and only the bill-submit principal may submit.
+    const draft = grants.filter((row: Any) => /create_sales_invoice_draft$/.test(row.capability_id));
+    const submit = grants.filter((row: Any) => /submit_sales_invoice$/.test(row.capability_id));
+    expect(draft.map((row: Any) => row.subject)).toEqual([
+      expect.stringMatching(/^specialization:spec_kirana-counter-billing/),
+    ]);
+    expect(submit.map((row: Any) => row.subject)).toEqual(["agent:nammaops-bill-submit"]);
     const status = runtime.nammaops.binding.status();
-    expect(status).toHaveLength(25);
+    expect(status).toHaveLength(29);
     expect(
       status.filter((row: Any) => row.state === "unbound").map((row: Any) => row.business_capability),
     ).toEqual(["erp.po.create_draft", "erp.po.submit"]);
     expect(
       status.filter((row: Any) => row.risk === "READ").every((row: Any) => row.tool !== null),
     ).toBe(true);
-    expect(status.filter((row: Any) => row.tool !== null)).toHaveLength(23);
+    expect(status.filter((row: Any) => row.tool !== null)).toHaveLength(27);
   });
 
   it("answers stock, sales, profit and supplier questions from live-shaped data, labelled as live", async () => {
