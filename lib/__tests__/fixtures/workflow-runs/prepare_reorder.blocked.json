@@ -1,0 +1,122 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "prepare_reorder",
+      "products": []
+    },
+    "command": null,
+    "origin": {
+      "channel": "voice",
+      "call_id": "group_c6feaafc094349d7860c",
+      "voice_agent": "Dave",
+      "voice_department": "procurement",
+      "voice_intent": "prepare_purchase_order"
+    },
+    "status": "blocked",
+    "created_at": "2026-11-04T06:50:24.791Z",
+    "finished_at": "2026-11-04T06:50:30.673Z",
+    "result": null,
+    "summary": null,
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-04T06:50:24.791Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "prepare_reorder"
+      },
+      {
+        "at": "2026-11-04T06:50:24.793Z",
+        "type": "INVENTORY_TASK_STARTED",
+        "agent": "inventory",
+        "detail": "Read stock and compare with reorder levels"
+      },
+      {
+        "at": "2026-11-04T06:50:24.799Z",
+        "type": "VOICE_CONSULT",
+        "agent": "manager",
+        "detail": "Dave (Procurement) asked by voice: prepare_purchase_order"
+      },
+      {
+        "at": "2026-11-04T06:50:30.461Z",
+        "type": "INVENTORY_TASK_COMPLETED",
+        "agent": "inventory",
+        "detail": "52 product(s) checked; 5 at or below reorder level."
+      },
+      {
+        "at": "2026-11-04T06:50:30.462Z",
+        "type": "PROCUREMENT_TASK_STARTED",
+        "agent": "procurement",
+        "detail": "Compare suppliers for low-stock products"
+      }
+    ],
+    "error": "erp.po.create_draft is not enabled in this deployment: Live purchase-order drafts are not enabled yet (G2 is read-only).",
+    "id": "wf_mw1rc39yaa5f5890",
+    "revision": 9,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw1rc39yaa5f5890",
+        "role": "inventory",
+        "agent_id": "nammaops-inventory",
+        "agent_name": "Inventory Agent",
+        "title": "Read stock and compare with reorder levels",
+        "status": "completed",
+        "started_at": "2026-11-04T06:50:24.792Z",
+        "evidence": [
+          {
+            "business_capability": "erp.items.list",
+            "invocation_id": "inv_mw1rc3a14e97af930e"
+          },
+          {
+            "business_capability": "erp.stock.balance",
+            "invocation_id": "inv_mw1rc7hr0addcc8ccc"
+          }
+        ],
+        "summary": "52 product(s) checked; 5 at or below reorder level.",
+        "finished_at": "2026-11-04T06:50:30.460Z",
+        "id": "nt_mw1rc3a0b61e8fa0",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw1rc39yaa5f5890",
+        "role": "procurement",
+        "agent_id": "nammaops-procurement",
+        "agent_name": "Procurement Agent",
+        "title": "Compare suppliers for low-stock products",
+        "status": "completed",
+        "started_at": "2026-11-04T06:50:30.461Z",
+        "evidence": [
+          {
+            "business_capability": "erp.suppliers.list",
+            "invocation_id": "inv_mw1rc7nj801951bbf0"
+          },
+          {
+            "business_capability": "erp.supplier_quotations.list",
+            "invocation_id": "inv_mw1rc7qbd1c8b4d2ff"
+          }
+        ],
+        "summary": "4 of 5 item(s) have a suitable supplier.",
+        "finished_at": "2026-11-04T06:50:30.668Z",
+        "id": "nt_mw1rc7nh1c69a210",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw1rc39yaa5f5890",
+        "role": "procurement",
+        "agent_id": "nammaops-procurement",
+        "agent_name": "Procurement Agent",
+        "title": "Create draft purchase orders",
+        "status": "blocked",
+        "started_at": "2026-11-04T06:50:30.670Z",
+        "evidence": [],
+        "error": "erp.po.create_draft is not enabled in this deployment: Live purchase-order drafts are not enabled yet (G2 is read-only).",
+        "finished_at": "2026-11-04T06:50:30.672Z",
+        "id": "nt_mw1rc7t99b78188d",
+        "revision": 2
+      }
+    ]
+  }
+}

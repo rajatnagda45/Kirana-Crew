@@ -902,6 +902,10 @@ describe("F2 voice department agents (fixture)", () => {
       store_health_report: "store_health_report",
       business_report: "business_report",
       billing_summary: "billing_summary",
+      payments_summary: "payments_summary",
+      gst_summary: "gst_summary",
+      purchase_order_lookup: "purchase_order_lookup",
+      prepare_bill: "prepare_bill",
     });
     // Typed commands: a comparison request compares; ordering with a supplier preference reorders.
     expect(parseCommand("Compare supplier quotations for milk and sugar", TODAY)).toEqual({
@@ -1139,7 +1143,7 @@ describe("F2 voice department agents (fixture)", () => {
     expect(out).toMatchObject({ status: "awaiting_approval", approval_required: true });
     expect(out.facts.every((fact: string) => /draft and has not been sent/.test(fact))).toBe(true);
     expect(out.facts.join(" ")).toMatch(/\d+ Toned Milk 500ml/);
-    expect(out.recommendations[0]).toMatch(/owner PIN.*Voice cannot approve/);
+    expect(out.recommendations[0]).toMatch(/owner approves a draft with their PIN/);
     expect(ctx.poState().purchase_orders.every((po: Any) => po.docstatus === 0)).toBe(true);
     // No voice tool can approve: unknown tools are refused, and a PIN argument is rejected.
     expect(

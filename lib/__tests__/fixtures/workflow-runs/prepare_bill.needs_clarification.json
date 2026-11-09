@@ -1,0 +1,116 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "prepare_bill",
+      "lines": [
+        {
+          "product": "toor dal",
+          "quantity": 1,
+          "unit": "kg"
+        },
+        {
+          "product": "milk",
+          "quantity": 1,
+          "unit": "packet"
+        }
+      ]
+    },
+    "command": null,
+    "origin": {
+      "channel": "voice",
+      "call_id": "group_91e5e0223f7c467287af",
+      "voice_agent": "Frank",
+      "voice_department": "billing",
+      "voice_intent": "prepare_bill"
+    },
+    "status": "needs_clarification",
+    "created_at": "2026-11-09T04:16:04.034Z",
+    "finished_at": "2026-11-09T04:16:09.497Z",
+    "result": null,
+    "summary": "Please clarify: I don't know \"milk\".",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-09T04:16:04.034Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "prepare_bill"
+      },
+      {
+        "at": "2026-11-09T04:16:04.037Z",
+        "type": "BILLING_TASK_STARTED",
+        "agent": "billing",
+        "detail": "Prepare a draft bill"
+      },
+      {
+        "at": "2026-11-09T04:16:04.047Z",
+        "type": "VOICE_CONSULT",
+        "agent": "manager",
+        "detail": "Frank (Billing) asked by voice: prepare_bill"
+      },
+      {
+        "at": "2026-11-09T04:16:09.493Z",
+        "type": "BILLING_TASK_COMPLETED",
+        "agent": "billing",
+        "detail": "The bill needs clarification."
+      },
+      {
+        "at": "2026-11-09T04:16:09.495Z",
+        "type": "MANAGER_TASK_STARTED",
+        "agent": "manager",
+        "detail": "Consolidate the result for the owner"
+      }
+    ],
+    "clarifications": [
+      {
+        "requested": "milk",
+        "reason": "unit_mismatch",
+        "question": "Toned Milk 500ml is sold in packs, so 1 packet is not a whole number of packs. How many packs of Toned Milk 500ml?"
+      }
+    ],
+    "id": "wf_mw8r0uypac6be3ba",
+    "revision": 7,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw8r0uypac6be3ba",
+        "role": "billing",
+        "agent_id": "nammaops-billing",
+        "agent_name": "Billing Agent",
+        "title": "Prepare a draft bill",
+        "status": "completed",
+        "started_at": "2026-11-09T04:16:04.036Z",
+        "evidence": [
+          {
+            "business_capability": "erp.customers.list",
+            "invocation_id": "inv_mw8r0uywcebfceb9a1"
+          },
+          {
+            "business_capability": "erp.items.list",
+            "invocation_id": "inv_mw8r0uyue435f890d0"
+          }
+        ],
+        "summary": "The bill needs clarification.",
+        "finished_at": "2026-11-09T04:16:09.493Z",
+        "id": "nt_mw8r0uyrfc1cb973",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw8r0uypac6be3ba",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-09T04:16:09.494Z",
+        "evidence": [],
+        "summary": "Please clarify: I don't know \"milk\".",
+        "finished_at": "2026-11-09T04:16:09.495Z",
+        "id": "nt_mw8r0z6ed3c01500",
+        "revision": 2
+      }
+    ]
+  }
+}

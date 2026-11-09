@@ -25,6 +25,13 @@ export interface VoiceCallRecord {
     message: string;
     httpStatus?: number;
     closeCode?: number;
+    /** Why the provider closed the socket, as a fixed label (never the provider's text). */
+    reasonKind?: string;
+    /** What the browser last sent into the live session before the close. */
+    lastSent?: string;
+    msSinceLastSend?: number;
+    contextPushes?: number;
+    toolPending?: boolean;
   };
   usageReports?: Array<{ sequence: number; reportedAt: string; usage: VoiceUsage }>;
 }

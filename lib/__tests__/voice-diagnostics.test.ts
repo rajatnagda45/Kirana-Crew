@@ -6,7 +6,69 @@ import { createServer } from "node:http";
 import { TaskDatabase } from "../server/task-db.mjs";
 import { VoiceService } from "../server/voice.mjs";
 import { createRuntimeHandler } from "../server/runtime-api.mjs";
-import { classifyVoiceError, sanitizeDiagnostic, sanitizeUsage } from "../voice/diagnostics.mjs";
+import {
+  classifyCloseReason,
+  classifyVoiceError,
+  isExpectedEnding,
+  sanitizeDiagnostic,
+  sanitizeUsage,
+} from "../voice/diagnostics.mjs";
+
+describe("close evidence", () => {
+  it.each([
+    ["Operation is not implemented, or supported, or enabled.", "not_supported"],
+    ["Request contains an invalid argument.", "invalid_argument"],
+    ["models/x is not found for API version v1beta", "model_unavailable"],
+    ["PERMISSION_DENIED", "auth"],
+    ["RESOURCE_EXHAUSTED", "quota"],
+    ["something unusual", "other"],
+    ["", "none"],
+    [undefined, "none"],
+  ])("labels %j as %s", (text, label) => {
+    expect(classifyCloseReason(text as string)).toBe(label);
+  });
+
+  it("keeps only whitelisted labels and bounded counters, and no free text", () => {
+    const clean = sanitizeDiagnostic({
+      code: "session_closed",
+      phase: "call",
+      closeCode: 1008,
+      reasonKind: "not_supported",
+      lastSent: "context",
+      msSinceLastSend: 1234,
+      contextPushes: 3,
+      toolPending: false,
+      reason: "Operation is not implemented key=secret",
+      lastText: "owner said something",
+    });
+    expect(clean).toMatchObject({
+      reasonKind: "not_supported",
+      lastSent: "context",
+      msSinceLastSend: 1234,
+      contextPushes: 3,
+      toolPending: false,
+    });
+    expect(JSON.stringify(clean)).not.toMatch(/secret|owner said|Operation is not implemented/);
+    const bad = sanitizeDiagnostic({
+      code: "session_closed",
+      reasonKind: "<script>",
+      lastSent: "mic text",
+      msSinceLastSend: -5,
+      contextPushes: 1e12,
+      toolPending: "yes",
+    });
+    for (const key of ["reasonKind", "lastSent", "msSinceLastSend", "contextPushes", "toolPending"])
+      expect(bad).not.toHaveProperty(key);
+  });
+
+  it("treats only the call limit and Gemini's go-away as expected endings", () => {
+    expect(isExpectedEnding({ code: "call_limit" })).toBe(true);
+    expect(isExpectedEnding({ code: "session_closed", reasonKind: "go_away" })).toBe(true);
+    expect(isExpectedEnding({ code: "session_closed", reasonKind: "not_supported" })).toBe(false);
+    expect(isExpectedEnding({ code: "media" })).toBe(false);
+    expect(isExpectedEnding(undefined)).toBe(false);
+  });
+});
 
 describe("voice diagnostic sanitization", () => {
   it.each([

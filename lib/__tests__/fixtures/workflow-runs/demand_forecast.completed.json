@@ -1,0 +1,560 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "demand_forecast",
+      "products": []
+    },
+    "command": null,
+    "origin": {
+      "channel": "voice",
+      "call_id": "voice_64b5fdb1-3473-4f2b-a2b1-f95957f8b416",
+      "voice_agent": "Erin",
+      "voice_department": "finance",
+      "voice_intent": "demand_forecast"
+    },
+    "status": "completed",
+    "created_at": "2026-11-08T10:04:20.731Z",
+    "finished_at": "2026-11-08T10:04:26.290Z",
+    "result": {
+      "kind": "demand_forecast",
+      "label": "Historical-demand forecast (not a market prediction)",
+      "as_of": "2026-11-08",
+      "history_window": {
+        "from": "2026-08-10",
+        "to": "2026-11-07"
+      },
+      "items": [
+        {
+          "item_code": "NK-MILK-500",
+          "item_name": "Toned Milk 500ml",
+          "history": {
+            "from": "2026-08-10",
+            "to": "2026-11-07",
+            "observed_days": 90,
+            "censored_stockout_days": [],
+            "units_sold": 3439
+          },
+          "evidence": {
+            "sales_documents": [
+              "SINV-26-00076",
+              "SINV-26-00075",
+              "SINV-26-00074",
+              "SINV-26-00073",
+              "SINV-26-00072"
+            ],
+            "incoming_documents": []
+          },
+          "current_stock": 826,
+          "reserved_stock": 0,
+          "incoming_stock": 0,
+          "supplier_lead_time_days": 1,
+          "status": "ok",
+          "average_daily_demand": 38.21,
+          "method": {
+            "id": "weekday",
+            "label": "30-day average with weekday pattern",
+            "sigma": 18.55,
+            "z": 1.65
+          },
+          "backtest": {
+            "status": "ok",
+            "window": {
+              "from": "2026-10-25",
+              "to": "2026-11-07",
+              "days": 14
+            },
+            "actual_units": 268,
+            "methods": {
+              "ma7": {
+                "mae": 24.2,
+                "wape": 1.264
+              },
+              "ma30": {
+                "mae": 23.62,
+                "wape": 1.234
+              },
+              "weighted": {
+                "mae": 27.78,
+                "wape": 1.451
+              },
+              "weekday": {
+                "mae": 23.33,
+                "wape": 1.219
+              }
+            }
+          },
+          "forecast": {
+            "next_7_days": 214,
+            "next_30_days": 918.5
+          },
+          "recommendation": {
+            "status": "ok",
+            "lead_time_demand": 35.9,
+            "safety_stock": 30.6,
+            "suggested_qty": 0,
+            "days_of_cover": 27,
+            "stockout_risk": "low",
+            "formula": "max(0, lead-time demand + safety stock - (available - reserved) - incoming)"
+          },
+          "limitations": [
+            "Historical-demand forecast from this store's own sales; it does not see events, weather, prices or competitors."
+          ],
+          "incoming": [],
+          "supplier_comparison": null
+        },
+        {
+          "item_code": "NK-BISC-GLU",
+          "item_name": "Glucose Biscuits",
+          "history": {
+            "from": "2026-08-10",
+            "to": "2026-11-07",
+            "observed_days": 90,
+            "censored_stockout_days": [],
+            "units_sold": 1893
+          },
+          "evidence": {
+            "sales_documents": [
+              "SINV-26-00076",
+              "SINV-26-00075",
+              "SINV-26-00074",
+              "SINV-26-00073",
+              "SINV-26-00072"
+            ],
+            "incoming_documents": []
+          },
+          "current_stock": 348,
+          "reserved_stock": 0,
+          "incoming_stock": 0,
+          "supplier_lead_time_days": null,
+          "status": "ok",
+          "average_daily_demand": 21.03,
+          "method": {
+            "id": "weekday",
+            "label": "30-day average with weekday pattern",
+            "sigma": 10.15,
+            "z": 1.65
+          },
+          "backtest": {
+            "status": "ok",
+            "window": {
+              "from": "2026-10-25",
+              "to": "2026-11-07",
+              "days": 14
+            },
+            "actual_units": 174,
+            "methods": {
+              "ma7": {
+                "mae": 13.47,
+                "wape": 1.084
+              },
+              "ma30": {
+                "mae": 12.63,
+                "wape": 1.016
+              },
+              "weighted": {
+                "mae": 14,
+                "wape": 1.126
+              },
+              "weekday": {
+                "mae": 11.86,
+                "wape": 0.954
+              }
+            }
+          },
+          "forecast": {
+            "next_7_days": 122.3,
+            "next_30_days": 527.5
+          },
+          "recommendation": {
+            "status": "no_lead_time",
+            "reason": "Supplier lead time is unknown; no reorder quantity computed."
+          },
+          "limitations": [
+            "Historical-demand forecast from this store's own sales; it does not see events, weather, prices or competitors."
+          ],
+          "incoming": [],
+          "supplier_comparison": null
+        },
+        {
+          "item_code": "NK-WATER-1L",
+          "item_name": "Mineral Water 1L",
+          "history": {
+            "from": "2026-08-10",
+            "to": "2026-11-07",
+            "observed_days": 90,
+            "censored_stockout_days": [],
+            "units_sold": 1429
+          },
+          "evidence": {
+            "sales_documents": [
+              "SINV-26-00076",
+              "SINV-26-00075",
+              "SINV-26-00074",
+              "SINV-26-00073",
+              "SINV-26-00072"
+            ],
+            "incoming_documents": []
+          },
+          "current_stock": 254,
+          "reserved_stock": 0,
+          "incoming_stock": 0,
+          "supplier_lead_time_days": null,
+          "status": "ok",
+          "average_daily_demand": 15.88,
+          "method": {
+            "id": "weekday",
+            "label": "30-day average with weekday pattern",
+            "sigma": 7.96,
+            "z": 1.65
+          },
+          "backtest": {
+            "status": "ok",
+            "window": {
+              "from": "2026-10-25",
+              "to": "2026-11-07",
+              "days": 14
+            },
+            "actual_units": 123,
+            "methods": {
+              "ma7": {
+                "mae": 10.56,
+                "wape": 1.202
+              },
+              "ma30": {
+                "mae": 9.92,
+                "wape": 1.129
+              },
+              "weighted": {
+                "mae": 10.78,
+                "wape": 1.227
+              },
+              "weekday": {
+                "mae": 9.05,
+                "wape": 1.03
+              }
+            }
+          },
+          "forecast": {
+            "next_7_days": 91.2,
+            "next_30_days": 395.1
+          },
+          "recommendation": {
+            "status": "no_lead_time",
+            "reason": "Supplier lead time is unknown; no reorder quantity computed."
+          },
+          "limitations": [
+            "Historical-demand forecast from this store's own sales; it does not see events, weather, prices or competitors."
+          ],
+          "incoming": [],
+          "supplier_comparison": null
+        },
+        {
+          "item_code": "NK-NOODLES-70",
+          "item_name": "Instant Noodles 70g",
+          "history": {
+            "from": "2026-08-10",
+            "to": "2026-11-07",
+            "observed_days": 90,
+            "censored_stockout_days": [],
+            "units_sold": 1355
+          },
+          "evidence": {
+            "sales_documents": [
+              "SINV-26-00076",
+              "SINV-26-00075",
+              "SINV-26-00074",
+              "SINV-26-00073",
+              "SINV-26-00072"
+            ],
+            "incoming_documents": []
+          },
+          "current_stock": 328,
+          "reserved_stock": 0,
+          "incoming_stock": 0,
+          "supplier_lead_time_days": null,
+          "status": "ok",
+          "average_daily_demand": 15.06,
+          "method": {
+            "id": "weekday",
+            "label": "30-day average with weekday pattern",
+            "sigma": 7.58,
+            "z": 1.65
+          },
+          "backtest": {
+            "status": "ok",
+            "window": {
+              "from": "2026-10-25",
+              "to": "2026-11-07",
+              "days": 14
+            },
+            "actual_units": 113,
+            "methods": {
+              "ma7": {
+                "mae": 9.68,
+                "wape": 1.2
+              },
+              "ma30": {
+                "mae": 9.74,
+                "wape": 1.206
+              },
+              "weighted": {
+                "mae": 9.71,
+                "wape": 1.203
+              },
+              "weekday": {
+                "mae": 9.12,
+                "wape": 1.13
+              }
+            }
+          },
+          "forecast": {
+            "next_7_days": 89.6,
+            "next_30_days": 386.5
+          },
+          "recommendation": {
+            "status": "no_lead_time",
+            "reason": "Supplier lead time is unknown; no reorder quantity computed."
+          },
+          "limitations": [
+            "Historical-demand forecast from this store's own sales; it does not see events, weather, prices or competitors."
+          ],
+          "incoming": [],
+          "supplier_comparison": null
+        },
+        {
+          "item_code": "NK-CHIPS-50",
+          "item_name": "Potato Chips 50g",
+          "history": {
+            "from": "2026-08-10",
+            "to": "2026-11-07",
+            "observed_days": 90,
+            "censored_stockout_days": [],
+            "units_sold": 1199
+          },
+          "evidence": {
+            "sales_documents": [
+              "SINV-26-00076",
+              "SINV-26-00075",
+              "SINV-26-00074",
+              "SINV-26-00073",
+              "SINV-26-00072"
+            ],
+            "incoming_documents": ["PUR-ORD-2026-00003"]
+          },
+          "current_stock": 143,
+          "reserved_stock": 0,
+          "incoming_stock": 120,
+          "supplier_lead_time_days": null,
+          "status": "ok",
+          "average_daily_demand": 13.32,
+          "method": {
+            "id": "weekday",
+            "label": "30-day average with weekday pattern",
+            "sigma": 7.32,
+            "z": 1.65
+          },
+          "backtest": {
+            "status": "ok",
+            "window": {
+              "from": "2026-10-25",
+              "to": "2026-11-07",
+              "days": 14
+            },
+            "actual_units": 107,
+            "methods": {
+              "ma7": {
+                "mae": 8.83,
+                "wape": 1.155
+              },
+              "ma30": {
+                "mae": 9.05,
+                "wape": 1.184
+              },
+              "weighted": {
+                "mae": 10.03,
+                "wape": 1.312
+              },
+              "weekday": {
+                "mae": 7.69,
+                "wape": 1.006
+              }
+            }
+          },
+          "forecast": {
+            "next_7_days": 78.4,
+            "next_30_days": 339.7
+          },
+          "recommendation": {
+            "status": "no_lead_time",
+            "reason": "Supplier lead time is unknown; no reorder quantity computed."
+          },
+          "limitations": [
+            "Historical-demand forecast from this store's own sales; it does not see events, weather, prices or competitors."
+          ],
+          "incoming": [
+            {
+              "document": "PUR-ORD-2026-00003",
+              "qty": 120,
+              "expected": "2026-11-03"
+            }
+          ],
+          "supplier_comparison": null
+        }
+      ],
+      "supply_status": "available"
+    },
+    "summary": "Historical-demand forecast for the next 7 days: Toned Milk 500ml ~214, Glucose Biscuits ~122.3, Mineral Water 1L ~91.2. No purchase needed for the forecast period. Not enough history to forecast: Face Wash 100g, Hand Wash 200ml, Coconut Hair Oil 200ml, Shampoo 180ml, Cumin Seeds 100g, Mustard Seeds 100g, Garam Masala 100g, Coriander Powder 200g, Red Chilli Powder 200g, Turmeric Powder 200g, Kabuli Chana 1kg, Rajma 1kg, Masoor Dal 1kg, Urad Dal 1kg, Chana Dal 1kg, Moong Dal 1kg, Millet Flakes 500g, Tissue Paper Roll, Malt Drink 500g, Mustard Oil 1L, Coconut Oil 500ml.",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-08T10:04:20.731Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "demand_forecast"
+      },
+      {
+        "at": "2026-11-08T10:04:20.746Z",
+        "type": "SALES_TASK_STARTED",
+        "agent": "sales",
+        "detail": "Read sales history 2026-08-10 to 2026-11-07"
+      },
+      {
+        "at": "2026-11-08T10:04:20.755Z",
+        "type": "INVENTORY_TASK_STARTED",
+        "agent": "inventory",
+        "detail": "Read stock balances and the stock ledger"
+      },
+      {
+        "at": "2026-11-08T10:04:20.800Z",
+        "type": "PROCUREMENT_TASK_STARTED",
+        "agent": "procurement",
+        "detail": "Read incoming purchase orders and supplier lead times"
+      },
+      {
+        "at": "2026-11-08T10:04:20.807Z",
+        "type": "VOICE_CONSULT",
+        "agent": "manager",
+        "detail": "Erin (Finance) asked by voice: demand_forecast"
+      }
+    ],
+    "clarifications": null,
+    "id": "wf_mw7o0waia3065919",
+    "revision": 11,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw7o0waia3065919",
+        "role": "sales",
+        "agent_id": "nammaops-sales",
+        "agent_name": "Sales Agent",
+        "title": "Read sales history 2026-08-10 to 2026-11-07",
+        "status": "completed",
+        "started_at": "2026-11-08T10:04:20.745Z",
+        "evidence": [
+          {
+            "business_capability": "erp.sales.history",
+            "invocation_id": "inv_mw7o0wazd5ba319a8c"
+          },
+          {
+            "business_capability": "erp.sales.history",
+            "invocation_id": "inv_mw7o0wb1f513b79af8"
+          },
+          {
+            "business_capability": "erp.sales.history",
+            "invocation_id": "inv_mw7o0z1u09553cdd4e"
+          },
+          {
+            "business_capability": "erp.sales.history",
+            "invocation_id": "inv_mw7o0z2b93ad5d30e8"
+          },
+          {
+            "business_capability": "erp.sales.history",
+            "invocation_id": "inv_mw7o0z4wb169ef4474"
+          }
+        ],
+        "summary": "10653 sales line(s) from 456 submitted invoice(s).",
+        "finished_at": "2026-11-08T10:04:26.115Z",
+        "id": "nt_mw7o0wax416a80d4",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw7o0waia3065919",
+        "role": "inventory",
+        "agent_id": "nammaops-inventory",
+        "agent_name": "Inventory Agent",
+        "title": "Read stock balances and the stock ledger",
+        "status": "completed",
+        "started_at": "2026-11-08T10:04:20.754Z",
+        "evidence": [
+          {
+            "business_capability": "erp.stock.movements",
+            "invocation_id": "inv_mw7o0wbd2590fb9e8a"
+          },
+          {
+            "business_capability": "erp.stock.movements",
+            "invocation_id": "inv_mw7o0wbhbc3e20230b"
+          },
+          {
+            "business_capability": "erp.stock.movements",
+            "invocation_id": "inv_mw7o0wbi41fc6b042c"
+          },
+          {
+            "business_capability": "erp.stock.movements",
+            "invocation_id": "inv_mw7o0whr6f8863df49"
+          },
+          {
+            "business_capability": "erp.stock.movements",
+            "invocation_id": "inv_mw7o0wj68405ce30ae"
+          }
+        ],
+        "summary": "52 item(s), 10721 stock ledger entries.",
+        "finished_at": "2026-11-08T10:04:24.531Z",
+        "id": "nt_mw7o0wb612c3cb2e",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw7o0waia3065919",
+        "role": "procurement",
+        "agent_id": "nammaops-procurement",
+        "agent_name": "Procurement Agent",
+        "title": "Read incoming purchase orders and supplier lead times",
+        "status": "completed",
+        "started_at": "2026-11-08T10:04:20.799Z",
+        "evidence": [
+          {
+            "business_capability": "erp.suppliers.list",
+            "invocation_id": "inv_mw7o0wci0769efd688"
+          },
+          {
+            "business_capability": "erp.po.open",
+            "invocation_id": "inv_mw7o0wch57a29f92a5"
+          },
+          {
+            "business_capability": "erp.supplier_quotations.list",
+            "invocation_id": "inv_mw7o0wcj1660c83061"
+          }
+        ],
+        "summary": "4 open purchase order(s), 44 quotation line(s).",
+        "finished_at": "2026-11-08T10:04:24.098Z",
+        "id": "nt_mw7o0wcf2305fa7b",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw7o0waia3065919",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-08T10:04:26.282Z",
+        "evidence": [],
+        "summary": "Historical-demand forecast for the next 7 days: Toned Milk 500ml ~214, Glucose Biscuits ~122.3, Mineral Water 1L ~91.2. No purchase needed for the forecast period. Not enough history to forecast: Face Wash 100g, Hand Wash 200ml, Coconut Hair Oil 200ml, Shampoo 180ml, Cumin Seeds 100g, Mustard Seeds 100g, Garam Masala 100g, Coriander Powder 200g, Red Chilli Powder 200g, Turmeric Powder 200g, Kabuli Chana 1kg, Rajma 1kg, Masoor Dal 1kg, Urad Dal 1kg, Chana Dal 1kg, Moong Dal 1kg, Millet Flakes 500g, Tissue Paper Roll, Malt Drink 500g, Mustard Oil 1L, Coconut Oil 500ml.",
+        "finished_at": "2026-11-08T10:04:26.288Z",
+        "id": "nt_mw7o10kqcfaa16be",
+        "revision": 2
+      }
+    ]
+  }
+}

@@ -19,6 +19,7 @@ import { GeminiVoiceClient, type VoiceStatus } from "./client";
 import type { VoiceAgentContext } from "./agent-context";
 import { runVoiceAgentTool, VOICE_ACTIONS } from "./agent-actions";
 import { inferConversationAgent, isTerminalTask, voiceExecutionContext } from "./conversation";
+import { hideSpokenDigits } from "./hide-pin";
 
 type Mode = "text" | "voice";
 type Turn = { id: string; timestamp: string; finished: boolean };
@@ -40,6 +41,8 @@ type ActiveCall = {
   refreshAgain: boolean;
   contextReady: boolean;
   closing?: boolean;
+  /** An approval is waiting for the owner to say their PIN: the screen must not show digits. */
+  awaitingPin?: boolean;
   startedAt: number;
 };
 interface VoiceState {
@@ -65,6 +68,10 @@ export function useVoice() {
   if (!value) throw new Error("useVoice must be inside VoiceProvider");
   return value;
 }
+
+/** Context safety-net poll while a task is running / when nothing is running (see the effect). */
+export const VOICE_POLL_BUSY_MS = 5000;
+export const VOICE_POLL_IDLE_MS = 60_000;
 
 export function VoiceProvider({ children }: { children: ReactNode }) {
   const studio = useStudio();
@@ -433,7 +440,9 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         sessionKey: call.sessionKey,
         actorName: call.name,
         role,
-        content: text,
+        // The raw words still go to the server below (it checks the PIN and stores the turn
+        // redacted); only the on-screen copy hides digits while a PIN is awaited.
+        content: call.awaitingPin && role === "user" ? hideSpokenDigits(text) : text,
         streaming: !finished,
         timestamp: turn.timestamp,
         ...(metadata?.interrupted ? { interrupted: true } : {}),
@@ -519,6 +528,8 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
           if (!isCurrentCall(call) || signal?.aborted)
             return { error: "Call ended or interrupted. No action was taken." };
           if (name !== "assign_task") {
+            // Hide spoken digits on screen from the moment the owner is asked for the PIN.
+            if (name === "approve_by_voice") call.awaitingPin = true;
             const result = await call.client.action(name, parameters, {
               actionId,
               signal,
@@ -527,6 +538,12 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
                 ? { sourceMessageId: call.user?.id }
                 : {}),
             });
+            if (
+              name === "approve_by_voice" &&
+              result.status !== "pin_required" &&
+              result.status !== "waiting_for_pin"
+            )
+              call.awaitingPin = false; // finished (approved, rejected or failed): show speech normally
             if (
               name === "confirm_handoff" &&
               result.accepted === true &&
@@ -620,14 +637,23 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     if (call && connected) void refreshCall(call);
   }, [connected, studio.state.tasks, finalizedMessage, studio.state.connection, refreshCall]);
 
+  // Each refresh reads chat history plus three instruction files from the gateway, so it is not
+  // polled blindly. Task, message and connection changes already trigger a refresh (above); the
+  // timer is only a safety net. It runs every 5 s while a task of this conversation is still
+  // in flight (a result may be confirmed by the backend before the browser hears about it, and a
+  // spoken announcement waits for that), and every 60 s otherwise.
+  const taskInFlight = studio.state.tasks.some(
+    (task) => task.sessionKey === sessionKey && !isTerminalTask(task),
+  );
+  const pollMs = taskInFlight ? VOICE_POLL_BUSY_MS : VOICE_POLL_IDLE_MS;
   useEffect(() => {
     if (!connected) return;
     const timer = setInterval(() => {
       const call = callRef.current;
       if (call) void refreshCall(call);
-    }, 5000);
+    }, pollMs);
     return () => clearInterval(timer);
-  }, [connected, refreshCall]);
+  }, [connected, refreshCall, pollMs]);
 
   useEffect(() => {
     const call = callRef.current;

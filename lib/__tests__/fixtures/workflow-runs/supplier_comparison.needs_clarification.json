@@ -1,0 +1,68 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "supplier_comparison"
+    },
+    "command": null,
+    "status": "needs_clarification",
+    "created_at": "2026-11-03T20:28:06.654Z",
+    "finished_at": "2026-11-03T20:28:06.659Z",
+    "result": null,
+    "summary": "Please clarify: which product should I compare suppliers for?.",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-03T20:28:06.654Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "supplier_comparison"
+      },
+      {
+        "at": "2026-11-03T20:28:06.656Z",
+        "type": "MANAGER_TASK_STARTED",
+        "agent": "manager",
+        "detail": "Consolidate the result for the owner"
+      },
+      {
+        "at": "2026-11-03T20:28:06.658Z",
+        "type": "MANAGER_TASK_COMPLETED",
+        "agent": "manager",
+        "detail": "Please clarify: which product should I compare suppliers for?."
+      },
+      {
+        "at": "2026-11-03T20:28:06.659Z",
+        "type": "WORKFLOW_NEEDS_CLARIFICATION",
+        "agent": "manager",
+        "detail": "Please clarify: which product should I compare suppliers for?."
+      }
+    ],
+    "clarifications": [
+      {
+        "requested": "",
+        "reason": "missing_product",
+        "options": []
+      }
+    ],
+    "id": "wf_mw153szi5b1d4cba",
+    "revision": 4,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw153szi5b1d4cba",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-03T20:28:06.655Z",
+        "evidence": [],
+        "summary": "Please clarify: which product should I compare suppliers for?.",
+        "finished_at": "2026-11-03T20:28:06.657Z",
+        "id": "nt_mw153szj39d46b4e",
+        "revision": 2
+      }
+    ]
+  }
+}

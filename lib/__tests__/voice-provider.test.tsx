@@ -459,6 +459,25 @@ describe("shared voice controller", () => {
     expect(calls[0].updateContext).toHaveBeenCalledOnce();
   });
 
+  it("polls context every 5 s only while a task is in flight, otherwise every 60 s", async () => {
+    const intervals = vi.spyOn(globalThis, "setInterval");
+    await begin(); // task t1 is running
+    await waitFor(() => expect(calls[0].updateContext).toHaveBeenCalled());
+    expect(intervals.mock.calls.some(([, delay]) => delay === 5000)).toBe(true);
+    intervals.mockClear();
+    act(() =>
+      dispatch({
+        type: "UPDATE_TASK",
+        taskId: "t1",
+        patch: { status: "completed", result: "Done" },
+      }),
+    );
+    await waitFor(() =>
+      expect(intervals.mock.calls.some(([, delay]) => delay === 60000)).toBe(true),
+    );
+    expect(intervals.mock.calls.some(([, delay]) => delay === 5000)).toBe(false);
+  });
+
   it("drops a delayed refresh after switching sessions", async () => {
     await begin();
     await waitFor(() => expect(calls[0].updateContext).toHaveBeenCalled());

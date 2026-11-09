@@ -7,6 +7,7 @@ export const VOICE_ACTIONS = new Set([
   "nammaops_business_query",
   "transfer_to_agent",
   "confirm_handoff",
+  "approve_by_voice",
 ]);
 
 /** All routing, permissions, task state and review scope are resolved by the server. */

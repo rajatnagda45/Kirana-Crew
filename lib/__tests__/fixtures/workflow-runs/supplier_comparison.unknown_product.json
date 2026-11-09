@@ -1,0 +1,151 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "supplier_comparison",
+      "products": ["Zzyzx tea"]
+    },
+    "command": null,
+    "status": "needs_clarification",
+    "created_at": "2026-11-09T04:58:11.066Z",
+    "finished_at": "2026-11-09T04:58:11.086Z",
+    "result": null,
+    "summary": "Please clarify: I don't know \"Zzyzx tea\".",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-09T04:58:11.066Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "supplier_comparison"
+      },
+      {
+        "at": "2026-11-09T04:58:11.068Z",
+        "type": "INVENTORY_TASK_STARTED",
+        "agent": "inventory",
+        "detail": "Identify the products to compare"
+      },
+      {
+        "at": "2026-11-09T04:58:11.082Z",
+        "type": "INVENTORY_TASK_COMPLETED",
+        "agent": "inventory",
+        "detail": "0 product(s) identified."
+      },
+      {
+        "at": "2026-11-09T04:58:11.084Z",
+        "type": "MANAGER_TASK_STARTED",
+        "agent": "manager",
+        "detail": "Consolidate the result for the owner"
+      },
+      {
+        "at": "2026-11-09T04:58:11.085Z",
+        "type": "MANAGER_TASK_COMPLETED",
+        "agent": "manager",
+        "detail": "Please clarify: I don't know \"Zzyzx tea\"."
+      }
+    ],
+    "clarifications": [
+      {
+        "requested": "Zzyzx tea",
+        "reason": "unknown",
+        "options": [],
+        "categories": {
+          "Personal Care": [
+            "Face Wash 100g",
+            "Hand Wash 200ml",
+            "Coconut Hair Oil 200ml",
+            "Shampoo 180ml"
+          ],
+          "Spices": [
+            "Cumin Seeds 100g",
+            "Mustard Seeds 100g",
+            "Garam Masala 100g",
+            "Coriander Powder 200g",
+            "Red Chilli Powder 200g"
+          ],
+          "Pulses": [
+            "Kabuli Chana 1kg",
+            "Rajma 1kg",
+            "Masoor Dal 1kg",
+            "Urad Dal 1kg",
+            "Chana Dal 1kg"
+          ],
+          "Staples": [
+            "Millet Flakes 500g",
+            "Poha 500g",
+            "Rava 500g",
+            "Iodised Salt 1kg",
+            "Sugar 1kg"
+          ],
+          "Household": [
+            "Tissue Paper Roll",
+            "Matchbox Pack of 10",
+            "Incense Sticks",
+            "Toothpaste 150g",
+            "Dishwash Liquid 500ml"
+          ],
+          "Beverages": [
+            "Malt Drink 500g",
+            "Mineral Water 1L",
+            "Mango Drink 1L",
+            "Soda 750ml",
+            "Filter Coffee 200g"
+          ],
+          "Snacks": [
+            "Chocolate Bar 40g",
+            "Instant Noodles 70g",
+            "Mixture Namkeen 200g",
+            "Potato Chips 50g",
+            "Cream Biscuits"
+          ],
+          "Cooking Oil": [
+            "Mustard Oil 1L",
+            "Coconut Oil 500ml",
+            "Groundnut Oil 1L",
+            "Sunflower Oil 1L"
+          ],
+          "Dairy": ["Ghee 200ml", "Butter 100g", "Paneer 200g", "Curd 400g", "Toned Milk 500ml"]
+        }
+      }
+    ],
+    "id": "wf_mw8sj0u2850dcecf",
+    "revision": 6,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw8sj0u2850dcecf",
+        "role": "inventory",
+        "agent_id": "nammaops-inventory",
+        "agent_name": "Inventory Agent",
+        "title": "Identify the products to compare",
+        "status": "completed",
+        "started_at": "2026-11-09T04:58:11.068Z",
+        "evidence": [
+          {
+            "business_capability": "erp.items.list",
+            "invocation_id": "inv_mw8sj0u99c21d2d864"
+          }
+        ],
+        "summary": "0 product(s) identified.",
+        "finished_at": "2026-11-09T04:58:11.082Z",
+        "id": "nt_mw8sj0u3024ea2b6",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw8sj0u2850dcecf",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-09T04:58:11.083Z",
+        "evidence": [],
+        "summary": "Please clarify: I don't know \"Zzyzx tea\".",
+        "finished_at": "2026-11-09T04:58:11.084Z",
+        "id": "nt_mw8sj0uj9ded5ca3",
+        "revision": 2
+      }
+    ]
+  }
+}

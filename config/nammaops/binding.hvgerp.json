@@ -1,5 +1,5 @@
 {
-  "_note": "LIVE ERPNext binding (read-only). Tools are served by lib/mcp/hvgerp-adapter-server.mjs, which calls the pinned @hvgllc/hvgerp-mcp@3.7.0 and exposes only the business read tools below. Capabilities with tool:null and a disabled reason are intentionally not offered. Select with NAMMAOPS_BINDING=config/nammaops/binding.hvgerp.json.",
+  "_note": "LIVE ERPNext binding. Tools are served by lib/mcp/hvgerp-adapter-server.mjs, which calls the pinned @hvgllc/hvgerp-mcp@3.7.0 and exposes only the business tools below: 25 reads plus two owner-enabled customer-bill writes (erp.sales_invoice.create_draft, erp.sales_invoice.submit). The two purchase-order writes (erp.po.create_draft, erp.po.submit) have tool:null and a disabled reason on purpose and stay off. Select with NAMMAOPS_BINDING=config/nammaops/binding.hvgerp.json.",
   "shape": "hvgerp",
   "data_label": "Live ERPNext Cloud (demo store; records marked NAMMAOPS-SEED are synthetic demo data)",
   "server": {
@@ -47,17 +47,16 @@
     "erp.po.create_draft": {
       "tool": null,
       "risk": "WRITE",
-      "disabled": "Live purchase-order drafts are not enabled yet (G2 is read-only)."
+      "disabled": "Live writes are disabled pending a separate security review; a PIN or approval cannot enable them."
     },
     "erp.po.get": {
-      "tool": null,
-      "risk": "READ",
-      "disabled": "Only needed with live purchase-order drafts; not enabled yet."
+      "tool": "get_purchase_order",
+      "risk": "READ"
     },
     "erp.po.submit": {
       "tool": null,
       "risk": "EXTERNAL_ACTION",
-      "disabled": "Live purchase-order submission is not enabled; it needs the owner PIN path and a constrained submit tool."
+      "disabled": "Live writes are disabled pending a separate security review; a PIN or approval cannot enable them."
     },
     "erp.sales_invoices.list": {
       "tool": "list_sales_invoices",
@@ -84,9 +83,8 @@
       "risk": "READ"
     },
     "erp.payments.summary": {
-      "tool": null,
-      "risk": "READ",
-      "disabled": "No reviewed live tool yet."
+      "tool": "get_payment_summary",
+      "risk": "READ"
     },
     "erp.sales.history": {
       "tool": "list_sales_lines",
@@ -117,9 +115,28 @@
       "risk": "READ"
     },
     "erp.gst.summary": {
-      "tool": null,
-      "risk": "READ",
-      "disabled": "GST line extraction from live Sales/Purchase Taxes and Charges is not reviewed yet."
+      "tool": "list_gst_lines",
+      "risk": "READ"
+    },
+    "erp.sales_invoice.get": {
+      "tool": "get_sales_invoice",
+      "risk": "READ"
+    },
+    "erp.selling_prices.get": {
+      "tool": "get_selling_prices",
+      "risk": "READ"
+    },
+    "erp.sales_invoice.create_draft": {
+      "tool": "create_sales_invoice_draft",
+      "risk": "WRITE",
+      "approval_required": false,
+      "_note": "Owner-enabled 2026-11-08. Creates a DRAFT customer bill only (no accounts or stock effect). Granted to Frank only."
+    },
+    "erp.sales_invoice.submit": {
+      "tool": "submit_sales_invoice",
+      "risk": "EXTERNAL_ACTION",
+      "approval_required": true,
+      "_note": "Owner-enabled 2026-11-08. Runs only for the nammaops-bill-submit principal with an owner approval (PIN) bound to the exact draft, call and session."
     }
   }
 }

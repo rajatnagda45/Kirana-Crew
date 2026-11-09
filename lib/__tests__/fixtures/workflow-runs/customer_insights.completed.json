@@ -1,0 +1,510 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "customer_insights"
+    },
+    "command": null,
+    "origin": {
+      "channel": "voice",
+      "call_id": "voice_fb77ce05-3740-4725-a17c-678c49c39ce9",
+      "voice_agent": "Alice",
+      "voice_department": "manager",
+      "voice_intent": "customer_insights"
+    },
+    "status": "completed",
+    "created_at": "2026-11-04T06:04:57.594Z",
+    "finished_at": "2026-11-04T06:05:06.906Z",
+    "result": {
+      "kind": "customer_insights",
+      "period": {
+        "from_date": "2026-08-13",
+        "to_date": "2026-11-04"
+      },
+      "named_customers": 51,
+      "buying_customers": 21,
+      "weekly_buyers": [
+        {
+          "customer": "Customer 1",
+          "invoices": 10,
+          "sales": 26066,
+          "average_bill": 2606.6,
+          "active_weeks": 8,
+          "last_purchase": "2026-11-02",
+          "days_since_last": 2,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 82
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 42
+            },
+            {
+              "item": "Mineral Water 1L",
+              "qty": 34
+            }
+          ]
+        }
+      ],
+      "regular_customers": 14,
+      "inactive_regulars": [
+        {
+          "customer": "Customer 10",
+          "invoices": 5,
+          "sales": 13697,
+          "average_bill": 2739.4,
+          "active_weeks": 4,
+          "last_purchase": "2026-10-10",
+          "days_since_last": 25,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 46
+            },
+            {
+              "item": "Instant Noodles 70g",
+              "qty": 22
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 21
+            }
+          ]
+        },
+        {
+          "customer": "Customer 11",
+          "invoices": 5,
+          "sales": 12375,
+          "average_bill": 2475,
+          "active_weeks": 4,
+          "last_purchase": "2026-10-13",
+          "days_since_last": 22,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 37
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 15
+            },
+            {
+              "item": "Instant Noodles 70g",
+              "qty": 14
+            }
+          ]
+        },
+        {
+          "customer": "Customer 12",
+          "invoices": 4,
+          "sales": 9052,
+          "average_bill": 2263,
+          "active_weeks": 3,
+          "last_purchase": "2026-10-06",
+          "days_since_last": 29,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 24
+            },
+            {
+              "item": "Mineral Water 1L",
+              "qty": 15
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 13
+            }
+          ]
+        },
+        {
+          "customer": "Customer 5",
+          "invoices": 3,
+          "sales": 9047,
+          "average_bill": 3015.67,
+          "active_weeks": 3,
+          "last_purchase": "2026-10-11",
+          "days_since_last": 24,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 29
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 12
+            },
+            {
+              "item": "Mineral Water 1L",
+              "qty": 11
+            }
+          ]
+        },
+        {
+          "customer": "Customer 13",
+          "invoices": 3,
+          "sales": 7679,
+          "average_bill": 2559.67,
+          "active_weeks": 2,
+          "last_purchase": "2026-09-18",
+          "days_since_last": 47,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 28
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 14
+            },
+            {
+              "item": "Mineral Water 1L",
+              "qty": 11
+            }
+          ]
+        }
+      ],
+      "high_value": [
+        {
+          "customer": "Customer 1",
+          "invoices": 10,
+          "sales": 26066,
+          "average_bill": 2606.6,
+          "active_weeks": 8,
+          "last_purchase": "2026-11-02",
+          "days_since_last": 2,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 82
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 42
+            },
+            {
+              "item": "Mineral Water 1L",
+              "qty": 34
+            }
+          ]
+        },
+        {
+          "customer": "Customer 14",
+          "invoices": 8,
+          "sales": 20719,
+          "average_bill": 2589.88,
+          "active_weeks": 7,
+          "last_purchase": "2026-10-31",
+          "days_since_last": 4,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 63
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 38
+            },
+            {
+              "item": "Mineral Water 1L",
+              "qty": 34
+            }
+          ]
+        },
+        {
+          "customer": "Customer 3",
+          "invoices": 6,
+          "sales": 17910,
+          "average_bill": 2985,
+          "active_weeks": 5,
+          "last_purchase": "2026-10-15",
+          "days_since_last": 20,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 55
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 26
+            },
+            {
+              "item": "Curd 400g",
+              "qty": 22
+            }
+          ]
+        },
+        {
+          "customer": "Customer 2",
+          "invoices": 7,
+          "sales": 17779,
+          "average_bill": 2539.86,
+          "active_weeks": 6,
+          "last_purchase": "2026-10-30",
+          "days_since_last": 5,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 57
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 27
+            },
+            {
+              "item": "Mineral Water 1L",
+              "qty": 24
+            }
+          ]
+        },
+        {
+          "customer": "Customer 15",
+          "invoices": 7,
+          "sales": 15331,
+          "average_bill": 2190.14,
+          "active_weeks": 5,
+          "last_purchase": "2026-11-01",
+          "days_since_last": 3,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 55
+            },
+            {
+              "item": "Curd 400g",
+              "qty": 25
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 24
+            }
+          ]
+        }
+      ],
+      "customers": [
+        {
+          "customer": "Customer 1",
+          "invoices": 10,
+          "sales": 26066,
+          "average_bill": 2606.6,
+          "active_weeks": 8,
+          "last_purchase": "2026-11-02",
+          "days_since_last": 2,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 82
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 42
+            },
+            {
+              "item": "Mineral Water 1L",
+              "qty": 34
+            }
+          ]
+        },
+        {
+          "customer": "Customer 14",
+          "invoices": 8,
+          "sales": 20719,
+          "average_bill": 2589.88,
+          "active_weeks": 7,
+          "last_purchase": "2026-10-31",
+          "days_since_last": 4,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 63
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 38
+            },
+            {
+              "item": "Mineral Water 1L",
+              "qty": 34
+            }
+          ]
+        },
+        {
+          "customer": "Customer 3",
+          "invoices": 6,
+          "sales": 17910,
+          "average_bill": 2985,
+          "active_weeks": 5,
+          "last_purchase": "2026-10-15",
+          "days_since_last": 20,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 55
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 26
+            },
+            {
+              "item": "Curd 400g",
+              "qty": 22
+            }
+          ]
+        },
+        {
+          "customer": "Customer 2",
+          "invoices": 7,
+          "sales": 17779,
+          "average_bill": 2539.86,
+          "active_weeks": 6,
+          "last_purchase": "2026-10-30",
+          "days_since_last": 5,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 57
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 27
+            },
+            {
+              "item": "Mineral Water 1L",
+              "qty": 24
+            }
+          ]
+        },
+        {
+          "customer": "Customer 15",
+          "invoices": 7,
+          "sales": 15331,
+          "average_bill": 2190.14,
+          "active_weeks": 5,
+          "last_purchase": "2026-11-01",
+          "days_since_last": 3,
+          "favourite_products": [
+            {
+              "item": "Toned Milk 500ml",
+              "qty": 55
+            },
+            {
+              "item": "Curd 400g",
+              "qty": 25
+            },
+            {
+              "item": "Glucose Biscuits",
+              "qty": 24
+            }
+          ]
+        }
+      ],
+      "returns": {
+        "count": 0,
+        "amount": 0,
+        "invoices": []
+      },
+      "discounts": {
+        "status": "not_available",
+        "reason": "Invoice discounts are not returned by the governed sales tools."
+      },
+      "definitions": {
+        "weekly": "Bought in at least 8 of the last 12 weeks.",
+        "regular": "At least 3 invoices in 12 weeks.",
+        "inactive": "A regular with no purchase in the last 21 days.",
+        "high_value": "Top 20% of named customers by sales."
+      }
+    },
+    "summary": "21 named customer(s) bought in 12 weeks; 1 buy every week (Jivin Cheema). Top customers: Jivin Cheema ₹26,066, Ishita Bajwa ₹20,719, Eshani Anand ₹17,910. 5 regular(s) inactive for 3+ weeks (Badal Sanghvi, Tarini Walia, Damini Kapur). Returns: 0.",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-04T06:04:57.594Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "customer_insights"
+      },
+      {
+        "at": "2026-11-04T06:04:57.596Z",
+        "type": "SALES_TASK_STARTED",
+        "agent": "sales",
+        "detail": "Analyse named-customer purchase history"
+      },
+      {
+        "at": "2026-11-04T06:04:57.608Z",
+        "type": "VOICE_CONSULT",
+        "agent": "manager",
+        "detail": "Alice (Store Manager) asked by voice: customer_insights"
+      },
+      {
+        "at": "2026-11-04T06:05:06.902Z",
+        "type": "SALES_TASK_COMPLETED",
+        "agent": "sales",
+        "detail": "21 named customer(s) bought in the last 12 weeks."
+      },
+      {
+        "at": "2026-11-04T06:05:06.904Z",
+        "type": "MANAGER_TASK_STARTED",
+        "agent": "manager",
+        "detail": "Consolidate the result for the owner"
+      }
+    ],
+    "clarifications": null,
+    "id": "wf_mw1ppmyh9bfc6154",
+    "revision": 7,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw1ppmyh9bfc6154",
+        "role": "sales",
+        "agent_id": "nammaops-sales",
+        "agent_name": "Sales Agent",
+        "title": "Analyse named-customer purchase history",
+        "status": "completed",
+        "started_at": "2026-11-04T06:04:57.596Z",
+        "evidence": [
+          {
+            "business_capability": "erp.items.list",
+            "invocation_id": "inv_mw1ppmyr78d740ec19"
+          },
+          {
+            "business_capability": "erp.customers.list",
+            "invocation_id": "inv_mw1ppmyp3896209e7c"
+          },
+          {
+            "business_capability": "erp.sales_invoices.list",
+            "invocation_id": "inv_mw1ppmyl2b4a8b8643"
+          },
+          {
+            "business_capability": "erp.sales_invoices.list",
+            "invocation_id": "inv_mw1ppr0v9bdeca3f87"
+          },
+          {
+            "business_capability": "erp.sales_invoices.list",
+            "invocation_id": "inv_mw1ppthne22c9d466c"
+          }
+        ],
+        "summary": "21 named customer(s) bought in the last 12 weeks.",
+        "finished_at": "2026-11-04T06:05:06.901Z",
+        "id": "nt_mw1ppmyk2dedca14",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw1ppmyh9bfc6154",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-04T06:05:06.903Z",
+        "evidence": [],
+        "summary": "21 named customer(s) bought in 12 weeks; 1 buy every week (Jivin Cheema). Top customers: Jivin Cheema ₹26,066, Ishita Bajwa ₹20,719, Eshani Anand ₹17,910. 5 regular(s) inactive for 3+ weeks (Badal Sanghvi, Tarini Walia, Damini Kapur). Returns: 0.",
+        "finished_at": "2026-11-04T06:05:06.905Z",
+        "id": "nt_mw1ppu533d1bdeae",
+        "revision": 2
+      }
+    ]
+  }
+}

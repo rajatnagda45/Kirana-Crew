@@ -18,7 +18,6 @@ export const APP_VIEWS = [
   "credit",
   "stock-ledger",
   "analytics",
-  "gst",
   "reviews",
   "activity",
   "integrations",

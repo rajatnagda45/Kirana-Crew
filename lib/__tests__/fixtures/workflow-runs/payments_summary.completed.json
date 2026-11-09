@@ -1,0 +1,95 @@
+{
+  "workflow": {
+    "intent": { "action": "payments_summary" },
+    "command": null,
+    "status": "completed",
+    "created_at": "2026-11-09T06:47:22.635Z",
+    "finished_at": "2026-11-09T06:47:22.829Z",
+    "result": {
+      "kind": "payments_summary",
+      "period": { "from_date": "2026-11-01", "to_date": "2026-11-09", "days": 9 },
+      "received": 22620,
+      "paid": 0,
+      "net": 22620,
+      "payments": 16
+    },
+    "summary": "Payments from 2026-11-01 to 2026-11-09: ₹22,620 received and ₹0 paid out across 16 payment(s), net ₹22,620.",
+    "reasoning": { "mode": "off", "status": "off" },
+    "timeline": [
+      {
+        "at": "2026-11-09T06:47:22.635Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "payments_summary"
+      },
+      {
+        "at": "2026-11-09T06:47:22.647Z",
+        "type": "FINANCE_TASK_STARTED",
+        "agent": "finance",
+        "detail": "Read payments received and paid from 2026-11-01 to 2026-11-09"
+      },
+      {
+        "at": "2026-11-09T06:47:22.824Z",
+        "type": "FINANCE_TASK_COMPLETED",
+        "agent": "finance",
+        "detail": "Read payments received and paid from 2026-11-01 to 2026-11-09"
+      },
+      {
+        "at": "2026-11-09T06:47:22.826Z",
+        "type": "MANAGER_TASK_STARTED",
+        "agent": "manager",
+        "detail": "Consolidate the result for the owner"
+      },
+      {
+        "at": "2026-11-09T06:47:22.829Z",
+        "type": "MANAGER_TASK_COMPLETED",
+        "agent": "manager",
+        "detail": "Payments from 2026-11-01 to 2026-11-09: ₹22,620 received and ₹0 paid out across 16 payment(s), net ₹22,620."
+      },
+      {
+        "at": "2026-11-09T06:47:22.829Z",
+        "type": "WORKFLOW_COMPLETED",
+        "agent": "manager",
+        "detail": "Payments from 2026-11-01 to 2026-11-09: ₹22,620 received and ₹0 paid out across 16 payment(s), net ₹22,620."
+      }
+    ],
+    "clarifications": null,
+    "id": "wf_mw8wfg228e034507",
+    "revision": 6,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw8wfg228e034507",
+        "role": "finance",
+        "agent_id": "nammaops-finance",
+        "agent_name": "Finance Agent",
+        "title": "Read payments received and paid from 2026-11-01 to 2026-11-09",
+        "status": "completed",
+        "started_at": "2026-11-09T06:47:22.646Z",
+        "evidence": [
+          {
+            "business_capability": "erp.payments.summary",
+            "invocation_id": "inv_mw8wfg2g7f92da850a"
+          }
+        ],
+        "summary": null,
+        "finished_at": "2026-11-09T06:47:22.823Z",
+        "id": "nt_mw8wfg2d53d455cf",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw8wfg228e034507",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-09T06:47:22.825Z",
+        "evidence": [],
+        "summary": "Payments from 2026-11-01 to 2026-11-09: ₹22,620 received and ₹0 paid out across 16 payment(s), net ₹22,620.",
+        "finished_at": "2026-11-09T06:47:22.828Z",
+        "id": "nt_mw8wfg7df8272294",
+        "revision": 2
+      }
+    ]
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "billing_summary",
+      "date": "2026-11-03",
+      "to": "2026-11-03"
+    },
+    "command": null,
+    "origin": {
+      "channel": "voice",
+      "call_id": "dm_fa89c153-3c35-4c29-bd57-86470e89e0ff",
+      "voice_agent": "Frank",
+      "voice_department": "billing",
+      "voice_intent": "billing_summary"
+    },
+    "status": "completed",
+    "created_at": "2026-11-04T06:54:31.842Z",
+    "finished_at": "2026-11-04T06:54:33.353Z",
+    "result": {
+      "kind": "billing_summary",
+      "period": {
+        "from_date": "2026-11-03",
+        "to_date": "2026-11-03",
+        "days": 1
+      },
+      "bills": 5,
+      "total": 5091,
+      "average_bill": 1018.2,
+      "items_per_bill": 12.2,
+      "biggest": {
+        "name": "SINV-26-00494",
+        "customer": "Customer 16",
+        "amount": 1776
+      },
+      "pos_bills": 0,
+      "invoice_bills": 5,
+      "named_customer_bills": 3,
+      "walk_in_bills": 2,
+      "returns": {
+        "count": 0,
+        "amount": 0
+      },
+      "unpaid": {
+        "status": "available",
+        "bills": 3,
+        "amount": 3741
+      },
+      "notes": []
+    },
+    "summary": "5 bill(s) for 2026-11-03, total ₹5,091, average ₹1,018 with 12.2 item(s) a bill. Biggest bill SINV-26-00494 for Chirag Hans: ₹1,776. 0 counter (POS) and 5 invoice bill(s); 3 to named customers and 2 walk-in. 3 of these bill(s) are still unpaid: ₹3,741.",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-04T06:54:31.842Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "billing_summary"
+      },
+      {
+        "at": "2026-11-04T06:54:31.843Z",
+        "type": "BILLING_TASK_STARTED",
+        "agent": "billing",
+        "detail": "Read the bills raised on 2026-11-03"
+      },
+      {
+        "at": "2026-11-04T06:54:31.852Z",
+        "type": "VOICE_CONSULT",
+        "agent": "manager",
+        "detail": "Frank (Billing) asked by voice: billing_summary"
+      },
+      {
+        "at": "2026-11-04T06:54:33.350Z",
+        "type": "BILLING_TASK_COMPLETED",
+        "agent": "billing",
+        "detail": "Read the bills raised on 2026-11-03"
+      },
+      {
+        "at": "2026-11-04T06:54:33.351Z",
+        "type": "MANAGER_TASK_STARTED",
+        "agent": "manager",
+        "detail": "Consolidate the result for the owner"
+      }
+    ],
+    "clarifications": null,
+    "id": "wf_mw1rhdwi6e4d6dec",
+    "revision": 7,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw1rhdwi6e4d6dec",
+        "role": "billing",
+        "agent_id": "nammaops-billing",
+        "agent_name": "Billing Agent",
+        "title": "Read the bills raised on 2026-11-03",
+        "status": "completed",
+        "started_at": "2026-11-04T06:54:31.843Z",
+        "evidence": [
+          {
+            "business_capability": "erp.sales_invoices.list",
+            "invocation_id": "inv_mw1rhdwkf54ce1cb43"
+          },
+          {
+            "business_capability": "erp.pos_invoices.list",
+            "invocation_id": "inv_mw1rhdwo9b56f64842"
+          },
+          {
+            "business_capability": "erp.receivables.aging",
+            "invocation_id": "inv_mw1rhewo790b8d2fa3"
+          }
+        ],
+        "summary": null,
+        "finished_at": "2026-11-04T06:54:33.349Z",
+        "id": "nt_mw1rhdwjd0659ac2",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw1rhdwi6e4d6dec",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-04T06:54:33.351Z",
+        "evidence": [],
+        "summary": "5 bill(s) for 2026-11-03, total ₹5,091, average ₹1,018 with 12.2 item(s) a bill. Biggest bill SINV-26-00494 for Chirag Hans: ₹1,776. 0 counter (POS) and 5 invoice bill(s); 3 to named customers and 2 walk-in. 3 of these bill(s) are still unpaid: ₹3,741.",
+        "finished_at": "2026-11-04T06:54:33.352Z",
+        "id": "nt_mw1rhf2fb3443df7",
+        "revision": 2
+      }
+    ]
+  }
+}

@@ -31,7 +31,12 @@ import {
 } from "lucide-react";
 import { runtimeRequest, useStudio } from "@/lib/store";
 import { useVoice } from "@/lib/voice/VoiceProvider";
-import { useVoiceDictation } from "@/lib/hooks/useVoiceDictation";
+import {
+  DICTATION_LANGUAGES,
+  isDictationLanguage,
+  useVoiceDictation,
+  type DictationLanguage,
+} from "@/lib/hooks/useVoiceDictation";
 import { isVisibleChatMessage } from "@/lib/constants";
 import { mergeConversationMessages, OFFICE_GROUP, seatSessions } from "@/lib/conversations";
 import type { ChatMessage, SeatState, SessionRecord, TaskItem } from "@/types/game";
@@ -1020,6 +1025,8 @@ interface ComposerProps {
   convId: string;
   onSuggestion: (s: string) => void;
   showSuggestions: boolean;
+  dictationLanguage: DictationLanguage;
+  onDictationLanguage: (l: DictationLanguage) => void;
 }
 
 function MessageComposer({
@@ -1036,6 +1043,8 @@ function MessageComposer({
   convId,
   onSuggestion,
   showSuggestions,
+  dictationLanguage,
+  onDictationLanguage,
 }: ComposerProps) {
   const def = getCrewDef(convId);
   const textRef = useRef<HTMLTextAreaElement>(null);
@@ -1212,6 +1221,35 @@ function MessageComposer({
           }}
         />
         <div style={{ display: "flex", gap: "6px", flexShrink: 0, alignItems: "center" }}>
+          {/* Dictation language: Auto uses Gnani's indic-auto (Hindi/Hinglish/Kannada/English). */}
+          <select
+            aria-label="Dictation language"
+            value={dictationLanguage}
+            onChange={(e) => {
+              const next = e.target.value;
+              if (isDictationLanguage(next)) {
+                onDictationLanguage(next);
+                if (dictation.isListening) dictation.stop();
+              }
+            }}
+            title="Dictation language — Auto detects Hindi, Hinglish, Kannada and English"
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "8px",
+              color: "var(--kirana-muted-foreground, #9ca3af)",
+              fontSize: "10px",
+              padding: "4px 2px",
+              outline: "none",
+              cursor: "pointer",
+            }}
+          >
+            {DICTATION_LANGUAGES.map((entry) => (
+              <option key={entry.id} value={entry.id} style={{ background: "#0f1117" }}>
+                {entry.label}
+              </option>
+            ))}
+          </select>
           {/* Dictation error badge */}
           {dictation.error && !dictation.isListening && (
             <span
@@ -1334,7 +1372,23 @@ export default function ChatPage() {
 
   // Wire voice dictation (STT-only) for the chat composer.
   // This is separate from the Gemini voice call (VoiceProvider).
+  // Language starts "auto" on every render (SSR-safe) and adopts the saved choice after mount.
+  const [dictationLanguage, setDictationLanguage] = useState<DictationLanguage>("auto");
+  useEffect(() => {
+    const saved = window.localStorage.getItem("dictation.language");
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage does not exist during SSR; adopting it after mount keeps server and first client render identical
+    if (isDictationLanguage(saved)) setDictationLanguage(saved);
+  }, []);
+  const updateDictationLanguage = useCallback((next: DictationLanguage) => {
+    setDictationLanguage(next);
+    try {
+      window.localStorage.setItem("dictation.language", next);
+    } catch {
+      // private mode: the choice simply lasts for this page view
+    }
+  }, []);
   const dictation = useVoiceDictation({
+    language: dictationLanguage,
     onFinalTranscript: useCallback((text: string) => {
       setDraft((prev) => (prev.trim() ? `${prev} ${text}` : text));
     }, []),
@@ -1909,6 +1963,8 @@ export default function ChatPage() {
           convId={selectedConv}
           onSuggestion={handleSuggestion}
           showSuggestions={showSuggestions}
+          dictationLanguage={dictationLanguage}
+          onDictationLanguage={updateDictationLanguage}
         />
       </div>
 

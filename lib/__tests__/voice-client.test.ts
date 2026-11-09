@@ -323,6 +323,89 @@ describe("voice media lifecycle", () => {
     expect(JSON.stringify(reports)).not.toContain("secret");
   });
 
+  const lastReport = () =>
+    fetchToken.mock.calls
+      .filter(([url]) => url === "/api/runtime/voice/diagnostics")
+      .map(([, options]) => JSON.parse(options.body))
+      .at(-1);
+  const snapshot = (selection: { seatId: string; sessionKey: string; bindingRevision: number }) =>
+    ({
+      ...selection,
+      name: "Alice",
+      role: "Engineer",
+      status: "running",
+      gatewayConnected: true,
+      tasks: [],
+      conversation: [],
+    }) as VoiceAgentContext;
+
+  it("records why a 1008 close happened as labels only, never the provider's text", async () => {
+    const client = new GeminiVoiceClient(events());
+    const selection = { seatId: "alice", sessionKey: "s1", bindingRevision: 3 };
+    await client.start(selection);
+    callbacks.onmessage({ serverContent: { turnComplete: true } } as LiveServerMessage);
+    client.updateContext(snapshot(selection));
+    await vi.advanceTimersByTimeAsync(1500); // idle: the snapshot is pushed
+    await vi.advanceTimersByTimeAsync(3000);
+    callbacks.onclose({
+      code: 1008,
+      reason: "Operation is not implemented, or supported, or enabled. key=secret-token",
+    });
+    await vi.advanceTimersByTimeAsync(0);
+    const report = lastReport();
+    expect(report.status).toBe("error");
+    expect(report.diagnostic).toMatchObject({
+      code: "session_closed",
+      closeCode: 1008,
+      reasonKind: "not_supported",
+      contextPushes: 1,
+      toolPending: false,
+    });
+    expect(["audio", "context"]).toContain(report.diagnostic.lastSent);
+    expect(JSON.stringify(report)).not.toMatch(/secret|Operation is not implemented/);
+  });
+
+  it("reports Gemini's go-away notice and the 10-minute limit as normal endings, not errors", async () => {
+    const goAway = new GeminiVoiceClient(events());
+    await goAway.start();
+    callbacks.onmessage({ goAway: { timeLeft: "5s" } } as LiveServerMessage);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(lastReport()).toMatchObject({
+      status: "ended",
+      diagnostic: { code: "session_closed", reasonKind: "go_away" },
+    });
+
+    const limited = new GeminiVoiceClient(events());
+    await limited.start();
+    await vi.advanceTimersByTimeAsync(600_000);
+    expect(lastReport()).toMatchObject({ status: "ended", diagnostic: { code: "call_limit" } });
+  });
+
+  it("still reports a real fault (a dropped socket) as an error", async () => {
+    const client = new GeminiVoiceClient(events());
+    await client.start();
+    callbacks.onclose({ code: 1006 });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(lastReport()).toMatchObject({ status: "error", diagnostic: { code: "session_closed" } });
+  });
+
+  it("never pushes a mid-call context snapshot when NEXT_PUBLIC_VOICE_CONTEXT_PUSH is off", async () => {
+    vi.resetModules();
+    vi.stubEnv("NEXT_PUBLIC_VOICE_CONTEXT_PUSH", "off");
+    const { GeminiVoiceClient: PullOnly } = await import("../voice/client");
+    const client = new PullOnly(events());
+    const selection = { seatId: "alice", sessionKey: "s1", bindingRevision: 3 };
+    await client.start(selection);
+    callbacks.onmessage({ serverContent: { turnComplete: true } } as LiveServerMessage);
+    sendContent.mockClear();
+    client.updateContext(snapshot(selection));
+    client.updateContext({ ...snapshot(selection), status: "idle" });
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(sendContent).not.toHaveBeenCalled();
+    client.close();
+    vi.unstubAllEnvs();
+  });
+
   it("notifies the UI when usage cannot be saved while allowing the call to continue", async () => {
     const telemetryError = vi.fn();
     fetchToken.mockImplementation(async (url) =>

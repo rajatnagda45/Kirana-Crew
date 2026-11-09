@@ -12,6 +12,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { fetchNammaOps, type WorkflowView, useNammaOpsApprovals } from "@/lib/hooks/useNammaOps";
+import { isActiveStatus, statusInfo } from "@/lib/workflow-contract";
 import { DashboardView } from "@/components/dashboard/kit";
 import { toast } from "sonner";
 
@@ -107,12 +108,15 @@ function WorkflowRunner({
         const d = await fetchNammaOps<{ workflow: WorkflowView }>(
           `/workflows/${encodeURIComponent(wfId)}`,
         );
-        if (["completed", "failed", "stopped", "interrupted"].includes(d.workflow.status)) {
-          const res_ = d.workflow.result as Record<string, unknown> | undefined;
+        // Anything that is not still executing has finished or is waiting on the owner. (Waiting only
+        // for completed/failed made a partial, blocked or clarification run look like a time-out.)
+        if (!isActiveStatus(d.workflow.status)) {
+          const res_ = (d.workflow.result ?? undefined) as Record<string, unknown> | undefined;
           setResult({ id: wfId, status: d.workflow.status, result: res_, error: d.workflow.error });
           setOpen(true);
-          if (d.workflow.status === "failed") toast.error(`${label} failed`);
-          else toast.success(`${label} completed`);
+          if (["completed", "partial"].includes(d.workflow.status))
+            toast.success(`${label} completed`);
+          else toast.error(`${label}: ${statusInfo(d.workflow.status).label.toLowerCase()}`);
           break;
         }
         if (i === 59) {

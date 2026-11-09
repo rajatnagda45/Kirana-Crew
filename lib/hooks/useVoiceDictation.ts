@@ -47,11 +47,40 @@ type SpeechRecognitionWindow = Window & {
 export type DictationStatus =
   "idle" | "listening" | "processing" | "error" | "unsupported" | "denied";
 
+export type DictationLanguage = "auto" | "en-IN" | "hi-IN" | "kn-IN";
+
+/** Composer language picker order mirrors the demo languages: Hindi/Hinglish, Kannada, English. */
+export const DICTATION_LANGUAGES: ReadonlyArray<{ id: DictationLanguage; label: string }> = [
+  { id: "auto", label: "Auto" },
+  { id: "en-IN", label: "English" },
+  { id: "hi-IN", label: "हिन्दी" },
+  { id: "kn-IN", label: "ಕನ್ನಡ" },
+];
+
+const DICTATION_LANGUAGE_IDS = new Set(DICTATION_LANGUAGES.map((entry) => entry.id));
+
+/** True when the string is one of the composer's language ids (localStorage input). */
+export function isDictationLanguage(value: unknown): value is DictationLanguage {
+  return typeof value === "string" && DICTATION_LANGUAGE_IDS.has(value as DictationLanguage);
+}
+
+/** Code sent to the server speech-to-text: `auto` means Gnani's Indic auto-detection, which
+ * also accepts mixed Hindi–English (Hinglish) speech. */
+export function sttLanguageCode(language: DictationLanguage): string {
+  return language === "auto" ? "indic-auto" : language;
+}
+
+/** The Web Speech API has no auto-detect, so `auto` falls back to English for the browser
+ * recogniser only (server speech-to-text still runs with real detection). */
+export function webSpeechLanguage(language: DictationLanguage): string {
+  return language === "auto" ? "en-IN" : language;
+}
+
 interface UseDictationOptions {
   /** Called when recognition delivers a confirmed final transcript segment. */
   onFinalTranscript: (text: string) => void;
-  /** BCP-47 language tag — defaults to "en-IN" for Indian kirana context. */
-  lang?: string;
+  /** Composer language: `auto` lets the server detect Hindi/Hinglish/Kannada/English. */
+  language?: DictationLanguage;
 }
 
 /**
@@ -63,10 +92,14 @@ interface UseDictationOptions {
  * (VoiceProvider / GeminiVoiceClient) which drives the Live Store assistant.
  */
 /** Browser Web Speech dictation: last-resort fallback when no server speech-to-text is configured. */
-function useBrowserDictation({ onFinalTranscript, lang = "en-IN" }: UseDictationOptions) {
+function useBrowserDictation({ onFinalTranscript, language = "auto" }: UseDictationOptions) {
   const [status, setStatus] = useState<DictationStatus>("idle");
   const [interimTranscript, setInterimTranscript] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // Two-pass render: "supported" reads window APIs, which do not exist on the server. Starting
+  // false on BOTH sides keeps server and first client render identical (no hydration mismatch);
+  // the real answer is set right after mount.
+  const [supported, setSupported] = useState(false);
 
   const recRef = useRef<SpeechRecognitionInstance | null>(null);
   const finalCb = useRef(onFinalTranscript);
@@ -75,10 +108,14 @@ function useBrowserDictation({ onFinalTranscript, lang = "en-IN" }: UseDictation
     finalCb.current = onFinalTranscript;
   });
 
-  const supported =
-    typeof window !== "undefined" &&
-    (!!(window as SpeechRecognitionWindow).SpeechRecognition ||
-      !!(window as SpeechRecognitionWindow).webkitSpeechRecognition);
+  useEffect(() => {
+    if (typeof window !== "undefined")
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- browser-only input (server has none); the value is only knowable after mount, which is what keeps SSR and hydration identical
+      setSupported(
+        !!(window as SpeechRecognitionWindow).SpeechRecognition ||
+          !!(window as SpeechRecognitionWindow).webkitSpeechRecognition,
+      );
+  }, []);
 
   const stop = useCallback(() => {
     const rec = recRef.current;
@@ -116,7 +153,7 @@ function useBrowserDictation({ onFinalTranscript, lang = "en-IN" }: UseDictation
     const rec = new SpeechAPI();
     rec.continuous = false;
     rec.interimResults = true;
-    rec.lang = lang;
+    rec.lang = webSpeechLanguage(language);
     recRef.current = rec;
 
     rec.onstart = () => {
@@ -186,7 +223,7 @@ function useBrowserDictation({ onFinalTranscript, lang = "en-IN" }: UseDictation
       setStatus("error");
       setError("Could not start voice input.");
     }
-  }, [supported, stop, lang]);
+  }, [supported, stop, language]);
 
   // Cleanup on unmount
   useEffect(() => () => stop(), [stop]);
@@ -208,8 +245,8 @@ function useBrowserDictation({ onFinalTranscript, lang = "en-IN" }: UseDictation
  * has no speech-to-text configured, it falls back to the browser's Web Speech recogniser. The
  * transcript is placed in the composer; nothing is sent automatically.
  */
-export function useVoiceDictation({ onFinalTranscript, lang = "en-IN" }: UseDictationOptions) {
-  const browser = useBrowserDictation({ onFinalTranscript, lang });
+export function useVoiceDictation({ onFinalTranscript, language = "auto" }: UseDictationOptions) {
+  const browser = useBrowserDictation({ onFinalTranscript, language });
   const [engine, setEngine] = useState<"gnani" | "browser">("gnani");
   const [status, setStatus] = useState<DictationStatus>("idle");
   const [error, setError] = useState<string | null>(null);
@@ -220,7 +257,14 @@ export function useVoiceDictation({ onFinalTranscript, lang = "en-IN" }: UseDict
     finalCb.current = onFinalTranscript;
   });
 
-  const micAvailable = typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia;
+  // Two-pass render, same as `supported` above: navigator does not exist on the server, so the
+  // first render (client and server alike) says "no mic" and the mount effect corrects it.
+  const [micAvailable, setMicAvailable] = useState(false);
+  useEffect(() => {
+    if (typeof navigator !== "undefined")
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- same as `supported` above: navigator does not exist on the server
+      setMicAvailable(!!navigator.mediaDevices?.getUserMedia);
+  }, []);
   const useBrowser = engine === "browser" || !micAvailable;
 
   const stop = useCallback(async () => {
@@ -233,7 +277,9 @@ export function useVoiceDictation({ onFinalTranscript, lang = "en-IN" }: UseDict
       const audio = await current.stop();
       const form = new FormData();
       form.set("audio", audio, "speech.wav");
-      form.set("language", lang);
+      // "auto" maps to Gnani's `indic-auto`: its own Indic language detection, which also
+      // handles Hindi–English mixtures. Explicit codes (en-IN/hi-IN/kn-IN) pass through.
+      form.set("language", sttLanguageCode(language));
       const res = await fetch("/api/tasks/voice/transcribe", { method: "POST", body: form });
       const body = await res.json().catch(() => ({}));
       if (res.status === 503) {
@@ -258,7 +304,7 @@ export function useVoiceDictation({ onFinalTranscript, lang = "en-IN" }: UseDict
       setStatus("error");
       setError(e instanceof Error ? e.message : "Voice input failed.");
     }
-  }, [useBrowser, browser, lang]);
+  }, [useBrowser, browser, language]);
 
   const start = useCallback(async () => {
     if (useBrowser) return browser.start();

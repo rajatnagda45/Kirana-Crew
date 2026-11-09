@@ -1,0 +1,220 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "store_health_report"
+    },
+    "command": null,
+    "status": "partial",
+    "created_at": "2026-11-08T11:46:03.779Z",
+    "finished_at": "2026-11-08T11:46:16.906Z",
+    "result": {
+      "kind": "store_health_report",
+      "as_of": "2026-11-08",
+      "problems": [
+        {
+          "area": "finance",
+          "severity": 3,
+          "title": "Udhaar overdue more than 30 days",
+          "detail": "10 customer(s) owe 21655.14.",
+          "impact": 21655.14
+        },
+        {
+          "area": "inventory",
+          "severity": 3,
+          "title": "1 item(s) out of stock",
+          "detail": "Millet Flakes 500g",
+          "impact": 0
+        },
+        {
+          "area": "sales",
+          "severity": 2,
+          "title": "Sales dropped yesterday",
+          "detail": "0 vs average 2937.67 (100% lower).",
+          "impact": 2937.67
+        },
+        {
+          "area": "inventory",
+          "severity": 2,
+          "title": "5 item(s) at or below reorder level",
+          "detail": "Coconut Hair Oil 200ml (4), Coriander Powder 200g (2), Kabuli Chana 1kg (5), Urad Dal 1kg (4), Millet Flakes 500g (0)",
+          "impact": 0
+        },
+        {
+          "area": "procurement",
+          "severity": 2,
+          "title": "Late supplier deliveries",
+          "detail": "Kaveri Household Goods: NK-SOAP-100 5 day(s) late; Hubli Snacks and Beverages: NK-CHIPS-50 5 day(s) late; Bengaluru Wholesale Traders: NK-SUGAR-1KG 5 day(s) late; Bengaluru Wholesale Traders: NK-ATTA-5KG 5 day(s) late",
+          "impact": 0
+        }
+      ],
+      "all_problems": 5,
+      "unchecked": [
+        {
+          "area": "expiry",
+          "reason": "No batch-tracked stock was returned by ERP."
+        }
+      ],
+      "snapshot": {
+        "sales_yesterday": 0,
+        "sales_average": 2937.67,
+        "low_stock": 5,
+        "out_of_stock": 1,
+        "udhaar": 49509.38,
+        "net_profit_7_days": 39542,
+        "late_deliveries": 4
+      }
+    },
+    "summary": "Top 5 problem(s): 1. Udhaar overdue more than 30 days — 10 customer(s) owe 21655.14. 2. 1 item(s) out of stock — Millet Flakes 500g 3. Sales dropped yesterday — 0 vs average 2937.67 (100% lower). 4. 5 item(s) at or below reorder level — Coconut Hair Oil 200ml (4), Coriander Powder 200g (2), Kabuli Chana 1kg (5), Urad Dal 1kg (4), Millet Flakes 500g (0) 5. Late supplier deliveries — Kaveri Household Goods: NK-SOAP-100 5 day(s) late; Hubli Snacks and Beverages: NK-CHIPS-50 5 day(s) late; Bengaluru Wholesale Traders: NK-SUGAR-1KG 5 day(s) late; Bengaluru Wholesale Traders: NK-ATTA-5KG 5 day(s) late Not checked: expiry.",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-08T11:46:03.779Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "store_health_report"
+      },
+      {
+        "at": "2026-11-08T11:46:03.783Z",
+        "type": "SALES_TASK_STARTED",
+        "agent": "sales",
+        "detail": "Compare yesterday's sales with the past week"
+      },
+      {
+        "at": "2026-11-08T11:46:03.804Z",
+        "type": "INVENTORY_TASK_STARTED",
+        "agent": "inventory",
+        "detail": "Check low stock and near expiry"
+      },
+      {
+        "at": "2026-11-08T11:46:03.818Z",
+        "type": "FINANCE_TASK_STARTED",
+        "agent": "finance",
+        "detail": "Check udhaar and the past week's profit"
+      },
+      {
+        "at": "2026-11-08T11:46:03.824Z",
+        "type": "PROCUREMENT_TASK_STARTED",
+        "agent": "procurement",
+        "detail": "Check supplier deliveries"
+      }
+    ],
+    "clarifications": null,
+    "id": "wf_mw7rnpfm5e9f9196",
+    "revision": 12,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw7rnpfm5e9f9196",
+        "role": "sales",
+        "agent_id": "nammaops-sales",
+        "agent_name": "Sales Agent",
+        "title": "Compare yesterday's sales with the past week",
+        "status": "completed",
+        "started_at": "2026-11-08T11:46:03.782Z",
+        "evidence": [
+          {
+            "business_capability": "erp.sales_invoices.list",
+            "invocation_id": "inv_mw7rnpft74bfb378e3"
+          },
+          {
+            "business_capability": "erp.pos_invoices.list",
+            "invocation_id": "inv_mw7rnsk7ec8f132ef0"
+          }
+        ],
+        "summary": "Yesterday 0 vs 6-day average 2937.67.",
+        "finished_at": "2026-11-08T11:46:07.929Z",
+        "id": "nt_mw7rnpfqb0d9de68",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw7rnpfm5e9f9196",
+        "role": "inventory",
+        "agent_id": "nammaops-inventory",
+        "agent_name": "Inventory Agent",
+        "title": "Check low stock and near expiry",
+        "status": "completed",
+        "started_at": "2026-11-08T11:46:03.802Z",
+        "evidence": [
+          {
+            "business_capability": "erp.stock.balance",
+            "invocation_id": "inv_mw7rnpgg67d865e392"
+          },
+          {
+            "business_capability": "erp.batches.list",
+            "invocation_id": "inv_mw7rnpgm9bd2f95afa"
+          },
+          {
+            "business_capability": "erp.items.list",
+            "invocation_id": "inv_mw7rnpgd4530af7f53"
+          },
+          {
+            "business_capability": "erp.items.valuation",
+            "invocation_id": "inv_mw7rnpgjb9de53147f"
+          }
+        ],
+        "summary": "5 low, 1 out of stock; 0 batch(es) expired or expiring within 7 days.",
+        "finished_at": "2026-11-08T11:46:16.899Z",
+        "id": "nt_mw7rnpgaf28b4e0e",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw7rnpfm5e9f9196",
+        "role": "finance",
+        "agent_id": "nammaops-finance",
+        "agent_name": "Finance Agent",
+        "title": "Check udhaar and the past week's profit",
+        "status": "completed",
+        "started_at": "2026-11-08T11:46:03.817Z",
+        "evidence": [
+          {
+            "business_capability": "erp.receivables.aging",
+            "invocation_id": "inv_mw7rnpgsc60f170a62"
+          },
+          {
+            "business_capability": "erp.pnl",
+            "invocation_id": "inv_mw7rntvrc62c71a966"
+          }
+        ],
+        "summary": "Udhaar 49509.38; 21655.14 overdue >30 days.",
+        "finished_at": "2026-11-08T11:46:09.673Z",
+        "id": "nt_mw7rnpgp9a24a066",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw7rnpfm5e9f9196",
+        "role": "procurement",
+        "agent_id": "nammaops-procurement",
+        "agent_name": "Procurement Agent",
+        "title": "Check supplier deliveries",
+        "status": "completed",
+        "started_at": "2026-11-08T11:46:03.823Z",
+        "evidence": [
+          {
+            "business_capability": "erp.po.open",
+            "invocation_id": "inv_mw7rnpgxed68dddc4e"
+          }
+        ],
+        "summary": "4 purchase order line(s) delivered late.",
+        "finished_at": "2026-11-08T11:46:05.581Z",
+        "id": "nt_mw7rnpgud2c6da14",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw7rnpfm5e9f9196",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-08T11:46:16.901Z",
+        "evidence": [],
+        "summary": "Top 5 problem(s): 1. Udhaar overdue more than 30 days — 10 customer(s) owe 21655.14. 2. 1 item(s) out of stock — Millet Flakes 500g 3. Sales dropped yesterday — 0 vs average 2937.67 (100% lower). 4. 5 item(s) at or below reorder level — Coconut Hair Oil 200ml (4), Coriander Powder 200g (2), Kabuli Chana 1kg (5), Urad Dal 1kg (4), Millet Flakes 500g (0) 5. Late supplier deliveries — Kaveri Household Goods: NK-SOAP-100 5 day(s) late; Hubli Snacks and Beverages: NK-CHIPS-50 5 day(s) late; Bengaluru Wholesale Traders: NK-SUGAR-1KG 5 day(s) late; Bengaluru Wholesale Traders: NK-ATTA-5KG 5 day(s) late Not checked: expiry.",
+        "finished_at": "2026-11-08T11:46:16.904Z",
+        "id": "nt_mw7rnzk5ec54fc4c",
+        "revision": 2
+      }
+    ]
+  }
+}

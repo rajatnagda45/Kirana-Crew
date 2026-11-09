@@ -571,7 +571,7 @@ export default function OverviewPage({ onNavigate }: { onNavigate?: (view: strin
                           ? "✗ Failed"
                           : wf.status}
                     </p>
-                    {wf.completedAt && (
+                    {wf.finished_at && (
                       <p
                         style={{
                           fontSize: 10,
@@ -579,7 +579,7 @@ export default function OverviewPage({ onNavigate }: { onNavigate?: (view: strin
                           margin: "2px 0 0",
                         }}
                       >
-                        {new Date(wf.completedAt).toLocaleTimeString()}
+                        {new Date(wf.finished_at).toLocaleTimeString()}
                       </p>
                     )}
                   </div>

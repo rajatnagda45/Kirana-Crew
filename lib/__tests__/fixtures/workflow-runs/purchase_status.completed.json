@@ -1,0 +1,248 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "purchase_status"
+    },
+    "command": null,
+    "origin": {
+      "channel": "voice",
+      "call_id": "voice_abf7812e-d9d6-4c43-979d-d5c6849efa28",
+      "voice_agent": "Alice",
+      "voice_department": "manager",
+      "voice_intent": "purchase_status"
+    },
+    "status": "completed",
+    "created_at": "2026-11-04T08:19:21.252Z",
+    "finished_at": "2026-11-04T08:19:25.499Z",
+    "result": {
+      "kind": "purchase_status",
+      "as_of": "2026-11-04",
+      "open_orders": 4,
+      "lines": [
+        {
+          "purchase_order": "PUR-ORD-2026-00004",
+          "supplier": "Supplier 6",
+          "item_code": "NK-SOAP-100",
+          "ordered_qty": 60,
+          "received_qty": 0,
+          "pending_qty": 60,
+          "expected": "2026-11-03",
+          "days_late": 1,
+          "rate": 28,
+          "item_name": "Bath Soap 100g"
+        },
+        {
+          "purchase_order": "PUR-ORD-2026-00003",
+          "supplier": "Supplier 7",
+          "item_code": "NK-CHIPS-50",
+          "ordered_qty": 120,
+          "received_qty": 0,
+          "pending_qty": 120,
+          "expected": "2026-11-03",
+          "days_late": 1,
+          "rate": 16,
+          "item_name": "Potato Chips 50g"
+        },
+        {
+          "purchase_order": "PUR-ORD-2026-00002",
+          "supplier": "Supplier 8",
+          "item_code": "NK-SUGAR-1KG",
+          "ordered_qty": 60,
+          "received_qty": 0,
+          "pending_qty": 60,
+          "expected": "2026-11-03",
+          "days_late": 1,
+          "rate": 42,
+          "item_name": "Sugar 1kg"
+        },
+        {
+          "purchase_order": "PUR-ORD-2026-00001",
+          "supplier": "Supplier 8",
+          "item_code": "NK-ATTA-5KG",
+          "ordered_qty": 40,
+          "received_qty": 0,
+          "pending_qty": 40,
+          "expected": "2026-11-03",
+          "days_late": 1,
+          "rate": 230,
+          "item_name": "Wheat Atta 5kg"
+        }
+      ],
+      "delayed": [
+        {
+          "purchase_order": "PUR-ORD-2026-00004",
+          "supplier": "Supplier 6",
+          "item_code": "NK-SOAP-100",
+          "ordered_qty": 60,
+          "received_qty": 0,
+          "pending_qty": 60,
+          "expected": "2026-11-03",
+          "days_late": 1,
+          "rate": 28,
+          "item_name": "Bath Soap 100g"
+        },
+        {
+          "purchase_order": "PUR-ORD-2026-00003",
+          "supplier": "Supplier 7",
+          "item_code": "NK-CHIPS-50",
+          "ordered_qty": 120,
+          "received_qty": 0,
+          "pending_qty": 120,
+          "expected": "2026-11-03",
+          "days_late": 1,
+          "rate": 16,
+          "item_name": "Potato Chips 50g"
+        },
+        {
+          "purchase_order": "PUR-ORD-2026-00002",
+          "supplier": "Supplier 8",
+          "item_code": "NK-SUGAR-1KG",
+          "ordered_qty": 60,
+          "received_qty": 0,
+          "pending_qty": 60,
+          "expected": "2026-11-03",
+          "days_late": 1,
+          "rate": 42,
+          "item_name": "Sugar 1kg"
+        },
+        {
+          "purchase_order": "PUR-ORD-2026-00001",
+          "supplier": "Supplier 8",
+          "item_code": "NK-ATTA-5KG",
+          "ordered_qty": 40,
+          "received_qty": 0,
+          "pending_qty": 40,
+          "expected": "2026-11-03",
+          "days_late": 1,
+          "rate": 230,
+          "item_name": "Wheat Atta 5kg"
+        }
+      ],
+      "partially_received": 0,
+      "payables": {
+        "total": 1085260,
+        "overdue": 1085260,
+        "bills": [
+          {
+            "bill": "PINV-26-00039",
+            "supplier": "Supplier 9",
+            "due_date": "2026-10-07",
+            "outstanding": 2970,
+            "days_overdue": 28
+          },
+          {
+            "bill": "PINV-26-00038",
+            "supplier": "Supplier 6",
+            "due_date": "2026-10-01",
+            "outstanding": 14025,
+            "days_overdue": 34
+          },
+          {
+            "bill": "PINV-26-00037",
+            "supplier": "Supplier 7",
+            "due_date": "2026-10-01",
+            "outstanding": 24750,
+            "days_overdue": 34
+          },
+          {
+            "bill": "PINV-26-00036",
+            "supplier": "Supplier 9",
+            "due_date": "2026-10-01",
+            "outstanding": 13860,
+            "days_overdue": 34
+          },
+          {
+            "bill": "PINV-26-00035",
+            "supplier": "Supplier 8",
+            "due_date": "2026-09-30",
+            "outstanding": 31625,
+            "days_overdue": 35
+          }
+        ]
+      }
+    },
+    "summary": "4 open purchase order(s); 4 line(s) late (Kaveri Household Goods: Bath Soap 100g 1 days; Hubli Snacks and Beverages: Potato Chips 50g 1 days; Bengaluru Wholesale Traders: Sugar 1kg 1 days); 0 partly received. Supplier bills unpaid ₹10,85,260, ₹10,85,260 overdue.",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-04T08:19:21.252Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "purchase_status"
+      },
+      {
+        "at": "2026-11-04T08:19:21.254Z",
+        "type": "PROCUREMENT_TASK_STARTED",
+        "agent": "procurement",
+        "detail": "Track open purchase orders, deliveries and supplier bills"
+      },
+      {
+        "at": "2026-11-04T08:19:21.316Z",
+        "type": "VOICE_CONSULT",
+        "agent": "manager",
+        "detail": "Alice (Store Manager) asked by voice: purchase_status"
+      },
+      {
+        "at": "2026-11-04T08:19:25.494Z",
+        "type": "PROCUREMENT_TASK_COMPLETED",
+        "agent": "procurement",
+        "detail": "4 open purchase order(s), 4 late line(s); 39 unpaid supplier bill(s)."
+      },
+      {
+        "at": "2026-11-04T08:19:25.496Z",
+        "type": "MANAGER_TASK_STARTED",
+        "agent": "manager",
+        "detail": "Consolidate the result for the owner"
+      }
+    ],
+    "clarifications": null,
+    "id": "wf_mw1uigwz0fbe369d",
+    "revision": 7,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw1uigwz0fbe369d",
+        "role": "procurement",
+        "agent_id": "nammaops-procurement",
+        "agent_name": "Procurement Agent",
+        "title": "Track open purchase orders, deliveries and supplier bills",
+        "status": "completed",
+        "started_at": "2026-11-04T08:19:21.253Z",
+        "evidence": [
+          {
+            "business_capability": "erp.payables.aging",
+            "invocation_id": "inv_mw1uigy3da3e09b98e"
+          },
+          {
+            "business_capability": "erp.po.open",
+            "invocation_id": "inv_mw1uigx37f5399816c"
+          },
+          {
+            "business_capability": "erp.items.list",
+            "invocation_id": "inv_mw1uigy695f84e2287"
+          }
+        ],
+        "summary": "4 open purchase order(s), 4 late line(s); 39 unpaid supplier bill(s).",
+        "finished_at": "2026-11-04T08:19:25.494Z",
+        "id": "nt_mw1uigx1f04ff26d",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw1uigwz0fbe369d",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-04T08:19:25.495Z",
+        "evidence": [],
+        "summary": "4 open purchase order(s); 4 line(s) late (Kaveri Household Goods: Bath Soap 100g 1 days; Hubli Snacks and Beverages: Potato Chips 50g 1 days; Bengaluru Wholesale Traders: Sugar 1kg 1 days); 0 partly received. Supplier bills unpaid ₹10,85,260, ₹10,85,260 overdue.",
+        "finished_at": "2026-11-04T08:19:25.497Z",
+        "id": "nt_mw1uik6v04ba3980",
+        "revision": 2
+      }
+    ]
+  }
+}

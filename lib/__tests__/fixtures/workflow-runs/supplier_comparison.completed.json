@@ -1,0 +1,228 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "supplier_comparison",
+      "products": ["Atta", "Rice", "Sugar"]
+    },
+    "command": null,
+    "status": "completed",
+    "created_at": "2026-11-09T04:53:15.698Z",
+    "finished_at": "2026-11-09T04:53:15.898Z",
+    "result": {
+      "kind": "supplier_comparison",
+      "as_of": "2026-11-09",
+      "items": [
+        {
+          "item_name": "Wheat Atta 5kg",
+          "qty_basis": "reorder_quantity",
+          "list_price": {
+            "rate": 230,
+            "price_list": "Standard Buying"
+          },
+          "item_code": "NK-ATTA-5KG",
+          "qty": 28,
+          "choice": {
+            "supplier": "Supplier 8",
+            "quotation": "PUR-SQTN-2026-00007",
+            "rate": 222,
+            "available_qty": null,
+            "lead_time_days": 1,
+            "on_time_rate": null,
+            "suitable": true,
+            "not_suitable_because": [],
+            "missing": ["availability", "delivery reliability"]
+          },
+          "considered": [
+            {
+              "supplier": "Supplier 8",
+              "quotation": "PUR-SQTN-2026-00007",
+              "rate": 222,
+              "available_qty": null,
+              "lead_time_days": 1,
+              "on_time_rate": null,
+              "suitable": true,
+              "not_suitable_because": [],
+              "missing": ["availability", "delivery reliability"]
+            }
+          ],
+          "criteria": "Suitable = can supply the quantity and quotation still valid; then lowest rate, shortest lead time, best on-time rate.",
+          "blocker": null
+        },
+        {
+          "item_name": "Sona Masoori Rice 5kg",
+          "qty_basis": "reorder_quantity",
+          "list_price": {
+            "rate": 340,
+            "price_list": "Standard Buying"
+          },
+          "item_code": "NK-RICE-5KG",
+          "qty": 28,
+          "choice": {
+            "supplier": "Supplier 9",
+            "quotation": "PUR-SQTN-2026-00006",
+            "rate": 333,
+            "available_qty": null,
+            "lead_time_days": 3,
+            "on_time_rate": null,
+            "suitable": true,
+            "not_suitable_because": [],
+            "missing": ["availability", "delivery reliability"]
+          },
+          "considered": [
+            {
+              "supplier": "Supplier 9",
+              "quotation": "PUR-SQTN-2026-00006",
+              "rate": 333,
+              "available_qty": null,
+              "lead_time_days": 3,
+              "on_time_rate": null,
+              "suitable": true,
+              "not_suitable_because": [],
+              "missing": ["availability", "delivery reliability"]
+            }
+          ],
+          "criteria": "Suitable = can supply the quantity and quotation still valid; then lowest rate, shortest lead time, best on-time rate.",
+          "blocker": null
+        },
+        {
+          "item_name": "Sugar 1kg",
+          "qty_basis": "reorder_quantity",
+          "list_price": {
+            "rate": 42,
+            "price_list": "Standard Buying"
+          },
+          "item_code": "NK-SUGAR-1KG",
+          "qty": 42,
+          "choice": {
+            "supplier": "Supplier 8",
+            "quotation": "PUR-SQTN-2026-00009",
+            "rate": 42,
+            "available_qty": null,
+            "lead_time_days": 1,
+            "on_time_rate": null,
+            "suitable": true,
+            "not_suitable_because": [],
+            "missing": ["availability", "delivery reliability"]
+          },
+          "considered": [
+            {
+              "supplier": "Supplier 8",
+              "quotation": "PUR-SQTN-2026-00009",
+              "rate": 42,
+              "available_qty": null,
+              "lead_time_days": 1,
+              "on_time_rate": null,
+              "suitable": true,
+              "not_suitable_because": [],
+              "missing": ["availability", "delivery reliability"]
+            }
+          ],
+          "criteria": "Suitable = can supply the quantity and quotation still valid; then lowest rate, shortest lead time, best on-time rate.",
+          "blocker": null
+        }
+      ]
+    },
+    "summary": "Wheat Atta 5kg: best quotation Bengaluru Wholesale Traders at 222 (1-day lead time) for 28; 1 quotation(s) compared. Sona Masoori Rice 5kg: best quotation Mysuru Agro Supplies at 333 (3-day lead time) for 28; 1 quotation(s) compared. Sugar 1kg: best quotation Bengaluru Wholesale Traders at 42 (1-day lead time) for 42; 1 quotation(s) compared.",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-09T04:53:15.698Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "supplier_comparison"
+      },
+      {
+        "at": "2026-11-09T04:53:15.710Z",
+        "type": "INVENTORY_TASK_STARTED",
+        "agent": "inventory",
+        "detail": "Identify the products to compare"
+      },
+      {
+        "at": "2026-11-09T04:53:15.722Z",
+        "type": "INVENTORY_TASK_COMPLETED",
+        "agent": "inventory",
+        "detail": "3 product(s) identified."
+      },
+      {
+        "at": "2026-11-09T04:53:15.724Z",
+        "type": "PROCUREMENT_TASK_STARTED",
+        "agent": "procurement",
+        "detail": "Compare supplier quotations"
+      },
+      {
+        "at": "2026-11-09T04:53:15.894Z",
+        "type": "PROCUREMENT_TASK_COMPLETED",
+        "agent": "procurement",
+        "detail": "3 of 3 product(s) have a suitable quotation."
+      }
+    ],
+    "clarifications": null,
+    "id": "wf_mw8scoxe9ccc9509",
+    "revision": 8,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw8scoxe9ccc9509",
+        "role": "inventory",
+        "agent_id": "nammaops-inventory",
+        "agent_name": "Inventory Agent",
+        "title": "Identify the products to compare",
+        "status": "completed",
+        "started_at": "2026-11-09T04:53:15.709Z",
+        "evidence": [
+          {
+            "business_capability": "erp.items.list",
+            "invocation_id": "inv_mw8scoxrcafa996fb8"
+          }
+        ],
+        "summary": "3 product(s) identified.",
+        "finished_at": "2026-11-09T04:53:15.721Z",
+        "id": "nt_mw8scoxpd68abd63",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw8scoxe9ccc9509",
+        "role": "procurement",
+        "agent_id": "nammaops-procurement",
+        "agent_name": "Procurement Agent",
+        "title": "Compare supplier quotations",
+        "status": "completed",
+        "started_at": "2026-11-09T04:53:15.723Z",
+        "evidence": [
+          {
+            "business_capability": "erp.suppliers.list",
+            "invocation_id": "inv_mw8scoy5cb8eed473b"
+          },
+          {
+            "business_capability": "erp.supplier_quotations.list",
+            "invocation_id": "inv_mw8scoyed91c4ad945"
+          },
+          {
+            "business_capability": "erp.item_prices.get",
+            "invocation_id": "inv_mw8scoyncc17390f63"
+          }
+        ],
+        "summary": "3 of 3 product(s) have a suitable quotation.",
+        "finished_at": "2026-11-09T04:53:15.893Z",
+        "id": "nt_mw8scoy3364142c3",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw8scoxe9ccc9509",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-09T04:53:15.895Z",
+        "evidence": [],
+        "summary": "Wheat Atta 5kg: best quotation Bengaluru Wholesale Traders at 222 (1-day lead time) for 28; 1 quotation(s) compared. Sona Masoori Rice 5kg: best quotation Mysuru Agro Supplies at 333 (3-day lead time) for 28; 1 quotation(s) compared. Sugar 1kg: best quotation Bengaluru Wholesale Traders at 42 (1-day lead time) for 42; 1 quotation(s) compared.",
+        "finished_at": "2026-11-09T04:53:15.897Z",
+        "id": "nt_mw8scp2u40b78079",
+        "revision": 2
+      }
+    ]
+  }
+}

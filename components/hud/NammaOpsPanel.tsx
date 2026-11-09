@@ -34,6 +34,7 @@ export default function NammaOpsPanel() {
   const [active, setActive] = useState<Any | null>(null);
   const [text, setText] = useState(EXAMPLES[0]);
   const [pin, setPin] = useState("");
+  const [billPin, setBillPin] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [openItem, setOpenItem] = useState<string | null>(null);
@@ -111,8 +112,9 @@ export default function NammaOpsPanel() {
           </p>
         ) : dash?.data_source ? (
           <p className="seat-hint">
-            Data source: <strong>live ERPNext</strong> (read-only; purchase-order drafts and
-            submission are disabled).
+            Data source: <strong>live ERPNext</strong>. Frank can prepare a draft customer bill;
+            nothing is billed until you approve it with your PIN. Purchase-order drafts and
+            submission are disabled.
           </p>
         ) : null}
 
@@ -310,6 +312,88 @@ export default function NammaOpsPanel() {
                 </div>
               );
             })}
+          </section>
+        ) : null}
+
+        {(dash?.approvals ?? []).some((row: Any) => row.kind === "sales_invoice") ? (
+          <section className="dev-mode__section">
+            <h2>Customer bills for approval</h2>
+            <p className="seat-hint">
+              Each is a <strong>draft</strong>: nothing is billed, and stock and accounts are
+              unchanged, until you approve it with your PIN. Check the products and quantities.
+            </p>
+            {(dash?.approvals ?? [])
+              .filter((row: Any) => row.kind === "sales_invoice")
+              .map((bill: Any) => (
+                <div key={bill.id}>
+                  <strong>{bill.erp_document_name}</strong> · {bill.customer} · total {bill.total}
+                  <table className="dev-mode__table">
+                    <tbody>
+                      {(bill.items ?? []).map((row: Any) => (
+                        <tr key={row.item_code}>
+                          <td>{row.item_code}</td>
+                          <td>{row.qty}</td>
+                          <td>@ {row.rate}</td>
+                          <td>{Math.round(row.qty * row.rate * 100) / 100}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {bill.status === "pending" ? (
+                    <div className="dev-mode__row">
+                      <label>
+                        Owner PIN
+                        <input
+                          type="password"
+                          inputMode="numeric"
+                          autoComplete="off"
+                          aria-label="Owner PIN for bill"
+                          value={billPin}
+                          onChange={(event) => setBillPin(event.target.value)}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        className="pixel-button pixel-button--primary"
+                        disabled={busy || !billPin}
+                        onClick={() =>
+                          run(async () => {
+                            const { approval: done } = await call<{ approval: Any }>(
+                              `/approvals/${bill.id}/approve`,
+                              "POST",
+                              { pin: billPin },
+                            );
+                            setBillPin("");
+                            setMessage(`${bill.erp_document_name}: ${done.status}`);
+                          })
+                        }
+                      >
+                        Approve and bill
+                      </button>
+                      <button
+                        type="button"
+                        className="pixel-button"
+                        disabled={busy || !billPin}
+                        onClick={() =>
+                          run(async () => {
+                            await call(`/approvals/${bill.id}/reject`, "POST", { pin: billPin });
+                            setBillPin("");
+                            setMessage(`${bill.erp_document_name}: rejected, nothing billed.`);
+                          })
+                        }
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="seat-hint">
+                      {bill.status === "submitted"
+                        ? "Owner approved; the bill is submitted."
+                        : `Approval ${bill.status}${bill.error ? `: ${bill.error}` : ""}.`}
+                    </p>
+                  )}
+                </div>
+              ))}
           </section>
         ) : null}
 

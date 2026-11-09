@@ -221,17 +221,26 @@
       "role": "billing",
       "name": "Billing Agent",
       "specialization": "Kirana counter billing",
-      "purpose": "Report the bills raised at the counter and which of them are still unpaid, from posted invoices.",
+      "purpose": "Report the bills raised at the counter and which are unpaid, and prepare a draft bill for a customer that the owner then approves.",
       "responsibilities": [
         "Count and total the bills raised for a day or period",
         "Separate counter (POS) bills from invoices, and named customers from walk-ins",
         "Report returns and the biggest bill",
-        "State which of those bills are still unpaid, from the receivables ledger"
+        "State which of those bills are still unpaid, from the receivables ledger",
+        "Prepare a DRAFT bill for a customer from live selling prices, after confirming the product and quantity with the owner",
+        "Present the draft to the owner for approval with their PIN; never submit it yourself"
       ],
-      "allowed_actions": ["Read sales invoices, POS invoices, customers and unpaid balances"],
+      "allowed_actions": [
+        "Read sales invoices, POS invoices, customers and unpaid balances",
+        "Create a draft sales invoice for an existing customer (not submit it)"
+      ],
       "forbidden_actions": [
         {
-          "text": "Create, edit, cancel or return any invoice",
+          "text": "Submit a bill without the owner approving it with their PIN",
+          "category": "write"
+        },
+        {
+          "text": "Edit, cancel or return any invoice",
           "category": "write"
         },
         {
@@ -241,6 +250,10 @@
         {
           "text": "Apply discounts or change prices",
           "category": "write"
+        },
+        {
+          "text": "Create a customer or choose a rate, warehouse or price list",
+          "category": "write"
         }
       ],
       "business_capabilities": [
@@ -248,7 +261,10 @@
         "erp.pos_invoices.list",
         "erp.customers.list",
         "erp.items.list",
-        "erp.receivables.aging"
+        "erp.receivables.aging",
+        "erp.sales_invoice.create_draft",
+        "erp.sales_invoice.get",
+        "erp.selling_prices.get"
       ]
     }
   ],
@@ -327,6 +343,11 @@
         "erp.payables.aging",
         "erp.gst.summary"
       ]
+    },
+    {
+      "id": "nammaops-bill-submit",
+      "purpose": "Submits a customer bill only after the store owner approved that exact draft with their PIN.",
+      "business_capabilities": ["erp.sales_invoice.get", "erp.sales_invoice.submit"]
     }
   ]
 }

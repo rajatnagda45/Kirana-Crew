@@ -18,6 +18,8 @@ export class GnaniSpeaker {
   private nextTime = 0;
   private controller = new AbortController();
   failed = false;
+  /** Called each time audio is scheduled (the caller keeps the first per turn for latency timing). */
+  onAudio: (() => void) | null = null;
 
   constructor(
     private context: AudioContext,
@@ -152,6 +154,7 @@ export class GnaniSpeaker {
     const start = Math.max(this.context.currentTime + 0.03, this.nextTime);
     source.start(start);
     this.nextTime = start + buffer.duration;
+    this.onAudio?.();
   }
 
   /** Cut off everything queued or playing (the owner interrupted, or the call ended). */
