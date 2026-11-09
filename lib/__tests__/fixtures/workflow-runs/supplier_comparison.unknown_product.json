@@ -2,9 +2,7 @@
   "workflow": {
     "intent": {
       "action": "supplier_comparison",
-      "products": [
-        "Zzyzx tea"
-      ]
+      "products": ["Zzyzx tea"]
     },
     "command": null,
     "status": "needs_clarification",
@@ -108,13 +106,7 @@
             "Groundnut Oil 1L",
             "Sunflower Oil 1L"
           ],
-          "Dairy": [
-            "Ghee 200ml",
-            "Butter 100g",
-            "Paneer 200g",
-            "Curd 400g",
-            "Toned Milk 500ml"
-          ]
+          "Dairy": ["Ghee 200ml", "Butter 100g", "Paneer 200g", "Curd 400g", "Toned Milk 500ml"]
         }
       }
     ],

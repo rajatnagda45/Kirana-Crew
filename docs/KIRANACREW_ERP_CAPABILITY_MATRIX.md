@@ -15,33 +15,33 @@ SUB `nammaops-po-submit` principal, DASH `nammaops-dashboard-reader` principal.
 Manager and OpenClaw `main` hold **no** ERP grants and must not gain any.
 "Test" is filled when Phase 4 runs; `-` means not run yet.
 
-| Capability | Live tool (adapter) | Fixture tool | Risk | Live now | Live after | Fixture | Grants | Approval policy | Test |
-|---|---|---|---|---|---|---|---|---|---|
-| erp.items.list | list_items | list_items | READ | yes | yes | yes | INV SAL PRO REP BIL DASH | none | live read ok, governed: tested |
-| erp.stock.balance | get_stock_balance | same | READ | yes | yes | yes | INV REP DASH | none | live read ok, governed: tested |
-| erp.warehouses.list | list_warehouses | same | READ | yes | yes | yes | INV DASH | none | live read ok, governed: tested |
-| erp.stock.ledger | get_stock_ledger | same | READ | yes | yes | yes | INV DASH | none | live read ok, governed: tested |
-| erp.suppliers.list | list_suppliers | same | READ | yes | yes | yes | PRO DASH | none | live read ok, governed: tested |
-| erp.supplier_quotations.list | list_supplier_quotations | same | READ | yes | yes | yes | PRO DASH | none | live read ok, governed: tested |
-| erp.item_prices.get | get_item_prices | same | READ | yes | yes | yes | PRO DASH | none | live read ok, governed: tested |
-| erp.po.create_draft | none (disabled) | create_purchase_order | WRITE | no | **no (disabled)** | yes | PRO | explicit approval, only if live writes are later enabled | blocked in live: tested |
-| erp.po.get | none -> `get_purchase_order` | get_purchase_order | READ | no | **yes (new)** | yes | PRO SUB DASH | none | live read ok, governed: tested |
-| erp.po.submit | none (disabled) | submit_purchase_order | EXTERNAL_ACTION | no | **no (disabled)** | yes | SUB | stronger policy: owner PIN + exact-order confirmation, only if live writes are later enabled | blocked in live: tested |
-| erp.sales_invoices.list | list_sales_invoices | same | READ | yes | yes | yes | SAL REP BIL DASH | none | live read ok, governed: tested |
-| erp.pos_invoices.list | list_pos_invoices | same | READ | yes | yes | yes | SAL REP BIL DASH | none | live read ok, governed: tested |
-| erp.customers.list | list_customers | same | READ | yes | yes | yes | SAL BIL DASH | none | live read ok, governed: tested |
-| erp.pnl | get_profit_and_loss | same | READ | yes | yes | yes | FIN REP DASH | none | live read ok, governed: tested |
-| erp.gl | get_general_ledger | same | READ | yes | yes | yes | FIN DASH | none | live read ok, governed: tested |
-| erp.purchase_invoices.list | list_purchase_invoices | same | READ | yes | yes | yes | PRO FIN DASH | none | live read ok, governed: tested |
-| erp.payments.summary | none -> `get_payment_summary` | get_payment_summary | READ | no | **yes (new)** | yes | FIN DASH | none | live read ok, governed: tested |
-| erp.sales.history | list_sales_lines | same | READ | yes | yes | yes | SAL DASH | none | live read ok, governed: tested |
-| erp.stock.movements | list_stock_ledger | same | READ | yes | yes | yes | INV DASH | none | live read ok, governed: tested |
-| erp.po.open | list_open_purchase_orders | same | READ | yes | yes | yes | PRO DASH | none | live read ok, governed: tested |
-| erp.items.valuation | get_item_valuation | same | READ | yes | yes | yes | INV DASH | none | live read ok, governed: tested |
-| erp.batches.list | list_batches | same | READ | yes | yes | yes | INV DASH | none | live read ok, governed: tested |
-| erp.receivables.aging | list_receivables | same | READ | yes | yes | yes | SAL FIN REP BIL DASH | none | live read ok, governed: tested |
-| erp.payables.aging | list_payables | same | READ | yes | yes | yes | PRO FIN REP DASH | none | live read ok, governed: tested |
-| erp.gst.summary | none -> `list_gst_lines` | list_gst_lines | READ | no | **yes if live tax data is readable, else `unavailable` with a reason** | yes | FIN DASH | none | live read ok, governed: tested |
+| Capability                   | Live tool (adapter)           | Fixture tool          | Risk            | Live now | Live after                                                             | Fixture | Grants                   | Approval policy                                                                              | Test                           |
+| ---------------------------- | ----------------------------- | --------------------- | --------------- | -------- | ---------------------------------------------------------------------- | ------- | ------------------------ | -------------------------------------------------------------------------------------------- | ------------------------------ |
+| erp.items.list               | list_items                    | list_items            | READ            | yes      | yes                                                                    | yes     | INV SAL PRO REP BIL DASH | none                                                                                         | live read ok, governed: tested |
+| erp.stock.balance            | get_stock_balance             | same                  | READ            | yes      | yes                                                                    | yes     | INV REP DASH             | none                                                                                         | live read ok, governed: tested |
+| erp.warehouses.list          | list_warehouses               | same                  | READ            | yes      | yes                                                                    | yes     | INV DASH                 | none                                                                                         | live read ok, governed: tested |
+| erp.stock.ledger             | get_stock_ledger              | same                  | READ            | yes      | yes                                                                    | yes     | INV DASH                 | none                                                                                         | live read ok, governed: tested |
+| erp.suppliers.list           | list_suppliers                | same                  | READ            | yes      | yes                                                                    | yes     | PRO DASH                 | none                                                                                         | live read ok, governed: tested |
+| erp.supplier_quotations.list | list_supplier_quotations      | same                  | READ            | yes      | yes                                                                    | yes     | PRO DASH                 | none                                                                                         | live read ok, governed: tested |
+| erp.item_prices.get          | get_item_prices               | same                  | READ            | yes      | yes                                                                    | yes     | PRO DASH                 | none                                                                                         | live read ok, governed: tested |
+| erp.po.create_draft          | none (disabled)               | create_purchase_order | WRITE           | no       | **no (disabled)**                                                      | yes     | PRO                      | explicit approval, only if live writes are later enabled                                     | blocked in live: tested        |
+| erp.po.get                   | none -> `get_purchase_order`  | get_purchase_order    | READ            | no       | **yes (new)**                                                          | yes     | PRO SUB DASH             | none                                                                                         | live read ok, governed: tested |
+| erp.po.submit                | none (disabled)               | submit_purchase_order | EXTERNAL_ACTION | no       | **no (disabled)**                                                      | yes     | SUB                      | stronger policy: owner PIN + exact-order confirmation, only if live writes are later enabled | blocked in live: tested        |
+| erp.sales_invoices.list      | list_sales_invoices           | same                  | READ            | yes      | yes                                                                    | yes     | SAL REP BIL DASH         | none                                                                                         | live read ok, governed: tested |
+| erp.pos_invoices.list        | list_pos_invoices             | same                  | READ            | yes      | yes                                                                    | yes     | SAL REP BIL DASH         | none                                                                                         | live read ok, governed: tested |
+| erp.customers.list           | list_customers                | same                  | READ            | yes      | yes                                                                    | yes     | SAL BIL DASH             | none                                                                                         | live read ok, governed: tested |
+| erp.pnl                      | get_profit_and_loss           | same                  | READ            | yes      | yes                                                                    | yes     | FIN REP DASH             | none                                                                                         | live read ok, governed: tested |
+| erp.gl                       | get_general_ledger            | same                  | READ            | yes      | yes                                                                    | yes     | FIN DASH                 | none                                                                                         | live read ok, governed: tested |
+| erp.purchase_invoices.list   | list_purchase_invoices        | same                  | READ            | yes      | yes                                                                    | yes     | PRO FIN DASH             | none                                                                                         | live read ok, governed: tested |
+| erp.payments.summary         | none -> `get_payment_summary` | get_payment_summary   | READ            | no       | **yes (new)**                                                          | yes     | FIN DASH                 | none                                                                                         | live read ok, governed: tested |
+| erp.sales.history            | list_sales_lines              | same                  | READ            | yes      | yes                                                                    | yes     | SAL DASH                 | none                                                                                         | live read ok, governed: tested |
+| erp.stock.movements          | list_stock_ledger             | same                  | READ            | yes      | yes                                                                    | yes     | INV DASH                 | none                                                                                         | live read ok, governed: tested |
+| erp.po.open                  | list_open_purchase_orders     | same                  | READ            | yes      | yes                                                                    | yes     | PRO DASH                 | none                                                                                         | live read ok, governed: tested |
+| erp.items.valuation          | get_item_valuation            | same                  | READ            | yes      | yes                                                                    | yes     | INV DASH                 | none                                                                                         | live read ok, governed: tested |
+| erp.batches.list             | list_batches                  | same                  | READ            | yes      | yes                                                                    | yes     | INV DASH                 | none                                                                                         | live read ok, governed: tested |
+| erp.receivables.aging        | list_receivables              | same                  | READ            | yes      | yes                                                                    | yes     | SAL FIN REP BIL DASH     | none                                                                                         | live read ok, governed: tested |
+| erp.payables.aging           | list_payables                 | same                  | READ            | yes      | yes                                                                    | yes     | PRO FIN REP DASH         | none                                                                                         | live read ok, governed: tested |
+| erp.gst.summary              | none -> `list_gst_lines`      | list_gst_lines        | READ            | no       | **yes if live tax data is readable, else `unavailable` with a reason** | yes     | FIN DASH                 | none                                                                                         | live read ok, governed: tested |
 
 "same" = fixture tool name equals the live tool name. Verify the fixture column against
 `binding.fixture.json` when Phase 1 starts; only the five new rows were confirmed by exploration.
@@ -52,6 +52,7 @@ runs; for the two write capabilities a stop additionally invalidates every pendi
 ## 2. Server-owned classification
 
 Risk, availability and the live-write switch are owned by the server, never by an agent:
+
 - Risk and tool binding live in the binding JSON files (read at boot; agents have no write path).
 - The live-write switch is the existing mechanism: `tool:null` plus a `disabled` reason makes
   `ErpBinding.call()` throw `blocked` before any gateway call (`erp-binding.mjs:94-102`). This is
@@ -84,11 +85,11 @@ The global read-only guard in the adapter is not changed.
 One deterministic workflow per capability, run as the owning specialist through
 `ErpBinding -> Governance -> ToolGateway`:
 
-| Workflow | Specialist | Capability | Voice intent | Args |
-|---|---|---|---|---|
-| purchase_order_lookup | Procurement | erp.po.get | purchase_order_status | `po_name` |
-| payments_summary | Finance | erp.payments.summary | payments_summary | `day`, `to` |
-| gst_summary | Finance | erp.gst.summary | gst_summary | `day`, `to` |
+| Workflow              | Specialist  | Capability           | Voice intent          | Args        |
+| --------------------- | ----------- | -------------------- | --------------------- | ----------- |
+| purchase_order_lookup | Procurement | erp.po.get           | purchase_order_status | `po_name`   |
+| payments_summary      | Finance     | erp.payments.summary | payments_summary      | `day`, `to` |
+| gst_summary           | Finance     | erp.gst.summary      | gst_summary           | `day`, `to` |
 
 Voice reaches them through `nammaops_business_query` (strict schema, `additionalProperties:false`);
 text reaches them through the chat intent path. Same grants, same denial for any other specialist,
@@ -119,6 +120,7 @@ immediately before execution, independently of ApprovalManager.
 Invalidation: any argument change (hash mismatch), expiry, cancel, session change, EmergencyStop.
 
 PIN rules:
+
 - Entered only in a masked application input; sent only to `POST /approvals/{id}/approve` as `pin`.
 - Never in prompts, transcripts, logs, tool arguments, OpenClaw, agents or ERPNext.
 - Stored as a salted scrypt hash. The `NAMMAOPS_OWNER_PIN` value is hashed in memory at load and
@@ -194,20 +196,21 @@ invoice (the store has none, so the taxed and B2B paths are covered by unit test
 It extends the existing `OwnerApprovals` and the Phase C per-call approvals; there is no parallel
 system. Live PO draft creation and submission remain disabled: no PIN, token or grant can enable them.
 
-| Piece | Where | What it does |
-|---|---|---|
-| ApprovalPolicy | `lib/server/nammaops/approval-policy.mjs` | Frozen, server-owned table: reads need nothing; `erp.po.create_draft` needs an approval; `erp.po.submit` needs approval + PIN + exact-document re-read. `live_write: "disabled"` for both. |
-| PinVerifier | `lib/server/nammaops/pin-verifier.mjs` | Salted scrypt only. `NAMMAOPS_OWNER_PIN` is hashed in memory at start-up and never compared as plain text. **No built-in default PIN** (the old `1234` is gone): with none set, approvals are refused and the owner sets one in Settings. Failed attempts and the 5-minute lock are persisted, so a restart does not reset them. `verify()` returns a single-use, session-bound proof that expires in a minute. |
-| ApprovalStore | existing `nammaops.owner-approval` records (compare-and-set on revision) plus `mcp.approval` records | The owner request (30 minutes, bound to the exact document fingerprint) and, separately, the gateway approval below. |
-| ApprovalManager | `OwnerApprovals` in `owner-approvals.mjs` | `approve()` order: live-write guard, EmergencyStop, PIN proof spent, request still pending and unexpired, exact PO re-read and fingerprint match, claim (one winner), then gateway approval, then submit. |
-| Gateway approval | `Governance.issueOwnerApproval`, `consumeApproval`, `ToolGateway.invoke` | A Phase C approval issued by the owner after the PIN: bound to user, the `nammaops-po-submit` principal, the capability, the argument fingerprint and the approving session; expires in 2 minutes at most; consumed once. **The ToolGateway re-validates and consumes it immediately before the call.** `decide()` still requires the specialist's own assignment and grant, so a PIN grants nothing. |
-| EmergencyStop | `Governance.assertEstopClear`, `ToolGateway`, `OwnerApprovals` | While engaged: an open approval is voided for good (releasing the stop does not revive it), a call holding an approval is refused, and side-effecting calls are paused. The PIN is not even tried. Reads are not paused (see below). |
+| Piece            | Where                                                                                                | What it does                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ---------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ApprovalPolicy   | `lib/server/nammaops/approval-policy.mjs`                                                            | Frozen, server-owned table: reads need nothing; `erp.po.create_draft` needs an approval; `erp.po.submit` needs approval + PIN + exact-document re-read. `live_write: "disabled"` for both.                                                                                                                                                                                                                      |
+| PinVerifier      | `lib/server/nammaops/pin-verifier.mjs`                                                               | Salted scrypt only. `NAMMAOPS_OWNER_PIN` is hashed in memory at start-up and never compared as plain text. **No built-in default PIN** (the old `1234` is gone): with none set, approvals are refused and the owner sets one in Settings. Failed attempts and the 5-minute lock are persisted, so a restart does not reset them. `verify()` returns a single-use, session-bound proof that expires in a minute. |
+| ApprovalStore    | existing `nammaops.owner-approval` records (compare-and-set on revision) plus `mcp.approval` records | The owner request (30 minutes, bound to the exact document fingerprint) and, separately, the gateway approval below.                                                                                                                                                                                                                                                                                            |
+| ApprovalManager  | `OwnerApprovals` in `owner-approvals.mjs`                                                            | `approve()` order: live-write guard, EmergencyStop, PIN proof spent, request still pending and unexpired, exact PO re-read and fingerprint match, claim (one winner), then gateway approval, then submit.                                                                                                                                                                                                       |
+| Gateway approval | `Governance.issueOwnerApproval`, `consumeApproval`, `ToolGateway.invoke`                             | A Phase C approval issued by the owner after the PIN: bound to user, the `nammaops-po-submit` principal, the capability, the argument fingerprint and the approving session; expires in 2 minutes at most; consumed once. **The ToolGateway re-validates and consumes it immediately before the call.** `decide()` still requires the specialist's own assignment and grant, so a PIN grants nothing.           |
+| EmergencyStop    | `Governance.assertEstopClear`, `ToolGateway`, `OwnerApprovals`                                       | While engaged: an open approval is voided for good (releasing the stop does not revive it), a call holding an approval is refused, and side-effecting calls are paused. The PIN is not even tried. Reads are not paused (see below).                                                                                                                                                                            |
 
 Approval record fields: `reviewer: "owner"`, `agent_id` (the specialist), `capability_id`,
 `args_fingerprint`, `session_id`, `approved_via` (`screen` or `voice`), `decided_at`, `expires_at`,
 then `consumed_at`. Execution is a separate `mcp.invocation` record that carries the `approval_id`.
 
 Two ways to give the PIN, both ending in the same checks:
+
 - **Masked on-screen entry** (`NammaOpsPanel`, the approve and reject pages): POST to
   `/approvals/{id}/approve` with `pin` and a per-tab `session`. The PIN is never logged or echoed. This
   also fixes the old `owner_pin` / `pin` mismatch in `useNammaOps.ts`, which made the Procurement and
@@ -226,6 +229,7 @@ repeating, spelling or summarising digits, but the prompt is a request, not a gu
 session logging is outside this server's control. Prefer on-screen entry when that matters.
 
 Known limits and findings:
+
 - EmergencyStop did not previously reach the ToolGateway, workflows or the voice business-query path; it
   now stops side-effecting calls and voids approvals. **Reads still run during an emergency stop** (they
   were never paused); decide whether reads should be paused.
@@ -242,12 +246,12 @@ Known limits and findings:
 The binding now has 29 capabilities. The 25 above are unchanged (23 live reads; the two purchase-order
 writes still `tool:null` and disabled in live). Four were added, by the owner's decision:
 
-| Capability | Tool | Risk | Granted to | Live |
-|---|---|---|---|---|
-| `erp.sales_invoice.get` | `get_sales_invoice` | READ | Frank, `nammaops-bill-submit` | yes |
-| `erp.selling_prices.get` | `get_selling_prices` | READ | Frank | yes |
-| `erp.sales_invoice.create_draft` | `create_sales_invoice_draft` | WRITE (draft only) | Frank | yes |
-| `erp.sales_invoice.submit` | `submit_sales_invoice` | EXTERNAL_ACTION | `nammaops-bill-submit` only | yes, owner PIN + gateway approval |
+| Capability                       | Tool                         | Risk               | Granted to                    | Live                              |
+| -------------------------------- | ---------------------------- | ------------------ | ----------------------------- | --------------------------------- |
+| `erp.sales_invoice.get`          | `get_sales_invoice`          | READ               | Frank, `nammaops-bill-submit` | yes                               |
+| `erp.selling_prices.get`         | `get_selling_prices`         | READ               | Frank                         | yes                               |
+| `erp.sales_invoice.create_draft` | `create_sales_invoice_draft` | WRITE (draft only) | Frank                         | yes                               |
+| `erp.sales_invoice.submit`       | `submit_sales_invoice`       | EXTERNAL_ACTION    | `nammaops-bill-submit` only   | yes, owner PIN + gateway approval |
 
 Live: 27 of 29 are bound (25 reads and the 2 bill writes); only the 2 purchase-order writes are unbound.
 The policy table marks the bill writes `live_write: "enabled"` and the purchase-order writes `"disabled"`.

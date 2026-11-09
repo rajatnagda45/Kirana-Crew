@@ -34,8 +34,22 @@ import {
 import { panel, ui } from "./styles";
 
 const ICONS: Record<string, LucideIcon> = {
-  Package, BarChart3, ShoppingCart, TrendingUp, Users, HandCoins, CalendarClock, Truck,
-  Gauge, UserCheck, HeartPulse, FileText, Receipt, Wallet, Landmark, Search,
+  Package,
+  BarChart3,
+  ShoppingCart,
+  TrendingUp,
+  Users,
+  HandCoins,
+  CalendarClock,
+  Truck,
+  Gauge,
+  UserCheck,
+  HeartPulse,
+  FileText,
+  Receipt,
+  Wallet,
+  Landmark,
+  Search,
 };
 
 /** Whether the ERP will create purchase-order drafts. Anything but "available" is treated as off. */
@@ -66,34 +80,66 @@ function Field({
 }) {
   const id = `wf-${def.action}-${field.key}`;
   const hint = `${id}-hint`;
-  const describedBy = [field.help || field.example ? hint : null, error ? `${id}-error` : null].filter(Boolean).join(" ") || undefined;
-  const common = { id, "aria-describedby": describedBy, "aria-invalid": error ? true : undefined, "aria-required": field.required || undefined } as const;
+  const describedBy =
+    [field.help || field.example ? hint : null, error ? `${id}-error` : null]
+      .filter(Boolean)
+      .join(" ") || undefined;
+  const common = {
+    id,
+    "aria-describedby": describedBy,
+    "aria-invalid": error ? true : undefined,
+    "aria-required": field.required || undefined,
+  } as const;
 
   return (
     <div style={{ marginBottom: 10 }}>
       {field.type === "checkbox" ? (
-        <label htmlFor={id} style={{ ...ui.label, display: "flex", alignItems: "center", gap: 8, margin: 0 }}>
-          <input {...common} type="checkbox" checked={value === undefined ? !!field.checked : value === true} onChange={(e) => onChange(e.target.checked)} />
+        <label
+          htmlFor={id}
+          style={{ ...ui.label, display: "flex", alignItems: "center", gap: 8, margin: 0 }}
+        >
+          <input
+            {...common}
+            type="checkbox"
+            checked={value === undefined ? !!field.checked : value === true}
+            onChange={(e) => onChange(e.target.checked)}
+          />
           {field.label}
         </label>
       ) : (
         <>
           <label htmlFor={id} style={ui.label}>
             {field.label}
-            {field.required && <span aria-hidden="true" style={{ color: "var(--kirana-destructive)" }}> *</span>}
+            {field.required && (
+              <span aria-hidden="true" style={{ color: "var(--kirana-destructive)" }}>
+                {" "}
+                *
+              </span>
+            )}
           </label>
           {field.type === "select" ? (
-            <select {...common} value={typeof value === "string" ? value : ""} onChange={(e) => onChange(e.target.value)} style={ui.input}>
+            <select
+              {...common}
+              value={typeof value === "string" ? value : ""}
+              onChange={(e) => onChange(e.target.value)}
+              style={ui.input}
+            >
               {field.options?.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
               ))}
             </select>
           ) : (
             <input
               {...common}
               type={field.type === "date" ? "date" : field.type === "number" ? "number" : "text"}
-              {...(field.type === "number" ? { min: 1, step: 1, inputMode: "numeric" as const } : {})}
-              {...(field.type === "text" || field.type === "products" ? { autoComplete: "off" } : {})}
+              {...(field.type === "number"
+                ? { min: 1, step: 1, inputMode: "numeric" as const }
+                : {})}
+              {...(field.type === "text" || field.type === "products"
+                ? { autoComplete: "off" }
+                : {})}
               value={typeof value === "string" ? value : ""}
               onChange={(e) => onChange(e.target.value)}
               style={ui.input}
@@ -108,7 +154,11 @@ function Field({
         </p>
       )}
       {error && (
-        <p id={`${id}-error`} role="alert" style={{ margin: "3px 0 0", fontSize: 12, color: "var(--kirana-destructive)" }}>
+        <p
+          id={`${id}-error`}
+          role="alert"
+          style={{ margin: "3px 0 0", fontSize: 12, color: "var(--kirana-destructive)" }}
+        >
           {error}
         </p>
       )}
@@ -138,7 +188,12 @@ function Card({
   reorder,
   onRun,
   unavailable,
-}: { def: WorkflowDef; starting: string | null; reorder: ReorderState; unavailable?: string } & Pick<WorkflowCardsProps, "onRun">) {
+}: {
+  def: WorkflowDef;
+  starting: string | null;
+  reorder: ReorderState;
+  unavailable?: string;
+} & Pick<WorkflowCardsProps, "onRun">) {
   const [values, setValues] = useState<FieldValues>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [failure, setFailure] = useState<string | null>(null);
@@ -175,17 +230,36 @@ function Card({
       style={{ ...ui.card, marginBottom: 0, minWidth: 0 }}
     >
       <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 10 }}>
-        <div aria-hidden="true" style={{ width: 38, height: 38, borderRadius: 10, background: `color-mix(in oklab,${def.color} 15%,transparent)`, display: "grid", placeItems: "center", color: def.color, flexShrink: 0 }}>
+        <div
+          aria-hidden="true"
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: 10,
+            background: `color-mix(in oklab,${def.color} 15%,transparent)`,
+            display: "grid",
+            placeItems: "center",
+            color: def.color,
+            flexShrink: 0,
+          }}
+        >
           <Icon size={18} />
         </div>
         <div style={{ flex: 1 }}>
           {/* The badges sit beside the heading, not inside it, so the card's accessible name stays its title. */}
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
-            <h3 id={`wf-${def.action}-title`} style={{ ...ui.heading, fontSize: 15, fontWeight: 700 }}>
+            <h3
+              id={`wf-${def.action}-title`}
+              style={{ ...ui.heading, fontSize: 15, fontWeight: 700 }}
+            >
               {def.label}
             </h3>
-            {unavailable && <span style={ui.pill("var(--kirana-muted-foreground)")}>Not available yet</span>}
-            {reorderOff && <span style={ui.pill("var(--kirana-primary)")}>Purchase orders off</span>}
+            {unavailable && (
+              <span style={ui.pill("var(--kirana-muted-foreground)")}>Not available yet</span>
+            )}
+            {reorderOff && (
+              <span style={ui.pill("var(--kirana-primary)")}>Purchase orders off</span>
+            )}
           </div>
           <p style={{ ...ui.muted, margin: "3px 0 0", fontSize: 12 }}>{def.description}</p>
         </div>
@@ -200,7 +274,8 @@ function Card({
       {isReorder && <ReorderNote state={reorder} />}
       {reorderOff && (
         <p style={{ ...ui.muted, margin: "0 0 10px" }}>
-          The button below shows what is running low and the best supplier for each product. Nothing is ordered.
+          The button below shows what is running low and the best supplier for each product. Nothing
+          is ordered.
         </p>
       )}
       {!reorderOff &&
@@ -217,18 +292,36 @@ function Card({
         ))}
 
       {failure && (
-        <p role="alert" style={{ margin: "0 0 8px", fontSize: 12, color: "var(--kirana-destructive)" }}>{failure}</p>
+        <p
+          role="alert"
+          style={{ margin: "0 0 8px", fontSize: 12, color: "var(--kirana-destructive)" }}
+        >
+          {failure}
+        </p>
       )}
       {!unavailable && (
-      <button
-        type="submit"
-        disabled={busy}
-        aria-busy={busy || undefined}
-        style={{ ...ui.btn(true), width: "100%", justifyContent: "center", opacity: busy ? 0.7 : 1 }}
-      >
-        {busy ? <Loader2 size={13} aria-hidden="true" style={{ animation: "wf-spin 1s linear infinite" }} /> : <Play size={13} aria-hidden="true" />}
-        {busy ? "Starting…" : `Run ${label}`}
-      </button>
+        <button
+          type="submit"
+          disabled={busy}
+          aria-busy={busy || undefined}
+          style={{
+            ...ui.btn(true),
+            width: "100%",
+            justifyContent: "center",
+            opacity: busy ? 0.7 : 1,
+          }}
+        >
+          {busy ? (
+            <Loader2
+              size={13}
+              aria-hidden="true"
+              style={{ animation: "wf-spin 1s linear infinite" }}
+            />
+          ) : (
+            <Play size={13} aria-hidden="true" />
+          )}
+          {busy ? "Starting…" : `Run ${label}`}
+        </button>
       )}
     </form>
   );
@@ -237,12 +330,28 @@ function Card({
 export function WorkflowCards({ onRun, starting, reorder, unavailable }: WorkflowCardsProps) {
   return (
     <section aria-labelledby="wf-available" style={{ marginBottom: 28 }}>
-      <h2 id="wf-available" style={{ ...ui.heading, fontSize: 17, fontWeight: 700, margin: "0 0 14px" }}>
+      <h2
+        id="wf-available"
+        style={{ ...ui.heading, fontSize: 17, fontWeight: 700, margin: "0 0 14px" }}
+      >
         Available workflows
       </h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(280px,100%),1fr))", gap: 14 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill,minmax(min(280px,100%),1fr))",
+          gap: 14,
+        }}
+      >
         {WORKFLOW_DEFS.map((def) => (
-          <Card key={def.action} def={def} starting={starting} reorder={reorder} onRun={onRun} unavailable={unavailable?.[def.action]} />
+          <Card
+            key={def.action}
+            def={def}
+            starting={starting}
+            reorder={reorder}
+            onRun={onRun}
+            unavailable={unavailable?.[def.action]}
+          />
         ))}
       </div>
     </section>

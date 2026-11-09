@@ -92,10 +92,7 @@ interface UseDictationOptions {
  * (VoiceProvider / GeminiVoiceClient) which drives the Live Store assistant.
  */
 /** Browser Web Speech dictation: last-resort fallback when no server speech-to-text is configured. */
-function useBrowserDictation({
-  onFinalTranscript,
-  language = "auto",
-}: UseDictationOptions) {
+function useBrowserDictation({ onFinalTranscript, language = "auto" }: UseDictationOptions) {
   const [status, setStatus] = useState<DictationStatus>("idle");
   const [interimTranscript, setInterimTranscript] = useState("");
   const [error, setError] = useState<string | null>(null);

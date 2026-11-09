@@ -11,7 +11,12 @@ afterEach(async () => {
   for (const close of cleanup.splice(0).reverse()) await close();
 });
 
-const audit = { protocol: 3, validators: new Set(), validate: () => true, capabilities: () => ({}) };
+const audit = {
+  protocol: 3,
+  validators: new Set(),
+  validate: () => true,
+  capabilities: () => ({}),
+};
 
 /** `onConnect(socket, requestId, attempt)` decides how each handshake attempt goes. */
 async function gatewayServer(onConnect: (socket: Any, id: string, attempt: number) => void) {

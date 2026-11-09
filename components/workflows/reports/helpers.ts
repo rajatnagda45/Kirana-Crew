@@ -29,7 +29,9 @@ export const rec = (value: unknown): Rec =>
 
 export const recs = (value: unknown): Rec[] =>
   Array.isArray(value)
-    ? value.filter((item): item is Rec => !!item && typeof item === "object" && !Array.isArray(item))
+    ? value.filter(
+        (item): item is Rec => !!item && typeof item === "object" && !Array.isArray(item),
+      )
     : [];
 
 export const strings = (value: unknown): string[] =>
@@ -55,7 +57,9 @@ export function explain(raw: string | undefined): { text: string; detail?: strin
       text: "No posted accounting entries were found for this period.",
       detail: clipped,
     };
-  if (/not enabled in this deployment|writes are disabled|read-only|disabled pending/i.test(original))
+  if (
+    /not enabled in this deployment|writes are disabled|read-only|disabled pending/i.test(original)
+  )
     return {
       text: "Live purchase-order creation is switched off, so no purchase order can be created right now.",
       detail: clipped,

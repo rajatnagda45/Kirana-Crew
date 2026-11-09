@@ -58,13 +58,24 @@ export function ClarificationPanel({
   if (done)
     return (
       <div style={panel("good")} role="status">
-        Thanks. A new run has started with your answer. It is the first one in the run history, and its report opens there when it finishes.
+        Thanks. A new run has started with your answer. It is the first one in the run history, and
+        its report opens there when it finishes.
       </div>
     );
 
   return (
     <section aria-label="Answer to continue" style={{ marginTop: 12 }}>
-      <h3 style={{ ...ui.heading, fontSize: 15, fontWeight: 700, margin: "0 0 8px", display: "flex", alignItems: "center", gap: 6 }}>
+      <h3
+        style={{
+          ...ui.heading,
+          fontSize: 15,
+          fontWeight: 700,
+          margin: "0 0 8px",
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+        }}
+      >
         <HelpCircle size={15} aria-hidden="true" /> A little more information is needed
       </h3>
       {questions.map((q) => {
@@ -77,12 +88,17 @@ export function ClarificationPanel({
             </p>
             {q.mode === "readonly" ? (
               <p style={{ ...ui.muted, margin: 0 }}>
-                This one cannot be answered here. Start a new run from the card above, or ask in chat.
+                This one cannot be answered here. Start a new run from the card above, or ask in
+                chat.
               </p>
             ) : (
               <>
                 {picks.length > 0 && (
-                  <div role="group" aria-labelledby={`${id}-q`} style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
+                  <div
+                    role="group"
+                    aria-labelledby={`${id}-q`}
+                    style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}
+                  >
                     {picks.map((choice) => {
                       const isGroup = q.groups.includes(choice) && !q.options.includes(choice);
                       const size = q.groupSizes[choice];
@@ -119,11 +135,28 @@ export function ClarificationPanel({
         );
       })}
       {error && (
-        <p role="alert" style={{ margin: "0 0 8px", fontSize: 13, color: "var(--kirana-destructive)" }}>{error}</p>
+        <p
+          role="alert"
+          style={{ margin: "0 0 8px", fontSize: 13, color: "var(--kirana-destructive)" }}
+        >
+          {error}
+        </p>
       )}
       {answerable && (
-        <button type="button" onClick={() => void submit()} disabled={sending} aria-busy={sending || undefined} style={{ ...ui.btn(true), opacity: sending ? 0.7 : 1 }}>
-          {sending && <Loader2 size={13} aria-hidden="true" style={{ animation: "wf-spin 1s linear infinite" }} />}
+        <button
+          type="button"
+          onClick={() => void submit()}
+          disabled={sending}
+          aria-busy={sending || undefined}
+          style={{ ...ui.btn(true), opacity: sending ? 0.7 : 1 }}
+        >
+          {sending && (
+            <Loader2
+              size={13}
+              aria-hidden="true"
+              style={{ animation: "wf-spin 1s linear infinite" }}
+            />
+          )}
           {sending ? "Starting…" : "Run again with this answer"}
         </button>
       )}

@@ -466,9 +466,15 @@ describe("shared voice controller", () => {
     expect(intervals.mock.calls.some(([, delay]) => delay === 5000)).toBe(true);
     intervals.mockClear();
     act(() =>
-      dispatch({ type: "UPDATE_TASK", taskId: "t1", patch: { status: "completed", result: "Done" } }),
+      dispatch({
+        type: "UPDATE_TASK",
+        taskId: "t1",
+        patch: { status: "completed", result: "Done" },
+      }),
     );
-    await waitFor(() => expect(intervals.mock.calls.some(([, delay]) => delay === 60000)).toBe(true));
+    await waitFor(() =>
+      expect(intervals.mock.calls.some(([, delay]) => delay === 60000)).toBe(true),
+    );
     expect(intervals.mock.calls.some(([, delay]) => delay === 5000)).toBe(false);
   });
 

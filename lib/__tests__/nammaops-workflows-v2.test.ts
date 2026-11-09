@@ -149,9 +149,9 @@ describe("owner approval PIN", () => {
     // The old starter PIN 1234 is gone: nothing is accepted when no PIN is configured.
     expect(() => ctx.nammaops.approvals.checkPin("1234")).toThrow(/No owner PIN is set/);
     // The owner sets the first PIN without a current one.
-    expect(
-      (await call(ctx, "POST", "/api/nammaops/owner-pin", { new_pin: "12" })).status,
-    ).toBe(400);
+    expect((await call(ctx, "POST", "/api/nammaops/owner-pin", { new_pin: "12" })).status).toBe(
+      400,
+    );
     const first = await call(ctx, "POST", "/api/nammaops/owner-pin", { new_pin: "1234" });
     expect(first.body.owner_pin.source).toBe("settings");
     expect(() => ctx.nammaops.approvals.checkPin("1234")).not.toThrow();

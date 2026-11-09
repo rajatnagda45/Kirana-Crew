@@ -58,7 +58,10 @@ function profitCell(profit: Record<string, unknown>): { cell: Cell; hint?: strin
   if (profit.status === "verified") {
     const net = toNumber(profit.net_profit);
     const cell = money(net);
-    return { cell: net !== null && net < 0 ? { ...cell, tone: "bad" } : cell, hint: "From posted accounting entries" };
+    return {
+      cell: net !== null && net < 0 ? { ...cell, tone: "bad" } : cell,
+      hint: "From posted accounting entries",
+    };
   }
   if (profit.status === "not_requested") return { cell: text("Not requested") };
   return { cell: money(null), hint: explain(str(profit.reason)).text };
@@ -75,7 +78,9 @@ export const dailyReport: Builder = ({ result }) => {
   const { cell, hint } = profitCell(profit);
   if (profit.status === "unverified") {
     const why = explain(str(profit.reason));
-    notices.push(notice("warn", "unavailable", `Profit is not available. ${why.text}`, str(profit.reason)));
+    notices.push(
+      notice("warn", "unavailable", `Profit is not available. ${why.text}`, str(profit.reason)),
+    );
   }
 
   const sections: Section[] = [];
@@ -116,7 +121,14 @@ function unavailableNotices(value: unknown): Notice[] {
     const why = str(r.reason) ?? str(r.error);
     if (!what && !why) return [];
     const plain = explain(why);
-    return [notice("warn", "unavailable", `${what ? `${humanize(what)}: ` : ""}${plain.text}`, plain.detail)];
+    return [
+      notice(
+        "warn",
+        "unavailable",
+        `${what ? `${humanize(what)}: ` : ""}${plain.text}`,
+        plain.detail,
+      ),
+    ];
   });
 }
 
@@ -135,10 +147,21 @@ export const businessReport: Builder = ({ result }) => {
     ...strings(result.notes).map((n) => notice("warn", "warning", n)),
   ];
   if (!hasPrevious)
-    notices.push(notice("info", "unavailable", "The previous period could not be read, so no comparison is shown."));
+    notices.push(
+      notice(
+        "info",
+        "unavailable",
+        "The previous period could not be read, so no comparison is shown.",
+      ),
+    );
   if (profit.status === "unverified")
     notices.push(
-      notice("warn", "unavailable", `Profit is not available. ${explain(str(profit.reason)).text}`, str(profit.reason)),
+      notice(
+        "warn",
+        "unavailable",
+        `Profit is not available. ${explain(str(profit.reason)).text}`,
+        str(profit.reason),
+      ),
     );
 
   const sections: Section[] = [topProductsTable("top", recs(sales.top_products))];
@@ -165,7 +188,10 @@ export const businessReport: Builder = ({ result }) => {
               "Compared with the previous period",
               change === null
                 ? { ...percent(null), display: "Not available" }
-                : { ...percent(change), display: `${change > 0 ? "up " : change < 0 ? "down " : ""}${Math.abs(change)}%` },
+                : {
+                    ...percent(change),
+                    display: `${change > 0 ? "up " : change < 0 ? "down " : ""}${Math.abs(change)}%`,
+                  },
               `Previous: ${money(previous.total_sales).display} from ${formatPeriod(previous.from_date, previous.to_date) ?? "an earlier period"}`,
             ),
           ]
@@ -174,12 +200,16 @@ export const businessReport: Builder = ({ result }) => {
       metric(
         "Udhaar pending",
         udhaar.status === "available" ? money(udhaar.total) : money(null),
-        udhaar.status === "available" ? `${money(udhaar.overdue).display} overdue` : "Could not be read",
+        udhaar.status === "available"
+          ? `${money(udhaar.overdue).display} overdue`
+          : "Could not be read",
       ),
       metric(
         "Products running low",
         stock.status === "available" ? count(stock.low) : count(null),
-        stock.status === "available" ? `${count(stock.out).display} out of stock` : "Could not be read",
+        stock.status === "available"
+          ? `${count(stock.out).display} out of stock`
+          : "Could not be read",
       ),
     ],
     sections,
@@ -196,7 +226,13 @@ export const billingSummary: Builder = ({ result }) => {
   const unpaidKnown = unpaid.status === "available";
   const notices: Notice[] = strings(result.notes).map((n) => notice("warn", "warning", n));
   if (!unpaidKnown)
-    notices.push(notice("warn", "unavailable", "Whether bills are paid could not be read, so unpaid bills are not shown."));
+    notices.push(
+      notice(
+        "warn",
+        "unavailable",
+        "Whether bills are paid could not be read, so unpaid bills are not shown.",
+      ),
+    );
 
   const mix: Row[] = [
     { what: text("Counter (POS) bills"), bills: count(result.pos_bills) },
@@ -253,7 +289,12 @@ export const customerInsights: Builder = ({ result }) => {
       average: money(c.average_bill),
       last: day(c.last_purchase),
       since: days(c.days_since_last),
-      favourites: text(recs(c.favourite_products).map((p) => str(p.item)).filter(Boolean).join(", ") || null),
+      favourites: text(
+        recs(c.favourite_products)
+          .map((p) => str(p.item))
+          .filter(Boolean)
+          .join(", ") || null,
+      ),
     }));
   const columns = [
     left("customer", "Customer"),
@@ -267,7 +308,14 @@ export const customerInsights: Builder = ({ result }) => {
 
   const notices: Notice[] = [];
   if (discounts.status === "not_available")
-    notices.push(notice("info", "unavailable", "Discounts are not shown: they are not available in the sales data.", str(discounts.reason)));
+    notices.push(
+      notice(
+        "info",
+        "unavailable",
+        "Discounts are not shown: they are not available in the sales data.",
+        str(discounts.reason),
+      ),
+    );
 
   const sections: Section[] = [
     table("weekly", "Weekly buyers", columns, customerRows(weekly), {
@@ -306,7 +354,13 @@ export const paymentsSummary: Builder = ({ result }) => {
   const paid = toNumber(result.paid);
   const notices: Notice[] = [];
   if (received === null || paid === null)
-    notices.push(notice("warn", "unavailable", "Received or paid amounts could not be read, so the net figure is not shown."));
+    notices.push(
+      notice(
+        "warn",
+        "unavailable",
+        "Received or paid amounts could not be read, so the net figure is not shown.",
+      ),
+    );
   return {
     period: formatPeriod(period.from_date, period.to_date),
     notices,

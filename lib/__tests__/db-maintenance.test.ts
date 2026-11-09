@@ -25,7 +25,9 @@ function seed({ invocations = 30, events = 1500 } = {}) {
   // Filler first, so the invocation events are the newest and survive event pruning.
   for (let i = 0; i < events; i += 1) db.emit("filler", { i });
   for (let i = 0; i < invocations; i += 1) {
-    const body = { rows: Array.from({ length: 200 }, (_, n) => ({ item: `ITEM-${i}-${n}`, qty: n })) };
+    const body = {
+      rows: Array.from({ length: 200 }, (_, n) => ({ item: `ITEM-${i}-${n}`, qty: n })),
+    };
     const result = {
       content: [{ type: "text", text: JSON.stringify(body) }],
       structuredContent: body,
@@ -45,7 +47,10 @@ function seed({ invocations = 30, events = 1500 } = {}) {
       result,
       result_bytes: JSON.stringify(result).length,
     });
-    db.saveRecord("mcp.decision", id, { decision: "ALLOW", capability_id: "mcp.erpnext-live.list_items" });
+    db.saveRecord("mcp.decision", id, {
+      decision: "ALLOW",
+      capability_id: "mcp.erpnext-live.list_items",
+    });
   }
   // A small failed record that must stay inline.
   db.saveRecord("mcp.invocation", "inv_small", {
@@ -114,7 +119,13 @@ describe("db:maintain", () => {
     // The backup still has the original inline results.
     const backup = new DatabaseSync(report.backup!, { readOnly: true });
     const old = JSON.parse(
-      (backup.prepare("SELECT data FROM runtime_records WHERE namespace='mcp.invocation' AND id='inv_0000'").get() as Any).data,
+      (
+        backup
+          .prepare(
+            "SELECT data FROM runtime_records WHERE namespace='mcp.invocation' AND id='inv_0000'",
+          )
+          .get() as Any
+      ).data,
     );
     backup.close();
     expect(old.result).toEqual(results.inv_0000);
@@ -145,7 +156,11 @@ describe("db:maintain", () => {
     db.close();
     expect(() => maintainDatabase({ dbPath, apply: true })).toThrow(/owns this database/);
     const check = new DatabaseSync(dbPath, { readOnly: true });
-    const left = (check.prepare("SELECT COUNT(*) AS n FROM runtime_records WHERE data LIKE '%\"result\":%'").get() as Any).n;
+    const left = (
+      check
+        .prepare("SELECT COUNT(*) AS n FROM runtime_records WHERE data LIKE '%\"result\":%'")
+        .get() as Any
+    ).n;
     check.close();
     expect(left).toBeGreaterThan(0); // nothing was moved
   });
@@ -153,6 +168,8 @@ describe("db:maintain", () => {
   it("rejects an unsafe keepEvents and a missing database", () => {
     const { dbPath } = seed({ invocations: 1 });
     expect(() => maintainDatabase({ dbPath, keepEvents: 5 })).toThrow(/at least 1000/);
-    expect(() => maintainDatabase({ dbPath: join(tmpdir(), "does-not-exist.sqlite") })).toThrow(/not found/);
+    expect(() => maintainDatabase({ dbPath: join(tmpdir(), "does-not-exist.sqlite") })).toThrow(
+      /not found/,
+    );
   });
 });

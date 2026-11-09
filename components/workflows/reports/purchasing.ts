@@ -46,7 +46,10 @@ export const receivablesReport: Builder = ({ result }) => {
   const over30 = rec(result.overdue_over_30_days);
   const priority = recs(result.collection_priority);
   const notices: Notice[] = [];
-  if (priority.length && priority.every((c) => c.credit_limit === null || c.credit_limit === undefined))
+  if (
+    priority.length &&
+    priority.every((c) => c.credit_limit === null || c.credit_limit === undefined)
+  )
     notices.push(
       notice(
         "info",
@@ -142,7 +145,12 @@ export const purchaseStatus: Builder = ({ result }) => {
           ],
           delayed.map(lineRow),
         )
-      : { kind: "note", id: "on-time", text: "No open order line is past its due date.", tone: "good" },
+      : {
+          kind: "note",
+          id: "on-time",
+          text: "No open order line is past its due date.",
+          tone: "good",
+        },
     table(
       "open",
       "Open purchase order lines",
@@ -183,9 +191,16 @@ export const purchaseStatus: Builder = ({ result }) => {
     period: formatPeriod(result.as_of),
     metrics: [
       metric("Open purchase orders", count(result.open_orders)),
-      { label: "Late lines", value: { ...count(delayed.length), tone: delayed.length ? "warn" : "good" } },
+      {
+        label: "Late lines",
+        value: { ...count(delayed.length), tone: delayed.length ? "warn" : "good" },
+      },
       metric("Partly received", count(result.partially_received)),
-      metric("Unpaid supplier bills", money(payables.total), `${money(payables.overdue).display} overdue`),
+      metric(
+        "Unpaid supplier bills",
+        money(payables.total),
+        `${money(payables.overdue).display} overdue`,
+      ),
     ],
     sections,
     recommendations: delayed
@@ -229,9 +244,21 @@ export const supplierComparison: Builder = ({ result }) => {
       strings(choice.missing).forEach((m) => unknown.add(m));
     } else {
       notices.push(
-        notice("warn", "unavailable", `No suitable supplier was found for ${name ?? "a product"}.`, str(item.blocker)),
+        notice(
+          "warn",
+          "unavailable",
+          `No suitable supplier was found for ${name ?? "a product"}.`,
+          str(item.blocker),
+        ),
       );
-      best.push({ product: nameCell(name), qty: qty(item.qty), supplier: text("None suitable"), price: text(null), lead: text(null), list: money(item.list_price) });
+      best.push({
+        product: nameCell(name),
+        qty: qty(item.qty),
+        supplier: text("None suitable"),
+        price: text(null),
+        lead: text(null),
+        list: money(item.list_price),
+      });
     }
     if (basis) reasons.push(`${name ?? "Product"}: compared for ${basis}.`);
     for (const q of recs(item.considered)) {
@@ -241,14 +268,21 @@ export const supplierComparison: Builder = ({ result }) => {
         quote: text(q.quotation),
         price: money(q.rate),
         lead: days(q.lead_time_days),
-        suitable: q.suitable === true ? statusCell("Yes", "good") : statusCell(strings(q.not_suitable_because).join("; ") || "No", "warn"),
+        suitable:
+          q.suitable === true
+            ? statusCell("Yes", "good")
+            : statusCell(strings(q.not_suitable_because).join("; ") || "No", "warn"),
       });
       strings(q.missing).forEach((m) => unknown.add(m));
     }
   }
   if (unknown.size)
     notices.push(
-      notice("info", "unavailable", `Not known for some quotations: ${[...unknown].join(", ")}. The ranking did not use them.`),
+      notice(
+        "info",
+        "unavailable",
+        `Not known for some quotations: ${[...unknown].join(", ")}. The ranking did not use them.`,
+      ),
     );
 
   const criteria = [...new Set(items.map((i) => str(i.criteria)).filter(Boolean))] as string[];
@@ -272,7 +306,14 @@ export const supplierComparison: Builder = ({ result }) => {
         { empty: "No products were compared." },
       ),
       ...(criteria.length || reasons.length
-        ? ([{ kind: "list", id: "why", title: "How they were ranked", items: [...criteria, ...reasons].map((t) => ({ text: t })) }] as Section[])
+        ? ([
+            {
+              kind: "list",
+              id: "why",
+              title: "How they were ranked",
+              items: [...criteria, ...reasons].map((t) => ({ text: t })),
+            },
+          ] as Section[])
         : []),
       table(
         "considered",
@@ -305,11 +346,21 @@ export const supplierPerformance: Builder = ({ result }) => {
   };
   const notices: Notice[] = [];
   if (suppliers.length && suppliers.every((s) => toNumber(s.on_time_rate) === null))
-    notices.push(notice("info", "unavailable", "On-time rate is not available for these suppliers."));
+    notices.push(
+      notice("info", "unavailable", "On-time rate is not available for these suppliers."),
+    );
   if (suppliers.length && suppliers.every((s) => toNumber(s.quoted_lead_time_days) === null))
-    notices.push(notice("info", "unavailable", "Quoted lead times are not available for these suppliers."));
+    notices.push(
+      notice("info", "unavailable", "Quoted lead times are not available for these suppliers."),
+    );
   if (suppliers.length && suppliers.every((s) => toNumber(s.price_variance_pct) === null))
-    notices.push(notice("info", "unavailable", "Invoiced-versus-quoted price could not be compared for these suppliers."));
+    notices.push(
+      notice(
+        "info",
+        "unavailable",
+        "Invoiced-versus-quoted price could not be compared for these suppliers.",
+      ),
+    );
 
   const sections: Section[] = [
     table(
@@ -336,14 +387,18 @@ export const supplierPerformance: Builder = ({ result }) => {
       { empty: "No suppliers matched." },
     ),
   ];
-  if (str(result.price_basis)) sections.push({ kind: "note", id: "basis", text: str(result.price_basis) as string });
+  if (str(result.price_basis))
+    sections.push({ kind: "note", id: "basis", text: str(result.price_basis) as string });
 
   return {
     period: formatPeriod(result.as_of),
     notices,
     metrics: [
       metric("Suppliers reviewed", count(suppliers.length)),
-      { label: "Delaying deliveries", value: { ...count(delaying.length), tone: delaying.length ? "warn" : "good" } },
+      {
+        label: "Delaying deliveries",
+        value: { ...count(delaying.length), tone: delaying.length ? "warn" : "good" },
+      },
     ],
     sections,
     recommendations: delaying.map(
@@ -360,11 +415,13 @@ const SEVERITY: Record<number, string> = { 3: "High", 2: "Medium", 1: "Low" };
 /** A pointer to the report to open next, chosen by the kind of problem. No figures are added. */
 function nextStep(title: string): string | null {
   if (/udhaar/i.test(title)) return "Open the Udhaar Report and start with the oldest dues.";
-  if (/out of stock/i.test(title)) return "Open Stock Check and reorder the out-of-stock products first.";
+  if (/out of stock/i.test(title))
+    return "Open Stock Check and reorder the out-of-stock products first.";
   if (/reorder level/i.test(title)) return "Open Stock Check to see what to buy.";
   if (/sales dropped/i.test(title)) return "Open the Daily Report to see what changed.";
   if (/late supplier/i.test(title)) return "Open Purchase Status and follow up with the suppliers.";
-  if (/expired|expiring/i.test(title)) return "Open Expiry Check and deal with the oldest batches first.";
+  if (/expired|expiring/i.test(title))
+    return "Open Expiry Check and deal with the oldest batches first.";
   if (/credit limit/i.test(title)) return "Open the Udhaar Report and review those customers.";
   if (/profit/i.test(title)) return "Open the Business Report and review expenses.";
   return null;
@@ -377,10 +434,21 @@ export const storeHealthReport: Builder = ({ result }) => {
   const total = toNumber(result.all_problems);
   const notices: Notice[] = unchecked.map((u) => {
     const why = explain(str(u.reason));
-    return notice("warn", "unchecked", `${humanize(str(u.area) ?? "An area")} was not checked. ${why.text}`, why.detail);
+    return notice(
+      "warn",
+      "unchecked",
+      `${humanize(str(u.area) ?? "An area")} was not checked. ${why.text}`,
+      why.detail,
+    );
   });
   if (snapshot.net_profit_7_days === null)
-    notices.push(notice("info", "unavailable", "Profit for the last 7 days could not be read, so it was not part of this check."));
+    notices.push(
+      notice(
+        "info",
+        "unavailable",
+        "Profit for the last 7 days could not be read, so it was not part of this check.",
+      ),
+    );
 
   const sections: Section[] = [];
   if (problems.length)
@@ -393,7 +461,9 @@ export const storeHealthReport: Builder = ({ result }) => {
         const sev = SEVERITY[Number(p.severity)];
         return {
           text: `${sev ? `${sev}: ` : ""}${str(p.title) ?? "Problem"}`,
-          detail: [str(p.detail), impact ? `About ${money(impact).display} affected.` : undefined].filter(Boolean).join(" "),
+          detail: [str(p.detail), impact ? `About ${money(impact).display} affected.` : undefined]
+            .filter(Boolean)
+            .join(" "),
           tone: Number(p.severity) >= 3 ? ("bad" as const) : ("warn" as const),
         };
       }),
@@ -408,13 +478,21 @@ export const storeHealthReport: Builder = ({ result }) => {
         : "No problems were found in the areas checked: sales, stock, udhaar, deliveries and profit.",
     });
   if (total !== null && total > problems.length)
-    sections.push({ kind: "note", id: "more", text: `Showing the top ${problems.length} of ${total} problems found.` });
+    sections.push({
+      kind: "note",
+      id: "more",
+      text: `Showing the top ${problems.length} of ${total} problems found.`,
+    });
 
   return {
     period: formatPeriod(result.as_of),
     notices,
     metrics: [
-      metric("Sales yesterday", money(snapshot.sales_yesterday), `Average of the 6 days before: ${money(snapshot.sales_average).display}`),
+      metric(
+        "Sales yesterday",
+        money(snapshot.sales_yesterday),
+        `Average of the 6 days before: ${money(snapshot.sales_average).display}`,
+      ),
       metric("Udhaar pending", money(snapshot.udhaar)),
       metric("Profit, last 7 days", money(snapshot.net_profit_7_days)),
       metric("Products running low", count(snapshot.low_stock)),

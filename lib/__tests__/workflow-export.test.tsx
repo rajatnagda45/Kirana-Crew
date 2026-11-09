@@ -15,7 +15,12 @@ type Any = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 const fixture = (name: string): WorkflowView =>
   normalizeWorkflow<WorkflowView>(
-    JSON.parse(readFileSync(join(process.cwd(), "lib/__tests__/fixtures/workflow-runs", `${name}.json`), "utf8")).workflow,
+    JSON.parse(
+      readFileSync(
+        join(process.cwd(), "lib/__tests__/fixtures/workflow-runs", `${name}.json`),
+        "utf8",
+      ),
+    ).workflow,
   );
 
 /** Reads the raw bytes and decodes them keeping any byte-order mark (readAsText would strip it). */
@@ -69,7 +74,10 @@ describe("copy", () => {
     expect(await copyText("hello")).toBe(true);
     expect(exec).toHaveBeenCalledWith("copy");
 
-    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: vi.fn().mockRejectedValue(new Error("denied")) } });
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: vi.fn().mockRejectedValue(new Error("denied")) },
+    });
     exec.mockReturnValue(false as never);
     expect(await copyText("hello")).toBe(false);
 
@@ -89,7 +97,9 @@ describe("CSV download", () => {
       createObjectURL: vi.fn((b: Blob) => (created.push(b), "blob:report")),
       revokeObjectURL: vi.fn(),
     });
-    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
       names.push(this.download);
     });
   });
@@ -104,7 +114,9 @@ describe("CSV download", () => {
     const csv = await readBlob(created[0]);
     const low = (view.result as Any).low[0];
     expect(csv.startsWith("﻿")).toBe(true); // BOM
-    expect(csv.split("\r\n")[0]).toBe("﻿Product,In stock,Reorder level,Short by,Suggested purchase,Best supplier,Quoted price");
+    expect(csv.split("\r\n")[0]).toBe(
+      "﻿Product,In stock,Reorder level,Short by,Suggested purchase,Best supplier,Quoted price",
+    );
     expect(csv).toContain(`${low.item_name},${low.available},${low.reorder_level},`);
     expect(csv).not.toContain("₹"); // raw values, not display text
   });
@@ -115,7 +127,9 @@ describe("CSV download", () => {
     fireEvent.change(screen.getByLabelText("Table to download"), { target: { value: "1" } });
     fireEvent.click(screen.getByRole("button", { name: "Download CSV" }));
     expect(names[0]).toMatch(/all-products-checked/);
-    expect((await readBlob(created[0])).split("\r\n")[0]).toBe("﻿Product,Group,In stock,Reorder level,Status");
+    expect((await readBlob(created[0])).split("\r\n")[0]).toBe(
+      "﻿Product,Group,In stock,Reorder level,Status",
+    );
   });
 
   it("exports every row, not only the rows shown on screen", async () => {
@@ -170,7 +184,12 @@ describe("print", () => {
       status: "completed",
       intent: { action: "brand_new_report" },
       summary: "<b>bold</b> & more",
-      result: { rows: Array.from({ length: 40 }, (_, i) => ({ name: i === 3 ? '<script>alert("x")</script>' : `Item ${i}`, qty: i })) },
+      result: {
+        rows: Array.from({ length: 40 }, (_, i) => ({
+          name: i === 3 ? '<script>alert("x")</script>' : `Item ${i}`,
+          qty: i,
+        })),
+      },
     });
     const html = printHtml(model);
     expect(html).toContain("Item 39");
@@ -195,7 +214,11 @@ describe("print", () => {
     let afterPrint: (() => void) | undefined;
     Object.defineProperty(frame, "contentWindow", {
       configurable: true,
-      value: { print, focus: vi.fn(), addEventListener: (_: string, cb: () => void) => (afterPrint = cb) },
+      value: {
+        print,
+        focus: vi.fn(),
+        addEventListener: (_: string, cb: () => void) => (afterPrint = cb),
+      },
     });
     expect(print).not.toHaveBeenCalled(); // not before it has loaded
     act(() => frame.onload?.(new Event("load")));
@@ -209,7 +232,10 @@ describe("print", () => {
     try {
       expect(printHtmlDocument("<p>x</p>", { cleanupMs: 1000 })).toBe(true);
       const frame = document.querySelector("iframe") as HTMLIFrameElement;
-      Object.defineProperty(frame, "contentWindow", { configurable: true, value: { print: vi.fn(), focus: vi.fn(), addEventListener: vi.fn() } });
+      Object.defineProperty(frame, "contentWindow", {
+        configurable: true,
+        value: { print: vi.fn(), focus: vi.fn(), addEventListener: vi.fn() },
+      });
       frame.onload?.(new Event("load"));
       vi.advanceTimersByTime(1001);
       expect(document.querySelector("iframe")).toBeNull();

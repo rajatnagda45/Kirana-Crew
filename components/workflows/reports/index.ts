@@ -10,7 +10,15 @@ import {
 } from "@/lib/workflow-contract";
 import { durationMs, formatDateTime, formatDuration, formatPeriod } from "./format";
 import { generic } from "./generic";
-import { clarificationQuestion, explain, notice, rec, str, type Builder, type Part } from "./helpers";
+import {
+  clarificationQuestion,
+  explain,
+  notice,
+  rec,
+  str,
+  type Builder,
+  type Part,
+} from "./helpers";
 import { demandForecast, expiryCheck, stockCheck } from "./inventory";
 import {
   purchaseStatus,
@@ -19,7 +27,13 @@ import {
   supplierComparison,
   supplierPerformance,
 } from "./purchasing";
-import { billingSummary, businessReport, customerInsights, dailyReport, paymentsSummary } from "./sales";
+import {
+  billingSummary,
+  businessReport,
+  customerInsights,
+  dailyReport,
+  paymentsSummary,
+} from "./sales";
 import type { Notice, ReportModel } from "./types";
 
 /** One builder per `intent.action`. Workflows not listed here use the generic layout. */
@@ -132,7 +146,13 @@ export function buildReport(view: WorkflowView, options: { timeZone?: string } =
     ...(part.notices ?? []),
     ...taskNotices(tasks),
     ...(formatFailed
-      ? [notice("info", "info", "This report could not be laid out in the usual way, so a simpler layout is shown.")]
+      ? [
+          notice(
+            "info",
+            "info",
+            "This report could not be laid out in the usual way, so a simpler layout is shown.",
+          ),
+        ]
       : []),
   ]).sort((a, b) => ORDER[a.severity] - ORDER[b.severity]);
 
@@ -146,7 +166,7 @@ export function buildReport(view: WorkflowView, options: { timeZone?: string } =
   const headline =
     view.status === "needs_clarification" && clarifications.length
       ? clarifications.map(clarificationQuestion).join(" ")
-      : str(view.summary) ?? null;
+      : (str(view.summary) ?? null);
 
   const ms = durationMs(view.created_at, view.finished_at);
   return {

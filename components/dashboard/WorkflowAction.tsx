@@ -40,7 +40,8 @@ export function WorkflowAction({
           const summary =
             (view as unknown as { summary?: string }).summary ?? view.error ?? undefined;
           setOutcome({ status: view.status, summary: summary ?? undefined });
-          if (["completed", "partial"].includes(view.status)) toast.success(`${label}: ${view.status}`);
+          if (["completed", "partial"].includes(view.status))
+            toast.success(`${label}: ${view.status}`);
           else toast.error(`${label}: ${view.status}`);
           onDone?.();
           return;

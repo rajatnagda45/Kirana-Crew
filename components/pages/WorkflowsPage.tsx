@@ -48,13 +48,18 @@ export default function WorkflowsPage() {
         const row = binding.find((b) => b.business_capability === need);
         return !row || row.availability !== "available";
       });
-      if (missing) off[def.action] = "This check is not connected to your ERP data yet, so it cannot run. Nothing is wrong with your data.";
+      if (missing)
+        off[def.action] =
+          "This check is not connected to your ERP data yet, so it cannot run. Nothing is wrong with your data.";
     }
     return off;
   }, [binding, bindingLoading, bindingError]);
 
   // A run waiting for approval has an approval to show: fetch it when such a run appears.
-  const awaiting = workflows.filter((w) => w.status === "awaiting_approval").map((w) => w.id).join(",");
+  const awaiting = workflows
+    .filter((w) => w.status === "awaiting_approval")
+    .map((w) => w.id)
+    .join(",");
   useEffect(() => {
     if (awaiting) void reloadApprovals();
   }, [awaiting, reloadApprovals]);
@@ -88,20 +93,51 @@ export default function WorkflowsPage() {
   };
 
   return (
-    <div style={{ padding: "24px clamp(12px, 3vw, 28px)", overflowY: "auto", height: "100%", color: "var(--kirana-foreground)" }}>
-      <header style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 24 }}>
+    <div
+      style={{
+        padding: "24px clamp(12px, 3vw, 28px)",
+        overflowY: "auto",
+        height: "100%",
+        color: "var(--kirana-foreground)",
+      }}
+    >
+      <header
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 12,
+          marginBottom: 24,
+        }}
+      >
         <div>
-          <h1 style={{ ...ui.heading, fontSize: 26, fontWeight: 800, margin: "0 0 4px" }}>Workflows</h1>
+          <h1 style={{ ...ui.heading, fontSize: 26, fontWeight: 800, margin: "0 0 4px" }}>
+            Workflows
+          </h1>
           <p style={{ ...ui.muted, fontSize: 13, margin: 0 }}>
             Run a business check and read the result in plain language.
           </p>
         </div>
-        <button type="button" onClick={() => void refresh()} aria-busy={refreshing || undefined} style={ui.btn()}>
-          <RefreshCw size={13} aria-hidden="true" style={refreshing ? { animation: "wf-spin 1s linear infinite" } : undefined} /> Refresh
+        <button
+          type="button"
+          onClick={() => void refresh()}
+          aria-busy={refreshing || undefined}
+          style={ui.btn()}
+        >
+          <RefreshCw
+            size={13}
+            aria-hidden="true"
+            style={refreshing ? { animation: "wf-spin 1s linear infinite" } : undefined}
+          />{" "}
+          Refresh
         </button>
       </header>
 
-      <ApprovalsCard approvals={approvals} onDecide={(id, action, pin) => decide(id, action, pin)} />
+      <ApprovalsCard
+        approvals={approvals}
+        onDecide={(id, action, pin) => decide(id, action, pin)}
+      />
 
       <WorkflowCards onRun={run} starting={starting} reorder={reorder} unavailable={unavailable} />
 

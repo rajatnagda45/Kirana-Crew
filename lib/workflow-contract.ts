@@ -124,7 +124,11 @@ const STATUS_INFO: Record<string, StatusInfo> = {
     tone: "warn",
     explain: "Nothing is final until you approve it.",
   },
-  blocked: { label: "Blocked", tone: "bad", explain: "This could not run, and nothing was changed." },
+  blocked: {
+    label: "Blocked",
+    tone: "bad",
+    explain: "This could not run, and nothing was changed.",
+  },
   failed: { label: "Failed", tone: "bad", explain: "This run did not finish." },
   uncertain: {
     label: "Outcome uncertain",

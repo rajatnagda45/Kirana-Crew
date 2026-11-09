@@ -21,7 +21,13 @@ describe("client-relayed turn timings", () => {
     ]);
     expect(turns).toHaveLength(20);
     const all = sanitizeTurns([
-      { speech_to_tool_ms: 900, tool_ms: 7600, speech_to_text_ms: 9100, speech_to_audio_ms: 9700, transcript: "x" },
+      {
+        speech_to_tool_ms: 900,
+        tool_ms: 7600,
+        speech_to_text_ms: 9100,
+        speech_to_audio_ms: 9700,
+        transcript: "x",
+      },
       { speech_to_tool_ms: -5, tool_ms: 1.5, speech_to_text_ms: "fast", speech_to_audio_ms: 9e9 },
     ]);
     expect(all[0]).toEqual({
@@ -208,9 +214,19 @@ describe("abandoned call reaper", () => {
 
   it("does not let a late heartbeat reopen a reaped call", () => {
     const { db, service, call } = reaperSetup();
-    call("late", { createdAt: ago(9 * 60_000), status: "connected", updatedAt: ago(5 * 60_000), sequence: 3 });
+    call("late", {
+      createdAt: ago(9 * 60_000),
+      status: "connected",
+      updatedAt: ago(5 * 60_000),
+      sequence: 3,
+    });
     service.reap({ now: NOW });
-    const after = service.report({ callId: "late", sequence: 99, status: "connected", durationMs: 5 });
+    const after = service.report({
+      callId: "late",
+      sequence: 99,
+      status: "connected",
+      durationMs: 5,
+    });
     expect(after.status).toBe("ended");
     expect(db.record("voiceCall", "late").status).toBe("ended");
   });

@@ -2,11 +2,7 @@
   "workflow": {
     "intent": {
       "action": "supplier_comparison",
-      "products": [
-        "Atta",
-        "Rice",
-        "Sugar"
-      ]
+      "products": ["Atta", "Rice", "Sugar"]
     },
     "command": null,
     "status": "completed",
@@ -34,10 +30,7 @@
             "on_time_rate": null,
             "suitable": true,
             "not_suitable_because": [],
-            "missing": [
-              "availability",
-              "delivery reliability"
-            ]
+            "missing": ["availability", "delivery reliability"]
           },
           "considered": [
             {
@@ -49,10 +42,7 @@
               "on_time_rate": null,
               "suitable": true,
               "not_suitable_because": [],
-              "missing": [
-                "availability",
-                "delivery reliability"
-              ]
+              "missing": ["availability", "delivery reliability"]
             }
           ],
           "criteria": "Suitable = can supply the quantity and quotation still valid; then lowest rate, shortest lead time, best on-time rate.",
@@ -76,10 +66,7 @@
             "on_time_rate": null,
             "suitable": true,
             "not_suitable_because": [],
-            "missing": [
-              "availability",
-              "delivery reliability"
-            ]
+            "missing": ["availability", "delivery reliability"]
           },
           "considered": [
             {
@@ -91,10 +78,7 @@
               "on_time_rate": null,
               "suitable": true,
               "not_suitable_because": [],
-              "missing": [
-                "availability",
-                "delivery reliability"
-              ]
+              "missing": ["availability", "delivery reliability"]
             }
           ],
           "criteria": "Suitable = can supply the quantity and quotation still valid; then lowest rate, shortest lead time, best on-time rate.",
@@ -118,10 +102,7 @@
             "on_time_rate": null,
             "suitable": true,
             "not_suitable_because": [],
-            "missing": [
-              "availability",
-              "delivery reliability"
-            ]
+            "missing": ["availability", "delivery reliability"]
           },
           "considered": [
             {
@@ -133,10 +114,7 @@
               "on_time_rate": null,
               "suitable": true,
               "not_suitable_because": [],
-              "missing": [
-                "availability",
-                "delivery reliability"
-              ]
+              "missing": ["availability", "delivery reliability"]
             }
           ],
           "criteria": "Suitable = can supply the quantity and quotation still valid; then lowest rate, shortest lead time, best on-time rate.",

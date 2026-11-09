@@ -55,8 +55,7 @@ function fakeHv({ delay = 5, pageLimit = Infinity, failItemsOnce = false } = {})
       ]);
     },
     erpnext_item_get: (args) => ({ data: { name: args.name, reorder_levels: [] } }),
-    erpnext_sales_invoice_list: (args) =>
-      limited(inWindow(sales, args.date_from, args.date_to)),
+    erpnext_sales_invoice_list: (args) => limited(inWindow(sales, args.date_from, args.date_to)),
     erpnext_sales_invoice_get: (args) =>
       doc(args.name, sales.find((row) => row.name === args.name)!.posting_date),
     erpnext_doc_list: (args) => {

@@ -51,7 +51,13 @@ export const WORKFLOW_DEFS: WorkflowDef[] = [
     icon: "Package",
     color: "var(--kirana-success)",
     fields: [
-      { key: "products", label: "Only these products (optional)", type: "products", example: "Milk, Rice", help: "Separate names with commas. Leave empty to check everything." },
+      {
+        key: "products",
+        label: "Only these products (optional)",
+        type: "products",
+        example: "Milk, Rice",
+        help: "Separate names with commas. Leave empty to check everything.",
+      },
     ],
   },
   {
@@ -62,8 +68,19 @@ export const WORKFLOW_DEFS: WorkflowDef[] = [
     color: "var(--kirana-primary)",
     fields: [
       { key: "date", label: "Day", type: "date", help: "Leave empty for today." },
-      { key: "to", label: "Until (optional)", type: "date", help: "Fill this to report a range of up to 31 days." },
-      { key: "with_profit", label: "Include profit", type: "checkbox", checked: true, help: "Profit comes only from posted accounting entries." },
+      {
+        key: "to",
+        label: "Until (optional)",
+        type: "date",
+        help: "Fill this to report a range of up to 31 days.",
+      },
+      {
+        key: "with_profit",
+        label: "Include profit",
+        type: "checkbox",
+        checked: true,
+        help: "Profit comes only from posted accounting entries.",
+      },
     ],
   },
   {
@@ -78,22 +95,42 @@ export const WORKFLOW_DEFS: WorkflowDef[] = [
   {
     action: "demand_forecast",
     label: "Demand Forecast",
-    description: "Estimates how much you will sell in the next 7 and 30 days, from your past sales.",
+    description:
+      "Estimates how much you will sell in the next 7 and 30 days, from your past sales.",
     icon: "TrendingUp",
     color: "oklch(0.7 0.18 260)",
     fields: [
-      { key: "products", label: "Only these products (optional)", type: "products", example: "Milk, Rice", help: "Separate names with commas. Leave empty to forecast everything." },
+      {
+        key: "products",
+        label: "Only these products (optional)",
+        type: "products",
+        example: "Milk, Rice",
+        help: "Separate names with commas. Leave empty to forecast everything.",
+      },
     ],
   },
   {
     action: "supplier_comparison",
     label: "Supplier Comparison",
-    description: "Compares supplier quotations for the products you choose, by price and delivery time.",
+    description:
+      "Compares supplier quotations for the products you choose, by price and delivery time.",
     icon: "Users",
     color: "oklch(0.7 0.15 30)",
     fields: [
-      { key: "products", label: "Products to compare", type: "products", required: true, example: "Atta, Rice, Sugar", help: "Type the product names, separated by commas." },
-      { key: "qty", label: "Quantity (optional)", type: "number", help: "Leave empty to use each product's usual reorder quantity." },
+      {
+        key: "products",
+        label: "Products to compare",
+        type: "products",
+        required: true,
+        example: "Atta, Rice, Sugar",
+        help: "Type the product names, separated by commas.",
+      },
+      {
+        key: "qty",
+        label: "Quantity (optional)",
+        type: "number",
+        help: "Leave empty to use each product's usual reorder quantity.",
+      },
     ],
   },
   {
@@ -134,11 +171,18 @@ export const WORKFLOW_DEFS: WorkflowDef[] = [
   {
     action: "supplier_performance",
     label: "Supplier Performance",
-    description: "How reliable each supplier is: late deliveries, and prices against their quotations.",
+    description:
+      "How reliable each supplier is: late deliveries, and prices against their quotations.",
     icon: "Gauge",
     color: "oklch(0.7 0.15 150)",
     fields: [
-      { key: "products", label: "Only these products (optional)", type: "products", example: "Milk, Curd", help: "Looks only at suppliers of these products. Leave empty for all suppliers." },
+      {
+        key: "products",
+        label: "Only these products (optional)",
+        type: "products",
+        example: "Milk, Curd",
+        help: "Looks only at suppliers of these products. Leave empty for all suppliers.",
+      },
     ],
   },
   {
@@ -152,7 +196,8 @@ export const WORKFLOW_DEFS: WorkflowDef[] = [
   {
     action: "store_health_report",
     label: "Store Health",
-    description: "The biggest problems in the shop today, from sales, stock, udhaar, expiry and supplier delays.",
+    description:
+      "The biggest problems in the shop today, from sales, stock, udhaar, expiry and supplier delays.",
     icon: "HeartPulse",
     color: "var(--kirana-primary)",
     fields: [],
@@ -160,7 +205,8 @@ export const WORKFLOW_DEFS: WorkflowDef[] = [
   {
     action: "business_report",
     label: "Business Report",
-    description: "Sales, profit, dues and stock for a week or month, compared with the period before.",
+    description:
+      "Sales, profit, dues and stock for a week or month, compared with the period before.",
     icon: "FileText",
     color: "oklch(0.7 0.16 230)",
     fields: periodFields("the last 7 days"),
@@ -190,7 +236,14 @@ export const WORKFLOW_DEFS: WorkflowDef[] = [
     color: "oklch(0.7 0.1 250)",
     needs: ["erp.po.get"],
     fields: [
-      { key: "po_name", label: "Purchase order number", type: "text", required: true, example: "PUR-ORD-2026-00004", help: "As printed on the order." },
+      {
+        key: "po_name",
+        label: "Purchase order number",
+        type: "text",
+        required: true,
+        example: "PUR-ORD-2026-00004",
+        help: "As printed on the order.",
+      },
     ],
   },
 ];
@@ -219,7 +272,8 @@ export function parseProducts(value: string): string[] {
   return out;
 }
 
-const dayNumber = (value: string) => Date.UTC(+value.slice(0, 4), +value.slice(5, 7) - 1, +value.slice(8, 10)) / 86_400_000;
+const dayNumber = (value: string) =>
+  Date.UTC(+value.slice(0, 4), +value.slice(5, 7) - 1, +value.slice(8, 10)) / 86_400_000;
 
 /**
  * Turns what the owner typed into the intent the API takes, or says what is wrong in plain words.
@@ -231,7 +285,8 @@ export function buildIntent(
 ): { intent?: WorkflowIntent; errors: Record<string, string> } {
   const errors: Record<string, string> = {};
   const intent: WorkflowIntent = { action: def.action };
-  const text = (key: string) => (typeof values[key] === "string" ? (values[key] as string).trim() : "");
+  const text = (key: string) =>
+    typeof values[key] === "string" ? (values[key] as string).trim() : "";
 
   for (const field of def.fields) {
     const raw = text(field.key);
@@ -252,14 +307,16 @@ export function buildIntent(
       case "products": {
         const names = parseProducts(raw);
         if (names.length > 20) errors[field.key] = "Use at most 20 products.";
-        else if (names.some((n) => n.length > 60)) errors[field.key] = "Each product name must be under 60 characters.";
+        else if (names.some((n) => n.length > 60))
+          errors[field.key] = "Each product name must be under 60 characters.";
         else if (names.length) intent.products = names;
         else if (field.required) errors[field.key] = `${field.label} is needed.`;
         break;
       }
       case "number": {
         const n = Number(raw);
-        if (!Number.isInteger(n) || n < 1 || n > 100000) errors[field.key] = "Enter a whole number from 1 to 100000.";
+        if (!Number.isInteger(n) || n < 1 || n > 100000)
+          errors[field.key] = "Enter a whole number from 1 to 100000.";
         else intent.qty = n;
         break;
       }
@@ -268,7 +325,8 @@ export function buildIntent(
         break;
       case "text":
         if (field.key === "po_name") {
-          if (!PO.test(raw)) errors[field.key] = "Use letters, numbers, spaces, dots, dashes or underscores only.";
+          if (!PO.test(raw))
+            errors[field.key] = "Use letters, numbers, spaces, dots, dashes or underscores only.";
           else intent.po_name = raw;
         }
         break;
@@ -280,7 +338,8 @@ export function buildIntent(
   if (intent.date && intent.to) {
     const span = dayNumber(intent.to) - dayNumber(intent.date);
     if (span < 0) errors.to = "The end date is before the start date.";
-    else if (span + 1 > MAX_RANGE_DAYS) errors.to = `A report covers at most ${MAX_RANGE_DAYS} days.`;
+    else if (span + 1 > MAX_RANGE_DAYS)
+      errors.to = `A report covers at most ${MAX_RANGE_DAYS} days.`;
   }
   return Object.keys(errors).length ? { errors } : { intent, errors };
 }

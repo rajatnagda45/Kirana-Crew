@@ -7,7 +7,8 @@ import { count, day, humanize, money, percent, qty, text, toNumber } from "./for
 import { metric, rec, recs, strings, table, type Builder, type Rec } from "./helpers";
 import type { Cell, Column, Metric, Row, Section } from "./types";
 
-const MONEY_KEY = /(total|amount|value|revenue|sales|price|rate|outstanding|income|expense|profit|cost|paid|received|owed)/i;
+const MONEY_KEY =
+  /(total|amount|value|revenue|sales|price|rate|outstanding|income|expense|profit|cost|paid|received|owed)/i;
 const PERCENT_KEY = /(pct|percent)/i;
 const DATE_LIKE = /^\d{4}-\d{2}-\d{2}/;
 
@@ -15,7 +16,13 @@ const DATE_LIKE = /^\d{4}-\d{2}-\d{2}/;
 export function scalarCell(key: string, value: unknown): Cell | null {
   if (value === null || value === undefined) return text(null);
   if (typeof value === "number")
-    return MONEY_KEY.test(key) ? money(value) : PERCENT_KEY.test(key) ? percent(value) : Number.isInteger(value) ? count(value) : qty(value);
+    return MONEY_KEY.test(key)
+      ? money(value)
+      : PERCENT_KEY.test(key)
+        ? percent(value)
+        : Number.isInteger(value)
+          ? count(value)
+          : qty(value);
   if (typeof value === "boolean") return text(value ? "Yes" : "No");
   if (typeof value === "string") {
     if (DATE_LIKE.test(value) && value.length <= 10) return day(value);
@@ -58,7 +65,12 @@ export const generic: Builder = ({ result }) => {
         );
         sections.push(table(`list-${key}`, humanize(key), columns, tableRows));
       } else if (words.length) {
-        sections.push({ kind: "list", id: `list-${key}`, title: humanize(key), items: words.map((w) => ({ text: w })) });
+        sections.push({
+          kind: "list",
+          id: `list-${key}`,
+          title: humanize(key),
+          items: words.map((w) => ({ text: w })),
+        });
       }
       continue;
     }

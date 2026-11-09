@@ -64,7 +64,10 @@ export const stockCheck: Builder = ({ result }) => {
     product: nameCell(item.item_name, item.item_code),
     group: text(item.item_group),
     stock: qty(item.available, str(item.uom)),
-    level: item.status === "no_reorder_level" ? statusCell("Not set") : qty(item.reorder_level, str(item.uom)),
+    level:
+      item.status === "no_reorder_level"
+        ? statusCell("Not set")
+        : qty(item.reorder_level, str(item.uom)),
     status:
       item.status === "low"
         ? statusCell("Running low", "warn")
@@ -84,7 +87,12 @@ export const stockCheck: Builder = ({ result }) => {
     );
   if (suggestionsMissing)
     notices.push(
-      notice("warn", "unavailable", "Supplier suggestions could not be prepared.", suggestionsStatus),
+      notice(
+        "warn",
+        "unavailable",
+        "Supplier suggestions could not be prepared.",
+        suggestionsStatus,
+      ),
     );
 
   const sections: Section[] = [];
@@ -184,7 +192,12 @@ export const expiryCheck: Builder = ({ result }) => {
       table(
         "windows",
         "Stock by expiry window",
-        [left("window", "Expires"), right("batches", "Batches"), right("qty", "Quantity"), right("value", "Value")],
+        [
+          left("window", "Expires"),
+          right("batches", "Batches"),
+          right("qty", "Quantity"),
+          right("value", "Value"),
+        ],
         WINDOWS.map(([key, label]) => {
           const w = rec(windows[key]);
           return {
@@ -216,7 +229,10 @@ export const expiryCheck: Builder = ({ result }) => {
           qty: qty(item.qty),
           value: money(item.value_at_risk),
         })),
-        { intro: "Perishable products are listed first.", empty: "No batches expire within 30 days." },
+        {
+          intro: "Perishable products are listed first.",
+          empty: "No batches expire within 30 days.",
+        },
       ),
     );
   }
@@ -226,7 +242,10 @@ export const expiryCheck: Builder = ({ result }) => {
     notices,
     metrics: noBatches
       ? [metric("Batches tracked", count(0))]
-      : [metric("Batches tracked", count(tracked)), metric("Value at risk", money(result.value_at_risk))],
+      : [
+          metric("Batches tracked", count(tracked)),
+          metric("Value at risk", money(result.value_at_risk)),
+        ],
     sections,
   };
 };
@@ -260,7 +279,9 @@ export const demandForecast: Builder = ({ result }) => {
   const supply = str(result.supply_status);
   const noLeadTime = usable.filter((item) => rec(item.recommendation).status === "no_lead_time");
   const rough = usable.filter((item) => {
-    const wape = toNumber(rec(rec(rec(item.backtest).methods)[str(rec(item.method).id) ?? ""]).wape);
+    const wape = toNumber(
+      rec(rec(rec(item.backtest).methods)[str(rec(item.method).id) ?? ""]).wape,
+    );
     return wape !== null && wape > 1;
   });
   // Only the limits of products that were actually forecast belong in the basis note.
@@ -336,7 +357,10 @@ export const demandForecast: Builder = ({ result }) => {
           d30: qty(forecast.next_30_days),
           stock: qty(item.current_stock),
           buy: r.status === "ok" ? qty(r.suggested_qty) : noAdvice,
-          risk: r.status === "ok" ? text(RISK[String(r.stockout_risk)] ?? humanize(String(r.stockout_risk ?? ""))) : noAdvice,
+          risk:
+            r.status === "ok"
+              ? text(RISK[String(r.stockout_risk)] ?? humanize(String(r.stockout_risk ?? "")))
+              : noAdvice,
           test: testResult(item),
         };
       }),
@@ -353,7 +377,10 @@ export const demandForecast: Builder = ({ result }) => {
           product: nameCell(item.item_name, item.item_code),
           days: count(rec(item.history).observed_days),
         })),
-        { intro: "At least 14 days of sales are needed. These products are left out rather than guessed." },
+        {
+          intro:
+            "At least 14 days of sales are needed. These products are left out rather than guessed.",
+        },
       ),
     );
 

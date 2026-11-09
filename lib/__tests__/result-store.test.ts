@@ -30,7 +30,10 @@ const tempDir = () => {
 describe("result store", () => {
   it("stores gzip blobs that round-trip and match their audit hash", () => {
     const store = createResultStore(tempDir());
-    const result = { content: [{ type: "text", text: "x".repeat(5000) }], structuredContent: { rows: [1, 2, 3] } };
+    const result = {
+      content: [{ type: "text", text: "x".repeat(5000) }],
+      structuredContent: { rows: [1, 2, 3] },
+    };
     const put = store.put("inv_abc", result);
     expect(put.ref).toMatch(/^\d{4}-\d{2}\/inv_abc\.json\.gz$/);
     expect(put.sha256).toBe(fingerprint(result));
@@ -41,14 +44,20 @@ describe("result store", () => {
   it("rejects a blob whose content no longer matches the hash", () => {
     const store = createResultStore(tempDir());
     const put = store.put("inv_1", { content: [], structuredContent: { a: 1 } });
-    expect(() => store.get(put.ref, fingerprint({ content: [], structuredContent: { a: 2 } }))).toThrow(
-      /does not match its audit hash/,
-    );
+    expect(() =>
+      store.get(put.ref, fingerprint({ content: [], structuredContent: { a: 2 } })),
+    ).toThrow(/does not match its audit hash/);
   });
 
   it("refuses references that could escape the store directory", () => {
     const store = createResultStore(tempDir());
-    for (const bad of ["../x.json.gz", "2026-11/../../x.json.gz", "/etc/passwd", "2026-11/a/b.json.gz", "2026-11/x.txt"])
+    for (const bad of [
+      "../x.json.gz",
+      "2026-11/../../x.json.gz",
+      "/etc/passwd",
+      "2026-11/a/b.json.gz",
+      "2026-11/x.txt",
+    ])
       expect(() => store.get(bad)).toThrow(/Invalid result reference/);
   });
 
@@ -137,7 +146,11 @@ describe("gateway with a result store", () => {
     return id;
   }
   const run = (ctx: Any, id: string) =>
-    ctx.gateway.invoke({ agentId: "analyst", capabilityId: id, arguments: { sku: "SKU-17", warehouse: "BIN-A" } });
+    ctx.gateway.invoke({
+      agentId: "analyst",
+      capabilityId: id,
+      arguments: { sku: "SKU-17", warehouse: "BIN-A" },
+    });
 
   it("moves the raw result out of the record and its events, keeps audit fields, and returns it unchanged", async () => {
     const store = createResultStore(tempDir());
@@ -186,7 +199,12 @@ describe("gateway with a result store", () => {
   });
 
   it("falls back to inline storage if the blob cannot be written, so no evidence is lost", async () => {
-    const broken = { put: () => { throw new Error("disk full"); }, get: () => null };
+    const broken = {
+      put: () => {
+        throw new Error("disk full");
+      },
+      get: () => null,
+    };
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     cleanup.push(() => warn.mockRestore());
     const ctx = setup(broken);

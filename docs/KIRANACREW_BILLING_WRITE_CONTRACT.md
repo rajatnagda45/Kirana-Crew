@@ -18,24 +18,24 @@ governed path that never depends on the open-ended agent.
 
 ## 2. Facts from the live ERP (read-only reconnaissance)
 
-| Fact | Value |
-|---|---|
-| Company | `NammaOPS` (single company), currency INR |
-| Selling price list | `Standard Selling` (INR) |
-| Default customer | `Walk-in Customer` exists, group Individual |
-| Warehouse used by real invoices | `Stores - N` (`set_warehouse`), `update_stock = 1` |
-| Items asked for | `NK-DAL-1KG` Toor Dal 1kg (standard rate 140); the only milk is `NK-MILK-500` Toned Milk 500ml (32). There is no "packet of milk" or "1 L" item. |
-| ERPNext tools | `erpnext_sales_invoice_create(customer, items[{item_code, qty, rate, warehouse?}], posting_date?, due_date?, company?, selling_price_list?, currency?, set_warehouse?)` makes a **draft**. `erpnext_sales_invoice_submit(name)` posts it (flagged destructive). |
-| Gap | The create tool has **no `update_stock` field**. A bill created through it would post to accounts but **not reduce stock**, unlike every real invoice here. |
+| Fact                            | Value                                                                                                                                                                                                                                                           |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Company                         | `NammaOPS` (single company), currency INR                                                                                                                                                                                                                       |
+| Selling price list              | `Standard Selling` (INR)                                                                                                                                                                                                                                        |
+| Default customer                | `Walk-in Customer` exists, group Individual                                                                                                                                                                                                                     |
+| Warehouse used by real invoices | `Stores - N` (`set_warehouse`), `update_stock = 1`                                                                                                                                                                                                              |
+| Items asked for                 | `NK-DAL-1KG` Toor Dal 1kg (standard rate 140); the only milk is `NK-MILK-500` Toned Milk 500ml (32). There is no "packet of milk" or "1 L" item.                                                                                                                |
+| ERPNext tools                   | `erpnext_sales_invoice_create(customer, items[{item_code, qty, rate, warehouse?}], posting_date?, due_date?, company?, selling_price_list?, currency?, set_warehouse?)` makes a **draft**. `erpnext_sales_invoice_submit(name)` posts it (flagged destructive). |
+| Gap                             | The create tool has **no `update_stock` field**. A bill created through it would post to accounts but **not reduce stock**, unlike every real invoice here.                                                                                                     |
 
 ## 3. Capabilities (server-owned, in `approval-policy.mjs` and the live binding)
 
-| Capability | Tool (adapter) | Risk | Granted to | Policy |
-|---|---|---|---|---|
-| `erp.sales_invoice.create_draft` | `create_sales_invoice_draft` | WRITE | Frank (`nammaops-billing`) only | creates a draft only; a draft is not a bill |
-| `erp.sales_invoice.get` | `get_sales_invoice` | READ | Frank, `nammaops-bill-submit`, dashboard reader | none |
-| `erp.sales_invoice.submit` | `submit_sales_invoice` | EXTERNAL_ACTION | new principal `nammaops-bill-submit` only | approval + owner PIN + exact-document re-read |
-| `erp.selling_prices.get` | `get_selling_prices` | READ | Frank | none |
+| Capability                       | Tool (adapter)               | Risk            | Granted to                                      | Policy                                        |
+| -------------------------------- | ---------------------------- | --------------- | ----------------------------------------------- | --------------------------------------------- |
+| `erp.sales_invoice.create_draft` | `create_sales_invoice_draft` | WRITE           | Frank (`nammaops-billing`) only                 | creates a draft only; a draft is not a bill   |
+| `erp.sales_invoice.get`          | `get_sales_invoice`          | READ            | Frank, `nammaops-bill-submit`, dashboard reader | none                                          |
+| `erp.sales_invoice.submit`       | `submit_sales_invoice`       | EXTERNAL_ACTION | new principal `nammaops-bill-submit` only       | approval + owner PIN + exact-document re-read |
+| `erp.selling_prices.get`         | `get_selling_prices`         | READ            | Frank                                           | none                                          |
 
 No grant to Manager or OpenClaw `main`. Purchase-order writes (`erp.po.create_draft`, `erp.po.submit`)
 **stay disabled in live**: they were not part of this request.
@@ -44,6 +44,7 @@ No grant to Manager or OpenClaw `main`. Purchase-order writes (`erp.po.create_dr
 
 The adapter's read path is untouched (`HVGERP_READS`, `readOnlyHint` check). Writes get a **separate,
 frozen allowlist** (`HVGERP_WRITES`) that is checked in code, not by prompt:
+
 - `erpnext_sales_invoice_create` is callable only from `create_sales_invoice_draft`, which takes
   `customer`, `items[{item_code, qty}]` and a date, and **fills in everything else itself**: company,
   `Standard Selling`, currency INR, warehouse `Stores - N`, and each `rate` from the live selling price.
@@ -77,6 +78,7 @@ frozen allowlist** (`HVGERP_WRITES`) that is checked in code, not by prompt:
 ## 6. Stock (needs your decision)
 
 Without `update_stock` a submitted bill leaves stock unchanged. Options:
+
 - **A (recommended):** the adapter performs one further, hard-coded write: set `update_stock = 1` and
   `set_warehouse` on the **draft it just created** via `erpnext_doc_update`, limited in code to
   `doctype = Sales Invoice`, `docstatus = 0`, those two fields. Matches how every existing invoice
@@ -85,14 +87,14 @@ Without `update_stock` a submitted bill leaves stock unchanged. Options:
 
 ## 7. Risks and controls
 
-| Risk | Control |
-|---|---|
-| Wrong price or product on a real bill | rates only from live selling prices; ambiguity asks first; the owner sees the exact draft before the PIN |
-| Double bill from a retry or a repeated voice turn | idempotency key per request; one draft per key; an uncertain create is reconciled by a read, never resent |
-| A draft left behind if the owner never approves | expires in the approval's 30 minutes; drafts do not touch accounts or stock; they stay listed as drafts in ERPNext (there is no delete tool, deliberately) |
-| Submitted bill can only be undone by a credit note | PIN, exact re-read, EmergencyStop, per-call approval, audit; credit notes are out of scope |
-| Frank reaching further than billing | frozen allowlist, per-capability grants, Manager and `main` ungranted, tests for every denial |
-| Spoken PIN heard by the model and speech service | accepted by the owner; the server never stores it |
+| Risk                                               | Control                                                                                                                                                    |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Wrong price or product on a real bill              | rates only from live selling prices; ambiguity asks first; the owner sees the exact draft before the PIN                                                   |
+| Double bill from a retry or a repeated voice turn  | idempotency key per request; one draft per key; an uncertain create is reconciled by a read, never resent                                                  |
+| A draft left behind if the owner never approves    | expires in the approval's 30 minutes; drafts do not touch accounts or stock; they stay listed as drafts in ERPNext (there is no delete tool, deliberately) |
+| Submitted bill can only be undone by a credit note | PIN, exact re-read, EmergencyStop, per-call approval, audit; credit notes are out of scope                                                                 |
+| Frank reaching further than billing                | frozen allowlist, per-capability grants, Manager and `main` ungranted, tests for every denial                                                              |
+| Spoken PIN heard by the model and speech service   | accepted by the owner; the server never stores it                                                                                                          |
 
 ## 8. Verification plan
 
@@ -112,6 +114,7 @@ That draft stays in ERPNext (no delete tool), and nothing is submitted live unle
 ## 10. As built, and the live result
 
 Built as contracted, with these specifics:
+
 - **Adapter** (`hvgerp-adapter-server.mjs`): `HVGERP_WRITES` is the frozen list `erpnext_sales_invoice_create`,
   `erpnext_doc_update`, `erpnext_sales_invoice_submit`, kept apart from the unchanged read path. The update is
   hard-coded to `Sales Invoice` and only `update_stock` and `set_warehouse`. `create_sales_invoice_draft` takes only
@@ -132,6 +135,7 @@ Built as contracted, with these specifics:
 
 Live test (real ERPNext, real governance, isolated in-memory app database), the sentence that failed:
 "create bill of customer which has taken 1 kg toor dal and one packet of milk", asked of Alice.
+
 - Alice answered "Frank (Billing) covers this"; Frank created draft **SINV-26-00497**: Walk-in Customer, 1 x Toor Dal
   1kg at 140 and 1 x Toned Milk 500ml at 32, total **172**, `docstatus 0`, `update_stock 1`, warehouse `Stores - N`.
 - Asking again reused the same draft (one new invoice in ERPNext, not two). Unknown customer, no quantity and

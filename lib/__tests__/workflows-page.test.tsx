@@ -15,7 +15,12 @@ type Any = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 // scripts/make-workflow-fixtures.mjs), so the page is exercised against the real response shapes.
 // (import.meta.url is not the real file path under jsdom, so the project root is used instead.)
 const detail = (name: string): Any =>
-  JSON.parse(readFileSync(join(process.cwd(), "lib/__tests__/fixtures/workflow-runs", `${name}.json`), "utf8")).workflow;
+  JSON.parse(
+    readFileSync(
+      join(process.cwd(), "lib/__tests__/fixtures/workflow-runs", `${name}.json`),
+      "utf8",
+    ),
+  ).workflow;
 const listItem = (d: Any) => {
   const { id, intent, status, created_at, finished_at, summary, error } = d;
   return { id, intent, status, created_at, finished_at, summary, ...(error ? { error } : {}) };
@@ -30,8 +35,26 @@ interface World {
   startError?: { status: number; error: string };
   decisionError?: { status: number; error: string };
 }
-const BLOCKED_PO = [{ business_capability: "erp.po.create_draft", mode: "live", tool: null, state: "unbound", availability: "unavailable", risk: "WRITE" }];
-const OPEN_PO = [{ business_capability: "erp.po.create_draft", mode: "fixture", tool: "create_purchase_order", state: "registered", availability: "available", risk: "WRITE" }];
+const BLOCKED_PO = [
+  {
+    business_capability: "erp.po.create_draft",
+    mode: "live",
+    tool: null,
+    state: "unbound",
+    availability: "unavailable",
+    risk: "WRITE",
+  },
+];
+const OPEN_PO = [
+  {
+    business_capability: "erp.po.create_draft",
+    mode: "fixture",
+    tool: "create_purchase_order",
+    state: "registered",
+    availability: "available",
+    risk: "WRITE",
+  },
+];
 
 let world: World;
 let calls: Array<{ method: string; path: string; body?: Any }>;
@@ -40,7 +63,8 @@ const add = (d: Any) => {
   world.order.unshift(d.id);
   return d;
 };
-const count = (path: RegExp, method = "GET") => calls.filter((c) => c.method === method && path.test(c.path)).length;
+const count = (path: RegExp, method = "GET") =>
+  calls.filter((c) => c.method === method && path.test(c.path)).length;
 
 function installFetch() {
   calls = [];
@@ -51,13 +75,19 @@ function installFetch() {
       const path = url.replace("/api/runtime/nammaops", "");
       const body = init?.body ? JSON.parse(String(init.body)) : undefined;
       calls.push({ method, path, body });
-      const reply = (status: number, payload: unknown) => ({ ok: status < 400, status, json: async () => payload }) as Response;
+      const reply = (status: number, payload: unknown) =>
+        ({ ok: status < 400, status, json: async () => payload }) as Response;
       if (world.fail) return reply(503, { error: "Server unavailable" });
-      if (method === "GET" && path === "/workflows") return reply(200, { workflows: world.order.map((id) => listItem(world.details[id])) });
+      if (method === "GET" && path === "/workflows")
+        return reply(200, { workflows: world.order.map((id) => listItem(world.details[id])) });
       const one = /^\/workflows\/([^/]+)$/.exec(path);
-      if (method === "GET" && one) return world.details[one[1]] ? reply(200, { workflow: world.details[one[1]] }) : reply(404, { error: "Workflow not found." });
+      if (method === "GET" && one)
+        return world.details[one[1]]
+          ? reply(200, { workflow: world.details[one[1]] })
+          : reply(404, { error: "Workflow not found." });
       if (method === "POST" && path === "/workflows") {
-        if (world.startError) return reply(world.startError.status, { error: world.startError.error });
+        if (world.startError)
+          return reply(world.startError.status, { error: world.startError.error });
         const run = add({
           id: `wf_new_${calls.length}`,
           intent: body.intent,
@@ -72,7 +102,8 @@ function installFetch() {
         return reply(202, { workflow: listItem(run) });
       }
       if (method === "GET" && path === "/binding") return reply(200, { binding: world.binding });
-      if (method === "GET" && path === "/approvals") return reply(200, { approvals: world.approvals });
+      if (method === "GET" && path === "/approvals")
+        return reply(200, { approvals: world.approvals });
       if (method === "POST" && /^\/approvals\//.test(path))
         return world.decisionError
           ? reply(world.decisionError.status, { error: world.decisionError.error })
@@ -125,7 +156,9 @@ describe("development mode (React StrictMode runs every effect twice)", () => {
     );
     await waitFor(() => expect(row(d.id)).not.toBeNull());
     fireEvent.click(within(row(d.id)).getByRole("button", { name: /View report/ }));
-    await waitFor(() => expect(within(row(d.id)).getByRole("article", { name: /Stock Check report/ })).toBeTruthy());
+    await waitFor(() =>
+      expect(within(row(d.id)).getByRole("article", { name: /Stock Check report/ })).toBeTruthy(),
+    );
   });
 });
 
@@ -158,10 +191,16 @@ describe("readable report", () => {
     const r = row(d.id);
     expect(within(r).getByRole("article", { name: /Stock Check report/ })).toBeTruthy();
     expect(within(r).getByRole("heading", { name: "Products running low" })).toBeTruthy();
-    expect(within(r).getAllByRole("columnheader").map((h) => h.textContent)).toContain("Suggested purchase");
+    expect(
+      within(r)
+        .getAllByRole("columnheader")
+        .map((h) => h.textContent),
+    ).toContain("Suggested purchase");
     expect(r.querySelector("pre")).toBeNull(); // no JSON by default
     fireEvent.click(within(r).getByText("Advanced: raw data"));
-    await waitFor(() => expect(r.querySelector("pre")?.textContent).toMatch(/"kind": "stock_check"/));
+    await waitFor(() =>
+      expect(r.querySelector("pre")?.textContent).toMatch(/"kind": "stock_check"/),
+    );
   });
 
   it("shows the title, status and summary once when a run is open, not twice", async () => {
@@ -226,21 +265,31 @@ describe("readable report", () => {
 describe("Prepare Reorder", () => {
   it("is labelled unavailable when purchase orders are off, and offers the read-only suggestions instead", async () => {
     await ready();
-    await waitFor(() => expect(screen.getByText(/Purchase orders cannot be created right now/)).toBeTruthy());
+    await waitFor(() =>
+      expect(screen.getByText(/Purchase orders cannot be created right now/)).toBeTruthy(),
+    );
     expect(screen.getByText("Purchase orders off")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Run Prepare Reorder" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Run Reorder suggestions (read-only)" }));
     await waitFor(() => expect(count(/^\/workflows$/, "POST")).toBe(1));
-    expect(calls.find((c) => c.method === "POST")?.body).toEqual({ intent: { action: "stock_check" } });
+    expect(calls.find((c) => c.method === "POST")?.body).toEqual({
+      intent: { action: "stock_check" },
+    });
   });
 
   it("runs the real Prepare Reorder only when the binding says purchase orders can be drafted", async () => {
     world.binding = OPEN_PO;
     await ready();
-    await waitFor(() => expect(screen.getByRole("button", { name: "Run Prepare Reorder" })).toBeTruthy());
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Run Prepare Reorder" })).toBeTruthy(),
+    );
     expect(screen.queryByText(/Purchase orders cannot be created/)).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Run Prepare Reorder" }));
-    await waitFor(() => expect(calls.find((c) => c.method === "POST")?.body).toEqual({ intent: { action: "prepare_reorder" } }));
+    await waitFor(() =>
+      expect(calls.find((c) => c.method === "POST")?.body).toEqual({
+        intent: { action: "prepare_reorder" },
+      }),
+    );
   });
 
   it("treats a binding that cannot be read as unavailable, never as enabled", async () => {
@@ -272,7 +321,9 @@ describe("starting a workflow", () => {
     expect(calls.find((c) => c.method === "POST")?.body).toEqual({
       intent: { action: "daily_report", date: "2026-11-07", with_profit: false },
     });
-    await waitFor(() => expect(document.querySelector('[data-run-status="running"]')).not.toBeNull());
+    await waitFor(() =>
+      expect(document.querySelector('[data-run-status="running"]')).not.toBeNull(),
+    );
     expect(document.querySelector('[aria-expanded="true"]')).not.toBeNull(); // opened so progress is visible
   });
 
@@ -280,11 +331,20 @@ describe("starting a workflow", () => {
     await ready();
     const card = screen.getByRole("form", { name: "Supplier Comparison" });
     fireEvent.click(within(card).getByRole("button", { name: /Run Supplier Comparison/ }));
-    expect(await within(card).findByRole("alert")).toHaveProperty("textContent", "Products to compare is needed.");
+    expect(await within(card).findByRole("alert")).toHaveProperty(
+      "textContent",
+      "Products to compare is needed.",
+    );
     expect(count(/^\/workflows$/, "POST")).toBe(0);
-    fireEvent.change(within(card).getByLabelText(/Products to compare/), { target: { value: " Atta, rice ,, ATTA " } });
+    fireEvent.change(within(card).getByLabelText(/Products to compare/), {
+      target: { value: " Atta, rice ,, ATTA " },
+    });
     fireEvent.click(within(card).getByRole("button", { name: /Run Supplier Comparison/ }));
-    await waitFor(() => expect(calls.find((c) => c.method === "POST")?.body).toEqual({ intent: { action: "supplier_comparison", products: ["Atta", "rice"] } }));
+    await waitFor(() =>
+      expect(calls.find((c) => c.method === "POST")?.body).toEqual({
+        intent: { action: "supplier_comparison", products: ["Atta", "rice"] },
+      }),
+    );
   });
 
   it("checks a date range before sending", async () => {
@@ -293,29 +353,53 @@ describe("starting a workflow", () => {
     fireEvent.change(within(card).getByLabelText("From"), { target: { value: "2026-11-10" } });
     fireEvent.change(within(card).getByLabelText("To"), { target: { value: "2026-11-01" } });
     fireEvent.click(within(card).getByRole("button", { name: /Run Business Report/ }));
-    expect((await within(card).findByRole("alert")).textContent).toMatch(/end date is before the start date/);
+    expect((await within(card).findByRole("alert")).textContent).toMatch(
+      /end date is before the start date/,
+    );
     expect(count(/^\/workflows$/, "POST")).toBe(0);
   });
 
   it("shows the server's message when a run cannot be started", async () => {
     world.startError = { status: 409, error: "The NammaOps workforce is not set up yet." };
     await ready();
-    fireEvent.click(within(screen.getByRole("form", { name: "Expiry Check" })).getByRole("button", { name: /Run Expiry Check/ }));
-    expect((await screen.findAllByRole("alert")).map((a) => a.textContent).join(" ")).toMatch(/workforce is not set up yet/);
+    fireEvent.click(
+      within(screen.getByRole("form", { name: "Expiry Check" })).getByRole("button", {
+        name: /Run Expiry Check/,
+      }),
+    );
+    expect((await screen.findAllByRole("alert")).map((a) => a.textContent).join(" ")).toMatch(
+      /workforce is not set up yet/,
+    );
   });
 
   it("offers cards for the supported extra workflows, but not the one that writes to the ERP", async () => {
     await ready();
-    for (const name of ["Business Report", "Billing Summary", "Payments Summary", "Purchase Order Lookup"])
+    for (const name of [
+      "Business Report",
+      "Billing Summary",
+      "Payments Summary",
+      "Purchase Order Lookup",
+    ])
       expect(screen.getByRole("form", { name })).toBeTruthy();
     expect(screen.queryByRole("form", { name: /Prepare Bill/ })).toBeNull();
     expect(screen.queryByRole("form", { name: /GST/ })).toBeNull();
   });
 
-  const cap = (business_capability: string, availability: string) => ({ business_capability, tool: "t", state: "registered", availability, risk: "READ" });
+  const cap = (business_capability: string, availability: string) => ({
+    business_capability,
+    tool: "t",
+    state: "registered",
+    availability,
+    risk: "READ",
+  });
 
   it("says a card is not available yet when its ERP connection is not set up, instead of offering a button that cannot work", async () => {
-    world.binding = [...BLOCKED_PO, cap("erp.payments.summary", "unavailable"), cap("erp.gst.summary", "unavailable"), cap("erp.po.get", "unavailable")];
+    world.binding = [
+      ...BLOCKED_PO,
+      cap("erp.payments.summary", "unavailable"),
+      cap("erp.gst.summary", "unavailable"),
+      cap("erp.po.get", "unavailable"),
+    ];
     await ready();
     for (const name of ["Payments Summary", "Purchase Order Lookup"]) {
       const card = await screen.findByRole("form", { name });
@@ -324,17 +408,32 @@ describe("starting a workflow", () => {
       expect(within(card).queryByRole("button", { name: /^Run / })).toBeNull();
     }
     // Cards that do not depend on those connections are unaffected.
-    expect(within(screen.getByRole("form", { name: "Business Report" })).getByRole("button", { name: /Run Business Report/ })).toBeTruthy();
+    expect(
+      within(screen.getByRole("form", { name: "Business Report" })).getByRole("button", {
+        name: /Run Business Report/,
+      }),
+    ).toBeTruthy();
   });
 
   it("offers the Run button as soon as the connection is available", async () => {
-    world.binding = [...BLOCKED_PO, cap("erp.payments.summary", "available"), cap("erp.gst.summary", "available"), cap("erp.po.get", "available")];
+    world.binding = [
+      ...BLOCKED_PO,
+      cap("erp.payments.summary", "available"),
+      cap("erp.gst.summary", "available"),
+      cap("erp.po.get", "available"),
+    ];
     await ready();
     const card = screen.getByRole("form", { name: "Payments Summary" });
-    await waitFor(() => expect(within(card).getByRole("button", { name: /Run Payments Summary/ })).toBeTruthy());
+    await waitFor(() =>
+      expect(within(card).getByRole("button", { name: /Run Payments Summary/ })).toBeTruthy(),
+    );
     expect(within(card).queryByText("Not available yet")).toBeNull();
     fireEvent.click(within(card).getByRole("button", { name: /Run Payments Summary/ }));
-    await waitFor(() => expect(calls.find((c) => c.method === "POST")?.body).toEqual({ intent: { action: "payments_summary" } }));
+    await waitFor(() =>
+      expect(calls.find((c) => c.method === "POST")?.body).toEqual({
+        intent: { action: "payments_summary" },
+      }),
+    );
   });
 
   it("explains an earlier blocked run of such a workflow in plain words", async () => {
@@ -347,13 +446,22 @@ describe("starting a workflow", () => {
       result: null,
       summary: null,
       error: "erp.payments.summary: denied (Unknown capability.)",
-      tasks: [{ id: "t1", title: "Read payments received and paid", status: "blocked", error: "erp.payments.summary: denied (Unknown capability.)" }],
+      tasks: [
+        {
+          id: "t1",
+          title: "Read payments received and paid",
+          status: "blocked",
+          error: "erp.payments.summary: denied (Unknown capability.)",
+        },
+      ],
     });
     await ready();
     expect(row(d.id).textContent).toMatch(/This check is not connected to your ERP data yet/);
     expect(row(d.id).textContent).not.toMatch(/denied \(Unknown capability/);
     await open(d.id);
-    expect(row(d.id).textContent).toMatch(/This check is not connected to your ERP data yet, so it could not run/);
+    expect(row(d.id).textContent).toMatch(
+      /This check is not connected to your ERP data yet, so it could not run/,
+    );
     fireEvent.click(within(row(d.id)).getAllByText("Technical detail")[0]); // the server's own words stay available
     expect(row(d.id).textContent).toMatch(/denied \(Unknown capability/);
   });
@@ -367,12 +475,18 @@ describe("clarification", () => {
     await ready();
     expect(row(d.id).textContent).toMatch(/Waiting for your answer/);
     await open(d.id);
-    expect(within(row(d.id)).getByRole("heading", { name: /more information is needed/i })).toBeTruthy();
+    expect(
+      within(row(d.id)).getByRole("heading", { name: /more information is needed/i }),
+    ).toBeTruthy();
     expect(within(row(d.id)).getAllByText("Which product should I use?").length).toBeGreaterThan(0);
-    fireEvent.change(within(row(d.id)).getByLabelText("Product name"), { target: { value: "Atta, Rice" } });
+    fireEvent.change(within(row(d.id)).getByLabelText("Product name"), {
+      target: { value: "Atta, Rice" },
+    });
     fireEvent.click(within(row(d.id)).getByRole("button", { name: "Run again with this answer" }));
     await waitFor(() => expect(count(/^\/workflows$/, "POST")).toBe(1));
-    expect(calls.find((c) => c.method === "POST")?.body).toEqual({ intent: { action: "supplier_comparison", products: ["Atta", "Rice"] } });
+    expect(calls.find((c) => c.method === "POST")?.body).toEqual({
+      intent: { action: "supplier_comparison", products: ["Atta", "Rice"] },
+    });
     await waitFor(() => expect(row(d.id).textContent).toMatch(/Answered\./)); // linked to the new run
     expect(document.querySelectorAll("[data-run-id]")).toHaveLength(2);
   });
@@ -381,7 +495,9 @@ describe("clarification", () => {
     const d = needsAnswer();
     await ready();
     await open(d.id);
-    fireEvent.change(within(row(d.id)).getByLabelText("Product name"), { target: { value: "Atta" } });
+    fireEvent.change(within(row(d.id)).getByLabelText("Product name"), {
+      target: { value: "Atta" },
+    });
     const button = within(row(d.id)).getByRole("button", { name: "Run again with this answer" });
     fireEvent.click(button);
     fireEvent.click(button);
@@ -393,14 +509,26 @@ describe("clarification", () => {
     await ready();
     await open(d.id);
     fireEvent.click(within(row(d.id)).getByRole("button", { name: "Run again with this answer" }));
-    expect((await within(row(d.id)).findByRole("alert")).textContent).toMatch(/Answer every question first/);
+    expect((await within(row(d.id)).findByRole("alert")).textContent).toMatch(
+      /Answer every question first/,
+    );
     expect(count(/^\/workflows$/, "POST")).toBe(0);
     world.startError = { status: 400, error: "Invalid intent." };
-    fireEvent.change(within(row(d.id)).getByLabelText("Product name"), { target: { value: "Atta" } });
+    fireEvent.change(within(row(d.id)).getByLabelText("Product name"), {
+      target: { value: "Atta" },
+    });
     fireEvent.click(within(row(d.id)).getByRole("button", { name: "Run again with this answer" }));
-    await waitFor(() => expect(within(row(d.id)).getByRole("alert").textContent).toBe("Invalid intent."));
+    await waitFor(() =>
+      expect(within(row(d.id)).getByRole("alert").textContent).toBe("Invalid intent."),
+    );
     // The form is usable again after a refusal.
-    expect((within(row(d.id)).getByRole("button", { name: "Run again with this answer" }) as HTMLButtonElement).disabled).toBe(false);
+    expect(
+      (
+        within(row(d.id)).getByRole("button", {
+          name: "Run again with this answer",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(false);
   });
 
   it("offers the options when a product is ambiguous, and replaces that product (not appends)", async () => {
@@ -412,14 +540,24 @@ describe("clarification", () => {
       finished_at: "2026-11-08T10:00:01.000Z",
       result: null,
       summary: "Please clarify: ...",
-      clarifications: [{ requested: "oil", reason: "ambiguous", options: ["Sunflower Oil 1L", "Coconut Oil 500ml"] }],
+      clarifications: [
+        {
+          requested: "oil",
+          reason: "ambiguous",
+          options: ["Sunflower Oil 1L", "Coconut Oil 500ml"],
+        },
+      ],
       tasks: [],
     });
     await ready();
     await open(d.id);
     fireEvent.click(within(row(d.id)).getByRole("button", { name: "Coconut Oil 500ml" }));
     fireEvent.click(within(row(d.id)).getByRole("button", { name: "Run again with this answer" }));
-    await waitFor(() => expect(calls.find((c) => c.method === "POST")?.body).toEqual({ intent: { action: "stock_check", products: ["Coconut Oil 500ml", "rice"] } }));
+    await waitFor(() =>
+      expect(calls.find((c) => c.method === "POST")?.body).toEqual({
+        intent: { action: "stock_check", products: ["Coconut Oil 500ml", "rice"] },
+      }),
+    );
   });
 
   it("offers the product groups the server lists for an unknown product (real record), and re-runs with the chosen group", async () => {
@@ -431,19 +569,29 @@ describe("clarification", () => {
     expect((row(d.id).textContent ?? "").split("I could not find “Zzyzx tea”").length - 1).toBe(1);
     expect(within(row(d.id)).queryByRole("button", { name: "Copy summary" })).toBeNull();
     expect(within(row(d.id)).queryByRole("button", { name: "Print" })).toBeNull();
-    const groups = within(row(d.id)).getAllByRole("button", { name: /^All / }).map((b) => b.textContent);
+    const groups = within(row(d.id))
+      .getAllByRole("button", { name: /^All / })
+      .map((b) => b.textContent);
     expect(groups).toContain("All Personal Care (4 products)");
     expect(groups.join(" ")).not.toMatch(/All (Face Wash|Hand Wash)/); // never a product name dressed up as a group
-    fireEvent.click(within(row(d.id)).getByRole("button", { name: "All Personal Care (4 products)" }));
+    fireEvent.click(
+      within(row(d.id)).getByRole("button", { name: "All Personal Care (4 products)" }),
+    );
     fireEvent.click(within(row(d.id)).getByRole("button", { name: "Run again with this answer" }));
-    await waitFor(() => expect(calls.find((c) => c.method === "POST")?.body).toEqual({ intent: { action: "supplier_comparison", products: ["Personal Care"] } }));
+    await waitFor(() =>
+      expect(calls.find((c) => c.method === "POST")?.body).toEqual({
+        intent: { action: "supplier_comparison", products: ["Personal Care"] },
+      }),
+    );
   });
 
   it("shows a question it cannot answer here as read-only", async () => {
     const d = add(detail("prepare_bill.needs_clarification"));
     await ready();
     await open(d.id);
-    expect(within(row(d.id)).queryByRole("button", { name: "Run again with this answer" })).toBeNull();
+    expect(
+      within(row(d.id)).queryByRole("button", { name: "Run again with this answer" }),
+    ).toBeNull();
     expect(row(d.id).textContent).toMatch(/How many packs of Toned Milk 500ml/);
   });
 });
@@ -464,7 +612,11 @@ describe("approvals", () => {
   });
 
   it("shows the real approval fields and asks for the PIN for both approve and reject", async () => {
-    world.approvals = [approval(), approval({ id: "own_2", status: "rejected" }), approval({ id: "own_3", status: "uncertain", erp_document_name: "PUR-ORD-9" })];
+    world.approvals = [
+      approval(),
+      approval({ id: "own_2", status: "rejected" }),
+      approval({ id: "own_3", status: "uncertain", erp_document_name: "PUR-ORD-9" }),
+    ];
     await ready();
     const section = await screen.findByRole("region", { name: /approval/i });
     expect(section.textContent).toMatch(/Purchase order PUR-ORD-2026-00009 from Supplier 3/);
@@ -478,7 +630,9 @@ describe("approvals", () => {
     fireEvent.click(within(section).getByRole("button", { name: "Confirm reject" }));
     await waitFor(() => expect(count(/^\/approvals\/own_1\/reject$/, "POST")).toBe(1));
     expect(calls.find((c) => /reject$/.test(c.path))?.body).toMatchObject({ pin: "4826" });
-    await waitFor(() => expect((screen.queryByLabelText(/Owner PIN/) as HTMLInputElement | null)).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByLabelText(/Owner PIN/) as HTMLInputElement | null).toBeNull(),
+    );
   });
 
   it("shows the server's refusal and does not keep the PIN", async () => {
@@ -487,15 +641,20 @@ describe("approvals", () => {
     await ready();
     const section = await screen.findByRole("region", { name: /approval/i });
     fireEvent.click(within(section).getByRole("button", { name: "Approve" }));
-    fireEvent.change(within(section).getByLabelText("Owner PIN to approve"), { target: { value: "0000" } });
+    fireEvent.change(within(section).getByLabelText("Owner PIN to approve"), {
+      target: { value: "0000" },
+    });
     fireEvent.click(within(section).getByRole("button", { name: "Confirm approve" }));
     expect((await within(section).findByRole("alert")).textContent).toBe("Wrong PIN.");
-    expect((within(section).getByLabelText("Owner PIN to approve") as HTMLInputElement).value).toBe(""); // cleared
+    expect((within(section).getByLabelText("Owner PIN to approve") as HTMLInputElement).value).toBe(
+      "",
+    ); // cleared
   });
 });
 
 describe("polling", () => {
-  const fakeTimers = () => vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval"] });
+  const fakeTimers = () =>
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval"] });
   const flush = async (ms = 0) =>
     act(async () => {
       await vi.advanceTimersByTimeAsync(ms);
@@ -523,7 +682,11 @@ describe("polling", () => {
     await flush(POLL_BASE_MS);
     await flush(POLL_BASE_MS);
     expect(lists()).toBe(3); // still running: polled each time
-    Object.assign(world.details.wf_run, { status: "completed", finished_at: new Date().toISOString(), summary: "Done." });
+    Object.assign(world.details.wf_run, {
+      status: "completed",
+      finished_at: new Date().toISOString(),
+      summary: "Done.",
+    });
     await flush(POLL_BASE_MS);
     expect(lists()).toBe(4); // the poll that sees it finish
     await flush(60_000);
@@ -531,18 +694,34 @@ describe("polling", () => {
     expect(row("wf_run").textContent).toMatch(/Completed/);
   });
 
-  it.each(["completed", "partial", "blocked", "failed", "needs_clarification", "awaiting_approval", "uncertain", "interrupted", "outcome_unknown"])(
-    "does not poll a %s run",
-    async (status) => {
-      fakeTimers();
-      add({ id: "wf_s", intent: { action: "stock_check" }, status, created_at: new Date().toISOString(), finished_at: status === "awaiting_approval" ? null : new Date().toISOString(), result: null, summary: null, tasks: [] });
-      render(<WorkflowsPage />);
-      await flush();
-      expect(lists()).toBe(1);
-      await flush(120_000);
-      expect(lists()).toBe(1);
-    },
-  );
+  it.each([
+    "completed",
+    "partial",
+    "blocked",
+    "failed",
+    "needs_clarification",
+    "awaiting_approval",
+    "uncertain",
+    "interrupted",
+    "outcome_unknown",
+  ])("does not poll a %s run", async (status) => {
+    fakeTimers();
+    add({
+      id: "wf_s",
+      intent: { action: "stock_check" },
+      status,
+      created_at: new Date().toISOString(),
+      finished_at: status === "awaiting_approval" ? null : new Date().toISOString(),
+      result: null,
+      summary: null,
+      tasks: [],
+    });
+    render(<WorkflowsPage />);
+    await flush();
+    expect(lists()).toBe(1);
+    await flush(120_000);
+    expect(lists()).toBe(1);
+  });
 
   it("does not poll a run that has been 'running' for far too long, and says it may have been interrupted", async () => {
     fakeTimers();
@@ -615,15 +794,18 @@ describe("polling", () => {
     let active = 0;
     let peak = 0;
     const inner = fetch as unknown as (u: string, i?: RequestInit) => Promise<Response>;
-    vi.stubGlobal("fetch", vi.fn(async (u: string, i?: RequestInit) => {
-      if (u.endsWith("/workflows") && (i?.method ?? "GET") === "GET") {
-        active += 1;
-        peak = Math.max(peak, active);
-        await new Promise((r) => setTimeout(r, 5000)); // slower than the poll interval
-        active -= 1;
-      }
-      return inner(u, i);
-    }));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (u: string, i?: RequestInit) => {
+        if (u.endsWith("/workflows") && (i?.method ?? "GET") === "GET") {
+          active += 1;
+          peak = Math.max(peak, active);
+          await new Promise((r) => setTimeout(r, 5000)); // slower than the poll interval
+          active -= 1;
+        }
+        return inner(u, i);
+      }),
+    );
     render(<WorkflowsPage />);
     await flush(30_000);
     expect(peak).toBe(1);

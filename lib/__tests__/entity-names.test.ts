@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { createEntitySnapshot } from "../server/nammaops/entity-snapshot.mjs";
-import { buildPrompt, createIntentUnderstanding, validateDecision } from "../server/nammaops/intent-llm.mjs";
+import {
+  buildPrompt,
+  createIntentUnderstanding,
+  validateDecision,
+} from "../server/nammaops/intent-llm.mjs";
 import { matchCustomer } from "../server/nammaops/calculations.mjs";
 
 type Any = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -27,7 +31,11 @@ function fakeBinding(calls?: () => void) {
       const data =
         businessId === "erp.items.list"
           ? {
-              items: NAMES.products.map((name) => ({ item_code: name, item_name: name, item_group: "Grocery" })),
+              items: NAMES.products.map((name) => ({
+                item_code: name,
+                item_name: name,
+                item_group: "Grocery",
+              })),
             }
           : { customers: NAMES.customers.map((name) => ({ name, customer_group: "Regular" })) };
       return { data, invocation_id: `inv_${seen.length}` };
@@ -39,10 +47,14 @@ describe("matchCustomer", () => {
   const rows = NAMES.customers.map((name) => ({ name }));
 
   it("matches an exact name case-insensitively", () => {
-    expect(matchCustomer("lakshmi stores", rows).map((r: Any) => r.name)).toEqual(["Lakshmi Stores"]);
+    expect(matchCustomer("lakshmi stores", rows).map((r: Any) => r.name)).toEqual([
+      "Lakshmi Stores",
+    ]);
   });
   it("matches a one-letter slip on a long name", () => {
-    expect(matchCustomer("Laxshmi Stores", rows).map((r: Any) => r.name)).toEqual(["Lakshmi Stores"]);
+    expect(matchCustomer("Laxshmi Stores", rows).map((r: Any) => r.name)).toEqual([
+      "Lakshmi Stores",
+    ]);
     expect(matchCustomer("rohn", rows).map((r: Any) => r.name)).toEqual(["Rohan"]);
   });
   it("matches a whole-name slip: doubled letters collapse and part names still work", () => {
@@ -97,7 +109,10 @@ describe("entity snapshot", () => {
 
   it("never holds an analysis for longer than ~1 s on a cold, slow fetch", async () => {
     const binding = fakeBinding();
-    const slow = { ...binding, call: (a: Any, b: Any) => new Promise(() => binding.seen.push(`${a}|${b}`)) };
+    const slow = {
+      ...binding,
+      call: (a: Any, b: Any) => new Promise(() => binding.seen.push(`${a}|${b}`)),
+    };
     const snap = createEntitySnapshot({ binding: slow as Any });
     const started = Date.now();
     const entities = await snap.get();
@@ -116,7 +131,9 @@ describe("entity snapshot", () => {
     expect(await down.get()).toBeNull();
 
     const empty = {
-      call: async (_: Any, id: string) => ({ data: id === "erp.items.list" ? { items: [] } : { customers: [] } }),
+      call: async (_: Any, id: string) => ({
+        data: id === "erp.items.list" ? { items: [] } : { customers: [] },
+      }),
     };
     const blank = createEntitySnapshot({ binding: empty as Any });
     await blank.prewarm();
@@ -127,7 +144,8 @@ describe("entity snapshot", () => {
 
 describe("real names in the analysis", () => {
   /** Narrow the union to the business-query shape (tests only ever assert that shape). */
-  const decide = (raw: Any, entities: Any) => validateDecision(raw, { today: TODAY, entities }) as Any;
+  const decide = (raw: Any, entities: Any) =>
+    validateDecision(raw, { today: TODAY, entities }) as Any;
   const make = (client: Any) =>
     createIntentUnderstanding({
       env: {},
@@ -171,9 +189,7 @@ describe("real names in the analysis", () => {
     expect(products.customer.enum).toContain("(none)");
     expect(products.lines.items.properties.product.enum).toContain("Kabuli Chana 1kg");
     expect(products.products.items.enum).toContain("Toor Dal 1kg");
-    const hit: Any = u.peek(
-      "create bill of customer rohan with 1 kg kabuli chana 1 handwash",
-    );
+    const hit: Any = u.peek("create bill of customer rohan with 1 kg kabuli chana 1 handwash");
     expect(hit.args).toMatchObject({
       intent: "prepare_bill",
       // The corrected, recorded names, ready for the bill workflow.
@@ -183,7 +199,9 @@ describe("real names in the analysis", () => {
         { product: "Hand Wash 200ml", quantity: 1 },
       ],
     });
-    expect(hit.instruction).toBe("Prepare a bill for Rohan: 1 kg Kabuli Chana 1kg, 1 Hand Wash 200ml");
+    expect(hit.instruction).toBe(
+      "Prepare a bill for Rohan: 1 kg Kabuli Chana 1kg, 1 Hand Wash 200ml",
+    );
   });
 
   it("drops a product the model invented instead of choosing, and keeps [(none)] out", () => {
@@ -202,23 +220,35 @@ describe("real names in the analysis", () => {
       entities,
     );
     expect(decided?.args.lines).toEqual([{ product: "Kabuli Chana 1kg", quantity: 1 }]);
-    expect(decide(
-      { intent: "check_stock", products: ["(none)", "Toned Milk 500ml"], confidence: 0.9 },
-      entities,
-    )?.args.products).toEqual(["Toned Milk 500ml"]);
+    expect(
+      decide(
+        { intent: "check_stock", products: ["(none)", "Toned Milk 500ml"], confidence: 0.9 },
+        entities,
+      )?.args.products,
+    ).toEqual(["Toned Milk 500ml"]);
   });
 
   it("canonicalises a close customer slip, and keeps an unknown customer as said so the bill asks", () => {
     const entities = { products: NAMES.products, customers: NAMES.customers };
     expect(
       decide(
-        { intent: "prepare_bill", customer: "Laxshmi Stores", lines: [{ product: "Toor Dal 1kg", quantity: 2 }], confidence: 0.9 },
+        {
+          intent: "prepare_bill",
+          customer: "Laxshmi Stores",
+          lines: [{ product: "Toor Dal 1kg", quantity: 2 }],
+          confidence: 0.9,
+        },
         entities,
       )?.args.customer,
     ).toBe("Lakshmi Stores");
     expect(
       decide(
-        { intent: "prepare_bill", customer: "Mrs D'Souza", lines: [{ product: "Toor Dal 1kg", quantity: 1 }], confidence: 0.9 },
+        {
+          intent: "prepare_bill",
+          customer: "Mrs D'Souza",
+          lines: [{ product: "Toor Dal 1kg", quantity: 1 }],
+          confidence: 0.9,
+        },
         entities,
       )?.args.customer,
     ).toBe("Mrs D'Souza");
@@ -228,7 +258,15 @@ describe("real names in the analysis", () => {
     const calls: Any[] = [];
     const u = createIntentUnderstanding({
       env: {},
-      client: fakeClient({ intent: "prepare_bill", customer: "rohan", lines: [{ product: "toor dal", quantity: 1 }], confidence: 0.9 }, calls),
+      client: fakeClient(
+        {
+          intent: "prepare_bill",
+          customer: "rohan",
+          lines: [{ product: "toor dal", quantity: 1 }],
+          confidence: 0.9,
+        },
+        calls,
+      ),
       workforce: () => WORKFORCE,
       today: () => TODAY,
       seatNames: () => ["Frank"],

@@ -32,7 +32,10 @@ export function questionsFor(view: Pick<WorkflowView, "clarifications">): Questi
     mode: PRODUCT_REASONS.has(clarification.reason) ? "product" : "readonly",
     groups: Object.keys(clarification.categories ?? {}),
     groupSizes: Object.fromEntries(
-      Object.entries(clarification.categories ?? {}).map(([name, products]) => [name, Array.isArray(products) ? products.length : 0]),
+      Object.entries(clarification.categories ?? {}).map(([name, products]) => [
+        name,
+        Array.isArray(products) ? products.length : 0,
+      ]),
     ),
     options: (clarification.options ?? []).filter((o): o is string => typeof o === "string"),
   }));
@@ -49,11 +52,16 @@ export const canAnswerHere = (view: Pick<WorkflowView, "clarifications">): boole
  * example it was missing altogether) the answer is added; an answer typed as "Milk, Curd" counts
  * as several products.
  */
-export function replaceProduct(products: string[] | undefined, requested: string, answer: string): string[] {
+export function replaceProduct(
+  products: string[] | undefined,
+  requested: string,
+  answer: string,
+): string[] {
   const wanted = parseProducts(answer);
   const list = products ?? [];
   const at = requested ? list.findIndex((p) => p.toLowerCase() === requested.toLowerCase()) : -1;
-  const next = at >= 0 ? [...list.slice(0, at), ...wanted, ...list.slice(at + 1)] : [...list, ...wanted];
+  const next =
+    at >= 0 ? [...list.slice(0, at), ...wanted, ...list.slice(at + 1)] : [...list, ...wanted];
   // Drop repeats (case-blind) without re-splitting, so a product name containing a comma stays whole.
   const seen = new Set<string>();
   return next.filter((name) => {
@@ -73,7 +81,8 @@ export function mergeAnswers(
   questions: Question[],
   answers: Record<number, string>,
 ): { intent?: WorkflowIntent; error?: string } {
-  if (!intent?.action) return { error: "The original request is not available, so it cannot be repeated." };
+  if (!intent?.action)
+    return { error: "The original request is not available, so it cannot be repeated." };
   let products = intent.products;
   for (const q of questions) {
     if (q.mode !== "product") return { error: "Part of this question cannot be answered here." };

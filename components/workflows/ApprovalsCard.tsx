@@ -6,7 +6,10 @@ import type { NammaOpsApproval } from "@/lib/hooks/useNammaOps";
 import { formatDateTime, humanize, money, qty } from "./reports/format";
 import { panel, ui } from "./styles";
 
-const KIND: Record<string, string> = { purchase_order: "Purchase order", sales_invoice: "Sales invoice" };
+const KIND: Record<string, string> = {
+  purchase_order: "Purchase order",
+  sales_invoice: "Sales invoice",
+};
 /** Not actionable, but the owner should still see them (the outcome needs checking). */
 const WATCH = new Set(["submitting", "uncertain"]);
 
@@ -16,14 +19,21 @@ export interface ApprovalsCardProps {
   onDecide: (id: string, action: "approve" | "reject", pin: string) => Promise<void>;
 }
 
-function ApprovalItem({ approval, onDecide }: { approval: NammaOpsApproval } & Pick<ApprovalsCardProps, "onDecide">) {
+function ApprovalItem({
+  approval,
+  onDecide,
+}: { approval: NammaOpsApproval } & Pick<ApprovalsCardProps, "onDecide">) {
   const [mode, setMode] = useState<"approve" | "reject" | null>(null);
   const [pin, setPin] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const pending = approval.status === "pending";
   const what = KIND[approval.kind] ?? humanize(approval.kind);
-  const party = approval.supplier ? `from ${approval.supplier}` : approval.customer ? `for ${approval.customer}` : "";
+  const party = approval.supplier
+    ? `from ${approval.supplier}`
+    : approval.customer
+      ? `for ${approval.customer}`
+      : "";
   const expires = formatDateTime(approval.expires_at);
   const pinId = `pin-${approval.id}`;
 
@@ -61,12 +71,18 @@ function ApprovalItem({ approval, onDecide }: { approval: NammaOpsApproval } & P
         </ul>
       ) : null}
       <p style={{ ...ui.muted, margin: "0 0 8px" }}>
-        {approval.total !== undefined && <strong style={{ color: "var(--kirana-primary)" }}>Total {money(approval.total).display}</strong>}
+        {approval.total !== undefined && (
+          <strong style={{ color: "var(--kirana-primary)" }}>
+            Total {money(approval.total).display}
+          </strong>
+        )}
         {expires && pending ? ` · Approve before ${expires}` : ""}
         {!pending ? ` · ${humanize(approval.status)}` : ""}
       </p>
       {!pending && approval.status === "uncertain" && (
-        <p style={{ ...ui.muted, margin: 0 }}>It is not certain whether this was submitted. Check the ERP before trying again.</p>
+        <p style={{ ...ui.muted, margin: 0 }}>
+          It is not certain whether this was submitted. Check the ERP before trying again.
+        </p>
       )}
 
       {pending &&
@@ -76,23 +92,61 @@ function ApprovalItem({ approval, onDecide }: { approval: NammaOpsApproval } & P
               <label htmlFor={pinId} style={ui.label}>
                 Owner PIN to {mode}
               </label>
-              <input id={pinId} type="password" inputMode="numeric" autoComplete="off" value={pin} onChange={(e) => setPin(e.target.value)} onKeyDown={(e) => e.key === "Enter" && void confirm()} style={ui.input} />
+              <input
+                id={pinId}
+                type="password"
+                inputMode="numeric"
+                autoComplete="off"
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && void confirm()}
+                style={ui.input}
+              />
             </div>
-            <button type="button" disabled={busy || !pin} onClick={() => void confirm()} style={{ ...ui.btn(mode === "approve"), color: mode === "reject" ? "var(--kirana-destructive)" : undefined }}>
+            <button
+              type="button"
+              disabled={busy || !pin}
+              onClick={() => void confirm()}
+              style={{
+                ...ui.btn(mode === "approve"),
+                color: mode === "reject" ? "var(--kirana-destructive)" : undefined,
+              }}
+            >
               {busy ? "Saving…" : `Confirm ${mode}`}
             </button>
-            <button type="button" onClick={() => { setMode(null); setPin(""); setError(null); }} style={ui.btn()}>
+            <button
+              type="button"
+              onClick={() => {
+                setMode(null);
+                setPin("");
+                setError(null);
+              }}
+              style={ui.btn()}
+            >
               Cancel
             </button>
           </div>
         ) : (
           <div style={{ display: "flex", gap: 8 }}>
-            <button type="button" onClick={() => setMode("approve")} style={ui.btn(true)}>Approve</button>
-            <button type="button" onClick={() => setMode("reject")} style={{ ...ui.btn(), color: "var(--kirana-destructive)" }}>Reject</button>
+            <button type="button" onClick={() => setMode("approve")} style={ui.btn(true)}>
+              Approve
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("reject")}
+              style={{ ...ui.btn(), color: "var(--kirana-destructive)" }}
+            >
+              Reject
+            </button>
           </div>
         ))}
       {error && (
-        <p role="alert" style={{ margin: "8px 0 0", fontSize: 13, color: "var(--kirana-destructive)" }}>{error}</p>
+        <p
+          role="alert"
+          style={{ margin: "8px 0 0", fontSize: 13, color: "var(--kirana-destructive)" }}
+        >
+          {error}
+        </p>
       )}
     </li>
   );
@@ -103,10 +157,26 @@ export function ApprovalsCard({ approvals, onDecide }: ApprovalsCardProps) {
   if (!shown.length) return null;
   const pending = shown.filter((a) => a.status === "pending").length;
   return (
-    <section aria-labelledby="wf-approvals" style={{ ...panel("warn"), display: "block", padding: 16, marginBottom: 20 }}>
-      <h2 id="wf-approvals" style={{ ...ui.heading, fontSize: 15, fontWeight: 700, margin: "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
+    <section
+      aria-labelledby="wf-approvals"
+      style={{ ...panel("warn"), display: "block", padding: 16, marginBottom: 20 }}
+    >
+      <h2
+        id="wf-approvals"
+        style={{
+          ...ui.heading,
+          fontSize: 15,
+          fontWeight: 700,
+          margin: "0 0 10px",
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+        }}
+      >
         <AlertTriangle size={15} aria-hidden="true" />
-        {pending ? `${pending} approval${pending === 1 ? "" : "s"} waiting for you` : "Check these approvals"}
+        {pending
+          ? `${pending} approval${pending === 1 ? "" : "s"} waiting for you`
+          : "Check these approvals"}
       </h2>
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
         {shown.map((a) => (

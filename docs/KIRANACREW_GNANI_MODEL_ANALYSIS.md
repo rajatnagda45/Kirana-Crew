@@ -513,15 +513,15 @@ All three models are used in every meaningful voice interaction. [INFERRED — b
 Source: Gnani docs, `wss://api.vachana.ai/api/v1/tts` (Realtime TTS). Server-side only: the browser cannot set
 `X-API-Key-ID` on a WebSocket upgrade, so the browser keeps using `POST /api/runtime/voice/speak-stream`.
 
-| Step | Wire message | Our handling |
-|---|---|---|
-| Connect | upgrade header `X-API-Key-ID` (use the `ws` package, already a dependency) | 5 s connect timeout |
-| Request | `{text, voice, model, language, speed, audio_config}` as JSON; one in flight per socket | `language` in `auto`, `hi-en` or `xx-IN`; speed clamped 0.85-1.15 |
-| Start | `{type:"start", request_id}` | ignored (informational) |
-| Audio | `{type:"audio", data:{chunk_index, audio(base64), is_final:false}}` | yield `Buffer.from(audio,"base64")` |
-| Complete | `{type:"complete", data:{is_final:true, audio:""}}` | end the stream; error if no audio was seen |
-| Error | `{type:"error", message}` (socket stays open) | throw 502, close the socket |
-| Abort | caller `AbortSignal` | close the socket (stops upstream) |
+| Step     | Wire message                                                                            | Our handling                                                      |
+| -------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Connect  | upgrade header `X-API-Key-ID` (use the `ws` package, already a dependency)              | 5 s connect timeout                                               |
+| Request  | `{text, voice, model, language, speed, audio_config}` as JSON; one in flight per socket | `language` in `auto`, `hi-en` or `xx-IN`; speed clamped 0.85-1.15 |
+| Start    | `{type:"start", request_id}`                                                            | ignored (informational)                                           |
+| Audio    | `{type:"audio", data:{chunk_index, audio(base64), is_final:false}}`                     | yield `Buffer.from(audio,"base64")`                               |
+| Complete | `{type:"complete", data:{is_final:true, audio:""}}`                                     | end the stream; error if no audio was seen                        |
+| Error    | `{type:"error", message}` (socket stays open)                                           | throw 502, close the socket                                       |
+| Abort    | caller `AbortSignal`                                                                    | close the socket (stops upstream)                                 |
 
 Provider contract is unchanged: `stream({text, language, voice, speed, signal}) -> AsyncGenerator<Buffer PCM16 mono @ sampleRate>`.
 Selected by `GNANI_TTS_TRANSPORT=ws|sse` (default `sse` until a live latency check passes). SSE stays as the fallback.

@@ -24,7 +24,9 @@ function csvField(cell: Cell | undefined): string {
 }
 
 export function tableToCsv(table: Pick<TableSection, "columns" | "rows">, bom = true): string {
-  const header = table.columns.map((column) => csvField({ kind: "text", value: column.label, display: column.label }));
+  const header = table.columns.map((column) =>
+    csvField({ kind: "text", value: column.label, display: column.label }),
+  );
   const lines = [
     header.join(","),
     ...table.rows.map((row) => table.columns.map((column) => csvField(row[column.key])).join(",")),

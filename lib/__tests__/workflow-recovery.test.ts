@@ -20,7 +20,13 @@ function setup() {
   const db = new TaskDatabase(":memory:") as Any;
   cleanup.push(() => db.close());
   const workflows = new Workflows({ db } as Any, { binding: null, approvals: null }) as Any;
-  const workflow = (id: string, status: string, action: string, created_at: string, extra: Any = {}) =>
+  const workflow = (
+    id: string,
+    status: string,
+    action: string,
+    created_at: string,
+    extra: Any = {},
+  ) =>
     db.saveRecord(WORKFLOW_NAMESPACE, id, {
       intent: { action },
       status,
@@ -32,7 +38,13 @@ function setup() {
       ...extra,
     });
   const task = (id: string, workflowId: string, status: string) =>
-    db.saveRecord(TASK_NAMESPACE, id, { workflow_id: workflowId, role: "sales", title: "Read sales", status, evidence: [] });
+    db.saveRecord(TASK_NAMESPACE, id, {
+      workflow_id: workflowId,
+      role: "sales",
+      title: "Read sales",
+      status,
+      evidence: [],
+    });
   return { db, workflows, workflow, task };
 }
 
@@ -51,7 +63,10 @@ describe("closing runs left behind by a restart", () => {
     expect(run.error).toMatch(/Nothing was changed/);
     expect(run.finished_at).toBeTruthy();
     expect(run.timeline.at(-1)).toMatchObject({ type: "WORKFLOW_INTERRUPTED", agent: "manager" });
-    expect(db.record(TASK_NAMESPACE, "t_run")).toMatchObject({ status: "uncertain", error: run.error });
+    expect(db.record(TASK_NAMESPACE, "t_run")).toMatchObject({
+      status: "uncertain",
+      error: run.error,
+    });
     expect(db.record(TASK_NAMESPACE, "t_done").status).toBe("completed"); // finished steps stay as they were
   });
 
@@ -109,13 +124,22 @@ describe("the run list", () => {
   it("includes the error of a blocked, failed or interrupted run, and omits it otherwise", () => {
     const { workflows, workflow } = setup();
     workflow("wf_ok", "completed", "stock_check", before, { summary: "Done." });
-    workflow("wf_blocked", "blocked", "prepare_reorder", before, { error: "erp.po.create_draft is not enabled" });
+    workflow("wf_blocked", "blocked", "prepare_reorder", before, {
+      error: "erp.po.create_draft is not enabled",
+    });
     const list = workflows.list() as Any[];
     const ok = list.find((w) => w.id === "wf_ok");
     const blocked = list.find((w) => w.id === "wf_blocked");
     expect(blocked.error).toBe("erp.po.create_draft is not enabled");
     expect("error" in ok).toBe(false);
     // The fields the page reads are unchanged.
-    expect(Object.keys(ok).sort()).toEqual(["created_at", "finished_at", "id", "intent", "status", "summary"]);
+    expect(Object.keys(ok).sort()).toEqual([
+      "created_at",
+      "finished_at",
+      "id",
+      "intent",
+      "status",
+      "summary",
+    ]);
   });
 });

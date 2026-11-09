@@ -95,11 +95,46 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
     };
   }
   const paymentEntries: Any[] = [
-    { name: "PE-1", payment_type: "Receive", posting_date: "2026-11-01", base_received_amount: 500, base_paid_amount: 500, docstatus: 1 },
-    { name: "PE-2", payment_type: "Receive", posting_date: "2026-11-01", base_received_amount: 250.5, base_paid_amount: 250.5, docstatus: 1 },
-    { name: "PE-3", payment_type: "Pay", posting_date: "2026-11-01", base_received_amount: 300, base_paid_amount: 300, docstatus: 1 },
-    { name: "PE-4", payment_type: "Receive", posting_date: "2026-11-01", base_received_amount: 9999, base_paid_amount: 9999, docstatus: 0 },
-    { name: "PE-5", payment_type: "Receive", posting_date: "2026-10-01", base_received_amount: 70, base_paid_amount: 70, docstatus: 1 },
+    {
+      name: "PE-1",
+      payment_type: "Receive",
+      posting_date: "2026-11-01",
+      base_received_amount: 500,
+      base_paid_amount: 500,
+      docstatus: 1,
+    },
+    {
+      name: "PE-2",
+      payment_type: "Receive",
+      posting_date: "2026-11-01",
+      base_received_amount: 250.5,
+      base_paid_amount: 250.5,
+      docstatus: 1,
+    },
+    {
+      name: "PE-3",
+      payment_type: "Pay",
+      posting_date: "2026-11-01",
+      base_received_amount: 300,
+      base_paid_amount: 300,
+      docstatus: 1,
+    },
+    {
+      name: "PE-4",
+      payment_type: "Receive",
+      posting_date: "2026-11-01",
+      base_received_amount: 9999,
+      base_paid_amount: 9999,
+      docstatus: 0,
+    },
+    {
+      name: "PE-5",
+      payment_type: "Receive",
+      posting_date: "2026-10-01",
+      base_received_amount: 70,
+      base_paid_amount: 70,
+      docstatus: 1,
+    },
   ];
   const ledger = [
     {
@@ -152,10 +187,11 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
     erpnext_item_get: ({ name }) => ({
       data: {
         name,
-        item_name: name === "SUGAR" ? "Sugar 1kg" : name === "RICE" ? "Sona Rice 5kg" : "Toned Milk 500ml",
+        item_name:
+          name === "SUGAR" ? "Sugar 1kg" : name === "RICE" ? "Sona Rice 5kg" : "Toned Milk 500ml",
         is_stock_item: name === "SERVICE" ? 0 : 1,
         disabled: name === "RETIRED" ? 1 : 0,
-        standard_rate: name === "NOPRICE" ? 0 : SELLING[name] ?? 10,
+        standard_rate: name === "NOPRICE" ? 0 : (SELLING[name] ?? 10),
         reorder_levels:
           name === "MILK"
             ? [
@@ -314,14 +350,25 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
       if (doctype === "Customer") {
         const wanted = filters.find((row: Any) => row[0] === "name")?.[2];
         return list(
-          CUSTOMERS.filter((row) => row.name === wanted).map(({ name, disabled }) => ({ name, disabled })),
+          CUSTOMERS.filter((row) => row.name === wanted).map(({ name, disabled }) => ({
+            name,
+            disabled,
+          })),
         );
       }
       if (doctype === "Item Price") {
         if (filters.some((row: Any) => row[0] === "selling")) {
           const code = filters.find((row: Any) => row[0] === "item_code")?.[2];
           return list(
-            SELLING[code] ? [{ item_code: code, price_list: "Standard Selling", price_list_rate: SELLING[code] }] : [],
+            SELLING[code]
+              ? [
+                  {
+                    item_code: code,
+                    price_list: "Standard Selling",
+                    price_list_rate: SELLING[code],
+                  },
+                ]
+              : [],
           );
         }
         return list([{ item_code: "MILK", price_list: "Standard Buying", price_list_rate: 25 }]);
@@ -426,7 +473,10 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
         { name: "erpnext_purchase_order_create", annotations: {} },
         { name: "erpnext_sales_invoice_create", annotations: { readOnlyHint: false } },
         { name: "erpnext_doc_update", annotations: { readOnlyHint: false, destructiveHint: true } },
-        { name: "erpnext_sales_invoice_submit", annotations: { readOnlyHint: false, destructiveHint: true } },
+        {
+          name: "erpnext_sales_invoice_submit",
+          annotations: { readOnlyHint: false, destructiveHint: true },
+        },
       ],
     }),
     callTool: async ({ name, arguments: args }: Any) => {
@@ -749,7 +799,12 @@ describe("hvgerp adapter (unit, fake hvgerp)", () => {
     });
     const inward = gst.lines.filter((row: Any) => row.direction === "inward");
     expect(inward).toHaveLength(1);
-    expect(inward[0]).toMatchObject({ document: "PINV-1", cgst: 12.5, sgst: 12.5, taxable_value: 500 });
+    expect(inward[0]).toMatchObject({
+      document: "PINV-1",
+      cgst: 12.5,
+      sgst: 12.5,
+      taxable_value: 500,
+    });
     // Nothing is guessed: party GSTIN and place of supply were not on these invoices, so those
     // fields are absent (not sent as null or defaulted) and named in data_gaps.
     for (const line of outward) {
@@ -871,7 +926,9 @@ describe("customer bill writes (unit, fake hvgerp)", () => {
     expect(out.invoice.items[0]).toMatchObject({ item_code: "MILK", qty: 3, rate: 30 });
     // GHEE has no selling price row, so its own standard rate (10 in this fake) is used.
     const hv2: Any = fakeHvgerp();
-    const fallback = parse(await draft(adapterFor(hv2), { items: [{ item_code: "GHEE", qty: 1 }] }));
+    const fallback = parse(
+      await draft(adapterFor(hv2), { items: [{ item_code: "GHEE", qty: 1 }] }),
+    );
     expect(fallback.invoice.items[0]).toMatchObject({ item_code: "GHEE", rate: 10 });
   });
 
@@ -889,7 +946,15 @@ describe("customer bill writes (unit, fake hvgerp)", () => {
       [{ items: [{ item_code: "SERVICE", qty: 1 }] }, /not an active stock item/],
       [{ items: [{ item_code: "NOPRICE", qty: 1 }] }, /no selling price/],
       [{ items: [{ item_code: "MILK", qty: 51 }] }, /at most 50/],
-      [{ items: [{ item_code: "MILK", qty: 30 }, { item_code: "MILK", qty: 30 }] }, /at most 50/],
+      [
+        {
+          items: [
+            { item_code: "MILK", qty: 30 },
+            { item_code: "MILK", qty: 30 },
+          ],
+        },
+        /at most 50/,
+      ],
       [{ items: [{ item_code: "MILK", qty: 0 }] }, /above 0/],
       [{ posting_date: "2026-10-20" }, /must be between/],
       [{ posting_date: "2026-11-09" }, /must be between/],
@@ -913,7 +978,9 @@ describe("customer bill writes (unit, fake hvgerp)", () => {
     nameless.behaviour.createShape = "nameless";
     await expect(draft(adapterFor(nameless))).rejects.toThrow(/did not say which draft/);
     // It did create something, so it must not go on to update or submit an unknown document.
-    expect(writesMade(nameless).map((call: Any) => call.name)).toEqual(["erpnext_sales_invoice_create"]);
+    expect(writesMade(nameless).map((call: Any) => call.name)).toEqual([
+      "erpnext_sales_invoice_create",
+    ]);
   });
 
   it("names the draft, and does not submit it, when it could not be set to update stock", async () => {
@@ -933,10 +1000,20 @@ describe("customer bill writes (unit, fake hvgerp)", () => {
     expect(done.invoice).toMatchObject({ name: invoice.name, docstatus: 1, status: "Unpaid" });
     // Already submitted: refused, nothing more is written.
     const before = writesMade(hv).length;
-    await expect(adapter.call("submit_sales_invoice", { name: invoice.name })).rejects.toThrow(/not a draft/);
+    await expect(adapter.call("submit_sales_invoice", { name: invoice.name })).rejects.toThrow(
+      /not a draft/,
+    );
     // An unknown invoice, and a draft this adapter did not make (no stock update): refused.
-    await expect(adapter.call("submit_sales_invoice", { name: "SINV-404" })).rejects.toThrow(/not found/);
-    hv.invoices.push({ name: "SINV-OTHER", customer: "x", docstatus: 0, update_stock: 0, items: [] });
+    await expect(adapter.call("submit_sales_invoice", { name: "SINV-404" })).rejects.toThrow(
+      /not found/,
+    );
+    hv.invoices.push({
+      name: "SINV-OTHER",
+      customer: "x",
+      docstatus: 0,
+      update_stock: 0,
+      items: [],
+    });
     await expect(adapter.call("submit_sales_invoice", { name: "SINV-OTHER" })).rejects.toThrow(
       /not one of the bills created here/,
     );
@@ -945,7 +1022,12 @@ describe("customer bill writes (unit, fake hvgerp)", () => {
 
   it("offers no other write: no update, cancel, delete or generic tool", async () => {
     const adapter = adapterFor(fakeHvgerp() as Any);
-    for (const name of ["erpnext_doc_update", "erpnext_doc_delete", "cancel_sales_invoice", "erpnext_sales_invoice_cancel"])
+    for (const name of [
+      "erpnext_doc_update",
+      "erpnext_doc_delete",
+      "cancel_sales_invoice",
+      "erpnext_sales_invoice_cancel",
+    ])
       await expect(adapter.call(name, { name: "SINV-1" })).rejects.toThrow(/Unknown tool/);
   });
 
@@ -954,7 +1036,9 @@ describe("customer bill writes (unit, fake hvgerp)", () => {
     const real = hv.listTools;
     hv.listTools = async () => ({
       tools: (await real()).tools.map((tool: Any) =>
-        tool.name === "erpnext_doc_update" ? { ...tool, annotations: { readOnlyHint: true } } : tool,
+        tool.name === "erpnext_doc_update"
+          ? { ...tool, annotations: { readOnlyHint: true } }
+          : tool,
       ),
     });
     await expect(draft(adapterFor(hv))).rejects.toThrow(/now marks erpnext_doc_update read-only/);
@@ -964,13 +1048,21 @@ describe("customer bill writes (unit, fake hvgerp)", () => {
   it("reads one invoice and the selling prices, read-only", async () => {
     const hv: Any = fakeHvgerp();
     const adapter = adapterFor(hv);
-    expect(parse(await adapter.call("get_sales_invoice", { name: "SINV-1" })).invoice).toMatchObject({
+    expect(
+      parse(await adapter.call("get_sales_invoice", { name: "SINV-1" })).invoice,
+    ).toMatchObject({
       name: "SINV-1",
       docstatus: 1,
     });
-    await expect(adapter.call("get_sales_invoice", { name: "SINV-404" })).rejects.toThrow(/not found/);
+    await expect(adapter.call("get_sales_invoice", { name: "SINV-404" })).rejects.toThrow(
+      /not found/,
+    );
     const prices = parse(await adapter.call("get_selling_prices", { item_code: "MILK" }));
-    expect(prices).toMatchObject({ price_list: "Standard Selling", currency: "INR", prices: [{ item_code: "MILK", rate: 30 }] });
+    expect(prices).toMatchObject({
+      price_list: "Standard Selling",
+      currency: "INR",
+      prices: [{ item_code: "MILK", rate: 30 }],
+    });
     noWrites(hv);
   });
 });
@@ -1058,7 +1150,9 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
     // No purchase-order write is granted to anyone.
     expect(granted.join(" ")).not.toMatch(/create_purchase_order|submit_purchase_order/);
     // The only live write grants: Frank may draft a bill, and only the bill-submit principal may submit.
-    const draft = grants.filter((row: Any) => /create_sales_invoice_draft$/.test(row.capability_id));
+    const draft = grants.filter((row: Any) =>
+      /create_sales_invoice_draft$/.test(row.capability_id),
+    );
     const submit = grants.filter((row: Any) => /submit_sales_invoice$/.test(row.capability_id));
     expect(draft.map((row: Any) => row.subject)).toEqual([
       expect.stringMatching(/^specialization:spec_kirana-counter-billing/),
@@ -1067,7 +1161,9 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
     const status = runtime.nammaops.binding.status();
     expect(status).toHaveLength(29);
     expect(
-      status.filter((row: Any) => row.state === "unbound").map((row: Any) => row.business_capability),
+      status
+        .filter((row: Any) => row.state === "unbound")
+        .map((row: Any) => row.business_capability),
     ).toEqual(["erp.po.create_draft", "erp.po.submit"]);
     expect(
       status.filter((row: Any) => row.risk === "READ").every((row: Any) => row.tool !== null),
@@ -1232,7 +1328,10 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
       });
       const draft = await ask(runtime, { action: "purchase_order_lookup", po_name: "PO-2" });
       expect(draft.result.state).toBe("draft");
-      const missing = await ask(runtime, { action: "purchase_order_lookup", po_name: "PO-MISSING" });
+      const missing = await ask(runtime, {
+        action: "purchase_order_lookup",
+        po_name: "PO-MISSING",
+      });
       expect(missing.status).toBe("completed");
       expect(missing.result).toMatchObject({ found: false, name: "PO-MISSING" });
       expect(() =>
@@ -1265,7 +1364,9 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
       );
       // The owners of each read are allowed.
       await expect(call("nammaops-finance", "erp.gst.summary", period)).resolves.toBeTruthy();
-      await expect(call("nammaops-procurement", "erp.po.get", { name: "PO-1" })).resolves.toBeTruthy();
+      await expect(
+        call("nammaops-procurement", "erp.po.get", { name: "PO-1" }),
+      ).resolves.toBeTruthy();
     });
 
     it("keeps both live writes disabled: no tool, no PIN, no approval can reach them", async () => {
@@ -1343,16 +1444,12 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
         const gstView = runtime.nammaops.workflows.view(gst.answered.workflowId);
         expect(gstView.result).toMatchObject({ kind: "gst_summary", net_tax: 15 });
 
-        const pay: Any = await text(
-          runtime,
-          "finance",
-          "payments received on 2026-11-01",
-          "t-pay",
-        );
+        const pay: Any = await text(runtime, "finance", "payments received on 2026-11-01", "t-pay");
         expect(pay.answered).toMatchObject({ intent: "payments_summary" });
-        expect(
-          runtime.nammaops.workflows.view(pay.answered.workflowId).result,
-        ).toMatchObject({ received: 750.5, paid: 300 });
+        expect(runtime.nammaops.workflows.view(pay.answered.workflowId).result).toMatchObject({
+          received: 750.5,
+          paid: 300,
+        });
 
         const named: Any = await text(
           runtime,
@@ -1374,7 +1471,9 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
         const { runtime } = await liveSetup();
         const out: Any = await text(runtime, "inventory", "what is our gst for 2026-11-01", "t-h1");
         expect(out.answered).toMatchObject({ intent: "gst_summary" });
-        expect(runtime.db.getMessage("dm_reply_t-h1").content).toMatch(/^Erin \(Finance\) covers this/);
+        expect(runtime.db.getMessage("dm_reply_t-h1").content).toMatch(
+          /^Erin \(Finance\) covers this/,
+        );
         // The read still ran as Finance, never as Inventory.
         const view = runtime.nammaops.workflows.view(out.answered.workflowId);
         expect(view.tasks.map((task: Any) => task.role)).toContain("finance");

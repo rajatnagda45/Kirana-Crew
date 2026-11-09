@@ -5,7 +5,13 @@
  */
 import type { ReportModel, Section } from "./types";
 
-const ESCAPES: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+const ESCAPES: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+};
 export const escapeHtml = (value: string): string => value.replace(/[&<>"']/g, (c) => ESCAPES[c]);
 
 const STYLE = `
@@ -37,7 +43,10 @@ function sectionHtml(section: Section): string {
   if (section.kind === "list")
     return `<h2>${escapeHtml(section.title)}</h2><ul>${
       section.items
-        .map((i) => `<li><b>${escapeHtml(i.text)}</b>${i.detail ? ` ${escapeHtml(i.detail)}` : ""}</li>`)
+        .map(
+          (i) =>
+            `<li><b>${escapeHtml(i.text)}</b>${i.detail ? ` ${escapeHtml(i.detail)}` : ""}</li>`,
+        )
         .join("") || `<li>${escapeHtml(section.empty ?? "None.")}</li>`
     }</ul>`;
   const head = section.columns
@@ -47,7 +56,10 @@ function sectionHtml(section: Section): string {
     .map(
       (row) =>
         `<tr>${section.columns
-          .map((c) => `<td${c.align === "right" ? ' class="r"' : ""}>${escapeHtml(row[c.key]?.display ?? "")}</td>`)
+          .map(
+            (c) =>
+              `<td${c.align === "right" ? ' class="r"' : ""}>${escapeHtml(row[c.key]?.display ?? "")}</td>`,
+          )
           .join("")}</tr>`,
     )
     .join("");
@@ -59,7 +71,10 @@ function sectionHtml(section: Section): string {
 }
 
 /** @param storeName shown in the header when known (the app has no store-name setting yet) */
-export function printHtml(model: ReportModel, options: { storeName?: string; printedAt?: string } = {}): string {
+export function printHtml(
+  model: ReportModel,
+  options: { storeName?: string; printedAt?: string } = {},
+): string {
   const when = [
     model.run.started ? `Run ${model.run.started}` : null,
     model.run.duration ? `took ${model.run.duration}` : null,

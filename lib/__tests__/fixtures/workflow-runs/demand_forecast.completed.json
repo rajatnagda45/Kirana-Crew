@@ -339,9 +339,7 @@
               "SINV-26-00073",
               "SINV-26-00072"
             ],
-            "incoming_documents": [
-              "PUR-ORD-2026-00003"
-            ]
+            "incoming_documents": ["PUR-ORD-2026-00003"]
           },
           "current_stock": 143,
           "reserved_stock": 0,

@@ -12,7 +12,8 @@ export function summaryText(model: ReportModel): string {
 }
 
 function sectionText(section: Section): string[] {
-  if (section.kind === "note") return [section.title ? `${section.title}: ${section.text}` : section.text];
+  if (section.kind === "note")
+    return [section.title ? `${section.title}: ${section.text}` : section.text];
   if (section.kind === "list")
     return [
       section.title,

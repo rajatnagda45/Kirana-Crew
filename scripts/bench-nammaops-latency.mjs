@@ -46,7 +46,11 @@ const yesterday = new Date(Date.parse(`${TODAY}T00:00:00Z`) - 86_400_000)
 
 /** The five representative questions, as Gemini Live would pass them to the tool. */
 const QUESTIONS = [
-  { id: "stock", label: "Simple stock check", args: { intent: "check_stock", products: ["milk", "rice"] } },
+  {
+    id: "stock",
+    label: "Simple stock check",
+    args: { intent: "check_stock", products: ["milk", "rice"] },
+  },
   { id: "sales", label: "Daily sales", args: { intent: "sales_summary", day: yesterday } },
   { id: "receivables", label: "Receivables", args: { intent: "receivables_report" } },
   { id: "forecast", label: "Demand forecast", args: { intent: "demand_forecast", products: [] } },
@@ -124,7 +128,8 @@ function normalise(value) {
       .map((key) => [key, normalise(value[key])]),
   );
 }
-const sha = (value) => createHash("sha256").update(JSON.stringify(value)).digest("hex").slice(0, 16);
+const sha = (value) =>
+  createHash("sha256").update(JSON.stringify(value)).digest("hex").slice(0, 16);
 const pct = (values, q) => {
   if (!values.length) return null;
   const sorted = [...values].sort((a, b) => a - b);
@@ -208,7 +213,11 @@ async function benchTts() {
         for await (const _chunk of tts.stream({ text, onTransport: (t) => (used = t) })) {
           first ??= Math.round(performance.now() - started);
         }
-        samples.push({ first_chunk_ms: first, total_ms: Math.round(performance.now() - started), used });
+        samples.push({
+          first_chunk_ms: first,
+          total_ms: Math.round(performance.now() - started),
+          used,
+        });
       } catch (caught) {
         samples.push({ error: String(caught?.message ?? caught).slice(0, 120) });
       }
@@ -248,9 +257,17 @@ try {
         n: these.length,
         p50_ms: pct(ms, 0.5),
         p95_ms: pct(ms, 0.95),
-        governed_calls: pct(these.map((r) => r.governed_calls), 0.5),
-        hv_calls: pct(these.map((r) => r.hv_calls), 0.5),
-        cache_hit_rate: lookups ? Math.round((sum(these, (r) => r.cache_hits) / lookups) * 100) / 100 : null,
+        governed_calls: pct(
+          these.map((r) => r.governed_calls),
+          0.5,
+        ),
+        hv_calls: pct(
+          these.map((r) => r.hv_calls),
+          0.5,
+        ),
+        cache_hit_rate: lookups
+          ? Math.round((sum(these, (r) => r.cache_hits) / lookups) * 100) / 100
+          : null,
         over_voice_wait: these.filter((r) => r.over_voice_wait).length,
         failures: these.filter(
           (r) => r.error || r.failed_calls || !["completed", "partial"].includes(r.workflow_status),
@@ -258,12 +275,23 @@ try {
         partial: these.filter((r) => r.workflow_status === "partial").length,
       };
     }
-    const prints = [...new Set(runs.filter((r) => r.question === question.id).map((r) => r.fingerprint))];
+    const prints = [
+      ...new Set(runs.filter((r) => r.question === question.id).map((r) => r.fingerprint)),
+    ];
     row.fingerprints = prints;
     return row;
   });
 
-  const report = { label: LABEL, today: TODAY, rounds: ROUNDS, warm: WARM, at: new Date().toISOString(), summary, tts, runs };
+  const report = {
+    label: LABEL,
+    today: TODAY,
+    rounds: ROUNDS,
+    warm: WARM,
+    at: new Date().toISOString(),
+    summary,
+    tts,
+    runs,
+  };
   mkdirSync("artifacts", { recursive: true });
   const base = `artifacts/latency-${LABEL}-${TODAY}`;
   writeFileSync(`${base}.json`, JSON.stringify(report, null, 2));

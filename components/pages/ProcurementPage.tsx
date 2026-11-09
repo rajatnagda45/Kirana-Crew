@@ -114,7 +114,8 @@ function WorkflowRunner({
           const res_ = (d.workflow.result ?? undefined) as Record<string, unknown> | undefined;
           setResult({ id: wfId, status: d.workflow.status, result: res_, error: d.workflow.error });
           setOpen(true);
-          if (["completed", "partial"].includes(d.workflow.status)) toast.success(`${label} completed`);
+          if (["completed", "partial"].includes(d.workflow.status))
+            toast.success(`${label} completed`);
           else toast.error(`${label}: ${statusInfo(d.workflow.status).label.toLowerCase()}`);
           break;
         }

@@ -72,7 +72,10 @@ export function formatDateTime(value: unknown, timeZone?: string): string | null
     timeZone,
   }).format(new Date(time));
   // Newer ICU puts a narrow no-break space before am/pm; use a plain space so output is stable.
-  return parts.replace(/[  ]/g, " ").replace(/\bam\b/i, "am").replace(/\bpm\b/i, "pm");
+  return parts
+    .replace(/[  ]/g, " ")
+    .replace(/\bam\b/i, "am")
+    .replace(/\bpm\b/i, "pm");
 }
 
 /** Milliseconds between two timestamps, only when both are valid and the end is not before the start. */

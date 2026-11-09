@@ -11,12 +11,7 @@ import {
 import { ClarificationPanel } from "./ClarificationPanel";
 import { canAnswerHere, readAnsweredLinks } from "./clarify";
 import { ReportView, StatusPill } from "./ReportView";
-import {
-  durationMs,
-  formatDateTime,
-  formatDay,
-  formatDuration,
-} from "./reports/format";
+import { durationMs, formatDateTime, formatDay, formatDuration } from "./reports/format";
 import { explain } from "./reports/helpers";
 import { panel, TONE_COLOR, ui } from "./styles";
 
@@ -27,15 +22,24 @@ export function rowNote(run: WorkflowSummary): { text: string; tone: "warn" | "b
     case "needs_clarification":
       return { text: "Waiting for your answer. Open this run to answer.", tone: "warn" };
     case "partial":
-      return { text: "Partially completed. Open the report to see what could not be checked.", tone: "warn" };
+      return {
+        text: "Partially completed. Open the report to see what could not be checked.",
+        tone: "warn",
+      };
     case "blocked":
     case "failed":
-      return { text: [info.explain, run.error ? explain(run.error).text : null].filter(Boolean).join(" "), tone: "bad" };
+      return {
+        text: [info.explain, run.error ? explain(run.error).text : null].filter(Boolean).join(" "),
+        tone: "bad",
+      };
     case "uncertain":
     case "interrupted":
     case "outcome_unknown":
     case "stopped":
-      return { text: [info.explain, run.error ? explain(run.error).text : null].filter(Boolean).join(" "), tone: "warn" };
+      return {
+        text: [info.explain, run.error ? explain(run.error).text : null].filter(Boolean).join(" "),
+        tone: "warn",
+      };
     case "awaiting_approval":
       return { text: "Waiting for your approval.", tone: "warn" };
     default:
@@ -69,7 +73,12 @@ function RunDetails({
   onStart: (intent: Record<string, unknown>) => Promise<WorkflowSummary>;
   onOpenRun: (run: WorkflowSummary) => void;
 }) {
-  const { view, loading, error, missing, retry } = useWorkflowDetail(run.id, open, run.status, run.finished_at);
+  const { view, loading, error, missing, retry } = useWorkflowDetail(
+    run.id,
+    open,
+    run.status,
+    run.finished_at,
+  );
   if (!open) return null;
   if (!view && loading)
     return (
@@ -93,8 +102,15 @@ function RunDetails({
       </div>
     );
   return (
-    <div id={`run-${run.id}-report`} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--kirana-border)" }}>
-      <ReportView view={view} compactHeader hideHeadline={view.status === "needs_clarification" && canAnswerHere(view)} />
+    <div
+      id={`run-${run.id}-report`}
+      style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--kirana-border)" }}
+    >
+      <ReportView
+        view={view}
+        compactHeader
+        hideHeadline={view.status === "needs_clarification" && canAnswerHere(view)}
+      />
       {view.status === "needs_clarification" && canAnswerHere(view) && (
         <ClarificationPanel view={view} onStart={onStart} onStarted={onOpenRun} />
       )}
@@ -137,9 +153,17 @@ function RunRow({
   }, [open]);
 
   return (
-    <li style={{ ...ui.card, marginBottom: 0, minWidth: 0 }} data-run-id={run.id} data-run-status={run.status}>
-      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 6 }}>
-        <h3 style={{ ...ui.heading, fontSize: 15, fontWeight: 700 }}>{workflowLabel(run.intent?.action)}</h3>
+    <li
+      style={{ ...ui.card, marginBottom: 0, minWidth: 0 }}
+      data-run-id={run.id}
+      data-run-status={run.status}
+    >
+      <div
+        style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 6 }}
+      >
+        <h3 style={{ ...ui.heading, fontSize: 15, fontWeight: 700 }}>
+          {workflowLabel(run.intent?.action)}
+        </h3>
         <StatusPill status={run.status} />
         {chips.map((chip) => (
           <span key={chip} style={ui.muted}>
@@ -160,27 +184,45 @@ function RunRow({
       </p>
 
       {!open && run.summary && run.status !== "needs_clarification" && (
-        <p style={{ margin: "0 0 6px", fontSize: 14, lineHeight: 1.45, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: open ? "unset" : 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+        <p
+          style={{
+            margin: "0 0 6px",
+            fontSize: 14,
+            lineHeight: 1.45,
+            overflowWrap: "anywhere",
+            display: "-webkit-box",
+            WebkitLineClamp: open ? "unset" : 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}
+        >
           {run.summary}
         </p>
       )}
       {!open && note && !answeredBy && (
-        <p role={note.tone === "bad" ? "alert" : undefined} style={{ margin: "0 0 6px", fontSize: 13, color: TONE_COLOR[note.tone] }}>
+        <p
+          role={note.tone === "bad" ? "alert" : undefined}
+          style={{ margin: "0 0 6px", fontSize: 13, color: TONE_COLOR[note.tone] }}
+        >
           {note.text}
         </p>
       )}
       {answeredBy && (
         <p style={{ margin: "0 0 6px", fontSize: 13 }}>
           Answered.{" "}
-          <button type="button" onClick={() => onOpenRun(answeredBy)} style={{ ...ui.btn(), padding: "2px 8px" }}>
+          <button
+            type="button"
+            onClick={() => onOpenRun(answeredBy)}
+            style={{ ...ui.btn(), padding: "2px 8px" }}
+          >
             See the new run
           </button>
         </p>
       )}
       {stale && (
         <p role="note" style={{ margin: "0 0 6px", fontSize: 13, color: TONE_COLOR.warn }}>
-          Still marked as running after {Math.round(STALE_RUN_MS / 60_000)} minutes. If the server was restarted, this run probably did
-          not finish. Use Refresh to check.
+          Still marked as running after {Math.round(STALE_RUN_MS / 60_000)} minutes. If the server
+          was restarted, this run probably did not finish. Use Refresh to check.
         </p>
       )}
 
@@ -192,7 +234,11 @@ function RunRow({
         onClick={onToggle}
         style={{ ...ui.btn(), marginTop: 4 }}
       >
-        {open ? <ChevronDown size={13} aria-hidden="true" /> : <ChevronRight size={13} aria-hidden="true" />}
+        {open ? (
+          <ChevronDown size={13} aria-hidden="true" />
+        ) : (
+          <ChevronRight size={13} aria-hidden="true" />
+        )}
         {open ? "Hide report" : info.tone === "active" ? "View progress" : "View report"}
       </button>
       <RunDetails run={run} open={open} onStart={onStart} onOpenRun={onOpenRun} />
@@ -227,17 +273,28 @@ export function RunHistory({
   const byId = new Map(workflows.map((w) => [w.id, w]));
   return (
     <section aria-labelledby="wf-history">
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 14,
+        }}
+      >
         <h2 id="wf-history" style={{ ...ui.heading, fontSize: 17, fontWeight: 700 }}>
           Run history
         </h2>
-        <span style={ui.muted}>{workflows.length} run{workflows.length === 1 ? "" : "s"}</span>
+        <span style={ui.muted}>
+          {workflows.length} run{workflows.length === 1 ? "" : "s"}
+        </span>
       </div>
 
       {(stalled || (error && workflows.length === 0)) && (
         <div role="alert" style={panel("bad")}>
           <span>
-            {stalled ? "Lost connection to the server. Updates have stopped." : `Could not load the run history. ${error ?? ""}`}
+            {stalled
+              ? "Lost connection to the server. Updates have stopped."
+              : `Could not load the run history. ${error ?? ""}`}
             <button type="button" onClick={onRetry} style={{ ...ui.btn(), marginLeft: 10 }}>
               <RefreshCw size={13} aria-hidden="true" /> Try again
             </button>
@@ -246,8 +303,16 @@ export function RunHistory({
       )}
 
       {loading ? (
-        <div role="status" aria-busy="true" style={{ display: "flex", justifyContent: "center", padding: 40 }}>
-          <Loader2 size={22} aria-label="Loading run history" style={{ animation: "wf-spin 1s linear infinite", color: "var(--kirana-primary)" }} />
+        <div
+          role="status"
+          aria-busy="true"
+          style={{ display: "flex", justifyContent: "center", padding: 40 }}
+        >
+          <Loader2
+            size={22}
+            aria-label="Loading run history"
+            style={{ animation: "wf-spin 1s linear infinite", color: "var(--kirana-primary)" }}
+          />
         </div>
       ) : workflows.length === 0 ? (
         !error && (
@@ -258,7 +323,17 @@ export function RunHistory({
           </div>
         )
       ) : (
-        <ul aria-busy={refreshing || undefined} style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+        <ul
+          aria-busy={refreshing || undefined}
+          style={{
+            listStyle: "none",
+            padding: 0,
+            margin: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+          }}
+        >
           {workflows.map((run) => (
             <RunRow
               key={run.id}

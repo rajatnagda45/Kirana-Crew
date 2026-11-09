@@ -8,19 +8,20 @@ Every question goes through `runtime.nammaops.voice.query`, the entry point the 
 - **Warm:** the same process, within the 60 s reference-data cache.
 
 Raw data:
+
 - `latency-baseline-2026-11-08.json`: before Phase 2.
 - `latency-after-2026-11-08.json`: first attempt, which had a regression.
 - `latency-after2-2026-11-08.json`: final.
 
 ## Results (baseline → final)
 
-| Question | Cold p50 ms | Cold p95 ms | Warm p50 ms | hvgerp calls (cold) | Runs > 20 s voice wait | Fingerprint equal |
-|---|---|---|---|---|---|---|
-| Demand forecast | 29 541 → **11 309** | 33 433 → **13 764** | 627 → 218 | 600 → 600 | **3 → 0** | yes |
-| Store health report | 12 577 → **8 200** | 13 336 → 12 858 | 121 → 119 | **137 → 84** | 0 → 0 | yes |
-| Simple stock check | 7 631 → 6 540 | 8 368 → 8 346 | 11 → 10 | 54 → 54 | 0 → 0 | yes |
-| Receivables | 1 057 → 1 100 | 1 063 → 1 247 | 10 → 9 | 2 → 2 | 0 → 0 | yes |
-| Daily sales | 5 158 → 6 753 | 6 490 → 8 636 | 12 → 10 | 55 → 55 | 0 → 0 | yes |
+| Question            | Cold p50 ms         | Cold p95 ms         | Warm p50 ms | hvgerp calls (cold) | Runs > 20 s voice wait | Fingerprint equal |
+| ------------------- | ------------------- | ------------------- | ----------- | ------------------- | ---------------------- | ----------------- |
+| Demand forecast     | 29 541 → **11 309** | 33 433 → **13 764** | 627 → 218   | 600 → 600           | **3 → 0**              | yes               |
+| Store health report | 12 577 → **8 200**  | 13 336 → 12 858     | 121 → 119   | **137 → 84**        | 0 → 0                  | yes               |
+| Simple stock check  | 7 631 → 6 540       | 8 368 → 8 346       | 11 → 10     | 54 → 54             | 0 → 0                  | yes               |
+| Receivables         | 1 057 → 1 100       | 1 063 → 1 247       | 10 → 9      | 2 → 2               | 0 → 0                  | yes               |
+| Daily sales         | 5 158 → 6 753       | 6 490 → 8 636       | 12 → 10     | 55 → 55             | 0 → 0                  | yes               |
 
 **Completeness:** each question produced one fingerprint across all 9 runs, and it is identical in the baseline and final runs. The fingerprint is a sha256 of the normalised workflow result and spoken facts, with ids and timestamps removed.
 
@@ -28,11 +29,11 @@ Raw data:
 
 **Text-to-speech, first chunk** (5 sentences each, measured separately in each run):
 
-| Run | SSE p50 / p95 ms | WS p50 / p95 ms |
-|---|---|---|
-| Baseline | 506 / 695 | 493 / 514 |
-| After | 608 / 807 | 472 / 570 |
-| Final | 396 / 653 | 438 / 444 |
+| Run      | SSE p50 / p95 ms | WS p50 / p95 ms |
+| -------- | ---------------- | --------------- |
+| Baseline | 506 / 695        | 493 / 514       |
+| After    | 608 / 807        | 472 / 570       |
+| Final    | 396 / 653        | 438 / 444       |
 
 WS has the tighter p95. The p50 values are within noise of each other.
 
@@ -62,6 +63,7 @@ Every ERP read still passes `ToolGateway` (decision, allowlist, audited invocati
 The first attempt (`latency-after`) made receivables about 2× slower on cold runs (1 057 → 2 172 ms).
 
 An alternating A/B of the old and new adapter isolated the cause:
+
 - A fresh hvgerp child is slow when its first requests arrive together: about 1.3 s, versus about 0.45 s when they are serial.
 - After one request, concurrent reads are fast (100–200 ms).
 

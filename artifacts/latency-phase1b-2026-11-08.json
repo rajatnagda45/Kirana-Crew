@@ -30,9 +30,7 @@
         "failures": 0,
         "partial": 0
       },
-      "fingerprints": [
-        "af2093df35fdad25"
-      ]
+      "fingerprints": ["af2093df35fdad25"]
     },
     {
       "question": "sales",
@@ -59,9 +57,7 @@
         "failures": 0,
         "partial": 0
       },
-      "fingerprints": [
-        "922d80606973bd4e"
-      ]
+      "fingerprints": ["922d80606973bd4e"]
     },
     {
       "question": "receivables",
@@ -88,9 +84,7 @@
         "failures": 0,
         "partial": 0
       },
-      "fingerprints": [
-        "9ab109737acef1ad"
-      ]
+      "fingerprints": ["9ab109737acef1ad"]
     },
     {
       "question": "forecast",
@@ -117,9 +111,7 @@
         "failures": 0,
         "partial": 0
       },
-      "fingerprints": [
-        "cc53d86b04254f1c"
-      ]
+      "fingerprints": ["cc53d86b04254f1c"]
     },
     {
       "question": "health",
@@ -146,9 +138,7 @@
         "failures": 0,
         "partial": 6
       },
-      "fingerprints": [
-        "fed341838491ef88"
-      ]
+      "fingerprints": ["fed341838491ef88"]
     }
   ],
   "tts": {

@@ -57,18 +57,31 @@ export function StatusPill({ status }: { status: string }) {
 }
 
 const cellColor = (cell: Cell): string | undefined =>
-  cell.tone ? TONE_COLOR[cell.tone] : cell.value === null ? "var(--kirana-muted-foreground)" : undefined;
+  cell.tone
+    ? TONE_COLOR[cell.tone]
+    : cell.value === null
+      ? "var(--kirana-muted-foreground)"
+      : undefined;
 
 function NoticeList({ notices }: { notices: Notice[] }) {
   if (!notices.length) return null;
-  const tone = (n: Notice): Tone => (n.severity === "error" ? "bad" : n.severity === "warn" ? "warn" : "neutral");
+  const tone = (n: Notice): Tone =>
+    n.severity === "error" ? "bad" : n.severity === "warn" ? "warn" : "neutral";
   return (
-    <ul aria-label="Things to know before relying on these figures" style={{ listStyle: "none", padding: 0, margin: "0 0 12px" }}>
+    <ul
+      aria-label="Things to know before relying on these figures"
+      style={{ listStyle: "none", padding: 0, margin: "0 0 12px" }}
+    >
       {notices.map((n, i) => {
-        const Icon = n.severity === "error" ? XCircle : n.severity === "warn" ? AlertTriangle : Info;
+        const Icon =
+          n.severity === "error" ? XCircle : n.severity === "warn" ? AlertTriangle : Info;
         return (
           <li key={i} style={panel(tone(n))}>
-            <Icon size={16} aria-hidden="true" style={{ flexShrink: 0, marginTop: 2, color: TONE_COLOR[tone(n)] }} />
+            <Icon
+              size={16}
+              aria-hidden="true"
+              style={{ flexShrink: 0, marginTop: 2, color: TONE_COLOR[tone(n)] }}
+            />
             <div>
               <span>{n.text}</span>
               {n.detail && n.detail !== n.text && (
@@ -90,15 +103,33 @@ function Metrics({ model }: { model: ReportModel }) {
   return (
     <dl
       aria-label="Key figures"
-      style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(170px,100%),1fr))", gap: 10, margin: "0 0 4px" }}
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill,minmax(min(170px,100%),1fr))",
+        gap: 10,
+        margin: "0 0 4px",
+      }}
     >
       {model.metrics.map((m) => (
         <div
           key={m.label}
-          style={{ padding: "10px 12px", borderRadius: 10, border: "1px solid var(--kirana-border)", background: "var(--kirana-secondary)" }}
+          style={{
+            padding: "10px 12px",
+            borderRadius: 10,
+            border: "1px solid var(--kirana-border)",
+            background: "var(--kirana-secondary)",
+          }}
         >
           <dt style={ui.muted}>{m.label}</dt>
-          <dd style={{ margin: "2px 0 0", fontSize: 20, fontWeight: 800, fontFamily: "var(--font-display,system-ui)", color: cellColor(m.value) ?? "var(--kirana-foreground)" }}>
+          <dd
+            style={{
+              margin: "2px 0 0",
+              fontSize: 20,
+              fontWeight: 800,
+              fontFamily: "var(--font-display,system-ui)",
+              color: cellColor(m.value) ?? "var(--kirana-foreground)",
+            }}
+          >
             {m.value.display}
           </dd>
           {m.hint && <dd style={{ ...ui.muted, margin: "2px 0 0" }}>{m.hint}</dd>}
@@ -120,12 +151,29 @@ function TableView({ table }: { table: TableSection }) {
         <p style={{ ...ui.muted, margin: 0 }}>{table.empty ?? "Nothing to show."}</p>
       ) : (
         <>
-          <div role="region" aria-label={`${table.title} table`} tabIndex={0} style={{ overflowX: "auto" }}>
+          <div
+            role="region"
+            aria-label={`${table.title} table`}
+            tabIndex={0}
+            style={{ overflowX: "auto" }}
+          >
             <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 13 }}>
               <thead>
                 <tr>
                   {table.columns.map((c) => (
-                    <th key={c.key} scope="col" style={{ textAlign: c.align ?? "left", padding: "6px 10px", borderBottom: "1px solid var(--kirana-border)", color: "var(--kirana-muted-foreground)", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>
+                    <th
+                      key={c.key}
+                      scope="col"
+                      style={{
+                        textAlign: c.align ?? "left",
+                        padding: "6px 10px",
+                        borderBottom: "1px solid var(--kirana-border)",
+                        color: "var(--kirana-muted-foreground)",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
                       {c.label}
                     </th>
                   ))}
@@ -141,7 +189,13 @@ function TableView({ table }: { table: TableSection }) {
                         <Tag
                           key={c.key}
                           {...(ci === 0 ? { scope: "row" as const } : {})}
-                          style={{ textAlign: c.align ?? "left", padding: "6px 10px", borderBottom: "1px solid var(--kirana-border)", fontWeight: ci === 0 ? 600 : 400, color: cell ? cellColor(cell) : undefined }}
+                          style={{
+                            textAlign: c.align ?? "left",
+                            padding: "6px 10px",
+                            borderBottom: "1px solid var(--kirana-border)",
+                            fontWeight: ci === 0 ? 600 : 400,
+                            color: cell ? cellColor(cell) : undefined,
+                          }}
                         >
                           {cell?.display ?? ""}
                         </Tag>
@@ -153,7 +207,12 @@ function TableView({ table }: { table: TableSection }) {
             </table>
           </div>
           {table.rows.length > limit && (
-            <button type="button" aria-expanded={all} onClick={() => setAll(!all)} style={{ ...ui.btn(), marginTop: 8 }}>
+            <button
+              type="button"
+              aria-expanded={all}
+              onClick={() => setAll(!all)}
+              style={{ ...ui.btn(), marginTop: 8 }}
+            >
               {all ? `Show first ${limit}` : `Show all ${table.rows.length} rows`}
             </button>
           )}
@@ -202,16 +261,54 @@ function Actions({ model, view }: { model: ReportModel; view: WorkflowView }) {
   const download = () => {
     const table = tables[Math.min(pick, tables.length - 1)];
     if (!table) return;
-    const name = csvFileName([model.title, table.title, model.period ?? view.created_at?.slice(0, 10)]);
-    say(downloadFile(name, tableToCsv(table)), `Downloaded ${name}`, "Could not download the file.");
+    const name = csvFileName([
+      model.title,
+      table.title,
+      model.period ?? view.created_at?.slice(0, 10),
+    ]);
+    say(
+      downloadFile(name, tableToCsv(table)),
+      `Downloaded ${name}`,
+      "Could not download the file.",
+    );
   };
 
   return (
-    <div role="group" aria-label="Copy, print or download this report" style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", margin: "0 0 14px" }}>
-      <button type="button" style={ui.btn()} onClick={async () => say(await copyText(summaryText(model)), "Summary copied.", "Could not copy. Select the text and copy it instead.")}>
+    <div
+      role="group"
+      aria-label="Copy, print or download this report"
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 8,
+        alignItems: "center",
+        margin: "0 0 14px",
+      }}
+    >
+      <button
+        type="button"
+        style={ui.btn()}
+        onClick={async () =>
+          say(
+            await copyText(summaryText(model)),
+            "Summary copied.",
+            "Could not copy. Select the text and copy it instead.",
+          )
+        }
+      >
         <Copy size={13} aria-hidden="true" /> Copy summary
       </button>
-      <button type="button" style={ui.btn()} onClick={async () => say(await copyText(toPlainText(model)), "Full report copied.", "Could not copy. Select the text and copy it instead.")}>
+      <button
+        type="button"
+        style={ui.btn()}
+        onClick={async () =>
+          say(
+            await copyText(toPlainText(model)),
+            "Full report copied.",
+            "Could not copy. Select the text and copy it instead.",
+          )
+        }
+      >
         <Copy size={13} aria-hidden="true" /> Copy full report
       </button>
       <button
@@ -219,7 +316,11 @@ function Actions({ model, view }: { model: ReportModel; view: WorkflowView }) {
         style={ui.btn()}
         onClick={() =>
           say(
-            printHtmlDocument(printHtml(model, { printedAt: formatDateTime(new Date().toISOString()) ?? undefined })),
+            printHtmlDocument(
+              printHtml(model, {
+                printedAt: formatDateTime(new Date().toISOString()) ?? undefined,
+              }),
+            ),
             "Opening the print window…",
             "Could not open the print window.",
           )
@@ -234,7 +335,12 @@ function Actions({ model, view }: { model: ReportModel; view: WorkflowView }) {
               <label htmlFor={`csv-${view.id}`} style={SR_ONLY}>
                 Table to download
               </label>
-              <select id={`csv-${view.id}`} value={pick} onChange={(e) => setPick(Number(e.target.value))} style={{ ...ui.input, width: "auto", maxWidth: "100%" }}>
+              <select
+                id={`csv-${view.id}`}
+                value={pick}
+                onChange={(e) => setPick(Number(e.target.value))}
+                style={{ ...ui.input, width: "auto", maxWidth: "100%" }}
+              >
                 {tables.map((t, i) => (
                   <option key={t.id} value={i}>
                     {t.title}
@@ -258,11 +364,28 @@ function Actions({ model, view }: { model: ReportModel; view: WorkflowView }) {
 function Advanced({ view }: { view: WorkflowView }) {
   const [open, setOpen] = useState(false);
   return (
-    <details style={{ marginTop: 18 }} onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}>
+    <details
+      style={{ marginTop: 18 }}
+      onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
+    >
       <summary style={{ ...ui.muted, cursor: "pointer" }}>Advanced: raw data</summary>
       {open && (
-        <pre style={{ ...ui.muted, maxHeight: 320, overflow: "auto", background: "var(--kirana-accent)", borderRadius: 8, padding: 10, margin: "8px 0 0" }}>
-          {JSON.stringify({ result: view.result, tasks: view.tasks, timeline: view.timeline, error: view.error }, null, 2)}
+        <pre
+          style={{
+            ...ui.muted,
+            maxHeight: 320,
+            overflow: "auto",
+            background: "var(--kirana-accent)",
+            borderRadius: 8,
+            padding: 10,
+            margin: "8px 0 0",
+          }}
+        >
+          {JSON.stringify(
+            { result: view.result, tasks: view.tasks, timeline: view.timeline, error: view.error },
+            null,
+            2,
+          )}
         </pre>
       )}
     </details>
@@ -270,7 +393,10 @@ function Advanced({ view }: { view: WorkflowView }) {
 }
 
 /** Keeps one bad report from taking the page down: shows the saved summary and the raw data instead. */
-class ReportBoundary extends Component<{ view: WorkflowView; children: ReactNode }, { failed: boolean }> {
+class ReportBoundary extends Component<
+  { view: WorkflowView; children: ReactNode },
+  { failed: boolean }
+> {
   state = { failed: false };
   static getDerivedStateFromError() {
     return { failed: true };
@@ -288,7 +414,15 @@ class ReportBoundary extends Component<{ view: WorkflowView; children: ReactNode
   }
 }
 
-function Report({ view, compactHeader, hideHeadline }: { view: WorkflowView; compactHeader?: boolean; hideHeadline?: boolean }) {
+function Report({
+  view,
+  compactHeader,
+  hideHeadline,
+}: {
+  view: WorkflowView;
+  compactHeader?: boolean;
+  hideHeadline?: boolean;
+}) {
   const model = useMemo(() => buildReport(view), [view]);
   const info = statusInfo(view.status);
   const when = [
@@ -307,22 +441,32 @@ function Report({ view, compactHeader, hideHeadline }: { view: WorkflowView; com
       {compactHeader ? (
         model.period && <p style={{ ...ui.muted, margin: "0 0 10px" }}>Period: {model.period}</p>
       ) : (
-      <header style={{ marginBottom: 12 }}>
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
-          <h2 style={{ ...ui.heading, fontSize: 18, fontWeight: 800 }}>{model.title}</h2>
-          <StatusPill status={view.status} />
-          {model.period && <span style={ui.muted}>{model.period}</span>}
-        </div>
-        {when.length > 0 && <p style={{ ...ui.muted, margin: "4px 0 0" }}>{when.join(" · ")}</p>}
-        {info.explain && view.status !== "completed" && (
-          <p style={{ ...ui.muted, margin: "4px 0 0" }}>{info.explain}</p>
-        )}
-      </header>
+        <header style={{ marginBottom: 12 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
+            <h2 style={{ ...ui.heading, fontSize: 18, fontWeight: 800 }}>{model.title}</h2>
+            <StatusPill status={view.status} />
+            {model.period && <span style={ui.muted}>{model.period}</span>}
+          </div>
+          {when.length > 0 && <p style={{ ...ui.muted, margin: "4px 0 0" }}>{when.join(" · ")}</p>}
+          {info.explain && view.status !== "completed" && (
+            <p style={{ ...ui.muted, margin: "4px 0 0" }}>{info.explain}</p>
+          )}
+        </header>
       )}
 
       {model.headline && !hideHeadline && (
         <p
-          style={{ margin: "0 0 14px", padding: "12px 14px", borderRadius: 10, borderLeft: `4px solid ${TONE_COLOR[info.tone]}`, background: "var(--kirana-secondary)", fontSize: 15, lineHeight: 1.5, color: "var(--kirana-foreground)", overflowWrap: "anywhere" }}
+          style={{
+            margin: "0 0 14px",
+            padding: "12px 14px",
+            borderRadius: 10,
+            borderLeft: `4px solid ${TONE_COLOR[info.tone]}`,
+            background: "var(--kirana-secondary)",
+            fontSize: 15,
+            lineHeight: 1.5,
+            color: "var(--kirana-foreground)",
+            overflowWrap: "anywhere",
+          }}
         >
           {model.headline}
         </p>

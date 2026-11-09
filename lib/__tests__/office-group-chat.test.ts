@@ -87,7 +87,10 @@ it("answers small talk at once: an instant note says who was asked, replies foll
   group.send({ turnId: "hi1", message: "hi" });
   const notes = group
     .messages()
-    .filter((message: { groupTurnId?: string; role: string }) => message.groupTurnId === "hi1" && message.role === "assistant");
+    .filter(
+      (message: { groupTurnId?: string; role: string }) =>
+        message.groupTurnId === "hi1" && message.role === "assistant",
+    );
   expect(notes).toHaveLength(1);
   expect(notes[0].content).toMatch(/^Asked alice/);
   expect(notes[0].content).toMatch(/replies will follow here/);

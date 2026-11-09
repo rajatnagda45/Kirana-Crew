@@ -36,13 +36,19 @@ function probe(log: (supported: boolean, title: string) => void, props: Any = {}
 }
 
 /** jsdom has neither SpeechRecognition nor mediaDevices; hand the test the one it should see. */
-function withBrowserOverrides({ mediaDevices, speech }: { mediaDevices?: boolean; speech?: boolean }) {
+function withBrowserOverrides({
+  mediaDevices,
+  speech,
+}: {
+  mediaDevices?: boolean;
+  speech?: boolean;
+}) {
   const original = window.navigator.mediaDevices;
   const windowAny = window as Any;
   if (mediaDevices) {
     Object.defineProperty(window.navigator, "mediaDevices", {
       configurable: true,
-      value: { getUserMedia: async () => ({} as MediaStream) },
+      value: { getUserMedia: async () => ({}) as MediaStream },
     });
   }
   if (speech) windowAny.SpeechRecognition = class {};

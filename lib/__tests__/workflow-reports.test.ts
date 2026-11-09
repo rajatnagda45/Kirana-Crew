@@ -14,7 +14,11 @@ import {
   toNumber,
 } from "../../components/workflows/reports/format";
 import { guardCell, tableToCsv, csvFileName } from "../../components/workflows/reports/csv";
-import { exportableTables, summaryText, toPlainText } from "../../components/workflows/reports/text";
+import {
+  exportableTables,
+  summaryText,
+  toPlainText,
+} from "../../components/workflows/reports/text";
 import type { ReportModel, TableSection } from "../../components/workflows/reports/types";
 import { normalizeWorkflow, type WorkflowView } from "../workflow-contract";
 
@@ -25,17 +29,24 @@ type Any = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 const fixture = (name: string): WorkflowView =>
   normalizeWorkflow<WorkflowView>(
     JSON.parse(
-      readFileSync(fileURLToPath(new URL(`./fixtures/workflow-runs/${name}.json`, import.meta.url)), "utf8"),
+      readFileSync(
+        fileURLToPath(new URL(`./fixtures/workflow-runs/${name}.json`, import.meta.url)),
+        "utf8",
+      ),
     ).workflow,
   );
 const raw = (name: string): Any =>
   JSON.parse(
-    readFileSync(fileURLToPath(new URL(`./fixtures/workflow-runs/${name}.json`, import.meta.url)), "utf8"),
+    readFileSync(
+      fileURLToPath(new URL(`./fixtures/workflow-runs/${name}.json`, import.meta.url)),
+      "utf8",
+    ),
   ).workflow;
 
 const table = (model: ReportModel, id: string) =>
   model.sections.find((s) => s.kind === "table" && s.id === id) as TableSection;
-const metricOf = (model: ReportModel, label: string) => model.metrics.find((m) => m.label === label);
+const metricOf = (model: ReportModel, label: string) =>
+  model.metrics.find((m) => m.label === label);
 const noticeText = (model: ReportModel) => model.notices.map((n) => n.text).join("\n");
 
 describe("formatters", () => {
@@ -89,14 +100,24 @@ describe("csv", () => {
     { key: "name", label: "Name" },
     { key: "amount", label: "Amount" },
   ];
-  const cell = (value: string | number | null) => ({ kind: "text" as const, value, display: String(value) });
+  const cell = (value: string | number | null) => ({
+    kind: "text" as const,
+    value,
+    display: String(value),
+  });
 
   it("writes RFC 4180 with CRLF and a BOM, keeping numbers as numbers", () => {
     const csv = tableToCsv({
       columns: cols,
       rows: [
-        { name: cell('Ravi, "Kirana" Stores'), amount: { kind: "money", value: 20606.83, display: "₹20,606.83" } },
-        { name: cell("Line\nbreak"), amount: { kind: "money", value: null, display: "Not available" } },
+        {
+          name: cell('Ravi, "Kirana" Stores'),
+          amount: { kind: "money", value: 20606.83, display: "₹20,606.83" },
+        },
+        {
+          name: cell("Line\nbreak"),
+          amount: { kind: "money", value: null, display: "Not available" },
+        },
       ],
     });
     expect(csv.startsWith("﻿")).toBe(true);
@@ -104,7 +125,10 @@ describe("csv", () => {
   });
 
   it("keeps Kannada and Hindi text intact", () => {
-    const csv = tableToCsv({ columns: cols, rows: [{ name: cell("ಬೆಳ್ಳುಳ್ಳಿ / लहसुन"), amount: cell(1) }] });
+    const csv = tableToCsv({
+      columns: cols,
+      rows: [{ name: cell("ಬೆಳ್ಳುಳ್ಳಿ / लहसुन"), amount: cell(1) }],
+    });
     expect(csv).toContain("ಬೆಳ್ಳುಳ್ಳಿ / लहसुन");
   });
 
@@ -114,7 +138,10 @@ describe("csv", () => {
     expect(guardCell("+91 98450")).toBe("'+91 98450");
     expect(guardCell("-5")).toBe("-5"); // plain number kept
     expect(guardCell("Normal")).toBe("Normal");
-    const csv = tableToCsv({ columns: cols, rows: [{ name: cell("=1+1"), amount: cell(-5) }] }, false);
+    const csv = tableToCsv(
+      { columns: cols, rows: [{ name: cell("=1+1"), amount: cell(-5) }] },
+      false,
+    );
     expect(csv).toBe("Name,Amount\r\n'=1+1,-5\r\n");
   });
 
@@ -165,7 +192,9 @@ describe("report: stock check", () => {
     expect(first.buy.value).toBe(low[0].recommended_qty);
     expect(first.supplier.display).toMatch(/^Supplier \d+$/);
     expect(first.price.kind).toBe("money"); // the price is its own typed cell, so a CSV keeps the number
-    expect(first.price.value).toBe(raw("stock_check.completed").result.recommendations[0].choice.rate);
+    expect(first.price.value).toBe(
+      raw("stock_check.completed").result.recommendations[0].choice.rate,
+    );
     expect(model.recommendations[0]).toMatch(/^Buy .* from Supplier \d+ at ₹/);
   });
 
@@ -187,7 +216,13 @@ describe("report: stock check", () => {
         kind: "stock_check",
         rows: [
           { item_name: "Rice", available: 40, reorder_level: 10, status: "ok", uom: "kg" },
-          { item_name: "Salt", available: 5, reorder_level: null, status: "no_reorder_level", uom: "kg" },
+          {
+            item_name: "Salt",
+            available: 5,
+            reorder_level: null,
+            status: "no_reorder_level",
+            uom: "kg",
+          },
         ],
         low: [],
         recommendations: null,
@@ -231,7 +266,10 @@ describe("report: daily report", () => {
     const profit = (net: number) =>
       buildReport({
         ...base,
-        result: { ...base.result, profit: { status: "verified", net_profit: net, income: 9000, expense: 6500 } },
+        result: {
+          ...base.result,
+          profit: { status: "verified", net_profit: net, income: 9000, expense: 6500 },
+        },
       });
     expect(metricOf(profit(2500), "Profit or loss")?.value.display).toBe("₹2,500");
     const loss = metricOf(profit(-1200), "Profit or loss")!;
@@ -245,13 +283,21 @@ describe("report: daily report", () => {
     const model = buildReport(view);
     expect(model.statusLabel).toBe("Partially completed");
     expect(model.notices[0]).toMatchObject({ kind: "partial", severity: "warn" });
-    expect(metricOf(model, "Profit or loss")?.value).toMatchObject({ value: null, display: "Not available" });
+    expect(metricOf(model, "Profit or loss")?.value).toMatchObject({
+      value: null,
+      display: "Not available",
+    });
     const profitNotices = model.notices.filter((n) => /No posted accounting entries/.test(n.text));
     expect(profitNotices).toHaveLength(1); // the builder notice and the failed step are one reason
     expect(profitNotices[0].detail).toMatch(/No posted profit and loss data/);
-    expect(model.sections.some((s) => s.kind === "note" && /No submitted sales/.test(s.text))).toBe(true);
+    expect(model.sections.some((s) => s.kind === "note" && /No submitted sales/.test(s.text))).toBe(
+      true,
+    );
     // A recorded zero stays a zero.
-    expect(metricOf(model, "Total recorded sales")?.value).toMatchObject({ value: 0, display: "₹0" });
+    expect(metricOf(model, "Total recorded sales")?.value).toMatchObject({
+      value: 0,
+      display: "₹0",
+    });
   });
 });
 
@@ -298,7 +344,9 @@ describe("report: forecast details", () => {
         supply_status: "available",
         items: [
           item("No lead time", { recommendation: { status: "no_lead_time" } }),
-          item("Has advice", { recommendation: { status: "ok", suggested_qty: 12, stockout_risk: "high" } }),
+          item("Has advice", {
+            recommendation: { status: "ok", suggested_qty: 12, stockout_risk: "high" },
+          }),
         ],
       },
     });
@@ -319,8 +367,15 @@ describe("report: forecast details", () => {
         history_window: { from: "2026-08-10", to: "2026-11-07" },
         supply_status: "available",
         items: [
-          item("Forecast", { recommendation: { status: "ok", suggested_qty: 0, stockout_risk: "low" }, limitations: ["It does not see events or weather."] }),
-          item("Too new", { status: "insufficient_evidence", history: { observed_days: 7 }, limitations: ["Only 7 observed day(s); at least 14 are needed."] }),
+          item("Forecast", {
+            recommendation: { status: "ok", suggested_qty: 0, stockout_risk: "low" },
+            limitations: ["It does not see events or weather."],
+          }),
+          item("Too new", {
+            status: "insufficient_evidence",
+            history: { observed_days: 7 },
+            limitations: ["Only 7 observed day(s); at least 14 are needed."],
+          }),
         ],
       },
     });
@@ -349,14 +404,29 @@ describe("report: supplier comparison (real run)", () => {
     const why = model.sections.find((s) => s.kind === "list" && s.id === "why") as Any;
     expect(why.items.map((i: Any) => i.text).join(" ")).toMatch(/lowest rate, shortest lead time/);
     expect(why.items.map((i: Any) => i.text).join(" ")).toMatch(/usual reorder quantity/);
-    expect(noticeText(model)).toMatch(/Not known for some quotations: availability, delivery reliability/);
+    expect(noticeText(model)).toMatch(
+      /Not known for some quotations: availability, delivery reliability/,
+    );
     expect(table(model, "considered").rows.length).toBeGreaterThanOrEqual(3);
   });
   it("says so when no supplier can be recommended for a product", () => {
     const base = fixture("supplier_comparison.completed");
     const m = buildReport({
       ...base,
-      result: { kind: "supplier_comparison", items: [{ item_name: "Saffron", qty: 1, qty_basis: "one_unit", choice: null, considered: [], criteria: "x", blocker: "No quotation for this item." }] },
+      result: {
+        kind: "supplier_comparison",
+        items: [
+          {
+            item_name: "Saffron",
+            qty: 1,
+            qty_basis: "one_unit",
+            choice: null,
+            considered: [],
+            criteria: "x",
+            blocker: "No quotation for this item.",
+          },
+        ],
+      },
     });
     expect(noticeText(m)).toMatch(/No suitable supplier was found for Saffron/);
     expect(table(m, "best").rows[0].supplier.display).toBe("None suitable");
@@ -367,7 +437,9 @@ describe("report: supplier comparison (real run)", () => {
 describe("report: expiry check", () => {
   it("says expiry was not checked when the store tracks no batches, and shows no zero table", () => {
     const model = buildReport(fixture("expiry_check.completed"));
-    expect(noticeText(model)).toMatch(/Expiry was not checked\. This store does not currently track product batches/);
+    expect(noticeText(model)).toMatch(
+      /Expiry was not checked\. This store does not currently track product batches/,
+    );
     expect(model.sections).toHaveLength(0); // no window table of zeros that would read as "nothing expires"
     expect(metricOf(model, "Value at risk")).toBeUndefined();
     expect(metricOf(model, "Batches tracked")?.value.value).toBe(0);
@@ -381,10 +453,24 @@ describe("report: expiry check", () => {
         kind: "expiry_check",
         as_of: "2026-11-08",
         batches_tracked: 4,
-        windows: { expired: { batches: 1, qty: 3, value: 90 }, "7_days": { batches: 2, qty: 10, value: 400.5 }, "15_days": { batches: 0, qty: 0, value: 0 }, "30_days": { batches: 1, qty: 4, value: 120 } },
+        windows: {
+          expired: { batches: 1, qty: 3, value: 90 },
+          "7_days": { batches: 2, qty: 10, value: 400.5 },
+          "15_days": { batches: 0, qty: 0, value: 0 },
+          "30_days": { batches: 1, qty: 4, value: 120 },
+        },
         value_at_risk: 610.5,
         unvalued_batches: 1,
-        items: [{ item_name: "Curd", batch_no: "B1", expiry_date: "2026-11-10", days_left: 2, qty: 5, value_at_risk: 150 }],
+        items: [
+          {
+            item_name: "Curd",
+            batch_no: "B1",
+            expiry_date: "2026-11-10",
+            days_left: 2,
+            qty: 5,
+            value_at_risk: 150,
+          },
+        ],
       },
     });
     expect(table(model, "windows").rows[1].value.display).toBe("₹400.50");
@@ -406,7 +492,9 @@ describe("report: udhaar", () => {
       "61 to 90 days overdue",
       "More than 90 days overdue",
     ]);
-    expect(table(model, "collect").rows[0].oldest.value).toBe(r.collection_priority[0].oldest_days_overdue);
+    expect(table(model, "collect").rows[0].oldest.value).toBe(
+      r.collection_priority[0].oldest_days_overdue,
+    );
     expect(model.recommendations).toHaveLength(Math.min(3, r.collection_priority.length));
   });
   it("is honest that credit limits were not checked", () => {
@@ -439,7 +527,13 @@ describe("report: supplier performance and customer insights", () => {
     const base = fixture("supplier_performance.completed");
     const model = buildReport({
       ...base,
-      result: { ...base.result, suppliers: [{ supplier: "S", on_time_rate: 0.875, late_lines: 1, max_days_late: 3, outstanding: 100 }], delaying: [{ supplier: "S", late_lines: 1, max_days_late: 3 }] },
+      result: {
+        ...base.result,
+        suppliers: [
+          { supplier: "S", on_time_rate: 0.875, late_lines: 1, max_days_late: 3, outstanding: 100 },
+        ],
+        delaying: [{ supplier: "S", late_lines: 1, max_days_late: 3 }],
+      },
     });
     expect(table(model, "suppliers").rows[0].ontime.display).toBe("87.5%");
     expect(model.recommendations[0]).toMatch(/S is late on 1 line, up to 3 days/);
@@ -466,24 +560,45 @@ describe("report: store health", () => {
     expect(list.items).toHaveLength(raw("store_health_report.partial").result.problems.length);
     expect(list.items[0].text).toMatch(/^High: Udhaar overdue more than 30 days/);
     expect(list.items[0].detail).toMatch(/About ₹21,655.14 affected/);
-    expect(noticeText(model)).toMatch(/Expiry was not checked\. This store does not currently track product batches/);
+    expect(noticeText(model)).toMatch(
+      /Expiry was not checked\. This store does not currently track product batches/,
+    );
     expect(model.recommendations[0]).toMatch(/Udhaar Report/);
   });
 
   it("never says there are no problems when a check was skipped", () => {
     const quiet = buildReport({
       ...view,
-      result: { kind: "store_health_report", as_of: "2026-11-08", problems: [], unchecked: [{ area: "expiry", reason: "No batch-tracked stock was returned by ERP." }], snapshot: {} },
+      result: {
+        kind: "store_health_report",
+        as_of: "2026-11-08",
+        problems: [],
+        unchecked: [{ area: "expiry", reason: "No batch-tracked stock was returned by ERP." }],
+        snapshot: {},
+      },
     });
     const note = quiet.sections.find((s) => s.kind === "note") as Any;
-    expect(note.text).toBe("No problems were found in the areas that were checked. Not checked: expiry.");
+    expect(note.text).toBe(
+      "No problems were found in the areas that were checked. Not checked: expiry.",
+    );
     expect(note.tone).toBeUndefined();
-    const clear = buildReport({ ...view, result: { kind: "store_health_report", problems: [], unchecked: [], snapshot: {} } });
-    expect((clear.sections.find((s) => s.kind === "note") as Any).text).toMatch(/^No problems were found in the areas checked/);
+    const clear = buildReport({
+      ...view,
+      result: { kind: "store_health_report", problems: [], unchecked: [], snapshot: {} },
+    });
+    expect((clear.sections.find((s) => s.kind === "note") as Any).text).toMatch(
+      /^No problems were found in the areas checked/,
+    );
   });
 
   it("flags a profit figure that could not be read", () => {
-    const m = buildReport({ ...view, result: { ...view.result, snapshot: { ...(view.result as Any).snapshot, net_profit_7_days: null } } });
+    const m = buildReport({
+      ...view,
+      result: {
+        ...view.result,
+        snapshot: { ...(view.result as Any).snapshot, net_profit_7_days: null },
+      },
+    });
     expect(metricOf(m, "Profit, last 7 days")?.value.display).toBe("Not available");
     expect(noticeText(m)).toMatch(/Profit for the last 7 days could not be read/);
   });
@@ -500,7 +615,10 @@ describe("report: business and billing", () => {
 
   it("says plainly when the previous period could not be read", () => {
     const base = fixture("business_report.completed");
-    const model = buildReport({ ...base, result: { ...base.result, previous: null, unavailable: ["Udhaar could not be read."] } });
+    const model = buildReport({
+      ...base,
+      result: { ...base.result, previous: null, unavailable: ["Udhaar could not be read."] },
+    });
     expect(metricOf(model, "Compared with the previous period")).toBeUndefined();
     expect(noticeText(model)).toMatch(/previous period could not be read/);
     expect(noticeText(model)).toMatch(/Udhaar could not be read/);
@@ -576,10 +694,18 @@ describe("report: blocked, clarification and other statuses", () => {
       id: "x",
       status: "partial",
       intent: { action: "stock_check" },
-      result: { kind: "stock_check", rows: [], low: [], recommendations: null, recommendations_status: "not_needed" },
+      result: {
+        kind: "stock_check",
+        rows: [],
+        low: [],
+        recommendations: null,
+        recommendations_status: "not_needed",
+      },
       tasks: [{ status: "failed", title: "Compare suppliers", error: "Quotations timed out" }],
     };
-    expect(noticeText(buildReport(view))).toMatch(/Not done: Compare suppliers\. Quotations timed out/);
+    expect(noticeText(buildReport(view))).toMatch(
+      /Not done: Compare suppliers\. Quotations timed out/,
+    );
   });
 });
 
@@ -617,7 +743,13 @@ describe("report: unknown and malformed results never blank the page", () => {
         throw new Error("boom");
       },
     });
-    const model = buildReport({ id: "x", status: "completed", intent: { action: "stock_check" }, result, summary: "S" });
+    const model = buildReport({
+      id: "x",
+      status: "completed",
+      intent: { action: "stock_check" },
+      result,
+      summary: "S",
+    });
     expect(model.headline).toBe("S");
     expect(noticeText(model)).toMatch(/simpler layout/);
   });
@@ -626,15 +758,35 @@ describe("report: unknown and malformed results never blank the page", () => {
     const weird: unknown[] = [
       {},
       { rows: null, low: 5, items: "x", windows: [], problems: {}, result: [] },
-      { rows: [null, 1, "a", [], {}], items: [null, { forecast: 5, backtest: "x", recommendation: [] }] },
-      { total_sales: "abc", transaction_count: {}, top_products: [{ amount: NaN }], profit: "no", period: 3 },
-      { buckets: [], collection_priority: "x", overdue_over_30_days: null, snapshot: 1, unchecked: [null, 3] },
+      {
+        rows: [null, 1, "a", [], {}],
+        items: [null, { forecast: 5, backtest: "x", recommendation: [] }],
+      },
+      {
+        total_sales: "abc",
+        transaction_count: {},
+        top_products: [{ amount: NaN }],
+        profit: "no",
+        period: 3,
+      },
+      {
+        buckets: [],
+        collection_priority: "x",
+        overdue_over_30_days: null,
+        snapshot: 1,
+        unchecked: [null, 3],
+      },
       { suppliers: [{ on_time_rate: "x" }], delaying: [1], weekly_buyers: [[]], customers: "x" },
       { sales: [], previous: [], stock: "s", udhaar: 1, unavailable: [{}, null, 4], notes: [3] },
     ];
     for (const action of [...Object.keys(BUILDERS), "unknown_thing"])
       for (const result of weird) {
-        const model = buildReport({ id: "x", status: "completed", intent: { action }, result: result as Any });
+        const model = buildReport({
+          id: "x",
+          status: "completed",
+          intent: { action },
+          result: result as Any,
+        });
         expect(model.title).toBeTruthy();
         expect(() => toPlainText(model)).not.toThrow();
         expect(() => generic({ view: {} as Any, result: result as Any, tasks: [] })).not.toThrow();
@@ -645,8 +797,10 @@ describe("report: unknown and malformed results never blank the page", () => {
 describe("plain text and export", () => {
   it("copies a summary with the saved sentence, and a caveat for a partial run", () => {
     expect(summaryText(buildReport(fixture("stock_check.completed")))).toBe(
-      `Stock Check · ${buildReport(fixture("stock_check.completed")).period ?? ""}`.replace(/ · $/, "") +
-        `\n${fixture("stock_check.completed").summary}`,
+      `Stock Check · ${buildReport(fixture("stock_check.completed")).period ?? ""}`.replace(
+        / · $/,
+        "",
+      ) + `\n${fixture("stock_check.completed").summary}`,
     );
     const partial = summaryText(buildReport(fixture("daily_report.partial")));
     expect(partial).toMatch(/Note: partially completed/);

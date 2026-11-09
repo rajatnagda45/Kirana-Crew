@@ -8,28 +8,30 @@ The Workflows page now shows each run as a readable business report instead of r
 
 ## Before and after
 
-| Area | Before | After |
-|---|---|---|
-| Opening a run | Raw JSON in a 200 px box | Readable report; raw data only under "Advanced: raw data" |
-| Summary | Never shown | Shown prominently, once |
-| Start / finish / duration | Blank: the page read `startedAt`, `durationMs`, which the server never sends | Real `created_at` / `finished_at`; duration only when both exist and are in order |
-| Blocked or failed run | Status word only | Reason in plain words, with the server's own text under "Technical detail" |
-| Partial run | Looked like success or failure | "Partially completed" banner, what could not be checked and why, "Not available" / "Not checked" kept apart from a real zero |
-| Polling | Every 2 s forever once any run was `partial`, `blocked` or waiting | Only while a run is `running` (and under 20 min old); waits while the tab is hidden; backs off and stops after 5 failures with "Try again" |
-| Clarification | Invisible | Question shown, real options and product groups offered, answer starts a new linked run |
-| Prepare Reorder | Ordinary button that always ended `blocked` | Labelled "Purchase orders off", with a read-only "Reorder suggestions" instead |
-| Cards | 11, only product / date inputs | 16, each with labelled inputs for only the parameters the API accepts, validated before sending |
-| Copy / print / export | None | Copy summary, copy full report, print, CSV per table |
+| Area                      | Before                                                                       | After                                                                                                                                      |
+| ------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Opening a run             | Raw JSON in a 200 px box                                                     | Readable report; raw data only under "Advanced: raw data"                                                                                  |
+| Summary                   | Never shown                                                                  | Shown prominently, once                                                                                                                    |
+| Start / finish / duration | Blank: the page read `startedAt`, `durationMs`, which the server never sends | Real `created_at` / `finished_at`; duration only when both exist and are in order                                                          |
+| Blocked or failed run     | Status word only                                                             | Reason in plain words, with the server's own text under "Technical detail"                                                                 |
+| Partial run               | Looked like success or failure                                               | "Partially completed" banner, what could not be checked and why, "Not available" / "Not checked" kept apart from a real zero               |
+| Polling                   | Every 2 s forever once any run was `partial`, `blocked` or waiting           | Only while a run is `running` (and under 20 min old); waits while the tab is hidden; backs off and stops after 5 failures with "Try again" |
+| Clarification             | Invisible                                                                    | Question shown, real options and product groups offered, answer starts a new linked run                                                    |
+| Prepare Reorder           | Ordinary button that always ended `blocked`                                  | Labelled "Purchase orders off", with a read-only "Reorder suggestions" instead                                                             |
+| Cards                     | 11, only product / date inputs                                               | 16, each with labelled inputs for only the parameters the API accepts, validated before sending                                            |
+| Copy / print / export     | None                                                                         | Copy summary, copy full report, print, CSV per table                                                                                       |
 
 ## Files
 
 New:
+
 - `lib/workflow-contract.ts`: the server contract, status rules, labels.
 - `components/workflows/`: `reports/` (model, formatters, CSV, one builder per workflow, generic fallback, plain text, print HTML), `ReportView.tsx`, `RunHistory.tsx`, `WorkflowCards.tsx`, `ClarificationPanel.tsx`, `ApprovalsCard.tsx`, `definitions.ts`, `clarify.ts`, `export.ts`, `styles.ts`.
 - Tests: `workflow-reports.test.ts` (53), `workflows-page.test.tsx` (45), `workflow-export.test.tsx` (12), `workflow-inputs.test.ts` (13), `workflow-recovery.test.ts` (7), plus 18 real run-record fixtures in `lib/__tests__/fixtures/workflow-runs/`.
 - Scripts: `scripts/shot-workflows.mjs` (live browser verification), `scripts/make-workflow-fixtures.mjs` (builds anonymised fixtures from real records).
 
 Changed:
+
 - `components/pages/WorkflowsPage.tsx` (rewritten), `lib/hooks/useNammaOps.ts` (real types, safe fetching, new polling, detail hook).
 - `lib/server/nammaops/workflows.mjs`: `list()` also returns `error`; new `recover()`. `index.mjs` calls it at startup. `openapi.mjs`: `error` on the run summary, `interrupted` and `outcome_unknown` as statuses. (These three files also contain another session's uncommitted edits; mine are 75 added lines.)
 - Same wrong-status bug fixed in two other pages that run their own wait loops: `ProcurementPage.tsx`, `dashboard/WorkflowAction.tsx`. `OverviewPage.tsx` read `completedAt` (never sent); now `finished_at`.
@@ -47,13 +49,13 @@ Statuses handled: `running, completed, partial, needs_clarification, awaiting_ap
 
 ## Workflow coverage
 
-| Card | Report layout | Run live in this check |
-|---|---|---|
-| Stock Check, Daily Report (verified profit and no-profit day), Demand Forecast, Store Health, Supplier Comparison (product list, unknown product, group answer) | Specific | Yes |
-| Udhaar, Expiry, Purchase Status, Supplier Performance, Customer Insights, Business Report, Billing Summary | Specific, built from real saved records | Earlier runs opened; not re-run |
-| Prepare Reorder | Blocked run explained; read-only alternative runs `stock_check` | Blocked record opened; "Reorder suggestions" not run |
-| Payments Summary, GST Summary, Purchase Order Lookup | Generic layout only | **Cannot run here**: their ERP connection is not set up (below) |
-| Prepare Bill | **No card**: it creates a draft bill in the ERP | n/a |
+| Card                                                                                                                                                            | Report layout                                                   | Run live in this check                                          |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------- |
+| Stock Check, Daily Report (verified profit and no-profit day), Demand Forecast, Store Health, Supplier Comparison (product list, unknown product, group answer) | Specific                                                        | Yes                                                             |
+| Udhaar, Expiry, Purchase Status, Supplier Performance, Customer Insights, Business Report, Billing Summary                                                      | Specific, built from real saved records                         | Earlier runs opened; not re-run                                 |
+| Prepare Reorder                                                                                                                                                 | Blocked run explained; read-only alternative runs `stock_check` | Blocked record opened; "Reorder suggestions" not run            |
+| Payments Summary, GST Summary, Purchase Order Lookup                                                                                                            | Generic layout only                                             | **Cannot run here**: their ERP connection is not set up (below) |
+| Prepare Bill                                                                                                                                                    | **No card**: it creates a draft bill in the ERP                 | n/a                                                             |
 
 ## Test results
 
@@ -63,6 +65,7 @@ Statuses handled: `running, completed, partial, needs_clarification, awaiting_ap
 - Live browser run (`node scripts/shot-workflows.mjs`, real app, real read-only ERPNext): the last fully clean run passed 32 of 32 checks; the final run passed 34 of 35 (the one failure is the console message below). It confirms: an earlier report opens readably; rows show start, finish and duration; Stock Check, Daily Report (a day with posted accounting, and today), Demand Forecast, Store Health and Supplier Comparison all run to their final status and open their reports; copy summary matches the server's saved summary; CSV has a UTF-8 BOM; print builds a clean light page (PDF saved); an unknown product asks a question, the page offers the real product groups, answering starts a linked run that completes, and the old run shows "Answered"; **zero list requests in a 14 s quiet window once nothing was running**; no sideways scroll on a phone-width screen.
 
 ### Bugs the live run caught that unit tests had missed
+
 1. React StrictMode (development) skipped the second history load, leaving the history empty. Fixed and tested.
 2. The server's `categories` maps group names to product names; I had offered product names as groups ("All Face Wash 100g"). Now "All Personal Care (4 products)".
 3. The Payments, GST and PO Lookup cards could only produce blocked runs, so they now read the binding and say "Not available yet".
