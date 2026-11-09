@@ -547,6 +547,35 @@ describe("through chat and voice, the way Alice was asked", () => {
     expect(invoices(ctx)).toEqual([]);
   });
 
+  it("voice: approving works without knowing the id (a draft made in text chat), and asks which when several wait", async () => {
+    const ctx = await ready();
+    const approvals = ctx.nammaops.approvals;
+    const call = { id: "voice_alice2" };
+    // Nothing waiting: a clear message, not "could not be found".
+    await expect(approvals.approveByVoice({ call, approvalId: undefined })).rejects.toMatchObject({
+      status: 404,
+      message: expect.stringMatching(/No approval is waiting/),
+    });
+    await text(ctx, "billing", "create a bill for Lakshmi Stores: 2 rice and 1 milk", "w1");
+    // One waiting: no id, or a made-up id, both mean that one.
+    const byNothing: Any = await approvals.approveByVoice({ call, approvalId: undefined });
+    expect(byNothing).toMatchObject({ status: "pin_required" });
+    const byWrongId = await approvals.approveByVoice({
+      call: { id: "voice_alice3" },
+      approvalId: "own_made_up",
+    });
+    expect(byWrongId).toMatchObject({ status: "pin_required", approval_id: byNothing.approval_id });
+    // Two waiting: the owner is asked which; nothing is chosen for them.
+    await text(ctx, "billing", "create a bill for Lakshmi Stores: 1 rice", "w2");
+    const which = await approvals.approveByVoice({
+      call: { id: "voice_alice4" },
+      approvalId: undefined,
+    });
+    expect(which.status).toBe("which_one");
+    expect(which.options).toHaveLength(2);
+    expect(which.options[0]).toMatchObject({ party: "Lakshmi Stores" });
+  });
+
   it("voice: Frank's tool call drafts the bill, then the spoken PIN makes it a bill", async () => {
     const ctx = await ready();
     const callId = "voice_alice";

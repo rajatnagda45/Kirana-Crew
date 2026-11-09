@@ -161,9 +161,7 @@ const everythingStored = (ctx: Any) => {
   return sqlite
     .prepare("SELECT name FROM sqlite_master WHERE type='table'")
     .all()
-    .map((row: Any) =>
-      JSON.stringify(sqlite.prepare(`SELECT * FROM "${row.name}"`).all()),
-    )
+    .map((row: Any) => JSON.stringify(sqlite.prepare(`SELECT * FROM "${row.name}"`).all()))
     .join("\n");
 };
 
@@ -226,7 +224,10 @@ describe("PIN verification", () => {
     });
     expect(ctx.poState().purchase_orders.every((po: Any) => po.docstatus === 0)).toBe(true);
     // "Restart": a brand-new verifier over the same database is still locked.
-    const restarted = new PinVerifier(ctx.runtime, { envPin: PIN, now: () => new Date("2026-11-01T10:00:00Z") });
+    const restarted = new PinVerifier(ctx.runtime, {
+      envPin: PIN,
+      now: () => new Date("2026-11-01T10:00:00Z"),
+    });
     expect(() => restarted.check(PIN)).toThrow(/Too many/);
     expect(restarted.status().locked_until).toBeTruthy();
     // The lock ends on its own.
@@ -276,7 +277,9 @@ describe("reads never ask for a PIN", () => {
     await read("nammaops-inventory", "erp.items.list");
     await read("nammaops-finance", "erp.pnl", { from_date: TODAY, to_date: TODAY }).catch(() => {});
     await read("nammaops-procurement", "erp.po.open");
-    const view = await (await ctx.nammaops.workflows.start({ text: "Check the stock of milk" })).done;
+    const view = await (
+      await ctx.nammaops.workflows.start({ text: "Check the stock of milk" })
+    ).done;
     expect(view.status).toBe("completed");
     expect(ctx.runtime.governance.approvals()).toEqual([]);
     expect(ctx.nammaops.approvals.list()).toEqual([]);
@@ -334,7 +337,10 @@ describe("a write needs an owner approval that the ToolGateway re-validates", ()
     expect(submit.invocation_id).not.toBe(gateway.request_id);
     // 3) the owner-approval record's own history.
     expect(done.history.map((row: Any) => row.event)).toEqual(["approved", "submitted"]);
-    expect(ctx.poState().purchase_orders.find((po: Any) => po.name === owner.erp_document_name).docstatus).toBe(1);
+    expect(
+      ctx.poState().purchase_orders.find((po: Any) => po.name === owner.erp_document_name)
+        .docstatus,
+    ).toBe(1);
   });
 
   it("rejects an expired approval request", async () => {
@@ -363,7 +369,10 @@ describe("a write needs an owner approval that the ToolGateway re-validates", ()
       approvalId: token.request_id,
       session: "panel",
     });
-    expect(replay).toMatchObject({ status: "denied", error: expect.stringMatching(/already used/) });
+    expect(replay).toMatchObject({
+      status: "denied",
+      error: expect.stringMatching(/already used/),
+    });
     const submits = ctx.runtime.mcpGateway
       .invocations()
       .filter((row: Any) => row.capability_id === submitCapability(ctx));
@@ -391,7 +400,10 @@ describe("a write needs an owner approval that the ToolGateway re-validates", ()
       approvalId: requestId,
       session: "s1",
     });
-    expect(changed).toMatchObject({ status: "denied", error: expect.stringMatching(/Arguments differ/) });
+    expect(changed).toMatchObject({
+      status: "denied",
+      error: expect.stringMatching(/Arguments differ/),
+    });
     expect(ctx.poState().purchase_orders.find((po: Any) => po.name === nameB).docstatus).toBe(0);
   });
 
@@ -424,7 +436,10 @@ describe("a write needs an owner approval that the ToolGateway re-validates", ()
       approvalId: requestId,
       session: "tab-B",
     });
-    expect(other).toMatchObject({ status: "denied", error: expect.stringMatching(/different session/) });
+    expect(other).toMatchObject({
+      status: "denied",
+      error: expect.stringMatching(/different session/),
+    });
     expect(ctx.poState().purchase_orders.find((po: Any) => po.name === name).docstatus).toBe(0);
     // The failed attempts did not consume it: the right session still can, once.
     const good = await ctx.runtime.mcpGateway.invoke({
@@ -548,7 +563,10 @@ describe("EmergencyStop", () => {
       approvalId: requestId,
       session: "s",
     });
-    expect(stopped).toMatchObject({ status: "denied", error: expect.stringMatching(/Emergency stop/) });
+    expect(stopped).toMatchObject({
+      status: "denied",
+      error: expect.stringMatching(/Emergency stop/),
+    });
     ctx.estop.on = false;
     expect(governance.approvals().find((row: Any) => row.request_id === requestId)).toMatchObject({
       status: "invalidated",
@@ -702,7 +720,9 @@ describe("spoken PIN: the server hears it, the transcript never keeps it", () =>
     const approvalId = (await drafts(ctx))[0];
     const voice = voiceFor(ctx);
     for (let i = 0; i < 5; i += 1) {
-      expect(await voice.tool({ approval_id: approvalId })).toMatchObject({ status: "pin_required" });
+      expect(await voice.tool({ approval_id: approvalId })).toMatchObject({
+        status: "pin_required",
+      });
       voice.owner(`w${i}`, "one two three four");
       const rejected = await voice.tool({ approval_id: approvalId });
       expect(rejected).toMatchObject({ status: "pin_rejected" });
@@ -726,7 +746,10 @@ describe("spoken PIN: the server hears it, the transcript never keeps it", () =>
     await expect(voice.tool({ approval_id: approvalId, extra: "x" })).rejects.toMatchObject({
       status: 400,
     });
-    await expect(voice.tool({})).rejects.toMatchObject({ status: 400 });
+    // The id is optional (a draft made in text chat has none the voice agent knows); with several
+    // waiting the owner is asked which, and nothing is chosen or approved for them.
+    expect(await voice.tool({})).toMatchObject({ status: "which_one" });
+    await expect(voice.tool({ approval_id: 42 })).rejects.toMatchObject({ status: 400 });
     expect(everythingStored(ctx)).not.toContain(PIN);
   });
 
@@ -753,7 +776,9 @@ describe("spoken PIN: the server hears it, the transcript never keeps it", () =>
     const approvalId = (await drafts(ctx))[0];
     const voice = voiceFor(ctx);
     await voice.tool({ approval_id: approvalId });
-    expect(await voice.tool({ approval_id: approvalId })).toMatchObject({ status: "waiting_for_pin" });
+    expect(await voice.tool({ approval_id: approvalId })).toMatchObject({
+      status: "waiting_for_pin",
+    });
     expect(ctx.poState().purchase_orders.every((po: Any) => po.docstatus === 0)).toBe(true);
   });
 

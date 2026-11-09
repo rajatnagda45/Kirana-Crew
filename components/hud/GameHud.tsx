@@ -20,7 +20,6 @@ import WorkerPanel from "./WorkerPanel";
 import SeatManagerModal from "./SeatManagerModal";
 import DeveloperModeModal from "./DeveloperModeModal";
 import NammaOpsPanel from "./NammaOpsPanel";
-import BillApprovalPrompt from "./BillApprovalPrompt";
 import MusicControls from "./MusicControls";
 import OnboardingOverlay from "./OnboardingOverlay";
 import AgentDetailPanel from "./AgentDetailPanel";
@@ -307,14 +306,6 @@ export default function GameHud() {
         open={developerOpen}
         onClose={() => setDeveloperOpen(false)}
         seats={state.seats}
-      />
-
-      {/* Pops up when a drafted customer bill waits for the owner's PIN; "Later" opens KiranaCrew */}
-      <BillApprovalPrompt
-        onLater={() => {
-          setObservingSeatId(null);
-          setOpenPanel("nammaops");
-        }}
       />
 
       {/* Permanent right-side voice panel */}
