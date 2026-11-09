@@ -52,7 +52,7 @@ afterEach(() => {
 describe("bill approval popup", () => {
   it("shows the pending bill with a masked PIN box and approves with the PIN", async () => {
     render(<BillApprovalPrompt onLater={() => {}} />);
-    await screen.findByText(/Approve bill SINV-26-00498/);
+    await screen.findByText(/SINV-26-00498 for Rohan/);
     const input = screen.getByLabelText("Owner PIN") as HTMLInputElement;
     expect(input.type).toBe("password");
     expect(screen.getByRole("button", { name: "Approve and bill" })).toHaveProperty(
@@ -73,7 +73,7 @@ describe("bill approval popup", () => {
   it("shows a wrong-PIN error, clears the box and keeps the popup open", async () => {
     postStatus = 403;
     render(<BillApprovalPrompt onLater={() => {}} />);
-    await screen.findByText(/Approve bill/);
+    await screen.findByText(/SINV-26-00498 for Rohan/);
     fireEvent.change(screen.getByLabelText("Owner PIN"), { target: { value: "0000" } });
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Approve and bill" }));
@@ -85,12 +85,26 @@ describe("bill approval popup", () => {
   it("'Later' hides the popup for that bill and opens the KiranaCrew tab", async () => {
     const onLater = vi.fn();
     render(<BillApprovalPrompt onLater={onLater} />);
-    await screen.findByText(/Approve bill/);
+    await screen.findByText(/SINV-26-00498 for Rohan/);
     fireEvent.click(screen.getByRole("button", { name: "Later" }));
     expect(onLater).toHaveBeenCalledTimes(1);
     expect(screen.queryByLabelText("Owner PIN")).toBeNull();
     expect(posts).toEqual([]); // nothing approved or rejected
     expect(sessionStorage.getItem("kiranacrew:bill-approval-later")).toContain("own_1");
+  });
+
+  it("the X button closes it like Later, and the popup is a centred dialog", async () => {
+    const onLater = vi.fn();
+    render(<BillApprovalPrompt onLater={onLater} />);
+    await screen.findByText(/SINV-26-00498 for Rohan/);
+    const dialog = screen.getByRole("dialog");
+    expect(dialog.parentElement?.style.position).toBe("fixed");
+    expect(dialog.parentElement?.style.alignItems).toBe("center");
+    expect(dialog.parentElement?.style.justifyContent).toBe("center");
+    fireEvent.click(screen.getByRole("button", { name: "Close and decide later" }));
+    expect(onLater).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(posts).toEqual([]);
   });
 
   it("shows nothing when no bill is pending", async () => {

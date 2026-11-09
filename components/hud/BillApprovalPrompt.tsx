@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { useDialog } from "@/components/ui/useDialog";
 
 type Any = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -139,67 +139,110 @@ export default function BillApprovalPrompt({ onLater }: { onLater: () => void })
 
   if (!bill)
     return result ? (
-      <p className="team-feedback" role="status">
+      <p role="status" style={styles.toast}>
         {result}
       </p>
     ) : null;
 
+  const total = Number(bill.total);
+  const money = (value: unknown) =>
+    Number.isFinite(Number(value))
+      ? `₹${Number(value).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`
+      : "";
+  const waiting = bills.filter((row) => !dismissed.includes(row.id)).length;
+
   return (
-    <div className="ui-confirm-overlay">
+    <div
+      style={styles.overlay}
+      onMouseDown={(event) => event.target === event.currentTarget && later()}
+    >
       <div
         ref={ref}
         role="dialog"
         aria-modal="true"
-        aria-label="Approve customer bill"
+        aria-labelledby="bill-approval-title"
         tabIndex={-1}
-        className="ui-confirm"
+        style={styles.card}
         onKeyDown={(event) => event.stopPropagation()}
       >
-        <h2>Approve bill {bill.erp_document_name}?</h2>
-        <p>
-          {bill.customer} · total ₹{bill.total}. It is a <strong>draft</strong>: nothing is billed,
-          and stock and accounts are unchanged, until you enter your PIN.
+        <button
+          type="button"
+          aria-label="Close and decide later"
+          onClick={later}
+          style={styles.close}
+        >
+          ×
+        </button>
+        <p style={styles.eyebrow}>
+          Bill waiting for your approval{waiting > 1 ? ` · ${waiting} waiting` : ""}
         </p>
-        <ul>
+        <h2 id="bill-approval-title" style={styles.title}>
+          {bill.erp_document_name} for {bill.customer}
+        </h2>
+        <ul style={styles.items}>
           {(bill.items ?? []).map((row: Any) => (
-            <li key={row.item_code}>
-              {row.qty} × {row.item_code} @ ₹{row.rate}
+            <li key={row.item_code} style={styles.item}>
+              <span>
+                {row.qty} × {row.item_code}
+              </span>
+              <span style={styles.muted}>at {money(row.rate)}</span>
             </li>
           ))}
         </ul>
+        <p style={styles.total}>
+          Total <strong style={styles.amount}>{Number.isFinite(total) ? money(total) : ""}</strong>
+        </p>
+        <p style={styles.note}>
+          This is a draft. Nothing is billed, and stock and accounts stay unchanged, until you enter
+          your PIN.
+        </p>
         <form
           onSubmit={(event) => {
             event.preventDefault();
             void decide("approve");
           }}
         >
-          <label>
-            Owner PIN{" "}
-            <input
-              type="password"
-              inputMode="numeric"
-              autoComplete="off"
-              aria-label="Owner PIN"
-              value={pin}
-              disabled={busy}
-              onChange={(event) => setPin(event.target.value)}
-            />
+          <label htmlFor="bill-approval-pin" style={styles.label}>
+            Owner PIN
           </label>
-          {error ? <p role="alert">{error}</p> : null}
-          <div className="ui-actions">
-            <button type="button" className="pixel-button" disabled={busy} onClick={later}>
+          <input
+            id="bill-approval-pin"
+            type="password"
+            inputMode="numeric"
+            autoComplete="off"
+            placeholder="Enter your PIN"
+            value={pin}
+            disabled={busy}
+            onChange={(event) => setPin(event.target.value)}
+            style={styles.input}
+          />
+          {error ? (
+            <p role="alert" style={styles.error}>
+              {error}
+            </p>
+          ) : null}
+          <div style={styles.actions}>
+            <button type="button" disabled={busy} onClick={later} style={styles.secondary}>
               Later
             </button>
             <button
               type="button"
-              className="pixel-button"
               disabled={busy || !pin}
               onClick={() => void decide("reject")}
+              style={{
+                ...styles.secondary,
+                color: "var(--kirana-destructive)",
+                opacity: busy || !pin ? 0.5 : 1,
+              }}
             >
               Reject
             </button>
-            <button type="submit" className="pixel-button" disabled={busy || !pin}>
-              Approve and bill
+            <button
+              type="submit"
+              disabled={busy || !pin}
+              style={{ ...styles.primary, opacity: busy || !pin ? 0.5 : 1 }}
+            >
+              {busy ? "Saving…" : "Approve and bill"}
             </button>
           </div>
         </form>
@@ -207,3 +250,118 @@ export default function BillApprovalPrompt({ onLater }: { onLater: () => void })
     </div>
   );
 }
+
+/** The app's own dark-theme tokens (app/globals.css), the same ones the Workflows page uses. */
+const styles: Record<string, CSSProperties> = {
+  overlay: {
+    position: "fixed",
+    inset: 0,
+    zIndex: 1000,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 16,
+    background: "rgba(0,0,0,0.6)",
+    backdropFilter: "blur(2px)",
+  },
+  card: {
+    position: "relative",
+    width: "min(440px, 100%)",
+    maxHeight: "calc(100vh - 32px)",
+    overflowY: "auto",
+    boxSizing: "border-box",
+    padding: "24px 24px 20px",
+    borderRadius: 16,
+    background: "var(--kirana-card)",
+    color: "var(--kirana-foreground)",
+    border: "1px solid var(--kirana-border)",
+    boxShadow: "0 24px 64px rgba(0,0,0,0.55)",
+    fontFamily: "inherit",
+    outline: "none",
+  },
+  close: {
+    position: "absolute",
+    top: 10,
+    right: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    border: "none",
+    background: "transparent",
+    color: "var(--kirana-muted-foreground)",
+    fontSize: 24,
+    lineHeight: 1,
+    cursor: "pointer",
+  },
+  eyebrow: {
+    margin: "0 0 6px",
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+    color: "var(--kirana-primary)",
+  },
+  title: { margin: "0 28px 14px 0", fontSize: 19, fontWeight: 700, lineHeight: 1.25 },
+  items: { listStyle: "none", margin: 0, padding: 0, borderTop: "1px solid var(--kirana-border)" },
+  item: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 12,
+    padding: "9px 0",
+    fontSize: 14,
+    borderBottom: "1px solid var(--kirana-border)",
+  },
+  muted: { color: "var(--kirana-muted-foreground)", whiteSpace: "nowrap" },
+  total: { display: "flex", justifyContent: "space-between", margin: "12px 0 4px", fontSize: 14 },
+  amount: { color: "var(--kirana-primary)", fontSize: 20 },
+  note: { margin: "0 0 16px", fontSize: 12, color: "var(--kirana-muted-foreground)" },
+  label: { display: "block", marginBottom: 6, fontSize: 12, fontWeight: 600 },
+  input: {
+    display: "block",
+    width: "100%",
+    boxSizing: "border-box",
+    padding: "11px 12px",
+    borderRadius: 9,
+    border: "1px solid var(--kirana-border)",
+    background: "var(--kirana-accent)",
+    color: "var(--kirana-foreground)",
+    fontSize: 16,
+    letterSpacing: "0.2em",
+  },
+  error: { margin: "8px 0 0", fontSize: 13, color: "var(--kirana-destructive)" },
+  actions: { display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 18, flexWrap: "wrap" },
+  secondary: {
+    padding: "10px 16px",
+    borderRadius: 9,
+    border: "1px solid var(--kirana-border)",
+    background: "var(--kirana-card)",
+    color: "var(--kirana-foreground)",
+    fontSize: 14,
+    fontWeight: 600,
+    cursor: "pointer",
+  },
+  primary: {
+    padding: "10px 18px",
+    borderRadius: 9,
+    border: "none",
+    background: "var(--kirana-primary)",
+    color: "var(--kirana-primary-foreground)",
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: "pointer",
+  },
+  toast: {
+    position: "fixed",
+    right: 16,
+    bottom: 16,
+    zIndex: 1000,
+    margin: 0,
+    padding: "10px 14px",
+    borderRadius: 10,
+    border: "1px solid var(--kirana-border)",
+    background: "var(--kirana-card)",
+    color: "var(--kirana-foreground)",
+    fontSize: 13,
+    boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+  },
+};
