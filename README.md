@@ -246,15 +246,15 @@ names, supplier names, database fields, technical terms, numbers and currency va
 
 Each agent has a fixed identity, a fixed set of ERP capabilities, and cannot exceed its role. This isn't a prompt instruction — it's enforced server-side by Phase C MCP governance.
 
-| Agent                  | Name      | Role                                                                    | ERP Access                                                                                    |
-| ---------------------- | --------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `nammaops-manager`     | **Alice** | Coordinates all requests; delegates to specialists; synthesises results | No direct ERP access                                                                          |
-| `nammaops-inventory`   | **Bob**   | Stock levels, reorder analysis, demand forecasting, expiry checks       | `erp.items.list`, `erp.stock.balance`, `erp.stock.ledger`, `erp.stock.movements`              |
-| `nammaops-sales`       | **Carol** | Sales performance, top products, customer insights                      | `erp.sales_invoices.list`, `erp.pos_invoices.list`, `erp.customers.list`, `erp.sales.history` |
-| `nammaops-procurement` | **Dave**  | Supplier comparison, purchase order drafting                            | `erp.suppliers.list`, `erp.supplier_quotations.list`, `erp.po.create_draft`, `erp.po.open`    |
-| `nammaops-finance`     | **Erin**  | P&L, receivables, udhaar (credit) tracking                              | `erp.pnl`, `erp.gl`, `erp.purchase_invoices.list`, `erp.payments.summary`                     |
-| `nammaops-reports`     | **Grace** | Weekly/monthly business reports                                         | All read capabilities across departments                                                      |
-| `nammaops-billing`     | **Frank** | Customer bills, counter totals, returns                                 | `erp.sales_invoices.list`, `erp.pos_invoices.list`, `erp.po.create_draft`                     |
+| Agent                    | Name      | Role                                                                    | ERP Access                                                                                    |
+| ------------------------ | --------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `kiranacrew-manager`     | **Alice** | Coordinates all requests; delegates to specialists; synthesises results | No direct ERP access                                                                          |
+| `kiranacrew-inventory`   | **Bob**   | Stock levels, reorder analysis, demand forecasting, expiry checks       | `erp.items.list`, `erp.stock.balance`, `erp.stock.ledger`, `erp.stock.movements`              |
+| `kiranacrew-sales`       | **Carol** | Sales performance, top products, customer insights                      | `erp.sales_invoices.list`, `erp.pos_invoices.list`, `erp.customers.list`, `erp.sales.history` |
+| `kiranacrew-procurement` | **Dave**  | Supplier comparison, purchase order drafting                            | `erp.suppliers.list`, `erp.supplier_quotations.list`, `erp.po.create_draft`, `erp.po.open`    |
+| `kiranacrew-finance`     | **Erin**  | P&L, receivables, udhaar (credit) tracking                              | `erp.pnl`, `erp.gl`, `erp.purchase_invoices.list`, `erp.payments.summary`                     |
+| `kiranacrew-reports`     | **Grace** | Weekly/monthly business reports                                         | All read capabilities across departments                                                      |
+| `kiranacrew-billing`     | **Frank** | Customer bills, counter totals, returns                                 | `erp.sales_invoices.list`, `erp.pos_invoices.list`, `erp.po.create_draft`                     |
 
 **The critical difference from a chatbot:** agents **take autonomous action**. Dave reads real supplier quotations, picks the cheapest valid supplier, and creates a draft purchase order in ERPNext — no human typing required. The shopkeeper hears the recommendation, approves with a PIN, and the order is submitted.
 
