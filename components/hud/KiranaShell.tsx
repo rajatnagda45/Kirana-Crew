@@ -44,7 +44,6 @@ import SalesPage from "@/components/pages/SalesPage";
 import CustomersPage from "@/components/pages/CustomersPage";
 import SuppliersPage from "@/components/pages/SuppliersPage";
 import CreditPage from "@/components/pages/CreditPage";
-import GstPage from "@/components/pages/GstPage";
 import StockLedgerPage from "@/components/pages/StockLedgerPage";
 import ChatPage from "@/components/pages/ChatPage";
 
@@ -279,8 +278,6 @@ export default function KiranaShell() {
         return <CreditPage />;
       case "stock-ledger":
         return <StockLedgerPage />;
-      case "gst":
-        return <GstPage />;
       case "analytics":
         return <AnalyticsPage />;
       case "reviews":

@@ -3,8 +3,7 @@ import { useState } from "react";
 import { Loader2, Play } from "lucide-react";
 import { toast } from "sonner";
 import { fetchNammaOps, type WorkflowView } from "@/lib/hooks/useNammaOps";
-
-const TERMINAL = ["completed", "failed", "stopped", "interrupted", "outcome_unknown"];
+import { isActiveStatus } from "@/lib/workflow-contract";
 
 /**
  * Starts one durable NammaOps workflow (the same agent path as voice and chat) and reports its
@@ -37,11 +36,11 @@ export function WorkflowAction({
         const { workflow: view } = await fetchNammaOps<{ workflow: WorkflowView }>(
           `/workflows/${encodeURIComponent(workflow.id)}`,
         );
-        if (TERMINAL.includes(view.status)) {
+        if (!isActiveStatus(view.status)) {
           const summary =
             (view as unknown as { summary?: string }).summary ?? view.error ?? undefined;
           setOutcome({ status: view.status, summary: summary ?? undefined });
-          if (view.status === "completed") toast.success(`${label}: completed`);
+          if (["completed", "partial"].includes(view.status)) toast.success(`${label}: ${view.status}`);
           else toast.error(`${label}: ${view.status}`);
           onDone?.();
           return;

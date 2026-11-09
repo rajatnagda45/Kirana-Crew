@@ -1,0 +1,140 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "daily_report",
+      "date": "2026-11-04"
+    },
+    "command": null,
+    "origin": {
+      "channel": "voice",
+      "call_id": "dm_28e223cb-c53d-4fe4-a9d2-fe660c393923",
+      "voice_agent": "Carol",
+      "voice_department": "sales",
+      "voice_intent": "sales_summary"
+    },
+    "status": "partial",
+    "created_at": "2026-11-04T05:13:53.015Z",
+    "finished_at": "2026-11-04T05:13:59.715Z",
+    "result": {
+      "kind": "daily_report",
+      "period": {
+        "from_date": "2026-11-04",
+        "to_date": "2026-11-04"
+      },
+      "total_sales": 0,
+      "transaction_count": 0,
+      "top_products": [],
+      "invoice_refs": [],
+      "profit": {
+        "status": "unverified",
+        "reason": "erp.pnl: failed (The tool reported an error. No posted profit and loss data for this period.)"
+      },
+      "warnings": [],
+      "data_status": {
+        "sales": "available",
+        "profit": "unverified"
+      },
+      "sources": {
+        "invoices": [],
+        "profit": null
+      }
+    },
+    "summary": "2026-11-04: sales 0 across 0 transaction(s); top sellers none; profit could not be verified from posted accounting data.",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-04T05:13:53.015Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "daily_report"
+      },
+      {
+        "at": "2026-11-04T05:13:53.019Z",
+        "type": "SALES_TASK_STARTED",
+        "agent": "sales",
+        "detail": "Read sales for 2026-11-04"
+      },
+      {
+        "at": "2026-11-04T05:13:53.029Z",
+        "type": "VOICE_CONSULT",
+        "agent": "manager",
+        "detail": "Carol (Sales) asked by voice: sales_summary"
+      },
+      {
+        "at": "2026-11-04T05:13:59.522Z",
+        "type": "SALES_TASK_COMPLETED",
+        "agent": "sales",
+        "detail": "0 transaction(s), total 0."
+      },
+      {
+        "at": "2026-11-04T05:13:59.527Z",
+        "type": "FINANCE_TASK_STARTED",
+        "agent": "finance",
+        "detail": "Read posted profit and loss for 2026-11-04"
+      }
+    ],
+    "clarifications": null,
+    "id": "wf_mw1nvybaaeb16b61",
+    "revision": 9,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw1nvybaaeb16b61",
+        "role": "sales",
+        "agent_id": "nammaops-sales",
+        "agent_name": "Sales Agent",
+        "title": "Read sales for 2026-11-04",
+        "status": "completed",
+        "started_at": "2026-11-04T05:13:53.017Z",
+        "evidence": [
+          {
+            "business_capability": "erp.sales_invoices.list",
+            "invocation_id": "inv_mw1nvybh952b76c9fb"
+          },
+          {
+            "business_capability": "erp.pos_invoices.list",
+            "invocation_id": "inv_mw1nvytw9bd58952f4"
+          },
+          {
+            "business_capability": "erp.items.list",
+            "invocation_id": "inv_mw1nvz022556c8f195"
+          }
+        ],
+        "summary": "0 transaction(s), total 0.",
+        "finished_at": "2026-11-04T05:13:59.520Z",
+        "id": "nt_mw1nvybd8a0b79b3",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw1nvybaaeb16b61",
+        "role": "finance",
+        "agent_id": "nammaops-finance",
+        "agent_name": "Finance Agent",
+        "title": "Read posted profit and loss for 2026-11-04",
+        "status": "failed",
+        "started_at": "2026-11-04T05:13:59.524Z",
+        "evidence": [],
+        "error": "erp.pnl: failed (The tool reported an error. No posted profit and loss data for this period.)",
+        "finished_at": "2026-11-04T05:13:59.703Z",
+        "id": "nt_mw1nw3c40a197c95",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw1nvybaaeb16b61",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-04T05:13:59.707Z",
+        "evidence": [],
+        "summary": "2026-11-04: sales 0 across 0 transaction(s); top sellers none; profit could not be verified from posted accounting data.",
+        "finished_at": "2026-11-04T05:13:59.711Z",
+        "id": "nt_mw1nw3h70031dac3",
+        "revision": 2
+      }
+    ]
+  }
+}

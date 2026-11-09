@@ -1,0 +1,184 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "daily_report",
+      "date": "2026-10-31"
+    },
+    "command": null,
+    "status": "completed",
+    "created_at": "2026-11-09T04:53:09.867Z",
+    "finished_at": "2026-11-09T04:53:09.959Z",
+    "result": {
+      "kind": "daily_report",
+      "period": {
+        "from_date": "2026-10-31",
+        "to_date": "2026-10-31"
+      },
+      "total_sales": 15745,
+      "transaction_count": 6,
+      "top_products": [
+        {
+          "item_code": "NK-RICE-5KG",
+          "qty": 6,
+          "amount": 2310,
+          "item_name": "Sona Masoori Rice 5kg"
+        },
+        {
+          "item_code": "NK-ATTA-5KG",
+          "qty": 6,
+          "amount": 1590,
+          "item_name": "Wheat Atta 5kg"
+        },
+        {
+          "item_code": "NK-MILK-500",
+          "qty": 49,
+          "amount": 1568,
+          "item_name": "Toned Milk 500ml"
+        },
+        {
+          "item_code": "NK-OIL-SUN-1L",
+          "qty": 6,
+          "amount": 930,
+          "item_name": "Sunflower Oil 1L"
+        },
+        {
+          "item_code": "NK-DAL-1KG",
+          "qty": 6,
+          "amount": 840,
+          "item_name": "Toor Dal 1kg"
+        }
+      ],
+      "invoice_refs": [
+        "SINV-26-00479",
+        "SINV-26-00478",
+        "SINV-26-00477",
+        "SINV-26-00476",
+        "SINV-26-00475"
+      ],
+      "profit": {
+        "status": "verified",
+        "net_profit": 2614,
+        "income": 15745,
+        "expense": 13131,
+        "source": "Profit and Loss report"
+      },
+      "warnings": [],
+      "data_status": {
+        "sales": "available",
+        "profit": "verified"
+      },
+      "sources": {
+        "invoices": [
+          "SINV-26-00479",
+          "SINV-26-00478",
+          "SINV-26-00477",
+          "SINV-26-00476",
+          "SINV-26-00475"
+        ],
+        "profit": "Profit and Loss report"
+      }
+    },
+    "summary": "2026-10-31: sales 15745 across 6 transaction(s); top sellers Sona Masoori Rice 5kg, Wheat Atta 5kg, Toned Milk 500ml; net profit 2614 from the posted P&L.",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-09T04:53:09.867Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "daily_report"
+      },
+      {
+        "at": "2026-11-09T04:53:09.869Z",
+        "type": "SALES_TASK_STARTED",
+        "agent": "sales",
+        "detail": "Read sales for 2026-10-31"
+      },
+      {
+        "at": "2026-11-09T04:53:09.895Z",
+        "type": "SALES_TASK_COMPLETED",
+        "agent": "sales",
+        "detail": "6 transaction(s), total 15745."
+      },
+      {
+        "at": "2026-11-09T04:53:09.897Z",
+        "type": "FINANCE_TASK_STARTED",
+        "agent": "finance",
+        "detail": "Read posted profit and loss for 2026-10-31"
+      },
+      {
+        "at": "2026-11-09T04:53:09.954Z",
+        "type": "FINANCE_TASK_COMPLETED",
+        "agent": "finance",
+        "detail": "Net profit 2614 from the posted P&L."
+      }
+    ],
+    "clarifications": null,
+    "id": "wf_mw8sckffba642282",
+    "revision": 8,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw8sckffba642282",
+        "role": "sales",
+        "agent_id": "nammaops-sales",
+        "agent_name": "Sales Agent",
+        "title": "Read sales for 2026-10-31",
+        "status": "completed",
+        "started_at": "2026-11-09T04:53:09.868Z",
+        "evidence": [
+          {
+            "business_capability": "erp.sales_invoices.list",
+            "invocation_id": "inv_mw8sckfi9fed971f90"
+          },
+          {
+            "business_capability": "erp.pos_invoices.list",
+            "invocation_id": "inv_mw8sckfs2591052249"
+          },
+          {
+            "business_capability": "erp.items.list",
+            "invocation_id": "inv_mw8sckfy183a7f83db"
+          }
+        ],
+        "summary": "6 transaction(s), total 15745.",
+        "finished_at": "2026-11-09T04:53:09.894Z",
+        "id": "nt_mw8sckfg0d25240a",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw8sckffba642282",
+        "role": "finance",
+        "agent_id": "nammaops-finance",
+        "agent_name": "Finance Agent",
+        "title": "Read posted profit and loss for 2026-10-31",
+        "status": "completed",
+        "started_at": "2026-11-09T04:53:09.896Z",
+        "evidence": [
+          {
+            "business_capability": "erp.pnl",
+            "invocation_id": "inv_mw8sckgaa898e6789d"
+          }
+        ],
+        "summary": "Net profit 2614 from the posted P&L.",
+        "finished_at": "2026-11-09T04:53:09.954Z",
+        "id": "nt_mw8sckg89958b7b2",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw8sckffba642282",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-09T04:53:09.956Z",
+        "evidence": [],
+        "summary": "2026-10-31: sales 15745 across 6 transaction(s); top sellers Sona Masoori Rice 5kg, Wheat Atta 5kg, Toned Milk 500ml; net profit 2614 from the posted P&L.",
+        "finished_at": "2026-11-09T04:53:09.957Z",
+        "id": "nt_mw8sckhv8f6c7641",
+        "revision": 2
+      }
+    ]
+  }
+}

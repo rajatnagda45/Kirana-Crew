@@ -1,0 +1,125 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "expiry_check"
+    },
+    "command": null,
+    "status": "completed",
+    "created_at": "2026-11-03T20:28:11.924Z",
+    "finished_at": "2026-11-03T20:28:12.059Z",
+    "result": {
+      "kind": "expiry_check",
+      "as_of": "2026-11-04",
+      "batches_tracked": 0,
+      "windows": {
+        "expired": {
+          "batches": 0,
+          "qty": 0,
+          "value": 0
+        },
+        "7_days": {
+          "batches": 0,
+          "qty": 0,
+          "value": 0
+        },
+        "15_days": {
+          "batches": 0,
+          "qty": 0,
+          "value": 0
+        },
+        "30_days": {
+          "batches": 0,
+          "qty": 0,
+          "value": 0
+        }
+      },
+      "value_at_risk": 0,
+      "unvalued_batches": 0,
+      "items": [],
+      "note": "No batch-tracked stock was returned by ERP, so expiry cannot be checked."
+    },
+    "summary": "No batch-tracked stock was returned by ERP, so expiry cannot be checked.",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-03T20:28:11.924Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "expiry_check"
+      },
+      {
+        "at": "2026-11-03T20:28:11.928Z",
+        "type": "INVENTORY_TASK_STARTED",
+        "agent": "inventory",
+        "detail": "Read batches and value stock at risk of expiry"
+      },
+      {
+        "at": "2026-11-03T20:28:12.055Z",
+        "type": "INVENTORY_TASK_COMPLETED",
+        "agent": "inventory",
+        "detail": "0 batch(es) read; 0 expired or expiring within 30 days."
+      },
+      {
+        "at": "2026-11-03T20:28:12.056Z",
+        "type": "MANAGER_TASK_STARTED",
+        "agent": "manager",
+        "detail": "Consolidate the result for the owner"
+      },
+      {
+        "at": "2026-11-03T20:28:12.058Z",
+        "type": "MANAGER_TASK_COMPLETED",
+        "agent": "manager",
+        "detail": "No batch-tracked stock was returned by ERP, so expiry cannot be checked."
+      }
+    ],
+    "clarifications": null,
+    "id": "wf_mw153x1wd32fed76",
+    "revision": 6,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw153x1wd32fed76",
+        "role": "inventory",
+        "agent_id": "nammaops-inventory",
+        "agent_name": "Inventory Agent",
+        "title": "Read batches and value stock at risk of expiry",
+        "status": "completed",
+        "started_at": "2026-11-03T20:28:11.927Z",
+        "evidence": [
+          {
+            "business_capability": "erp.items.list",
+            "invocation_id": "inv_mw153x2ae3cac6bb95"
+          },
+          {
+            "business_capability": "erp.batches.list",
+            "invocation_id": "inv_mw153x21e044f600aa"
+          },
+          {
+            "business_capability": "erp.items.valuation",
+            "invocation_id": "inv_mw153x268aabd0ef36"
+          }
+        ],
+        "summary": "0 batch(es) read; 0 expired or expiring within 30 days.",
+        "finished_at": "2026-11-03T20:28:12.053Z",
+        "id": "nt_mw153x1z80201d28",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw153x1wd32fed76",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-03T20:28:12.056Z",
+        "evidence": [],
+        "summary": "No batch-tracked stock was returned by ERP, so expiry cannot be checked.",
+        "finished_at": "2026-11-03T20:28:12.057Z",
+        "id": "nt_mw153x5j30f44b24",
+        "revision": 2
+      }
+    ]
+  }
+}

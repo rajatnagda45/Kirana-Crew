@@ -1,0 +1,208 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "store_health_report"
+    },
+    "command": null,
+    "status": "completed",
+    "created_at": "2026-11-03T12:54:18.155Z",
+    "finished_at": "2026-11-03T12:54:18.481Z",
+    "result": {
+      "kind": "store_health_report",
+      "as_of": "2026-11-03",
+      "problems": [
+        {
+          "area": "finance",
+          "severity": 3,
+          "title": "Udhaar overdue more than 30 days",
+          "detail": "9 customer(s) owe 20606.83.",
+          "impact": 20606.83
+        },
+        {
+          "area": "inventory",
+          "severity": 3,
+          "title": "1 item(s) out of stock",
+          "detail": "Millet Flakes 500g",
+          "impact": 0
+        },
+        {
+          "area": "sales",
+          "severity": 2,
+          "title": "Sales dropped yesterday",
+          "detail": "3691 vs average 11982.67 (69% lower).",
+          "impact": 8291.67
+        },
+        {
+          "area": "inventory",
+          "severity": 2,
+          "title": "5 item(s) at or below reorder level",
+          "detail": "Coconut Hair Oil 200ml (4), Coriander Powder 200g (2), Kabuli Chana 1kg (5), Urad Dal 1kg (4), Millet Flakes 500g (0)",
+          "impact": 0
+        }
+      ],
+      "all_problems": 4,
+      "unchecked": [],
+      "snapshot": {
+        "sales_yesterday": 3691,
+        "sales_average": 11982.67,
+        "low_stock": 5,
+        "out_of_stock": 1,
+        "udhaar": 49509.38,
+        "net_profit_7_days": 49106,
+        "late_deliveries": 0
+      }
+    },
+    "summary": "Top 4 problem(s): 1. Udhaar overdue more than 30 days — 9 customer(s) owe 20606.83. 2. 1 item(s) out of stock — Millet Flakes 500g 3. Sales dropped yesterday — 3691 vs average 11982.67 (69% lower). 4. 5 item(s) at or below reorder level — Coconut Hair Oil 200ml (4), Coriander Powder 200g (2), Kabuli Chana 1kg (5), Urad Dal 1kg (4), Millet Flakes 500g (0)",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-03T12:54:18.155Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "store_health_report"
+      },
+      {
+        "at": "2026-11-03T12:54:18.157Z",
+        "type": "SALES_TASK_STARTED",
+        "agent": "sales",
+        "detail": "Compare yesterday's sales with the past week"
+      },
+      {
+        "at": "2026-11-03T12:54:18.232Z",
+        "type": "SALES_TASK_COMPLETED",
+        "agent": "sales",
+        "detail": "Yesterday 3691 vs 6-day average 11982.67."
+      },
+      {
+        "at": "2026-11-03T12:54:18.234Z",
+        "type": "INVENTORY_TASK_STARTED",
+        "agent": "inventory",
+        "detail": "Check low stock and near expiry"
+      },
+      {
+        "at": "2026-11-03T12:54:18.292Z",
+        "type": "INVENTORY_TASK_COMPLETED",
+        "agent": "inventory",
+        "detail": "5 low, 1 out of stock; 0 batch(es) expired or expiring within 7 days."
+      }
+    ],
+    "clarifications": null,
+    "id": "wf_mw0ow7cbd9d6a7d6",
+    "revision": 12,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw0ow7cbd9d6a7d6",
+        "role": "sales",
+        "agent_id": "nammaops-sales",
+        "agent_name": "Sales Agent",
+        "title": "Compare yesterday's sales with the past week",
+        "status": "completed",
+        "started_at": "2026-11-03T12:54:18.156Z",
+        "evidence": [
+          {
+            "business_capability": "erp.sales_invoices.list",
+            "invocation_id": "inv_mw0ow7ce455ffc437f"
+          },
+          {
+            "business_capability": "erp.pos_invoices.list",
+            "invocation_id": "inv_mw0ow7de9196305b52"
+          }
+        ],
+        "summary": "Yesterday 3691 vs 6-day average 11982.67.",
+        "finished_at": "2026-11-03T12:54:18.232Z",
+        "id": "nt_mw0ow7cc87992135",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw0ow7cbd9d6a7d6",
+        "role": "inventory",
+        "agent_id": "nammaops-inventory",
+        "agent_name": "Inventory Agent",
+        "title": "Check low stock and near expiry",
+        "status": "completed",
+        "started_at": "2026-11-03T12:54:18.233Z",
+        "evidence": [
+          {
+            "business_capability": "erp.items.list",
+            "invocation_id": "inv_mw0ow7ei020d93059e"
+          },
+          {
+            "business_capability": "erp.batches.list",
+            "invocation_id": "inv_mw0ow7en01bd83696e"
+          },
+          {
+            "business_capability": "erp.stock.balance",
+            "invocation_id": "inv_mw0ow7eke2e6ba96bf"
+          },
+          {
+            "business_capability": "erp.items.valuation",
+            "invocation_id": "inv_mw0ow7el75e9f55f02"
+          }
+        ],
+        "summary": "5 low, 1 out of stock; 0 batch(es) expired or expiring within 7 days.",
+        "finished_at": "2026-11-03T12:54:18.291Z",
+        "id": "nt_mw0ow7ehec57a226",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw0ow7cbd9d6a7d6",
+        "role": "finance",
+        "agent_id": "nammaops-finance",
+        "agent_name": "Finance Agent",
+        "title": "Check udhaar and the past week's profit",
+        "status": "completed",
+        "started_at": "2026-11-03T12:54:18.293Z",
+        "evidence": [
+          {
+            "business_capability": "erp.receivables.aging",
+            "invocation_id": "inv_mw0ow7g62e07013701"
+          },
+          {
+            "business_capability": "erp.pnl",
+            "invocation_id": "inv_mw0ow7im66847de351"
+          }
+        ],
+        "summary": "Udhaar 49509.38; 20606.83 overdue >30 days.",
+        "finished_at": "2026-11-03T12:54:18.466Z",
+        "id": "nt_mw0ow7g508b60b7c",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw0ow7cbd9d6a7d6",
+        "role": "procurement",
+        "agent_id": "nammaops-procurement",
+        "agent_name": "Procurement Agent",
+        "title": "Check supplier deliveries",
+        "status": "completed",
+        "started_at": "2026-11-03T12:54:18.467Z",
+        "evidence": [
+          {
+            "business_capability": "erp.po.open",
+            "invocation_id": "inv_mw0ow7l0ef70a8dcce"
+          }
+        ],
+        "summary": "0 purchase order line(s) delivered late.",
+        "finished_at": "2026-11-03T12:54:18.476Z",
+        "id": "nt_mw0ow7kzb58cf0f5",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw0ow7cbd9d6a7d6",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-03T12:54:18.478Z",
+        "evidence": [],
+        "summary": "Top 4 problem(s): 1. Udhaar overdue more than 30 days — 9 customer(s) owe 20606.83. 2. 1 item(s) out of stock — Millet Flakes 500g 3. Sales dropped yesterday — 3691 vs average 11982.67 (69% lower). 4. 5 item(s) at or below reorder level — Coconut Hair Oil 200ml (4), Coriander Powder 200g (2), Kabuli Chana 1kg (5), Urad Dal 1kg (4), Millet Flakes 500g (0)",
+        "finished_at": "2026-11-03T12:54:18.479Z",
+        "id": "nt_mw0ow7la58c333f0",
+        "revision": 2
+      }
+    ]
+  }
+}

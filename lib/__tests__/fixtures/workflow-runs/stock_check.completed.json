@@ -1,0 +1,487 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "stock_check"
+    },
+    "command": null,
+    "status": "completed",
+    "created_at": "2026-11-09T04:10:07.336Z",
+    "finished_at": "2026-11-09T04:10:22.717Z",
+    "result": {
+      "kind": "stock_check",
+      "rows": [
+        {
+          "item_code": "NK-FACEWASH-100",
+          "item_name": "Face Wash 100g",
+          "item_group": "Personal Care",
+          "uom": "Nos",
+          "available": 15,
+          "reorder_level": 3,
+          "status": "ok",
+          "shortage": 0,
+          "recommended_qty": 0,
+          "warehouses": [
+            {
+              "warehouse": "Stores - N",
+              "qty": 15
+            }
+          ]
+        },
+        {
+          "item_code": "NK-HANDWASH-200",
+          "item_name": "Hand Wash 200ml",
+          "item_group": "Personal Care",
+          "uom": "Nos",
+          "available": 22,
+          "reorder_level": 6,
+          "status": "ok",
+          "shortage": 0,
+          "recommended_qty": 0,
+          "warehouses": [
+            {
+              "warehouse": "Stores - N",
+              "qty": 22
+            }
+          ]
+        },
+        {
+          "item_code": "NK-HAIROIL-200",
+          "item_name": "Coconut Hair Oil 200ml",
+          "item_group": "Personal Care",
+          "uom": "Nos",
+          "available": 4,
+          "reorder_level": 6,
+          "status": "low",
+          "shortage": 2,
+          "recommended_qty": 14,
+          "warehouses": [
+            {
+              "warehouse": "Stores - N",
+              "qty": 4
+            }
+          ]
+        },
+        {
+          "item_code": "NK-SHAMPOO-180",
+          "item_name": "Shampoo 180ml",
+          "item_group": "Personal Care",
+          "uom": "Nos",
+          "available": 15,
+          "reorder_level": 6,
+          "status": "ok",
+          "shortage": 0,
+          "recommended_qty": 0,
+          "warehouses": [
+            {
+              "warehouse": "Stores - N",
+              "qty": 15
+            }
+          ]
+        },
+        {
+          "item_code": "NK-CUMIN-100",
+          "item_name": "Cumin Seeds 100g",
+          "item_group": "Spices",
+          "uom": "Nos",
+          "available": 23,
+          "reorder_level": 6,
+          "status": "ok",
+          "shortage": 0,
+          "recommended_qty": 0,
+          "warehouses": [
+            {
+              "warehouse": "Stores - N",
+              "qty": 23
+            }
+          ]
+        }
+      ],
+      "low": [
+        {
+          "item_code": "NK-HAIROIL-200",
+          "item_name": "Coconut Hair Oil 200ml",
+          "item_group": "Personal Care",
+          "uom": "Nos",
+          "available": 4,
+          "reorder_level": 6,
+          "status": "low",
+          "shortage": 2,
+          "recommended_qty": 14,
+          "warehouses": [
+            {
+              "warehouse": "Stores - N",
+              "qty": 4
+            }
+          ]
+        },
+        {
+          "item_code": "NK-CORIANDER-200",
+          "item_name": "Coriander Powder 200g",
+          "item_group": "Spices",
+          "uom": "Nos",
+          "available": 2,
+          "reorder_level": 6,
+          "status": "low",
+          "shortage": 4,
+          "recommended_qty": 14,
+          "warehouses": [
+            {
+              "warehouse": "Stores - N",
+              "qty": 2
+            }
+          ]
+        },
+        {
+          "item_code": "NK-KABULI-1KG",
+          "item_name": "Kabuli Chana 1kg",
+          "item_group": "Pulses",
+          "uom": "Nos",
+          "available": 5,
+          "reorder_level": 6,
+          "status": "low",
+          "shortage": 1,
+          "recommended_qty": 14,
+          "warehouses": [
+            {
+              "warehouse": "Stores - N",
+              "qty": 5
+            }
+          ]
+        },
+        {
+          "item_code": "NK-URAD-1KG",
+          "item_name": "Urad Dal 1kg",
+          "item_group": "Pulses",
+          "uom": "Nos",
+          "available": 4,
+          "reorder_level": 9,
+          "status": "low",
+          "shortage": 5,
+          "recommended_qty": 21,
+          "warehouses": [
+            {
+              "warehouse": "Stores - N",
+              "qty": 4
+            }
+          ]
+        },
+        {
+          "item_code": "NK-NEW-MILLET",
+          "item_name": "Millet Flakes 500g",
+          "item_group": "Staples",
+          "uom": "Nos",
+          "available": 0,
+          "reorder_level": 3,
+          "status": "low",
+          "shortage": 3,
+          "recommended_qty": 7,
+          "warehouses": [
+            {
+              "warehouse": "Stores - N",
+              "qty": 0
+            }
+          ]
+        }
+      ],
+      "recommendations": [
+        {
+          "item_code": "NK-HAIROIL-200",
+          "qty": 14,
+          "choice": {
+            "supplier": "Supplier 6",
+            "quotation": "PUR-SQTN-2026-00042",
+            "rate": 83,
+            "available_qty": null,
+            "lead_time_days": 4,
+            "on_time_rate": null,
+            "suitable": true,
+            "not_suitable_because": [],
+            "missing": [
+              "availability",
+              "delivery reliability"
+            ]
+          },
+          "considered": [
+            {
+              "supplier": "Supplier 6",
+              "quotation": "PUR-SQTN-2026-00042",
+              "rate": 83,
+              "available_qty": null,
+              "lead_time_days": 4,
+              "on_time_rate": null,
+              "suitable": true,
+              "not_suitable_because": [],
+              "missing": [
+                "availability",
+                "delivery reliability"
+              ]
+            }
+          ],
+          "criteria": "Suitable = can supply the quantity and quotation still valid; then lowest rate, shortest lead time, best on-time rate.",
+          "blocker": null
+        },
+        {
+          "item_code": "NK-CORIANDER-200",
+          "qty": 14,
+          "choice": {
+            "supplier": "Supplier 9",
+            "quotation": "PUR-SQTN-2026-00033",
+            "rate": 37,
+            "available_qty": null,
+            "lead_time_days": 3,
+            "on_time_rate": null,
+            "suitable": true,
+            "not_suitable_because": [],
+            "missing": [
+              "availability",
+              "delivery reliability"
+            ]
+          },
+          "considered": [
+            {
+              "supplier": "Supplier 8",
+              "quotation": "PUR-SQTN-2026-00034",
+              "rate": 38,
+              "available_qty": null,
+              "lead_time_days": 1,
+              "on_time_rate": null,
+              "suitable": true,
+              "not_suitable_because": [],
+              "missing": [
+                "availability",
+                "delivery reliability"
+              ]
+            },
+            {
+              "supplier": "Supplier 9",
+              "quotation": "PUR-SQTN-2026-00033",
+              "rate": 37,
+              "available_qty": null,
+              "lead_time_days": 3,
+              "on_time_rate": null,
+              "suitable": true,
+              "not_suitable_because": [],
+              "missing": [
+                "availability",
+                "delivery reliability"
+              ]
+            }
+          ],
+          "criteria": "Suitable = can supply the quantity and quotation still valid; then lowest rate, shortest lead time, best on-time rate.",
+          "blocker": null
+        },
+        {
+          "item_code": "NK-KABULI-1KG",
+          "qty": 14,
+          "choice": {
+            "supplier": "Supplier 9",
+            "quotation": "PUR-SQTN-2026-00027",
+            "rate": 127,
+            "available_qty": null,
+            "lead_time_days": 3,
+            "on_time_rate": null,
+            "suitable": true,
+            "not_suitable_because": [],
+            "missing": [
+              "availability",
+              "delivery reliability"
+            ]
+          },
+          "considered": [
+            {
+              "supplier": "Supplier 8",
+              "quotation": "PUR-SQTN-2026-00028",
+              "rate": 131,
+              "available_qty": null,
+              "lead_time_days": 1,
+              "on_time_rate": null,
+              "suitable": true,
+              "not_suitable_because": [],
+              "missing": [
+                "availability",
+                "delivery reliability"
+              ]
+            },
+            {
+              "supplier": "Supplier 9",
+              "quotation": "PUR-SQTN-2026-00027",
+              "rate": 127,
+              "available_qty": null,
+              "lead_time_days": 3,
+              "on_time_rate": null,
+              "suitable": true,
+              "not_suitable_because": [],
+              "missing": [
+                "availability",
+                "delivery reliability"
+              ]
+            }
+          ],
+          "criteria": "Suitable = can supply the quantity and quotation still valid; then lowest rate, shortest lead time, best on-time rate.",
+          "blocker": null
+        },
+        {
+          "item_code": "NK-URAD-1KG",
+          "qty": 21,
+          "choice": {
+            "supplier": "Supplier 9",
+            "quotation": "PUR-SQTN-2026-00021",
+            "rate": 123,
+            "available_qty": null,
+            "lead_time_days": 3,
+            "on_time_rate": null,
+            "suitable": true,
+            "not_suitable_because": [],
+            "missing": [
+              "availability",
+              "delivery reliability"
+            ]
+          },
+          "considered": [
+            {
+              "supplier": "Supplier 8",
+              "quotation": "PUR-SQTN-2026-00022",
+              "rate": 126,
+              "available_qty": null,
+              "lead_time_days": 1,
+              "on_time_rate": null,
+              "suitable": true,
+              "not_suitable_because": [],
+              "missing": [
+                "availability",
+                "delivery reliability"
+              ]
+            },
+            {
+              "supplier": "Supplier 9",
+              "quotation": "PUR-SQTN-2026-00021",
+              "rate": 123,
+              "available_qty": null,
+              "lead_time_days": 3,
+              "on_time_rate": null,
+              "suitable": true,
+              "not_suitable_because": [],
+              "missing": [
+                "availability",
+                "delivery reliability"
+              ]
+            }
+          ],
+          "criteria": "Suitable = can supply the quantity and quotation still valid; then lowest rate, shortest lead time, best on-time rate.",
+          "blocker": null
+        },
+        {
+          "item_code": "NK-NEW-MILLET",
+          "qty": 7,
+          "choice": null,
+          "considered": [],
+          "criteria": "Suitable = can supply the quantity and quotation still valid; then lowest rate, shortest lead time, best on-time rate.",
+          "blocker": "No supplier quotation for this item."
+        }
+      ],
+      "recommendations_status": "available"
+    },
+    "summary": "5 item(s) to buy tomorrow: Coconut Hair Oil 200ml (4 left, reorder at 6, buy 14); Coriander Powder 200g (2 left, reorder at 6, buy 14); Kabuli Chana 1kg (5 left, reorder at 6, buy 14); Urad Dal 1kg (4 left, reorder at 9, buy 21); Millet Flakes 500g (0 left, reorder at 3, buy 7).",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-09T04:10:07.336Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "stock_check"
+      },
+      {
+        "at": "2026-11-09T04:10:07.339Z",
+        "type": "INVENTORY_TASK_STARTED",
+        "agent": "inventory",
+        "detail": "Read stock and compare with reorder levels"
+      },
+      {
+        "at": "2026-11-09T04:10:19.330Z",
+        "type": "INVENTORY_TASK_COMPLETED",
+        "agent": "inventory",
+        "detail": "52 product(s) checked; 5 at or below reorder level."
+      },
+      {
+        "at": "2026-11-09T04:10:19.331Z",
+        "type": "PROCUREMENT_TASK_STARTED",
+        "agent": "procurement",
+        "detail": "Compare suppliers for low-stock products"
+      },
+      {
+        "at": "2026-11-09T04:10:22.713Z",
+        "type": "PROCUREMENT_TASK_COMPLETED",
+        "agent": "procurement",
+        "detail": "4 of 5 item(s) have a suitable supplier."
+      }
+    ],
+    "clarifications": null,
+    "id": "wf_mw8qt7qg4e72d08c",
+    "revision": 8,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw8qt7qg4e72d08c",
+        "role": "inventory",
+        "agent_id": "nammaops-inventory",
+        "agent_name": "Inventory Agent",
+        "title": "Read stock and compare with reorder levels",
+        "status": "completed",
+        "started_at": "2026-11-09T04:10:07.338Z",
+        "evidence": [
+          {
+            "business_capability": "erp.items.list",
+            "invocation_id": "inv_mw8qt7qk10f0e04c32"
+          },
+          {
+            "business_capability": "erp.stock.balance",
+            "invocation_id": "inv_mw8qtgx19fbc88fa3b"
+          }
+        ],
+        "summary": "52 product(s) checked; 5 at or below reorder level.",
+        "finished_at": "2026-11-09T04:10:19.329Z",
+        "id": "nt_mw8qt7qh6cd79e4b",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw8qt7qg4e72d08c",
+        "role": "procurement",
+        "agent_id": "nammaops-procurement",
+        "agent_name": "Procurement Agent",
+        "title": "Compare suppliers for low-stock products",
+        "status": "completed",
+        "started_at": "2026-11-09T04:10:19.331Z",
+        "evidence": [
+          {
+            "business_capability": "erp.suppliers.list",
+            "invocation_id": "inv_mw8qtgzo9164a391b8"
+          },
+          {
+            "business_capability": "erp.supplier_quotations.list",
+            "invocation_id": "inv_mw8qth2cf1addf17ed"
+          }
+        ],
+        "summary": "4 of 5 item(s) have a suitable supplier.",
+        "finished_at": "2026-11-09T04:10:22.712Z",
+        "id": "nt_mw8qtgzmb0859095",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw8qt7qg4e72d08c",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-09T04:10:22.714Z",
+        "evidence": [],
+        "summary": "5 item(s) to buy tomorrow: Coconut Hair Oil 200ml (4 left, reorder at 6, buy 14); Coriander Powder 200g (2 left, reorder at 6, buy 14); Kabuli Chana 1kg (5 left, reorder at 6, buy 14); Urad Dal 1kg (4 left, reorder at 9, buy 21); Millet Flakes 500g (0 left, reorder at 3, buy 7).",
+        "finished_at": "2026-11-09T04:10:22.716Z",
+        "id": "nt_mw8qtjlm8a880ce3",
+        "revision": 2
+      }
+    ]
+  }
+}

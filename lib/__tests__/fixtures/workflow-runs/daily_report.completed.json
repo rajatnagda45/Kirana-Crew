@@ -1,0 +1,169 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "daily_report",
+      "date": "2026-11-01",
+      "with_profit": false
+    },
+    "command": null,
+    "origin": {
+      "channel": "voice",
+      "call_id": "voice_42ab56b0-c364-43fc-a8cb-451c7494d72f",
+      "voice_agent": "Erin",
+      "voice_department": "finance",
+      "voice_intent": "sales_summary"
+    },
+    "status": "completed",
+    "created_at": "2026-11-04T11:34:57.290Z",
+    "finished_at": "2026-11-04T11:34:57.985Z",
+    "result": {
+      "kind": "daily_report",
+      "period": {
+        "from_date": "2026-11-01",
+        "to_date": "2026-11-01"
+      },
+      "total_sales": 8844,
+      "transaction_count": 7,
+      "top_products": [
+        {
+          "item_code": "NK-RICE-5KG",
+          "qty": 4,
+          "amount": 1540,
+          "item_name": "Sona Masoori Rice 5kg"
+        },
+        {
+          "item_code": "NK-ATTA-5KG",
+          "qty": 4,
+          "amount": 1060,
+          "item_name": "Wheat Atta 5kg"
+        },
+        {
+          "item_code": "NK-DAL-1KG",
+          "qty": 7,
+          "amount": 980,
+          "item_name": "Toor Dal 1kg"
+        },
+        {
+          "item_code": "NK-DETERG-1KG",
+          "qty": 7,
+          "amount": 805,
+          "item_name": "Detergent Powder 1kg"
+        },
+        {
+          "item_code": "NK-SHAMPOO-180",
+          "qty": 4,
+          "amount": 700,
+          "item_name": "Shampoo 180ml"
+        }
+      ],
+      "invoice_refs": [
+        "SINV-26-00486",
+        "SINV-26-00485",
+        "SINV-26-00484",
+        "SINV-26-00482",
+        "SINV-26-00481"
+      ],
+      "profit": {
+        "status": "not_requested"
+      },
+      "warnings": [],
+      "data_status": {
+        "sales": "available",
+        "profit": "not_requested"
+      },
+      "sources": {
+        "invoices": [
+          "SINV-26-00486",
+          "SINV-26-00485",
+          "SINV-26-00484",
+          "SINV-26-00482",
+          "SINV-26-00481"
+        ],
+        "profit": null
+      }
+    },
+    "summary": "2026-11-01: sales 8844 across 7 transaction(s); top sellers Sona Masoori Rice 5kg, Wheat Atta 5kg, Toor Dal 1kg.",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-04T11:34:57.290Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "daily_report"
+      },
+      {
+        "at": "2026-11-04T11:34:57.301Z",
+        "type": "SALES_TASK_STARTED",
+        "agent": "sales",
+        "detail": "Read sales for 2026-11-01"
+      },
+      {
+        "at": "2026-11-04T11:34:57.307Z",
+        "type": "VOICE_CONSULT",
+        "agent": "manager",
+        "detail": "Erin (Finance) asked by voice: sales_summary"
+      },
+      {
+        "at": "2026-11-04T11:34:57.982Z",
+        "type": "SALES_TASK_COMPLETED",
+        "agent": "sales",
+        "detail": "7 transaction(s), total 8844."
+      },
+      {
+        "at": "2026-11-04T11:34:57.983Z",
+        "type": "MANAGER_TASK_STARTED",
+        "agent": "manager",
+        "detail": "Consolidate the result for the owner"
+      }
+    ],
+    "clarifications": null,
+    "id": "wf_mw21i0i23c6dd400",
+    "revision": 7,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw21i0i23c6dd400",
+        "role": "sales",
+        "agent_id": "nammaops-sales",
+        "agent_name": "Sales Agent",
+        "title": "Read sales for 2026-11-01",
+        "status": "completed",
+        "started_at": "2026-11-04T11:34:57.300Z",
+        "evidence": [
+          {
+            "business_capability": "erp.sales_invoices.list",
+            "invocation_id": "inv_mw21i0ie7de843656f"
+          },
+          {
+            "business_capability": "erp.pos_invoices.list",
+            "invocation_id": "inv_mw21i0yz05aa582fcf"
+          },
+          {
+            "business_capability": "erp.items.list",
+            "invocation_id": "inv_mw21i10x27f19657e2"
+          }
+        ],
+        "summary": "7 transaction(s), total 8844.",
+        "finished_at": "2026-11-04T11:34:57.981Z",
+        "id": "nt_mw21i0ic2d001b46",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw21i0i23c6dd400",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-04T11:34:57.983Z",
+        "evidence": [],
+        "summary": "2026-11-01: sales 8844 across 7 transaction(s); top sellers Sona Masoori Rice 5kg, Wheat Atta 5kg, Toor Dal 1kg.",
+        "finished_at": "2026-11-04T11:34:57.984Z",
+        "id": "nt_mw21i11a9af24029",
+        "revision": 2
+      }
+    ]
+  }
+}

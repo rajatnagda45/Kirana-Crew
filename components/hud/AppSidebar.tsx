@@ -20,7 +20,6 @@ import {
   ChevronRight,
   Truck,
   HandCoins,
-  Receipt,
   ScrollText,
 } from "lucide-react";
 import Link from "next/link";
@@ -73,7 +72,6 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Business Intelligence",
     items: [
       { view: "analytics", label: "Analytics", icon: TrendingUp },
-      { view: "gst", label: "GST & Tax", icon: Receipt },
       { view: "reviews", label: "Reviews", icon: Star },
       { view: "activity", label: "Activity Logs", icon: Activity },
     ],

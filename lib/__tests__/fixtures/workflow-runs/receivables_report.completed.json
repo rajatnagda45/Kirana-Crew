@@ -1,0 +1,358 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "receivables_report"
+    },
+    "command": null,
+    "origin": {
+      "channel": "voice",
+      "call_id": "voice_42ab56b0-c364-43fc-a8cb-451c7494d72f",
+      "voice_agent": "Erin",
+      "voice_department": "finance",
+      "voice_intent": "receivables_report"
+    },
+    "status": "completed",
+    "created_at": "2026-11-04T11:34:07.149Z",
+    "finished_at": "2026-11-04T11:34:08.310Z",
+    "result": {
+      "kind": "receivables_report",
+      "as_of": "2026-11-04",
+      "total_outstanding": 49509.38,
+      "overdue": 44183.38,
+      "buckets": {
+        "Not due": 5326,
+        "0-30": 23576.55,
+        "31-60": 10090.58,
+        "61-90": 10516.25,
+        "90+": 0
+      },
+      "overdue_over_30_days": {
+        "customers": 9,
+        "amount": 20606.83
+      },
+      "partial_payments": 13,
+      "collection_priority": [
+        {
+          "customer": "Customer 1",
+          "outstanding": 6836.62,
+          "oldest_days_overdue": 79,
+          "partially_paid": 1,
+          "credit_limit": null,
+          "over_limit": false,
+          "priority": 540092.98,
+          "invoices": 4
+        },
+        {
+          "customer": "Customer 2",
+          "outstanding": 7325.74,
+          "oldest_days_overdue": 68,
+          "partially_paid": 1,
+          "credit_limit": null,
+          "over_limit": false,
+          "priority": 498150.32,
+          "invoices": 3
+        },
+        {
+          "customer": "Customer 3",
+          "outstanding": 5590.03,
+          "oldest_days_overdue": 77,
+          "partially_paid": 2,
+          "credit_limit": null,
+          "over_limit": false,
+          "priority": 430432.31,
+          "invoices": 3
+        },
+        {
+          "customer": "Customer 4",
+          "outstanding": 4237.55,
+          "oldest_days_overdue": 82,
+          "partially_paid": 3,
+          "credit_limit": null,
+          "over_limit": false,
+          "priority": 347479.1,
+          "invoices": 4
+        },
+        {
+          "customer": "Customer 5",
+          "outstanding": 3025,
+          "oldest_days_overdue": 58,
+          "partially_paid": 0,
+          "credit_limit": null,
+          "over_limit": false,
+          "priority": 175450,
+          "invoices": 1
+        }
+      ],
+      "customers": [
+        {
+          "customer": "Customer 1",
+          "outstanding": 6836.62,
+          "invoices": [
+            {
+              "invoice": "SINV-26-00487",
+              "posting_date": "2026-11-02",
+              "due_date": "2026-11-17",
+              "grand_total": 630,
+              "outstanding": 630,
+              "days_overdue": 0,
+              "partially_paid": false
+            },
+            {
+              "invoice": "SINV-26-00077",
+              "posting_date": "2026-08-17",
+              "due_date": "2026-08-17",
+              "grand_total": 3173,
+              "outstanding": 1567.62,
+              "days_overdue": 79,
+              "partially_paid": true
+            },
+            {
+              "invoice": "SINV-26-00424",
+              "posting_date": "2026-10-22",
+              "due_date": "2026-10-22",
+              "grand_total": 1970,
+              "outstanding": 1970,
+              "days_overdue": 13,
+              "partially_paid": false
+            },
+            {
+              "invoice": "SINV-26-00323",
+              "posting_date": "2026-10-03",
+              "due_date": "2026-10-03",
+              "grand_total": 2669,
+              "outstanding": 2669,
+              "days_overdue": 32,
+              "partially_paid": false
+            }
+          ],
+          "oldest_days_overdue": 79,
+          "partially_paid": 1,
+          "credit_limit": null,
+          "over_limit": false,
+          "priority": 540092.98
+        },
+        {
+          "customer": "Customer 2",
+          "outstanding": 7325.74,
+          "invoices": [
+            {
+              "invoice": "SINV-26-00130",
+              "posting_date": "2026-08-28",
+              "due_date": "2026-08-28",
+              "grand_total": 2959,
+              "outstanding": 1087.74,
+              "days_overdue": 68,
+              "partially_paid": true
+            },
+            {
+              "invoice": "SINV-26-00394",
+              "posting_date": "2026-10-16",
+              "due_date": "2026-10-16",
+              "grand_total": 2685,
+              "outstanding": 2685,
+              "days_overdue": 19,
+              "partially_paid": false
+            },
+            {
+              "invoice": "SINV-26-00384",
+              "posting_date": "2026-10-14",
+              "due_date": "2026-10-14",
+              "grand_total": 3553,
+              "outstanding": 3553,
+              "days_overdue": 21,
+              "partially_paid": false
+            }
+          ],
+          "oldest_days_overdue": 68,
+          "partially_paid": 1,
+          "credit_limit": null,
+          "over_limit": false,
+          "priority": 498150.32
+        },
+        {
+          "customer": "Customer 3",
+          "outstanding": 5590.03,
+          "invoices": [
+            {
+              "invoice": "SINV-26-00388",
+              "posting_date": "2026-10-15",
+              "due_date": "2026-10-15",
+              "grand_total": 2013,
+              "outstanding": 1298.67,
+              "days_overdue": 20,
+              "partially_paid": true
+            },
+            {
+              "invoice": "SINV-26-00090",
+              "posting_date": "2026-08-20",
+              "due_date": "2026-08-20",
+              "grand_total": 3218,
+              "outstanding": 1560.36,
+              "days_overdue": 76,
+              "partially_paid": true
+            },
+            {
+              "invoice": "SINV-26-00085",
+              "posting_date": "2026-08-19",
+              "due_date": "2026-08-19",
+              "grand_total": 2731,
+              "outstanding": 2731,
+              "days_overdue": 77,
+              "partially_paid": false
+            }
+          ],
+          "oldest_days_overdue": 77,
+          "partially_paid": 2,
+          "credit_limit": null,
+          "over_limit": false,
+          "priority": 430432.31
+        },
+        {
+          "customer": "Customer 4",
+          "outstanding": 4237.55,
+          "invoices": [
+            {
+              "invoice": "SINV-26-00495",
+              "posting_date": "2026-11-03",
+              "due_date": "2026-11-18",
+              "grand_total": 906,
+              "outstanding": 906,
+              "days_overdue": 0,
+              "partially_paid": false
+            },
+            {
+              "invoice": "SINV-26-00245",
+              "posting_date": "2026-09-19",
+              "due_date": "2026-09-19",
+              "grand_total": 3345,
+              "outstanding": 1016.1,
+              "days_overdue": 46,
+              "partially_paid": true
+            },
+            {
+              "invoice": "SINV-26-00234",
+              "posting_date": "2026-09-17",
+              "due_date": "2026-09-17",
+              "grand_total": 2247,
+              "outstanding": 1233.75,
+              "days_overdue": 48,
+              "partially_paid": true
+            },
+            {
+              "invoice": "SINV-26-00061",
+              "posting_date": "2026-08-14",
+              "due_date": "2026-08-14",
+              "grand_total": 2334,
+              "outstanding": 1081.7,
+              "days_overdue": 82,
+              "partially_paid": true
+            }
+          ],
+          "oldest_days_overdue": 82,
+          "partially_paid": 3,
+          "credit_limit": null,
+          "over_limit": false,
+          "priority": 347479.1
+        },
+        {
+          "customer": "Customer 5",
+          "outstanding": 3025,
+          "invoices": [
+            {
+              "invoice": "SINV-26-00181",
+              "posting_date": "2026-09-07",
+              "due_date": "2026-09-07",
+              "grand_total": 3025,
+              "outstanding": 3025,
+              "days_overdue": 58,
+              "partially_paid": false
+            }
+          ],
+          "oldest_days_overdue": 58,
+          "partially_paid": 0,
+          "credit_limit": null,
+          "over_limit": false,
+          "priority": 175450
+        }
+      ],
+      "sources": {
+        "capability": "erp.receivables.aging"
+      }
+    },
+    "summary": "Udhaar pending ₹49,509, ₹44,183 overdue. 9 customer(s) have not paid for more than 30 days (₹20,607). Collect first: Jivin Cheema ₹6,837 (79 days); Yasmin Kamdar ₹7,326 (68 days); Eshani Anand ₹5,590 (77 days). 13 invoice(s) are partly paid.",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-04T11:34:07.149Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "receivables_report"
+      },
+      {
+        "at": "2026-11-04T11:34:07.152Z",
+        "type": "FINANCE_TASK_STARTED",
+        "agent": "finance",
+        "detail": "Read receivables and age the udhaar"
+      },
+      {
+        "at": "2026-11-04T11:34:07.236Z",
+        "type": "VOICE_CONSULT",
+        "agent": "manager",
+        "detail": "Erin (Finance) asked by voice: receivables_report"
+      },
+      {
+        "at": "2026-11-04T11:34:08.305Z",
+        "type": "FINANCE_TASK_COMPLETED",
+        "agent": "finance",
+        "detail": "14 customer(s) owe 49509.38; 9 have an invoice overdue by more than 30 days."
+      },
+      {
+        "at": "2026-11-04T11:34:08.307Z",
+        "type": "MANAGER_TASK_STARTED",
+        "agent": "manager",
+        "detail": "Consolidate the result for the owner"
+      }
+    ],
+    "clarifications": null,
+    "id": "wf_mw21gxt9a22c2325",
+    "revision": 7,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw21gxt9a22c2325",
+        "role": "finance",
+        "agent_id": "nammaops-finance",
+        "agent_name": "Finance Agent",
+        "title": "Read receivables and age the udhaar",
+        "status": "completed",
+        "started_at": "2026-11-04T11:34:07.151Z",
+        "evidence": [
+          {
+            "business_capability": "erp.receivables.aging",
+            "invocation_id": "inv_mw21gxte89828c052c"
+          }
+        ],
+        "summary": "14 customer(s) owe 49509.38; 9 have an invoice overdue by more than 30 days.",
+        "finished_at": "2026-11-04T11:34:08.304Z",
+        "id": "nt_mw21gxtb414eb64f",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw21gxt9a22c2325",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-04T11:34:08.306Z",
+        "evidence": [],
+        "summary": "Udhaar pending ₹49,509, ₹44,183 overdue. 9 customer(s) have not paid for more than 30 days (₹20,607). Collect first: Jivin Cheema ₹6,837 (79 days); Yasmin Kamdar ₹7,326 (68 days); Eshani Anand ₹5,590 (77 days). 13 invoice(s) are partly paid.",
+        "finished_at": "2026-11-04T11:34:08.308Z",
+        "id": "nt_mw21gypefa1053d1",
+        "revision": 2
+      }
+    ]
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "workflow": {
+    "intent": {
+      "action": "supplier_performance",
+      "products": [
+        "milk"
+      ]
+    },
+    "command": null,
+    "origin": {
+      "channel": "voice",
+      "call_id": "dm_f75788ec-53c8-4e0e-aa6f-a65d5745d90f",
+      "voice_agent": "Dave",
+      "voice_department": "procurement",
+      "voice_intent": "supplier_performance"
+    },
+    "status": "completed",
+    "created_at": "2026-11-03T20:58:12.716Z",
+    "finished_at": "2026-11-03T20:58:14.335Z",
+    "result": {
+      "kind": "supplier_performance",
+      "as_of": "2026-11-04",
+      "products": [
+        "NK-MILK-500"
+      ],
+      "suppliers": [
+        {
+          "supplier": "Supplier 8",
+          "quoted_lead_time_days": null,
+          "on_time_rate": null,
+          "open_lines": 0,
+          "late_lines": 0,
+          "max_days_late": 0,
+          "late_items": [],
+          "price_variance_pct": null,
+          "quotations": 1,
+          "outstanding": 228635
+        }
+      ],
+      "delaying": [],
+      "price_basis": "Invoiced rate vs the same supplier's quotation for the same item, last 90 days."
+    },
+    "summary": "No late deliveries for NK-MILK-500 among 1 supplier(s).",
+    "reasoning": {
+      "mode": "off",
+      "status": "off"
+    },
+    "timeline": [
+      {
+        "at": "2026-11-03T20:58:12.716Z",
+        "type": "WORKFLOW_STARTED",
+        "agent": "manager",
+        "detail": "supplier_performance"
+      },
+      {
+        "at": "2026-11-03T20:58:12.718Z",
+        "type": "PROCUREMENT_TASK_STARTED",
+        "agent": "procurement",
+        "detail": "Score suppliers on delivery, price and dues"
+      },
+      {
+        "at": "2026-11-03T20:58:12.733Z",
+        "type": "VOICE_CONSULT",
+        "agent": "manager",
+        "detail": "Dave (Procurement) asked by voice: supplier_performance"
+      },
+      {
+        "at": "2026-11-03T20:58:14.331Z",
+        "type": "PROCUREMENT_TASK_COMPLETED",
+        "agent": "procurement",
+        "detail": "1 supplier(s) scored; 0 with late deliveries."
+      },
+      {
+        "at": "2026-11-03T20:58:14.333Z",
+        "type": "MANAGER_TASK_STARTED",
+        "agent": "manager",
+        "detail": "Consolidate the result for the owner"
+      }
+    ],
+    "clarifications": null,
+    "id": "wf_mw166ijw0fe9f3ce",
+    "revision": 7,
+    "tasks": [
+      {
+        "workflow_id": "wf_mw166ijw0fe9f3ce",
+        "role": "procurement",
+        "agent_id": "nammaops-procurement",
+        "agent_name": "Procurement Agent",
+        "title": "Score suppliers on delivery, price and dues",
+        "status": "completed",
+        "started_at": "2026-11-03T20:58:12.717Z",
+        "evidence": [
+          {
+            "business_capability": "erp.suppliers.list",
+            "invocation_id": "inv_mw166ijzb8f0ff3c8f"
+          },
+          {
+            "business_capability": "erp.items.list",
+            "invocation_id": "inv_mw166ik93896ba31e4"
+          },
+          {
+            "business_capability": "erp.supplier_quotations.list",
+            "invocation_id": "inv_mw166ik16c48b4483a"
+          },
+          {
+            "business_capability": "erp.payables.aging",
+            "invocation_id": "inv_mw166ik6cb9899c2cc"
+          },
+          {
+            "business_capability": "erp.po.open",
+            "invocation_id": "inv_mw166ik4e40e42ffd3"
+          }
+        ],
+        "summary": "1 supplier(s) scored; 0 with late deliveries.",
+        "finished_at": "2026-11-03T20:58:14.330Z",
+        "id": "nt_mw166ijx6011e106",
+        "revision": 2
+      },
+      {
+        "workflow_id": "wf_mw166ijw0fe9f3ce",
+        "role": "manager",
+        "agent_id": "nammaops-manager",
+        "agent_name": "Manager Agent",
+        "title": "Consolidate the result for the owner",
+        "status": "completed",
+        "started_at": "2026-11-03T20:58:14.332Z",
+        "evidence": [],
+        "summary": "No late deliveries for NK-MILK-500 among 1 supplier(s).",
+        "finished_at": "2026-11-03T20:58:14.333Z",
+        "id": "nt_mw166jss6e1056af",
+        "revision": 2
+      }
+    ]
+  }
+}
