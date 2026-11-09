@@ -60,9 +60,10 @@ it("persists office replies through the real task runtime and restores them afte
       revision: 0,
     });
   service.groupChat.send({ turnId: "durable1", message: "Assess a tutoring idea" });
-  await eventually(() => service.groupChat.messages().length === 3);
+  await eventually(() => service.groupChat.messages().length === 4);
   expect(service.groupChat.messages().map((message: { role: string }) => message.role)).toEqual([
     "user",
+    "assistant", // the instant "Asked…" note
     "assistant",
     "assistant",
   ]);
@@ -72,7 +73,7 @@ it("persists office replies through the real task runtime and restores them afte
   cleanup.push(() => service.close());
   await service.start();
   await service.runtime.refresh();
-  expect(service.groupChat.messages()).toHaveLength(3);
+  expect(service.groupChat.messages()).toHaveLength(4);
   expect(service.groupChat.send({ turnId: "durable1", message: "Assess a tutoring idea" }).id).toBe(
     "group_user_durable1",
   );

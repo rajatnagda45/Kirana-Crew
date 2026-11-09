@@ -537,6 +537,13 @@ describe("through chat and voice, the way Alice was asked", () => {
     ).toBe(true);
   });
 
+  it("tolerates a customer slip: 'Laxshmi Stores' still bills the recorded Lakshmi Stores", async () => {
+    const ctx = await ready();
+    await text(ctx, "billing", "create a bill for Laxshmi Stores: 2 rice and 1 milk", "cs1");
+    expect(reply(ctx, "cs1")).toMatch(/Draft bill SINV-FX-\d+ for Lakshmi Stores/);
+    expect(invoices(ctx)).toHaveLength(1);
+  });
+
   it("asks which product and how many when the request is unclear, and creates nothing", async () => {
     const ctx = await ready();
     await text(ctx, "billing", "create a bill for Lakshmi Stores: rice and milk", "t2");

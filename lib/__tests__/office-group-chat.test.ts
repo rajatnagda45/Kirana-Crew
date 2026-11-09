@@ -74,10 +74,26 @@ it("shares a durable office turn across bound agents and recovers after restart"
   await tick();
   expect(
     group.messages().filter((message: { role: string }) => message.role === "assistant"),
-  ).toHaveLength(2);
+  ).toHaveLength(3); // the instant "Asked…" note for the turn, then two seat replies
   expect(group.send({ turnId: "turn2", message: "Follow up" }).id).toBe("group_user_turn2");
   await tick();
   expect(submissions[2].context).toContain("bob: Check the valve next.");
+});
+
+it("answers small talk at once: an instant note says who was asked, replies follow", async () => {
+  const { runtime, submissions } = setup();
+  const group = new OfficeGroupChat(runtime);
+  opened.push(() => group.close());
+  group.send({ turnId: "hi1", message: "hi" });
+  const notes = group
+    .messages()
+    .filter((message: { groupTurnId?: string; role: string }) => message.groupTurnId === "hi1" && message.role === "assistant");
+  expect(notes).toHaveLength(1);
+  expect(notes[0].content).toMatch(/^Asked alice/);
+  expect(notes[0].content).toMatch(/replies will follow here/);
+  // Later replies, when they come far too slowly, replace nothing: the note is not a reply.
+  await tick();
+  expect(submissions).toHaveLength(1); // the OpenClaw work is unchanged
 });
 
 it("does not reassign a changed binding and distinguishes failed execution", async () => {
@@ -220,7 +236,7 @@ it("never lets one stuck or unavailable teammate hold the office conversation", 
   const before = submissions.length;
   expect(
     group.messages().filter((m: { groupTurnId?: string }) => m.groupTurnId === "away1"),
-  ).toHaveLength(1);
+  ).toHaveLength(2); // the owner's words plus the instant "Asked…" note
   const later = Date.now() + 3 * 60 * 1000;
   const clock = vi.spyOn(Date, "now").mockReturnValue(later);
   group.schedule();

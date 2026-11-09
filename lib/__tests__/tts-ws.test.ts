@@ -2,11 +2,11 @@ import { EventEmitter } from "node:events";
 import { describe, expect, it } from "vitest";
 import { clampSpeed, gnaniTtsProvider, validSpeech } from "../server/tts.mjs";
 
-type Script = (socket: FakeSocket, request: any) => void;
+type Script = (socket: FakeSocket, request?: unknown) => void;
 
 class FakeSocket extends EventEmitter {
   readyState = 1;
-  sent: any[] = [];
+  sent: unknown[] = [];
   terminated = false;
   constructor(private script: Script) {
     super();
@@ -43,11 +43,11 @@ const happy: Script = (socket) => {
 
 function provider(script: Script) {
   const sockets: FakeSocket[] = [];
-  const headers: any[] = [];
+  const headers: unknown[] = [];
   const p = gnaniTtsProvider({
     apiKey: "key",
     transport: "ws",
-    wsOpen: (_url: string, h: any) => {
+    wsOpen: (_url: string, h: unknown) => {
       headers.push(h);
       const socket = new FakeSocket(script);
       sockets.push(socket);
