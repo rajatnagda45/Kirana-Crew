@@ -121,6 +121,8 @@ export interface TaskDispatchOptions {
   sessionKey?: string;
   sourceMessageId?: string;
   context?: string;
+  /** Language preference for agent responses: 'hl' Hinglish | 'auto' | 'hi-IN' | 'en-IN' | 'kn-IN' */
+  language?: string;
   /** Called when the server sent the request to the work pipeline instead of the seat. */
   onRedirect?: (redirect: { composerTaskId: string; reason: string }) => void;
 }

@@ -1221,9 +1221,9 @@ function MessageComposer({
           }}
         />
         <div style={{ display: "flex", gap: "6px", flexShrink: 0, alignItems: "center" }}>
-          {/* Dictation language: Auto uses Gnani's indic-auto (Hindi/Hinglish/Kannada/English). */}
+          {/* Language: controls both STT dictation and agent response language. Default: Hinglish. */}
           <select
-            aria-label="Dictation language"
+            aria-label="Response language"
             value={dictationLanguage}
             onChange={(e) => {
               const next = e.target.value;
@@ -1232,7 +1232,7 @@ function MessageComposer({
                 if (dictation.isListening) dictation.stop();
               }
             }}
-            title="Dictation language — Auto detects Hindi, Hinglish, Kannada and English"
+            title="Language — controls both voice recognition and agent response language"
             style={{
               background: "rgba(255,255,255,0.05)",
               border: "1px solid rgba(255,255,255,0.1)",
@@ -1370,19 +1370,27 @@ export default function ChatPage() {
     [selectedConv, state.seats, state.sessions],
   );
 
-  // Wire voice dictation (STT-only) for the chat composer.
-  // This is separate from the Gemini voice call (VoiceProvider).
-  // Language starts "auto" on every render (SSR-safe) and adopts the saved choice after mount.
-  const [dictationLanguage, setDictationLanguage] = useState<DictationLanguage>("auto");
+  // Language preference controls both STT (dictation) and agent response language.
+  // Defaults to Hinglish ("hl") — the natural language for kirana shopkeepers.
+  // Persisted in localStorage so it survives page refreshes.
+  const [dictationLanguage, setDictationLanguage] = useState<DictationLanguage>("hl");
   useEffect(() => {
-    const saved = window.localStorage.getItem("dictation.language");
+    const saved = window.localStorage.getItem("kirana.langPref");
     // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage does not exist during SSR; adopting it after mount keeps server and first client render identical
     if (isDictationLanguage(saved)) setDictationLanguage(saved);
+    else if (!saved) {
+      // First visit: set default to Hinglish and persist it.
+      try {
+        window.localStorage.setItem("kirana.langPref", "hl");
+      } catch {
+        /* private mode */
+      }
+    }
   }, []);
   const updateDictationLanguage = useCallback((next: DictationLanguage) => {
     setDictationLanguage(next);
     try {
-      window.localStorage.setItem("dictation.language", next);
+      window.localStorage.setItem("kirana.langPref", next);
     } catch {
       // private mode: the choice simply lasts for this page view
     }
@@ -1495,7 +1503,7 @@ export default function ChatPage() {
     try {
       if (selectedConv === "group") {
         const turnId = failedTurnId ?? crypto.randomUUID().replaceAll("-", "").slice(0, 20);
-        await runtimeRequest("office-group", { turnId, message: msg });
+        await runtimeRequest("office-group", { turnId, message: msg, language: dictationLanguage });
         setDraft("");
         setFailedTurnId(null);
       } else {
@@ -1529,6 +1537,7 @@ export default function ChatPage() {
         let redirected = false;
         const taskId = await assignTask(msg, seat.seatId, {
           sessionKey: sessKey,
+          language: dictationLanguage,
           onRedirect: () => {
             redirected = true;
           },

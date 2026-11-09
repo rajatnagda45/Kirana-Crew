@@ -74,22 +74,25 @@ describe("dictation language mapping", () => {
     expect(sttLanguageCode("kn-IN")).toBe("kn-IN");
   });
 
-  it("the browser recogniser has no auto-detect: auto falls back to en-IN there only", () => {
-    expect(webSpeechLanguage("auto")).toBe("en-IN");
+  it("the browser recogniser has no auto-detect or Hinglish: both fall back to hi-IN", () => {
+    expect(webSpeechLanguage("auto")).toBe("hi-IN");
+    expect(webSpeechLanguage("hl")).toBe("hi-IN"); // Hinglish uses Hindi recognition
     expect(webSpeechLanguage("hi-IN")).toBe("hi-IN");
     expect(webSpeechLanguage("kn-IN")).toBe("kn-IN");
   });
 
-  it("the picker offers exactly Auto, English, Hindi and Kannada", () => {
+  it("the picker offers Hinglish, Auto Detect, Hindi, English and Kannada", () => {
     expect(DICTATION_LANGUAGES.map((entry) => entry.id)).toEqual([
+      "hl", // Hinglish — first because it is the kirana default
       "auto",
-      "en-IN",
       "hi-IN",
+      "en-IN",
       "kn-IN",
     ]);
   });
 
-  it("localStorage validation accepts only real ids", () => {
+  it("localStorage validation accepts only real ids including hl", () => {
+    expect(isDictationLanguage("hl")).toBe(true); // Hinglish is now a first-class option
     expect(isDictationLanguage("hi-IN")).toBe(true);
     expect(isDictationLanguage("auto")).toBe(true);
     expect(isDictationLanguage("indic-auto")).toBe(false);

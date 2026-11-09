@@ -458,6 +458,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
           sessionKey,
           sourceMessageId: options?.sourceMessageId,
           context: options?.context,
+          language: options?.language,
         });
         submissionIds.current.delete(dedupe);
         lsSet("agent-town:pending-submissions", [...submissionIds.current.entries()].slice(-20));

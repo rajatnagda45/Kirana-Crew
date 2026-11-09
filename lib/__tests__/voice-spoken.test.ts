@@ -128,7 +128,8 @@ describe("each agent has its own voice", () => {
       voice: voices.finance.voice,
     });
     expect(udhaarSaid.at(-1)!.voice).toBe(voices.finance.voice);
-    expect(udhaar.spoken).toMatch(/^Udhaar pending is [\d,]+ rupees\./);
+    // "udhaar" in the transcript triggers Hinglish detection: response is in Hinglish ("hai") or English ("is").
+    expect(udhaar.spoken).toMatch(/^Udhaar pending (?:hai|is) [\d,]+ rupees?[.,]/);
     expect(udhaar.spoken).not.toMatch(/[()]/);
   });
 

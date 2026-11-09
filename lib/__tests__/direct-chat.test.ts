@@ -40,8 +40,8 @@ describe("one-to-one chat with a NammaOps specialist", () => {
     const { user, reply } = saved(ctx, taskId);
     expect(user).toMatchObject({ role: "user", sessionKey: SESSION, seatId: finance });
     expect(reply).toMatchObject({ role: "assistant", sessionKey: SESSION, actorName: "Erin" });
-    expect(reply.content).toMatch(/Udhaar pending/);
-    expect(reply.content).toMatch(/Source: .*consulted finance/);
+    expect(reply.content).toMatch(/udhaar pending/i);
+    // Source attribution line has been removed from chat responses per user requirement.
     // No OpenClaw task was started for this message.
     expect(ctx.runtime.seatOwner().submit).not.toHaveBeenCalled();
     // The reads were audited under the finance specialist's own governed identity.
@@ -57,7 +57,7 @@ describe("one-to-one chat with a NammaOps specialist", () => {
     const { reply } = saved(ctx, taskId);
     expect(reply.actorName).toBe("Carol");
     expect(reply.content).toMatch(/^Erin \(Finance\) covers this/);
-    expect(reply.content).toMatch(/Udhaar pending/);
+    expect(reply.content).toMatch(/udhaar pending/i);
   });
 
   it("answers a multi-day sales request with a per-day breakdown", async () => {
@@ -282,14 +282,16 @@ describe("a date that cannot be read", () => {
     expect(ctx.nammaops.workflows.list()).toHaveLength(0);
   });
 
-  it("does not repeat the data-source note when the Source line already names it", async () => {
+  it("does not expose raw data-source notes in the chat reply", async () => {
     const ctx: Any = await ready();
     const { sales } = seats(ctx);
     const taskId = "t-source-1";
     await send(ctx, sales, "sales yesterday", taskId);
     const content = saved(ctx, taskId).reply.content as string;
+    // The "Data source:" limitation note must never appear (it is filtered).
     expect(content).not.toMatch(/Data source:/);
-    expect(content).toMatch(/\nSource: .*consulted sales/);
+    // The source attribution line has been removed from chat responses.
+    expect(content).not.toMatch(/\nSource:/);
   });
 });
 

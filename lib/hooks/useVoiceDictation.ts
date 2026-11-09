@@ -47,13 +47,26 @@ type SpeechRecognitionWindow = Window & {
 export type DictationStatus =
   "idle" | "listening" | "processing" | "error" | "unsupported" | "denied";
 
-export type DictationLanguage = "auto" | "en-IN" | "hi-IN" | "kn-IN";
+/**
+ * Response/dictation language preference.
+ *
+ * "hl"    Hinglish – Roman-script mixed Hindi-English. This is the default for kirana shopkeepers.
+ * "auto"  Auto-detect from input script/words (server-side detection).
+ * "hi-IN" Hindi – Devanagari script responses.
+ * "en-IN" English.
+ * "kn-IN" Kannada.
+ *
+ * "hl" is a first-class language mode — not a sub-mode of Hindi.
+ * For STT it maps to hi-IN (Gnani handles Hinglish speech via Hindi recognition).
+ */
+export type DictationLanguage = "auto" | "hl" | "en-IN" | "hi-IN" | "kn-IN";
 
-/** Composer language picker order mirrors the demo languages: Hindi/Hinglish, Kannada, English. */
+/** Language picker options. Order: Hinglish first (kirana default), then others. */
 export const DICTATION_LANGUAGES: ReadonlyArray<{ id: DictationLanguage; label: string }> = [
-  { id: "auto", label: "Auto" },
+  { id: "hl", label: "Hinglish" },
+  { id: "auto", label: "Auto Detect" },
+  { id: "hi-IN", label: "हिंदी" },
   { id: "en-IN", label: "English" },
-  { id: "hi-IN", label: "हिन्दी" },
   { id: "kn-IN", label: "ಕನ್ನಡ" },
 ];
 
@@ -64,16 +77,19 @@ export function isDictationLanguage(value: unknown): value is DictationLanguage 
   return typeof value === "string" && DICTATION_LANGUAGE_IDS.has(value as DictationLanguage);
 }
 
-/** Code sent to the server speech-to-text: `auto` means Gnani's Indic auto-detection, which
- * also accepts mixed Hindi–English (Hinglish) speech. */
+/**
+ * Code sent to the server speech-to-text provider.
+ * 'auto' and 'hl' both use Gnani indic-auto so Hinglish speech is correctly transcribed.
+ */
 export function sttLanguageCode(language: DictationLanguage): string {
-  return language === "auto" ? "indic-auto" : language;
+  if (language === "auto" || language === "hl") return "indic-auto";
+  return language;
 }
 
-/** The Web Speech API has no auto-detect, so `auto` falls back to English for the browser
- * recogniser only (server speech-to-text still runs with real detection). */
+/** The Web Speech API has no auto-detect and no Hinglish, so both map to hi-IN for the browser. */
 export function webSpeechLanguage(language: DictationLanguage): string {
-  return language === "auto" ? "en-IN" : language;
+  if (language === "auto" || language === "hl") return "hi-IN";
+  return language;
 }
 
 interface UseDictationOptions {
