@@ -97,11 +97,11 @@ describe("analysis time limit", () => {
     const u = make(f.client);
     const t = performance.now();
     await u.prime("sales on 2 nov", {
-      deadline: createDeadline(15000, { now: () => 0 }), // plenty of turn left; the 4 s cap rules
+      deadline: createDeadline(15000, { now: () => 0 }), // plenty of turn left; the 7 s cap rules
     });
     const took = performance.now() - t;
-    expect(took).toBeGreaterThan(3500);
-    expect(took).toBeLessThan(5500);
+    expect(took).toBeGreaterThan(6500);
+    expect(took).toBeLessThan(8500);
     expect(f.calls.length).toBe(1); // budget was spent; the second model is not tried
     expect(f.calls[0].signal?.aborted).toBe(true);
     expect(u.peek("sales on 2 nov")).toBeNull();

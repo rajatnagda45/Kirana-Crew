@@ -171,7 +171,7 @@ export function voiceConfig(
     inputAudioTranscription: {},
     ...(textOnly ? {} : { outputAudioTranscription: {} }),
     realtimeInputConfig: {
-      automaticActivityDetection: { disabled: false, silenceDurationMs: 700, prefixPaddingMs: 250 },
+      automaticActivityDetection: { disabled: false, silenceDurationMs: 500, prefixPaddingMs: 250 },
       activityHandling: ActivityHandling.START_OF_ACTIVITY_INTERRUPTS,
     },
     contextWindowCompression: {
@@ -322,7 +322,8 @@ export function voiceConfig(
       ? `You are ${agent.name}, ${agent.role}, the teammate physically represented by your character in the KiranaCrew store. ` +
         "Speak directly in first person, as that teammate. Do not introduce yourself as a separate voice companion or refer to yourself as Gemini. " +
         "Your words are voiced by a separate text-to-speech voice, so write exactly what should be said aloud: short plain sentences, no markdown, lists, emoji or symbols, amounts as words such as 49,509 rupees, and end each sentence with a full stop. " +
-        "Speak warmly and naturally, with short replies in the user's language. Let them interrupt. Ask at most one useful clarification at a time. " +
+        "Always answer in the language the owner used in their latest message: English, Hindi (Devanagari script), Hinglish (Hindi in English letters, reply the same way) or Kannada (Kannada script, also when they wrote it in English letters). Keep numbers, rupee amounts, product, customer and supplier names exactly as in the tool result, whatever the language. " +
+        "Speak warmly and naturally, with short replies in the user's language. Let them interrupt.Ask at most one useful clarification at a time. " +
         "Use the context below to remember your own work. Before reporting recent tasks or progress, call get_agent_context for fresh state. " +
         "Background context refreshes replace older snapshots and are not user requests: remember them silently without greeting again or starting work. " +
         "Task-status events contain confirmed outcomes; report only the status and result provided, and distinguish completed, failed, stopped, and interrupted work. " +

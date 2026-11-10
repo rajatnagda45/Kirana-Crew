@@ -8,7 +8,23 @@
  * of after the whole sentence. Sentences are fetched one at a time (Gnani allows one active
  * request) while the previous one is still playing, which keeps the speech gapless.
  */
+const DECIMAL_WAIT_MS = 250;
+
+/** The Gnani language for a sentence: its script decides, so a Hindi or Kannada reply is not read as English. */
+function languageOf(text: string, fallback: string) {
+  const count = (re: RegExp) => text.match(re)?.length ?? 0;
+  const scripts: Array<[string, number]> = [
+    ["kn-IN", count(/[ಀ-೿]/g)],
+    ["hi-IN", count(/[ऀ-ॿ]/g)],
+    ["ta-IN", count(/[஀-௿]/g)],
+    ["te-IN", count(/[ఀ-౿]/g)],
+  ];
+  const [code, n] = scripts.sort((a, b) => b[1] - a[1])[0];
+  return n >= 2 ? code : fallback;
+}
+
 export class GnaniSpeaker {
+  private flushTimer: ReturnType<typeof setTimeout> | null = null;
   private queue: string[] = [];
   private pumping = false;
   private sources = new Set<AudioBufferSourceNode>();
@@ -33,12 +49,30 @@ export class GnaniSpeaker {
     return this.pending > 0 || this.sources.size > 0;
   }
 
-  /** Hand over every complete sentence of `text` that has not been spoken yet. */
+  /**
+   * Hand over every complete sentence of `text` that has not been spoken yet. A sentence that ends
+   * the text received so far is spoken at once instead of waiting for the next word or for the end
+   * of the whole reply (which is what made the last sentence start late). Only a full stop right
+   * after a digit waits a moment, since it may be a decimal point ("49." then "5").
+   */
   feed(text: string, final = false) {
+    if (this.flushTimer) {
+      clearTimeout(this.flushTimer);
+      this.flushTimer = null;
+    }
     let rest = text.slice(this.spoken);
     for (;;) {
       const match = /^([\s\S]+?[.!?।]["')\]]*)(\s+|$)/.exec(rest);
-      if (!match || (!final && !match[2])) break;
+      if (!match) break;
+      if (!final && !match[2]) {
+        if (/\d\.["')\]]*$/.test(match[1])) {
+          this.flushTimer = setTimeout(() => {
+            this.flushTimer = null;
+            this.feed(text, true);
+          }, DECIMAL_WAIT_MS);
+          break;
+        }
+      }
       this.say(match[1]);
       this.spoken += match[0].length;
       rest = rest.slice(match[0].length);
@@ -51,6 +85,8 @@ export class GnaniSpeaker {
 
   /** Forget the finished reply so the next one starts counting from zero. */
   reset() {
+    if (this.flushTimer) clearTimeout(this.flushTimer);
+    this.flushTimer = null;
     this.spoken = 0;
   }
 
@@ -99,7 +135,7 @@ export class GnaniSpeaker {
       headers: { "Content-Type": "application/json", Origin: window.location.origin },
       body: JSON.stringify({
         text,
-        language: this.language,
+        language: languageOf(text, this.language),
         ...(this.voice ? { voice: this.voice } : {}),
       }),
     });
@@ -159,6 +195,8 @@ export class GnaniSpeaker {
 
   /** Cut off everything queued or playing (the owner interrupted, or the call ended). */
   stop() {
+    if (this.flushTimer) clearTimeout(this.flushTimer);
+    this.flushTimer = null;
     this.generation += 1;
     this.controller.abort();
     this.controller = new AbortController();
