@@ -2,7 +2,7 @@
 
 # KiranaCrew
 
-### "Dukaan ka kaam, aab aawaz se!"
+### "Dukaan ka kaam, ab aawaz se!"
 
 **India's first voice-first autonomous AI workforce for kirana stores**
 
