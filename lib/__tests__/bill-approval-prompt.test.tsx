@@ -59,9 +59,7 @@ describe("bill approval popup", () => {
       "disabled",
       true,
     );
-    await act(async () => {
-      fireEvent.change(input, { target: { value: "4821" } });
-    });
+    fireEvent.change(input, { target: { value: "4821" } });
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Approve and bill" }));
     });
