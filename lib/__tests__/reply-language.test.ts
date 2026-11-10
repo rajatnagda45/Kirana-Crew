@@ -30,7 +30,9 @@ describe("which language the owner asked in", () => {
 describe("figures survive translation", () => {
   it("accepts a translation that keeps every number and rejects one that changes a figure", () => {
     const english = "Sales: ₹4,17,540 from 169 bills. Best day 2026-10-24.";
-    expect(keepsFigures(english, "बिक्री: ₹4,17,540, 169 बिल. सबसे अच्छा दिन 2026-10-24.")).toBe(true);
+    expect(keepsFigures(english, "बिक्री: ₹4,17,540, 169 बिल. सबसे अच्छा दिन 2026-10-24.")).toBe(
+      true,
+    );
     expect(keepsFigures(english, "बिक्री: ₹4,17,450, 169 बिल. 2026-10-24.")).toBe(false);
     expect(keepsFigures(english, "बिक्री: ₹4,17,540 और बिल.")).toBe(false);
   });
@@ -42,7 +44,9 @@ describe("figures survive translation", () => {
     });
     const hi = detectLanguage("बॉब, स्टॉक बताओ")!;
     const good = createReplyTranslator({
-      client: model("5 प्रोडक्ट रीऑर्डर लेवल पर या नीचे हैं। Coconut Hair Oil 200ml: 4 Nos।") as Any,
+      client: model(
+        "5 प्रोडक्ट रीऑर्डर लेवल पर या नीचे हैं। Coconut Hair Oil 200ml: 4 Nos।",
+      ) as Any,
     });
     expect(await good(english, hi)).toContain("रीऑर्डर");
     const changed = createReplyTranslator({
@@ -57,7 +61,9 @@ describe("figures survive translation", () => {
     const english = "5 products low. Total 295.";
     const kn = detectLanguage("ಬಾಬ್, ಸ್ಟಾಕ್ ಎಷ್ಟು ಇದೆ")!;
     const slip = createReplyTranslator({
-      client: { models: { generateContent: vi.fn(async () => ({ text: "5 ಉತ್ಪನ್ನ کمی ಇವೆ. ಒಟ್ಟು 295." })) } } as Any,
+      client: {
+        models: { generateContent: vi.fn(async () => ({ text: "5 ಉತ್ಪನ್ನ کمی ಇವೆ. ಒಟ್ಟು 295." })) },
+      } as Any,
     });
     expect(await slip(english, kn)).toBe(english);
     const calls: Any[] = [];
@@ -66,7 +72,8 @@ describe("figures survive translation", () => {
         models: {
           generateContent: vi.fn(async (args: Any) => {
             calls.push(args.config.thinkingConfig);
-            if (args.config.thinkingConfig) throw new Error("Thinking level MINIMAL is not supported");
+            if (args.config.thinkingConfig)
+              throw new Error("Thinking level MINIMAL is not supported");
             return { text: "5 ಉತ್ಪನ್ನಗಳು ಕಡಿಮೆ ಇವೆ. ಒಟ್ಟು 295." };
           }),
         },
@@ -78,7 +85,9 @@ describe("figures survive translation", () => {
 
   it("falls back when the model call fails", async () => {
     const translate = createReplyTranslator({
-      client: { models: { generateContent: vi.fn(async () => Promise.reject(new Error("boom"))) } } as Any,
+      client: {
+        models: { generateContent: vi.fn(async () => Promise.reject(new Error("boom"))) },
+      } as Any,
     });
     expect(await translate("Total ₹295.", detectLanguage("kitna hua batao aaj")!)).toBe(
       "Total ₹295.",
@@ -89,7 +98,11 @@ describe("figures survive translation", () => {
 describe("inAskedLanguage", () => {
   it("leaves an English question alone and never calls the translator", async () => {
     const translator = vi.fn();
-    const out = await inAskedLanguage({ replyTranslator: translator }, "How much udhaar?", "Udhaar ₹10.");
+    const out = await inAskedLanguage(
+      { replyTranslator: translator },
+      "How much udhaar?",
+      "Udhaar ₹10.",
+    );
     expect(out).toEqual({ text: "Udhaar ₹10.", language: null });
     expect(translator).not.toHaveBeenCalled();
   });
