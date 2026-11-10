@@ -84,6 +84,47 @@ describe("Gnani voice for Gemini Live replies", () => {
       expect(started[i].at).toBeCloseTo(started[i - 1].at + started[i - 1].duration, 6);
   });
 
+  it("speaks a sentence that ends the text so far without waiting for the reply to finish", async () => {
+    mockStream([[pcm(2400)], [pcm(2400)]]);
+    const { context, started } = fakeContext();
+    const speaker = new GnaniSpeaker(context, null);
+    speaker.feed("Stock is low.");
+    await vi.waitFor(() => expect(requests.map((b) => b.text)).toEqual(["Stock is low."]));
+    speaker.feed("Stock is low. Order more rice.");
+    await vi.waitFor(() => expect(started.length).toBe(2));
+    expect(requests.map((b) => b.text)).toEqual(["Stock is low.", "Order more rice."]);
+  });
+
+  it("waits briefly after a digit and a full stop in case it is a decimal point", async () => {
+    vi.useFakeTimers();
+    try {
+      mockStream([[pcm(2400)]]);
+      const { context } = fakeContext();
+      const speaker = new GnaniSpeaker(context, null);
+      speaker.feed("Margin is 49.");
+      expect(requests).toHaveLength(0);
+      speaker.feed("Margin is 49.5 percent.");
+      vi.advanceTimersByTime(300);
+      expect(requests.map((b) => b.text)).toEqual(["Margin is 49.5 percent."]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("speaks a number ending in a full stop once nothing more arrives", async () => {
+    vi.useFakeTimers();
+    try {
+      mockStream([[pcm(2400)]]);
+      const { context } = fakeContext();
+      const speaker = new GnaniSpeaker(context, null);
+      speaker.feed("Total is 49.");
+      vi.advanceTimersByTime(300);
+      expect(requests.map((b) => b.text)).toEqual(["Total is 49."]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("keeps a sample that straddles two network chunks", async () => {
     mockStream([[new Uint8Array([1, 0, 2]), new Uint8Array([0, 3, 0])]]);
     const { context, started } = fakeContext();
