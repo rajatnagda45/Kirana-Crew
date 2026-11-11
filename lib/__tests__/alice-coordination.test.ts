@@ -11,6 +11,8 @@ import {
 import { DELEGATION_NAMESPACE, seatChatSession } from "../server/nammaops/delegation.mjs";
 import {
   MEMORY_NAMESPACE,
+  compareDigests,
+  digestOf,
   isHistoricalQuestion,
   recall,
   remember,
@@ -189,8 +191,13 @@ describe("E. Alice coordinates the exact three-part request", () => {
     expect(final).toContain("**Erin — Finance**");
     expect(final).toMatch(/Erin could not complete this: The ERP read was denied/);
     expect(ctx.runtime.db.record(COORDINATION_NAMESPACE, "coord_fail1").status).toBe("partial");
-    // No memory is written for an incomplete report.
-    expect(ctx.runtime.db.records(MEMORY_NAMESPACE)).toEqual([]);
+    // Memory keeps the tasks that completed, each on its own, and nothing for the one that failed.
+    expect(
+      ctx.runtime.db
+        .records(MEMORY_NAMESPACE)
+        .map((r: Any) => r.intent)
+        .sort(),
+    ).toEqual(["check_stock", "sales_summary"]);
   });
 
   it("an unavailable specialist is disclosed and the others still run", async () => {
@@ -353,96 +360,235 @@ describe("F. ETA from measured history only", () => {
   });
 });
 
-describe("F. persistent workflow memory", () => {
-  it("stores only a completed report, with timestamp, evidence ids and no embedding when none exists", async () => {
+const LOW_STOCK_REQUEST =
+  "Alice, check all products below reorder level and tell me the recommended quantities.";
+const memoryRows = (ctx: Any) => ctx.runtime.db.records(MEMORY_NAMESPACE) as Any[];
+
+describe("F. persistent workflow memory is scoped to the report that was asked for", () => {
+  it("stores each completed task as its own scoped record, with timestamp, evidence and no vector without an embedder", async () => {
     const ctx: Any = await ready();
     await ask(ctx, "manager", EXACT, "mem1");
-    const memory = ctx.runtime.db.record(MEMORY_NAMESPACE, "mem_coord_mem1");
-    expect(memory).toMatchObject({
-      version: 1,
-      type: "check_stock+receivables_report+sales_summary",
-      index_mode: "keyword",
-      embedding: null,
-      report_ref: { message_id: "dm_synthesis_mem1" },
-    });
-    expect(memory.participants.map((p: Any) => p.name)).toEqual(["Bob", "Carol", "Erin"]);
-    expect(memory.tasks.every((t: Any) => t.status === "completed" && t.workflow_id)).toBe(true);
-    expect(Date.parse(memory.completed_at)).not.toBeNaN();
-    expect(memory.evidence_invocation_ids.length).toBeGreaterThan(0);
-    expect(memory.summary).toMatch(/Bob \(Inventory\)/);
-    expect(memory.summary).not.toMatch(/pin/i);
+    const rows = memoryRows(ctx);
+    expect(rows.map((r) => r.intent).sort()).toEqual([
+      "check_stock",
+      "receivables_report",
+      "sales_summary",
+    ]);
+    for (const row of rows) {
+      // One department per record: nothing from another department rides along.
+      expect(row.intents).toEqual([row.intent]);
+      expect(row.participants).toHaveLength(1);
+      expect(row).toMatchObject({
+        version: 1,
+        index_mode: "keyword",
+        embedding: null,
+        coordination_report: { message_id: "dm_synthesis_mem1" },
+      });
+      expect(Date.parse(row.completed_at)).not.toBeNaN();
+      expect(row.evidence_invocation_ids.length).toBeGreaterThan(0);
+      expect(row.report_ref.message_id).toMatch(/^dm_report_mem1_\d$/);
+      expect(row.summary).not.toMatch(/pin/i);
+    }
+    const stock = ctx.runtime.db.record(MEMORY_NAMESPACE, "mem_coord_mem1_check_stock");
+    expect(stock.products).toEqual(["milk", "atta"]);
+    expect(stock.participants[0].name).toBe("Bob");
+    // The stock record holds only stock facts.
+    expect(stock.summary).not.toMatch(/Udhaar|Sales on/);
+    expect(stock.data.low.length).toBeGreaterThan(0);
   });
 
-  it("answers a historical question from memory, with its timestamp, running nothing", async () => {
+  it("keeps the low-stock products and their recommended quantities in the stored report", async () => {
     const ctx: Any = await ready();
-    await ask(ctx, "manager", EXACT, "mem2");
+    await ask(ctx, "manager", LOW_STOCK_REQUEST, "low1");
+    const stock = ctx.runtime.db.record(MEMORY_NAMESPACE, "mem_coord_low1_check_stock");
+    expect(stock.products).toEqual([]);
+    expect(stock.summary).toMatch(/at or below reorder level|in stock, reorder level/);
+    // Every low product has its recommended quantity in the stored text.
+    const buys = stock.summary.split("\n").filter((line: string) => /^Buy \d+ /.test(line));
+    expect(buys.length).toBe(stock.data.low.length);
+    expect(stock.summary).toMatch(/target \d+: buy the larger of the reorder quantity/);
+  });
+
+  it("an inventory question recalls only inventory, never an old combined or product-scoped report", async () => {
+    const ctx: Any = await ready();
+    await ask(ctx, "manager", EXACT, "old1"); // milk/atta + sales + udhaar
+    // An old-style combined record, as stored by the earlier version.
+    ctx.runtime.db.saveRecord(
+      MEMORY_NAMESPACE,
+      "mem_coord_legacy",
+      {
+        memory_id: "mem_coord_legacy",
+        intents: ["check_stock", "receivables_report", "sales_summary"],
+        products: [],
+        completed_at: "2026-11-11T11:55:00.000Z",
+        summary: "Bob: Toned Milk 819. Carol: sales. Erin: udhaar.",
+        original_request: "legacy",
+        participants: [{ name: "Bob" }],
+      },
+      0,
+    );
+    const none = await recall(ctx.runtime, LOW_STOCK_REQUEST, { intents: ["check_stock"] });
+    expect(none.hits).toEqual([]); // the only inventory report is scoped to milk and atta
+    await ask(ctx, "manager", LOW_STOCK_REQUEST, "old2");
+    const found = await recall(ctx.runtime, LOW_STOCK_REQUEST, { intents: ["check_stock"] });
+    expect(found.hits).toHaveLength(1);
+    expect(found.hits[0].memory.memory_id).toBe("mem_coord_old2_check_stock");
+    expect(found.hits[0].memory.summary).not.toMatch(/sales|udhaar/i);
+  });
+
+  it("a sales request recalls only sales, and a finance request only finance", async () => {
+    const ctx: Any = await ready();
+    await ask(ctx, "manager", EXACT, "dom1");
+    const sales = await recall(ctx.runtime, "sales today", { intents: ["sales_summary"] });
+    expect(sales.hits.map((h) => h.memory.intent)).toEqual(["sales_summary"]);
+    expect(sales.hits[0].memory.summary).not.toMatch(/stock|Udhaar/i);
+    const finance = await recall(ctx.runtime, "udhaar", { intents: ["receivables_report"] });
+    expect(finance.hits.map((h) => h.memory.intent)).toEqual(["receivables_report"]);
+    expect(finance.hits[0].memory.summary).not.toMatch(/Sales on|in stock/);
+  });
+
+  it("a combined question recalls each required department, no more", async () => {
+    const ctx: Any = await ready();
+    await ask(ctx, "manager", EXACT, "comb1");
+    await ask(ctx, "manager", EXACT, "comb2");
+    const text = message(ctx, "dm_reply_comb2").content as string;
+    expect(text).toMatch(/Bob's report completed at/);
+    expect(text).toMatch(/Carol's report completed at/);
+    expect(text).toMatch(/Erin's report completed at/);
+    expect(text).not.toMatch(/Dave|Frank|Grace/);
+  });
+
+  it("answers a historical question from the right report, with its timestamp, running nothing", async () => {
+    const ctx: Any = await ready();
+    await ask(ctx, "manager", LOW_STOCK_REQUEST, "his1");
+    await ask(ctx, "manager", EXACT, "his2"); // newer, but a different scope and other departments
     const workflows = ctx.nammaops.workflows.list().length;
-    const out = await ask(ctx, "manager", "what did the last stock report say", "mem3");
-    expect(out.answered).toMatchObject({ memory: true, mode: "keyword" });
-    const content = message(ctx, "dm_reply_mem3").content as string;
-    expect(content).toMatch(/From the report completed at \d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC/);
-    expect(content).toMatch(/not re-verified/);
+    const out = await ask(ctx, "manager", "what did the last stock report say", "his3");
+    expect(out.answered).toMatchObject({
+      memory: true,
+      mode: "keyword",
+      memoryIds: ["mem_coord_his1_check_stock"],
+    });
+    const content = message(ctx, "dm_reply_his3").content as string;
+    expect(content).toMatch(/Bob's report completed at \d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC/);
+    expect(content).toMatch(/This is from earlier and is not re-verified/);
+    expect(content).toMatch(/Buy \d+ /); // the recommended quantities are there
+    expect(content).not.toMatch(/Carol|Erin|Sales on|Udhaar/);
     expect(content).not.toMatch(/matched by meaning/); // no embedder, so no semantic claim
+    // The stored timestamp is the one shown.
+    const stamp = ctx.runtime.db
+      .record(MEMORY_NAMESPACE, "mem_coord_his1_check_stock")
+      .completed_at.replace("T", " ")
+      .slice(0, 16);
+    expect(content).toContain(stamp);
     expect(ctx.nammaops.workflows.list()).toHaveLength(workflows);
   });
 
-  it("a live question recalls the earlier report AND checks live; memory never replaces ERP", async () => {
+  it("a live question shows a compact earlier report, checks live, and compares old with new", async () => {
     const ctx: Any = await ready();
-    await ask(ctx, "manager", "check stock of milk", "mem4");
+    await ask(ctx, "manager", LOW_STOCK_REQUEST, "liv1");
     const workflows = ctx.nammaops.workflows.list().length;
-    await ask(ctx, "manager", "check stock of milk", "mem5");
-    const ack = message(ctx, "dm_reply_mem5").content as string;
-    expect(ack).toMatch(/From the report completed at/);
+    // Stock changes between the two checks.
+    ctx.editData((data: Any) => {
+      const item = data.stock_balances?.[0] ?? data.bins?.[0];
+      if (item) item.actual_qty = 3;
+    });
+    await ask(ctx, "manager", LOW_STOCK_REQUEST, "liv2");
+    const ack = message(ctx, "dm_reply_liv2").content as string;
+    expect(ack).toMatch(/I'm coordinating with Bob \(Inventory\)/);
+    expect(ack).not.toMatch(/Alice \(|Carol|Erin|Dave/);
+    expect(ack).toMatch(/Earlier report\(s\), shown only for context/);
+    expect(ack).toMatch(/Bob's report completed at/);
     expect(ack).toMatch(/not re-verified/);
     expect(ack).toMatch(/I am checking now to confirm what has changed/);
     // A fresh governed check ran for the live question.
     expect(ctx.nammaops.workflows.list()).toHaveLength(workflows + 1);
-    expect(message(ctx, "dm_report_mem5_0").delegationKind).toBe("report");
+    expect(message(ctx, "dm_report_liv2_0").delegationKind).toBe("report");
+    const final = message(ctx, "dm_synthesis_liv2").content as string;
+    expect(final).toMatch(
+      /earlier report \(\d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC\) compared with the newly verified result/,
+    );
+    expect(final).toMatch(/Newly low|No longer low|stock \d+ -> \d+|No change/);
+  });
+
+  it("says plainly when a report type has no automatic comparison", async () => {
+    const ctx: Any = await ready();
+    ctx.runtime.db.saveRecord(
+      MEMORY_NAMESPACE,
+      "mem_seed_procurement",
+      {
+        memory_id: "mem_seed_procurement",
+        intents: ["procurement_overview"],
+        intent: "procurement_overview",
+        products: [],
+        completed_at: "2026-11-10T09:00:00.000Z",
+        summary: "5 suppliers on file; 4 open purchase orders.",
+        participants: [{ name: "Dave", department: "procurement" }],
+        original_request: "tell me about procurement",
+        data: null,
+      },
+      0,
+    );
+    await ask(ctx, "manager", "tell me about procurement", "cmp1");
+    const ack = message(ctx, "dm_reply_cmp1").content as string;
+    expect(ack).toMatch(/Dave's report completed at 2026-11-10 09:00 UTC/);
+    const final = message(ctx, "dm_synthesis_cmp1").content as string;
+    expect(final).toMatch(
+      /earlier report \(2026-11-10 09:00 UTC\) compared with the newly verified/,
+    );
+    expect(final).toMatch(/No automatic comparison is available for this kind of report/);
   });
 
   it("says no stored report matches rather than inventing one", async () => {
     const ctx: Any = await ready();
-    const out = await ask(ctx, "manager", "what did the last stock report say", "mem6");
+    const out = await ask(ctx, "manager", "what did the last stock report say", "none1");
     expect(out.answered).toMatchObject({ memory: true, memoryId: null });
-    expect(message(ctx, "dm_reply_mem6").content).toMatch(/I do not have a stored report/);
+    expect(message(ctx, "dm_reply_none1").content).toMatch(/I do not have a stored report/);
   });
 
   it("claims semantic matching only when a verified embedder produced the vectors", async () => {
     const ctx: Any = await ready();
-    const vector = (text: string) => (/stock|milk|inventory/i.test(text) ? [1, 0] : [0, 1]);
+    const vector = (text: string) =>
+      /stock|milk|inventory|reorder|buy/i.test(text) ? [1, 0] : [0, 1];
     ctx.runtime.memory = {
       embedder: { verified: true, model: "fake-embed", embed: async (t: string) => vector(t) },
     };
-    await ask(ctx, "manager", "check stock of milk", "sem1");
-    const stored = ctx.runtime.db.record(MEMORY_NAMESPACE, "mem_coord_sem1");
+    await ask(ctx, "manager", LOW_STOCK_REQUEST, "sem1");
+    const stored = ctx.runtime.db.record(MEMORY_NAMESPACE, "mem_coord_sem1_check_stock");
     expect(stored).toMatchObject({ index_mode: "semantic", embedding_model: "fake-embed" });
     const found = await recall(ctx.runtime, "how is our inventory", { intents: ["check_stock"] });
     expect(found.mode).toBe("semantic");
+    expect(found.hits[0].how).toBe("semantic");
     const text = await ask(ctx, "manager", "what did the last inventory report say", "sem2");
     expect(text.answered.mode).toBe("semantic");
     expect(message(ctx, "dm_reply_sem2").content).toMatch(/matched by meaning/);
-    // If the embedder goes away, recall falls back to keywords and says nothing about meaning.
+    // If the embedder goes away, recall falls back honestly and says nothing about meaning.
     ctx.runtime.memory = {};
     const fallback = await recall(ctx.runtime, "what did the last stock report say", {
       intents: ["check_stock"],
     });
     expect(fallback.mode).toBe("keyword");
+    expect(fallback.hits[0].how).toBe("keyword");
   });
 
-  it("never stores a PIN or secret, and only fully completed reports", async () => {
+  it("never stores a PIN or secret, nor a task that did not complete", async () => {
     const ctx: Any = await ready();
+    const sub = (name: string, intent: string, index: number) => ({
+      name,
+      title: "Billing",
+      department: "billing",
+      intent,
+      index,
+      args: {},
+      clause: "bill it; my password is hunter2",
+    });
     const states = [
       {
-        sub: {
-          name: "Frank",
-          title: "Billing",
-          department: "billing",
-          intent: "prepare_bill",
-          index: 0,
-        },
+        sub: sub("Frank", "prepare_bill", 0),
         status: "completed",
         record: {
           workflow_id: "wf_x",
+          completed_at: new Date().toISOString(),
           result_reference: {
             summary: ["Draft bill ready. The owner PIN 4826 approves it. 4826 is my PIN too."],
             invocation_ids: ["inv_1"],
@@ -450,6 +596,7 @@ describe("F. persistent workflow memory", () => {
           },
         },
       },
+      { sub: sub("Frank", "billing_summary", 1), status: "failed", record: null },
     ];
     const co = {
       coordination_id: "coord_scrub",
@@ -459,13 +606,9 @@ describe("F. persistent workflow memory", () => {
       completed_at: new Date().toISOString(),
     };
     const stored = await remember(ctx.runtime, co, states as Any);
+    expect(stored).toHaveLength(1); // only the completed task
     expect(JSON.stringify(stored)).not.toMatch(/4826|hunter2/);
-    expect(
-      await remember(ctx.runtime, { ...co, coordination_id: "coord_bad" }, [
-        { ...states[0], status: "failed" },
-      ] as Any),
-    ).toBeNull();
-    expect(ctx.runtime.db.record(MEMORY_NAMESPACE, "mem_coord_bad")).toBeNull();
+    expect(ctx.runtime.db.record(MEMORY_NAMESPACE, "mem_coord_scrub_billing_summary")).toBeNull();
   });
 
   it("tells a historical question from a live one", () => {
@@ -473,5 +616,108 @@ describe("F. persistent workflow memory", () => {
     expect(isHistoricalQuestion("show me the previous sales summary")).toBe(true);
     expect(isHistoricalQuestion("how is our inventory right now")).toBe(false);
     expect(isHistoricalQuestion("check stock today")).toBe(false);
+  });
+
+  it("compares stock reports by value: newly low, no longer low, changed", () => {
+    const before = {
+      checked: 52,
+      low: [
+        { item: "Urad Dal 1kg", available: 4, reorder_level: 9, recommended_qty: 21 },
+        { item: "Millet Flakes 500g", available: 0, reorder_level: 3, recommended_qty: 7 },
+      ],
+    };
+    const after = {
+      checked: 52,
+      low: [
+        { item: "Urad Dal 1kg", available: 2, reorder_level: 9, recommended_qty: 23 },
+        { item: "Coconut Hair Oil 200ml", available: 4, reorder_level: 6, recommended_qty: 14 },
+      ],
+    };
+    expect(compareDigests("check_stock", before, after)).toEqual([
+      "Urad Dal 1kg: stock 4 -> 2, recommended 21 -> 23.",
+      "Newly low: Coconut Hair Oil 200ml (4 in stock, reorder level 6, recommended 14).",
+      "No longer low: Millet Flakes 500g (was 0 in stock).",
+    ]);
+    expect(compareDigests("check_stock", before, before)).toEqual([
+      "No change: the same 2 product(s) are low, with the same quantities.",
+    ]);
+    expect(digestOf("check_stock", { rows: [1, 2], low: [] })).toEqual({ checked: 2, low: [] });
+  });
+});
+
+describe("Alice delegates to exactly the specialists a request needs (never herself)", () => {
+  const specialistsOf = (ctx: Any, id: string) =>
+    ctx.runtime.db
+      .record(COORDINATION_NAMESPACE, `coord_${id}`)
+      .subtasks.map((s: Any) => [s.name, s.department, s.own]);
+
+  it("the reorder-level request goes to Bob alone: one task, no manager task, no Dave", async () => {
+    const ctx: Any = await ready();
+    const out = await ask(
+      ctx,
+      "manager",
+      "Alice, check all products below reorder level and tell me the recommended quantities.",
+      "own1",
+    );
+    expect(out.answered.delegations).toEqual(["dlg_own1_0"]);
+    expect(specialistsOf(ctx, "own1")).toEqual([["Bob", "inventory", false]]);
+    const ack = message(ctx, "dm_reply_own1").content as string;
+    expect(ack).toMatch(/I'm coordinating with Bob \(Inventory\)\./);
+    expect(ack).not.toMatch(/Alice|Dave|Store Manager/);
+    // Exactly one workflow, the stock check; Bob's agent read, nobody else's.
+    const workflows = ctx.nammaops.workflows.list();
+    expect(workflows.map((w: Any) => w.intent.action)).toEqual(["stock_check"]);
+    expect(ctx.runtime.db.record(DELEGATION_NAMESPACE, "dlg_own1_1")).toBeNull();
+    const agents = new Set(
+      ctx.runtime.mcpGateway
+        .invocations()
+        .filter((row: Any) => row.correlation_id === workflows[0].id)
+        .map((row: Any) => row.agent_id),
+    );
+    expect(agents.has("nammaops-inventory")).toBe(true);
+    expect(agents.has("nammaops-manager")).toBe(false);
+    // Alice presents the final answer, with the reorder working.
+    const final = message(ctx, "dm_synthesis_own1").content as string;
+    expect(final).toContain("**Bob — Inventory**");
+    expect(final).toMatch(/Buy \d+ /);
+    expect(final).not.toMatch(/Missing or incomplete/);
+  });
+
+  it("a request that also says 'all products' is still just the stock check", () => {
+    const { tasks } = decomposeRequest(
+      "list all products and check which are below reorder level",
+      { today: TODAY, seats: SEATS },
+    );
+    expect(tasks.map((t) => [t.intent, t.department])).toEqual([["check_stock", "inventory"]]);
+  });
+
+  it("a sales-only request goes to Carol alone; a finance-only request to Erin alone", async () => {
+    const ctx: Any = await ready();
+    await ask(ctx, "manager", "get today's sales summary", "own2");
+    expect(specialistsOf(ctx, "own2")).toEqual([["Carol", "sales", false]]);
+    expect(message(ctx, "dm_reply_own2").content).not.toMatch(/Alice|Bob|Erin|Dave/);
+    await ask(ctx, "manager", "check all overdue udhaar balances", "own3");
+    expect(specialistsOf(ctx, "own3")).toEqual([["Erin", "finance", false]]);
+    expect(message(ctx, "dm_reply_own3").content).not.toMatch(/Alice|Bob|Carol|Dave/);
+  });
+
+  it("the three-part request is Bob, Carol and Erin, no one else", async () => {
+    const ctx: Any = await ready();
+    await ask(ctx, "manager", EXACT, "own4");
+    expect(specialistsOf(ctx, "own4")).toEqual([
+      ["Bob", "inventory", false],
+      ["Carol", "sales", false],
+      ["Erin", "finance", false],
+    ]);
+  });
+
+  it("manager-owned requests keep their existing behavior (no coordination, no self-delegation)", async () => {
+    const ctx: Any = await ready();
+    const profit = await ask(ctx, "manager", "what is the profit today", "own5");
+    expect(profit.answered.coordinationId).toBeUndefined();
+    expect(ctx.runtime.db.record(COORDINATION_NAMESPACE, "coord_own5")).toBeNull();
+    const catalogue = await ask(ctx, "manager", "list all products", "own6");
+    expect(catalogue.answered.coordinationId).toBeUndefined();
+    expect(catalogue.answered.intent).toBe("list_products");
   });
 });
