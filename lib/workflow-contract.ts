@@ -168,6 +168,7 @@ export const WORKFLOW_LABELS: Record<string, string> = {
   receivables_report: "Udhaar Report",
   expiry_check: "Expiry Check",
   purchase_status: "Purchase Status",
+  procurement_overview: "Procurement Overview",
   supplier_performance: "Supplier Performance",
   customer_insights: "Customer Insights",
   store_health_report: "Store Health",

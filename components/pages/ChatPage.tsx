@@ -384,7 +384,35 @@ function HandoffButton({ handoffId, target }: { handoffId: string; target: strin
   );
 }
 
-function AgentBubble({ msg }: { msg: ChatMessage }) {
+/** Opens the teammate's own chat where a delegated task and its answer live. */
+function OpenChatButton({ name }: { name: string }) {
+  const convId = CREW.find((c) => c.label.toLowerCase() === name.toLowerCase())?.convId;
+  if (!convId) return null;
+  return (
+    <button
+      type="button"
+      data-testid="open-teammate-chat"
+      onClick={() =>
+        window.dispatchEvent(new CustomEvent("kirana:handoff", { detail: { convId } }))
+      }
+      style={{
+        marginTop: 8,
+        padding: "6px 12px",
+        borderRadius: 8,
+        border: "1px solid var(--kirana-primary)",
+        background: "color-mix(in oklab, var(--kirana-primary) 14%, transparent)",
+        color: "var(--kirana-primary)",
+        fontWeight: 700,
+        fontSize: 12,
+        cursor: "pointer",
+      }}
+    >
+      {`Open ${name}'s chat`}
+    </button>
+  );
+}
+
+export function AgentBubble({ msg }: { msg: ChatMessage }) {
   const def = getAgentCrewDef(msg.actorName);
   const isStreaming = "streaming" in msg && msg.streaming;
 
@@ -429,6 +457,21 @@ function AgentBubble({ msg }: { msg: ChatMessage }) {
               {def.sublabel}
             </span>
           )}
+          {msg.delegationKind === "task" && (
+            <span
+              data-testid="delegation-badge"
+              style={{
+                fontSize: "10px",
+                fontWeight: 700,
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                color: "var(--kirana-primary, #f2b441)",
+              }}
+            >
+              {`Task from ${msg.fromName ?? msg.actorName ?? "a teammate"}`}
+              {msg.fromTitle ? ` · ${msg.fromTitle}` : ""}
+            </span>
+          )}
           <span
             style={{
               fontSize: "11px",
@@ -470,6 +513,12 @@ function AgentBubble({ msg }: { msg: ChatMessage }) {
           {msg.handoffId && msg.handoffTarget && (
             <HandoffButton handoffId={msg.handoffId} target={msg.handoffTarget} />
           )}
+          {msg.linkSeatId && msg.linkName && msg.delegationKind !== "task" && (
+            <OpenChatButton name={msg.linkName} />
+          )}
+          {msg.links?.map((link) => (
+            <OpenChatButton key={link.name} name={link.name} />
+          ))}
         </div>
       </div>
     </div>

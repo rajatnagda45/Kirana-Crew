@@ -150,6 +150,20 @@ export interface ChatMessageBase {
   /** Set by the server when this reply proposes moving the conversation to a teammate. */
   handoffId?: string;
   handoffTarget?: string;
+  /** A one-to-one delegation message: the kind of step it records and the chat it points to. */
+  delegationId?: string;
+  delegationKind?:
+    "ack" | "task" | "accepted" | "report" | "failed" | "notice" | "progress" | "synthesis";
+  coordinationId?: string;
+  /** Teammates whose chats hold the work behind this message (a coordinator's messages). */
+  links?: Array<{ name: string }>;
+  fromName?: string;
+  fromTitle?: string;
+  /** Where the answer lives: open this teammate's chat (and the report message in it). */
+  linkSeatId?: string;
+  linkSessionKey?: string;
+  linkName?: string;
+  linkMessageId?: string;
 }
 
 interface TextChatMessage extends ChatMessageBase {

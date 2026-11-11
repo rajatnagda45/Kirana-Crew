@@ -26,6 +26,7 @@ export const NAMMAOPS_VOICE_INTENTS = [
   "gst_summary",
   "purchase_order_lookup",
   "prepare_bill",
+  "procurement_overview",
 ];
 
 /** Gemini declaration for store business questions. Blocking: the model waits for evidence. */
@@ -52,7 +53,8 @@ export const NAMMAOPS_BUSINESS_TOOL = {
           "customer_insights: who buys every week, best customers, inactive regulars. store_health_report: the five biggest problems in the shop today. business_report: the weekly or monthly business report (sales against the previous period, profit, udhaar, stock). billing_summary: bills raised at the counter, their totals, returns and unpaid bills. " +
           "payments_summary: payments actually received and paid out in a period (not udhaar owed; default the month so far). gst_summary: GST charged on sales, GST paid on purchases and the net, by rate (default the month so far). " +
           "purchase_order_lookup: the state, supplier and total of ONE purchase order the owner names by its number (pass po_name). " +
-          "prepare_bill: CREATE a draft customer bill when the owner asks to create, make or raise a bill (pass customer if a name was said, and lines). It is only a draft until the owner approves it with their PIN. Asking about existing bills is billing_summary.",
+          "prepare_bill: CREATE a draft customer bill when the owner asks to create, make or raise a bill (pass customer if a name was said, and lines). It is only a draft until the owner approves it with their PIN. Asking about existing bills is billing_summary. " +
+          "procurement_overview: a general look at procurement (suppliers, open purchase orders, quotations); read-only.",
       },
       customer: {
         type: Type.STRING,
@@ -343,7 +345,7 @@ export function voiceConfig(
             "CURRENT_AGENT_CONTEXT.team lists every other teammate with their status, latest task and latest answer: use it to answer questions about what any teammate is doing or found, and say plainly when a teammate has nothing recorded. " +
             `Your teammates are ${agent.department.colleagues.map((c) => `${c.name} (${c.title})`).join(", ")}; every one of them is on the team and available. ` +
             "If the owner asks for a teammate, never say that teammate is unavailable or offer only some of them: answer their department's question yourself with nammaops_business_query (the specialists answer in the background), and say the owner can also open that teammate's own chat or Live panel to talk to them directly. " +
-            "For any store business question (which products the store has, product categories, stock, a day's sales, top sellers, profit, demand forecast, what to order, supplier quotations, purchase orders) call nammaops_business_query before answering, even if it is outside your own department: you assign it to the specialists, they answer in the background, and you relay them. Never say you lack access to the store's data or cannot list products: use list_products and summarise by category. " +
+            "For any store business question (which products the store has, product categories, stock, a day's sales, top sellers, profit, demand forecast, what to order, supplier quotations, purchase orders) call nammaops_business_query before answering, even if it is outside your own department: you assign it to the specialists, they answer in the background, and you relay them. Every result says who really ran it in routing.executed_by. When routing.handed_off is true, say first who it was passed to (for example 'I checked with Bob in Inventory') and relay the facts as theirs ('Bob's department reports...'); never present another department's findings as your own, never say you read their data yourself, and never speak in the first person for a department that is not yours. When routing.speaker is coordinating, say you coordinated it with the listed teammates. Never say you lack access to the store's data or cannot list products: use list_products and summarise by category. " +
             "If a result is clarification_required and lists categories, offer the closest listed products (for example, for pulses or dal, any dal in the list) and ask which one; never say the data has no such information without offering them. " +
             "Answer only from that tool's result: its facts, recommendations and limitations. Never add, round differently, or guess numbers, products, suppliers or outcomes. Mention important limitations briefly. State the data source exactly as the result's limitations describe it (test fixture or live ERPNext); never assume or repeat an earlier source. " +
             "If status is clarification_required, ask the clarification question. If status is unavailable or no_data, say honestly that the information is not available and why. If status is running, say it is still being checked and ask again with the workflow_id. " +

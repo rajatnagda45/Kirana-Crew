@@ -522,15 +522,23 @@ describe("through chat and voice, the way Alice was asked", () => {
       "create a bill for Lakshmi Stores: 2 rice and one packet of milk",
       "t1",
     );
-    expect(out.answered).toMatchObject({ intent: "prepare_bill" });
-    const content = reply(ctx, "t1");
-    expect(content).toMatch(/^Frank \(Billing\) covers this/);
-    expect(content).toMatch(/Draft bill SINV-FX-0001 for Lakshmi Stores/);
-    expect(content).toMatch(/2 x Sona Masoori Rice 5kg/);
-    expect(content).toMatch(/only a draft/);
-    expect(content).toMatch(/Approval own_\w+ for SINV-FX-0001/);
+    expect(out.answered).toMatchObject({ intent: "prepare_bill", delegated: true });
+    // Alice coordinates: she acknowledges, Frank gets the task in his own chat and prepares the
+    // draft there, and Alice's chat gets the combined report with the draft and its approval.
+    const ack = reply(ctx, "t1");
+    expect(ack).toMatch(/I'm coordinating with Frank \(Billing\)/);
+    const frankReport = ctx.runtime.db.getMessage("dm_report_t1_0");
+    expect(frankReport.actorName).toBe("Frank");
+    expect(frankReport.sessionKey).not.toBe(ctx.runtime.db.getMessage("dm_reply_t1").sessionKey);
+    expect(frankReport.content).toMatch(/Draft bill SINV-FX-0001 for Lakshmi Stores/);
+    const synthesis = ctx.runtime.db.getMessage("dm_synthesis_t1").content;
+    expect(synthesis).toMatch(/\*\*Frank — Billing\*\*/);
+    expect(synthesis).toMatch(/Draft bill SINV-FX-0001 for Lakshmi Stores/);
+    expect(synthesis).toMatch(/only a draft/);
+    expect(synthesis).toMatch(/Approval own_\w+ for SINV-FX-0001/);
     // The ERP read and write ran as Frank, never as Alice.
-    const view = ctx.nammaops.workflows.view(out.answered.workflowId);
+    const workflowId = ctx.runtime.db.record("nammaops.dm_delegation", "dlg_t1_0").workflow_id;
+    const view = ctx.nammaops.workflows.view(workflowId);
     expect(view.tasks.map((task: Any) => task.role)).toContain("billing");
     expect(
       ctx.runtime.mcpGateway.invocations().every((row: Any) => row.agent_id !== "nammaops-manager"),

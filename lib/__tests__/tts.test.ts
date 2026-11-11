@@ -288,6 +288,27 @@ describe("Gnani-first voice pipeline", () => {
     expect(ctx.runtime.seatOwner().submit).not.toHaveBeenCalled(); // no OpenClaw task was started
   });
 
+  it("voiceQuery: an unclear period is asked back through the shared intent contract", async () => {
+    const { ready } = await import("./nammaops-harness");
+    const { voiceQuery } = await import("../server/voice-pipeline.mjs");
+    const ctx: Any = await ready();
+    ctx.runtime.sttFactory = () => ({
+      name: "gnani-prisma",
+      transcribe: async () => ({
+        transcript: "tell me about to days sales",
+        provider: "gnani-prisma",
+      }),
+    });
+    ctx.runtime.ttsFactory = () => null;
+    const out: Any = await voiceQuery(ctx.runtime, {
+      bytes: pcmToWav(Buffer.alloc(320), 16000),
+      mime: "audio/wav",
+    });
+    expect(out.workflow).toBeNull();
+    expect(out.answer).toMatch(/today|last 2 days/i);
+    expect(ctx.nammaops.workflows.list()).toHaveLength(0);
+  });
+
   it("voiceQuery: an unsupported request is answered with the explanation, not guessed", async () => {
     const { ready } = await import("./nammaops-harness");
     const { voiceQuery } = await import("../server/voice-pipeline.mjs");

@@ -54,10 +54,16 @@ describe("one-to-one chat with a NammaOps specialist", () => {
     const { sales } = seats(ctx);
     const taskId = "t-handoff-1";
     await send(ctx, sales, "how much udhaar is pending", taskId);
+    // Carol acknowledges in her own chat and passes the task to Erin; Erin answers in HER chat.
     const { reply } = saved(ctx, taskId);
     expect(reply.actorName).toBe("Carol");
-    expect(reply.content).toMatch(/^Erin \(Finance\) covers this/);
-    expect(reply.content).toMatch(/udhaar pending/i);
+    expect(reply.content).toMatch(/Erin handles it/);
+    expect(reply.linkSeatId).toBe(seats(ctx).finance);
+    const report = ctx.runtime.db.getMessage(`dm_report_${taskId}`);
+    expect(report.actorName).toBe("Erin");
+    expect(report.sessionKey).toBe(reply.linkSessionKey);
+    expect(report.sessionKey).not.toBe(reply.sessionKey);
+    expect(report.content).toMatch(/udhaar pending/i);
   });
 
   it("answers a multi-day sales request with a per-day breakdown", async () => {

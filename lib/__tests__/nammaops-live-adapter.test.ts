@@ -1470,10 +1470,13 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
       it("text chat: a question for another department is handed to its owner, not answered by the asker", async () => {
         const { runtime } = await liveSetup();
         const out: Any = await text(runtime, "inventory", "what is our gst for 2026-11-01", "t-h1");
-        expect(out.answered).toMatchObject({ intent: "gst_summary" });
-        expect(runtime.db.getMessage("dm_reply_t-h1").content).toMatch(
-          /^Erin \(Finance\) covers this/,
-        );
+        expect(out.answered).toMatchObject({ intent: "gst_summary", delegated: true });
+        // Bob acknowledges in his own chat; Erin's report is in Erin's chat.
+        const reply = runtime.db.getMessage("dm_reply_t-h1");
+        expect(reply.content).toMatch(/Erin handles it/);
+        const report = runtime.db.getMessage("dm_report_t-h1");
+        expect(report).toMatchObject({ actorName: "Erin", delegationKind: "report" });
+        expect(report.sessionKey).not.toBe(reply.sessionKey);
         // The read still ran as Finance, never as Inventory.
         const view = runtime.nammaops.workflows.view(out.answered.workflowId);
         expect(view.tasks.map((task: Any) => task.role)).toContain("finance");
