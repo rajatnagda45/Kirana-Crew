@@ -141,6 +141,8 @@ export interface ChatMessageBase {
   timestamp: string;
   sessionKey: string;
   actorName?: string;
+  /** The speaker's role line, e.g. "Store Manager · Office Lead": one agent, two responsibilities. */
+  actorRole?: string;
   source?: "voice" | "group";
   incidentId?: string;
   seatId?: string;

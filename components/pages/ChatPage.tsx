@@ -178,6 +178,9 @@ function getAgentCrewDef(actorName?: string): ConvDef | undefined {
   return CREW.find((c) => c.convId === lower || c.label.toLowerCase() === lower);
 }
 
+/** Older messages carried a role suffix in the name ("Alice (office lead)"); read the agent from it. */
+const baseName = (actorName?: string) => actorName?.replace(/\s*\([^)]*\)\s*$/, "").trim();
+
 function getSeatStatus(seat?: SeatState): "running" | "idle" | "offline" {
   if (!seat) return "offline";
   if (seat.status === "running") return "running";
@@ -413,7 +416,8 @@ function OpenChatButton({ name }: { name: string }) {
 }
 
 export function AgentBubble({ msg }: { msg: ChatMessage }) {
-  const def = getAgentCrewDef(msg.actorName);
+  // One agent, one identity: the name decides who it is, never a "(office lead)" suffix.
+  const def = getAgentCrewDef(baseName(msg.actorName));
   const isStreaming = "streaming" in msg && msg.streaming;
 
   return (
@@ -450,11 +454,11 @@ export function AgentBubble({ msg }: { msg: ChatMessage }) {
       <div style={{ flex: 1, minWidth: 0, maxWidth: "82%" }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "5px" }}>
           <span style={{ fontSize: "12px", fontWeight: 600, color: def?.colorHex ?? "#9ca3af" }}>
-            {msg.actorName ?? "Agent"}
+            {baseName(msg.actorName) ?? "Agent"}
           </span>
-          {def && (
+          {(msg.actorRole || def) && (
             <span style={{ fontSize: "11px", color: "var(--kirana-muted-foreground, #6b7280)" }}>
-              {def.sublabel}
+              {msg.actorRole ?? def?.sublabel}
             </span>
           )}
           {msg.delegationKind === "task" && (

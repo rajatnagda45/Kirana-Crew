@@ -94,6 +94,7 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
       })),
     };
   }
+  const purchaseOrders: Any[] = [];
   const paymentEntries: Any[] = [
     {
       name: "PE-1",
@@ -248,7 +249,12 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
       );
     },
     erpnext_sales_invoice_get: ({ name }) => ({ data: invoices.find((row) => row.name === name) }),
-    erpnext_supplier_list: () => list([{ name: "Alpha Traders" }, { name: "Beta Dairy" }]),
+    erpnext_supplier_list: () =>
+      list([
+        { name: "Alpha Traders" },
+        { name: "Beta Dairy" },
+        { name: "Old Supplier", disabled: 1 },
+      ]),
     erpnext_supplier_quotation_list: () =>
       list([
         { name: "SQ-1", supplier: "Alpha Traders", status: "Submitted" },
@@ -287,6 +293,8 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
         { name: "PO-3", status: "Completed" },
       ]),
     erpnext_purchase_order_get: ({ name }) => {
+      const made = purchaseOrders.find((row) => row.name === name);
+      if (made) return { data: made };
       if (name === "PO-MISSING")
         throw new Error(
           `[FrappeClient] GET /api/resource/Purchase%20Order/${name} failed: DoesNotExistError: Purchase Order ${name} not found (HTTP 404)`,
@@ -445,6 +453,27 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
           ? doc
           : { data: { customer: doc.customer } };
     },
+    erpnext_purchase_order_create: (args) => {
+      const doc = {
+        name: `PO-NEW-${purchaseOrders.length + 1}`,
+        supplier: args.supplier,
+        docstatus: 0,
+        status: "Draft",
+        transaction_date: "2026-11-11",
+        schedule_date: args.schedule_date,
+        grand_total: args.items.reduce((sum: number, row: Any) => sum + row.qty * row.rate, 0),
+        items: args.items.map((row: Any) => ({ ...row, amount: row.qty * row.rate })),
+      };
+      purchaseOrders.push(doc);
+      return { data: doc };
+    },
+    erpnext_doc_submit: ({ doctype, name }) => {
+      const doc = purchaseOrders.find((row) => row.name === name);
+      if (doctype !== "Purchase Order" || !doc) throw new Error(`${doctype} ${name} not found`);
+      doc.docstatus = 1;
+      doc.status = "To Receive and Bill";
+      return { data: doc };
+    },
     erpnext_doc_update: ({ doctype, name, data }) => {
       if (behaviour.failUpdate) throw new Error("PermissionError: cannot update");
       const doc = invoices.find((row) => row.name === name);
@@ -465,6 +494,7 @@ function fakeHvgerp({ pageLimit = Infinity }: { pageLimit?: number } = {}) {
     calls,
     behaviour,
     invoices,
+    purchaseOrders,
     asReadOnly: readOnly,
     listTools: async () => ({
       tools: [
@@ -836,6 +866,8 @@ describe("customer bill writes (unit, fake hvgerp)", () => {
 
   it("keeps the write allowlist tiny and apart from the read path", () => {
     expect([...HVGERP_WRITES]).toEqual([
+      "erpnext_purchase_order_create",
+      "erpnext_doc_submit",
       "erpnext_sales_invoice_create",
       "erpnext_doc_update",
       "erpnext_sales_invoice_submit",
@@ -845,6 +877,8 @@ describe("customer bill writes (unit, fake hvgerp)", () => {
     for (const name of HVGERP_WRITES) expect(HVGERP_READS).not.toContain(name);
     expect(ADAPTER_WRITE_TOOLS.map((tool) => tool.name)).toEqual([
       "create_sales_invoice_draft",
+      "create_purchase_order_draft",
+      "submit_purchase_order",
       "submit_sales_invoice",
     ]);
     // The read tools are still all read-only and name no write.
@@ -981,6 +1015,60 @@ describe("customer bill writes (unit, fake hvgerp)", () => {
     expect(writesMade(nameless).map((call: Any) => call.name)).toEqual([
       "erpnext_sales_invoice_create",
     ]);
+  });
+
+  describe("purchase-order drafts (owner-enabled 2026-11-11)", () => {
+    const po = (adapter: Any, args: Any = {}) =>
+      adapter.call("create_purchase_order_draft", {
+        supplier: "Alpha Traders",
+        items: [{ item_code: "SUGAR", qty: 10, rate: 25 }],
+        ...args,
+      });
+
+    it("creates a DRAFT, reads it back, and never submits it", async () => {
+      const hv: Any = fakeHvgerp();
+      const out = parse(await po(adapterFor(hv)));
+      expect(out.purchase_order).toMatchObject({ docstatus: 0, supplier: "Alpha Traders" });
+      expect(hv.calls.map((call: Any) => call.name)).not.toContain("erpnext_doc_submit");
+      expect(hv.purchaseOrders[0].docstatus).toBe(0);
+    });
+
+    it("refuses an unknown or disabled supplier, an unknown item and a bad date without writing", async () => {
+      for (const args of [
+        { supplier: "Nobody Ltd" },
+        { supplier: "Old Supplier" },
+        { items: [{ item_code: "GHOST", qty: 1, rate: 1 }] },
+        { schedule_date: "2030-01-01" },
+        {
+          items: [
+            { item_code: "SUGAR", qty: 1, rate: 1 },
+            { item_code: "SUGAR", qty: 1, rate: 2 },
+          ],
+        },
+      ]) {
+        const hv: Any = fakeHvgerp();
+        await expect(po(adapterFor(hv), args)).rejects.toThrow(/no order was created/);
+        expect(hv.purchaseOrders).toEqual([]);
+        expect(hv.calls.some((call: Any) => call.name === "erpnext_purchase_order_create")).toBe(
+          false,
+        );
+      }
+    });
+
+    it("submits only a draft, and only as a Purchase Order", async () => {
+      const hv: Any = fakeHvgerp();
+      const adapter = adapterFor(hv);
+      const { purchase_order } = parse(await po(adapter));
+      const done = parse(
+        await adapter.call("submit_purchase_order", { name: purchase_order.name }),
+      );
+      expect(done.purchase_order.docstatus).toBe(1);
+      await expect(
+        adapter.call("submit_purchase_order", { name: purchase_order.name }),
+      ).rejects.toThrow(/not a draft; nothing was submitted/);
+      const submits = hv.calls.filter((call: Any) => call.name === "erpnext_doc_submit");
+      expect(submits.map((call: Any) => call.arguments.doctype)).toEqual(["Purchase Order"]);
+    });
   });
 
   it("names the draft, and does not submit it, when it could not be set to update stock", async () => {
@@ -1140,15 +1228,18 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
   it("sets up with writes disabled (not as errors) and grants no write capability", async () => {
     const { runtime, report } = await liveSetup();
     expect(report.blockers).toEqual([]);
-    // The purchase-order writes stay off in live; every read, and the owner-enabled bill writes, are bound.
-    expect(report.disabled.map((row: Any) => row.business_capability).sort()).toEqual([
-      "erp.po.create_draft",
-      "erp.po.submit",
-    ]);
+    // Every capability is bound: the owner-enabled bill and purchase-order writes included.
+    expect(report.disabled).toEqual([]);
     const grants = runtime.governance.grants();
-    const granted = grants.map((row: Any) => row.capability_id);
-    // No purchase-order write is granted to anyone.
-    expect(granted.join(" ")).not.toMatch(/create_purchase_order|submit_purchase_order/);
+    // Dave may draft a purchase order; only the po-submit principal may submit one.
+    const poDraft = grants.filter((row: Any) =>
+      /create_purchase_order_draft$/.test(row.capability_id),
+    );
+    const poSubmit = grants.filter((row: Any) => /submit_purchase_order$/.test(row.capability_id));
+    expect(poDraft.map((row: Any) => row.subject)).toEqual([
+      expect.stringMatching(/^specialization:spec_kirana-supplier-purchasing/),
+    ]);
+    expect(poSubmit.map((row: Any) => row.subject)).toEqual(["agent:nammaops-po-submit"]);
     // The only live write grants: Frank may draft a bill, and only the bill-submit principal may submit.
     const draft = grants.filter((row: Any) =>
       /create_sales_invoice_draft$/.test(row.capability_id),
@@ -1164,11 +1255,11 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
       status
         .filter((row: Any) => row.state === "unbound")
         .map((row: Any) => row.business_capability),
-    ).toEqual(["erp.po.create_draft", "erp.po.submit"]);
+    ).toEqual([]);
     expect(
       status.filter((row: Any) => row.risk === "READ").every((row: Any) => row.tool !== null),
     ).toBe(true);
-    expect(status.filter((row: Any) => row.tool !== null)).toHaveLength(27);
+    expect(status.filter((row: Any) => row.tool !== null)).toHaveLength(29);
   });
 
   it("answers stock, sales, profit and supplier questions from live-shaped data, labelled as live", async () => {
@@ -1191,14 +1282,16 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
     ).toMatch(/Live ERPNext Cloud/);
   });
 
-  it("cannot create or submit a purchase order on live data", async () => {
+  it("drafts a purchase order on live data and waits for the owner PIN before any submit", async () => {
     const { runtime, hv } = await liveSetup();
     const view = await runtime.nammaops.workflows.start({ intent: { action: "prepare_reorder" } })
       .done;
-    expect(view.status).toBe("blocked");
-    expect(view.error).toMatch(/erp\.po\.create_draft is not enabled in this deployment/);
-    expect(runtime.nammaops.approvals.list()).toEqual([]);
-    expect(hv.calls.some((call: Any) => /create|submit/.test(call.name))).toBe(false);
+    expect(view.status).toBe("awaiting_approval");
+    expect(hv.purchaseOrders.length).toBeGreaterThan(0);
+    expect(hv.purchaseOrders.every((po: Any) => po.docstatus === 0)).toBe(true);
+    expect(runtime.nammaops.approvals.list().length).toBe(hv.purchaseOrders.length);
+    // Nothing was submitted: that needs the owner's PIN.
+    expect(hv.calls.some((call: Any) => call.name === "erpnext_doc_submit")).toBe(false);
   });
 
   it("records timing on each audited invocation without changing the audit fields or result", async () => {
@@ -1369,29 +1462,26 @@ describe("NammaOps workflows over the live binding (fixture double for hvgerp)",
       ).resolves.toBeTruthy();
     });
 
-    it("keeps both live writes disabled: no tool, no PIN, no approval can reach them", async () => {
+    it("a purchase-order draft is open to Dave only, and submit is closed without the owner PIN", async () => {
       const { runtime, hv } = await liveSetup();
       const call = (agent: string, id: string, args: Any) =>
         runtime.nammaops.binding.call(agent, id, args);
+      const order = { supplier: "Alpha Traders", items: [{ item_code: "SUGAR", qty: 1, rate: 1 }] };
+      // Nobody but Dave may draft.
+      for (const agent of ["nammaops-inventory", "nammaops-sales", "nammaops-po-submit"])
+        await expect(call(agent, "erp.po.create_draft", order)).rejects.toThrow();
+      const drafted = await call("nammaops-procurement", "erp.po.create_draft", order);
+      const placed = (drafted.data ?? drafted).purchase_order;
+      expect(placed).toMatchObject({ docstatus: 0, supplier: "Alpha Traders" });
+      // Dave cannot submit, and even the submit principal is refused without an owner approval.
       await expect(
-        call("nammaops-procurement", "erp.po.create_draft", {
-          supplier: "Alpha Traders",
-          items: [{ item_code: "SUGAR", qty: 1, rate: 1 }],
-        }),
-      ).rejects.toThrow(/erp\.po\.create_draft is not enabled in this deployment/);
-      await expect(call("nammaops-po-submit", "erp.po.submit", { name: "PO-2" })).rejects.toThrow(
-        /erp\.po\.submit is not enabled in this deployment/,
-      );
-      const status = runtime.nammaops.binding.status();
-      for (const id of ["erp.po.create_draft", "erp.po.submit"])
-        expect(status.find((row: Any) => row.business_capability === id)).toMatchObject({
-          tool: null,
-          state: "unbound",
-          availability: "unavailable",
-        });
-      expect(hv.calls.some((entry: Any) => /create|submit/.test(entry.name))).toBe(false);
-      // The adapter has no write tool to bind, whatever the binding file said.
-      expect(ADAPTER_TOOLS.every((tool) => tool.annotations.readOnlyHint === true)).toBe(true);
+        call("nammaops-procurement", "erp.po.submit", { name: placed.name }),
+      ).rejects.toThrow();
+      await expect(
+        call("nammaops-po-submit", "erp.po.submit", { name: placed.name }),
+      ).rejects.toThrow();
+      expect(hv.calls.some((entry: Any) => entry.name === "erpnext_doc_submit")).toBe(false);
+      expect(hv.purchaseOrders[0].docstatus).toBe(0);
     });
 
     describe("through the text chat and the Live Voice tool, with the same specialists", () => {

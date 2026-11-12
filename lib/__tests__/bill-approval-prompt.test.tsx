@@ -109,13 +109,86 @@ describe("bill approval popup", () => {
     expect(posts).toEqual([]);
   });
 
-  it("shows nothing when no bill is pending", async () => {
+  it("shows nothing when nothing is pending", async () => {
     approvals = [
       { ...BILL, status: "submitted" },
-      { ...BILL, id: "po", kind: "purchase_order" },
+      { ...BILL, id: "po", kind: "purchase_order", status: "expired" },
     ];
     render(<BillApprovalPrompt onLater={() => {}} />);
     await act(async () => {});
     expect(screen.queryByRole("dialog")).toBeNull();
+  });
+});
+
+describe("purchase-order approval popup (same layout and flow as a bill)", () => {
+  const PO = {
+    id: "own_po1",
+    kind: "purchase_order",
+    status: "pending",
+    erp_document_name: "PUR-ORD-2026-00007",
+    supplier: "Kaveri Household Goods",
+    total: 1162,
+    items: [{ item_code: "NK-HAIROIL-200", qty: 14, rate: 83 }],
+  };
+
+  it("shows the order in the same dialog and approves with the PIN", async () => {
+    approvals = [{ ...PO }];
+    render(<BillApprovalPrompt onLater={() => {}} />);
+    await screen.findByText(/PUR-ORD-2026-00007 from Kaveri Household Goods/);
+    expect(screen.getByText(/Purchase order waiting for your approval/i)).toBeTruthy();
+    expect(screen.getByText(/14 × NK-HAIROIL-200/)).toBeTruthy();
+    expect(
+      screen.getByText(/Nothing is ordered from the supplier until you enter your PIN/),
+    ).toBeTruthy();
+    const input = screen.getByLabelText("Owner PIN") as HTMLInputElement;
+    expect(input.type).toBe("password");
+    await act(async () => {
+      fireEvent.change(input, { target: { value: "4821" } });
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Approve and order" }));
+    });
+    expect(posts).toEqual([
+      { path: "/api/nammaops/approvals/own_po1/approve", body: { pin: "4821" } },
+    ]);
+    await waitFor(() => expect(screen.queryByLabelText("Owner PIN")).toBeNull());
+    expect(screen.getByRole("status").textContent).toContain("PUR-ORD-2026-00007: submitted");
+  });
+
+  it("Reject needs the PIN too and says nothing was ordered", async () => {
+    approvals = [{ ...PO }];
+    render(<BillApprovalPrompt onLater={() => {}} />);
+    await screen.findByText(/PUR-ORD-2026-00007/);
+    const reject = screen.getByRole("button", { name: "Reject" }) as HTMLButtonElement;
+    expect(reject.disabled).toBe(true);
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText("Owner PIN"), { target: { value: "4821" } });
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Reject" }));
+    });
+    expect(posts[0].path).toBe("/api/nammaops/approvals/own_po1/reject");
+    await waitFor(() =>
+      expect(screen.getByRole("status").textContent).toContain("rejected, nothing ordered."),
+    );
+  });
+
+  it("two waiting orders appear one after the other, and Later moves to the next", async () => {
+    approvals = [
+      { ...PO },
+      {
+        ...PO,
+        id: "own_po2",
+        erp_document_name: "PUR-ORD-2026-00008",
+        supplier: "Mysuru Agro Supplies",
+      },
+    ];
+    const onLater = vi.fn();
+    render(<BillApprovalPrompt onLater={onLater} />);
+    await screen.findByText(/PUR-ORD-2026-00007/);
+    expect(screen.getByText(/2 waiting/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Later" }));
+    await screen.findByText(/PUR-ORD-2026-00008 from Mysuru Agro Supplies/);
+    expect(posts).toEqual([]);
   });
 });

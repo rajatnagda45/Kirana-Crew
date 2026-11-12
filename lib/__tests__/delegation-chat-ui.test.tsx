@@ -80,3 +80,42 @@ describe("delegation messages in a one-to-one chat", () => {
     expect(screen.queryByTestId("open-teammate-chat")).toBeNull();
   });
 });
+
+describe("Alice is one speaker, however a message was recorded", () => {
+  const alice = (extra: Any) =>
+    render(
+      <AgentBubble
+        msg={{ ...base, id: "a1", sessionKey: "agent:group", actorName: "Alice", ...extra } as Any}
+      />,
+    );
+
+  it("shows Alice with her Alice avatar and one combined role line", () => {
+    const { container } = alice({
+      actorRole: "Store Manager · Office Lead",
+      content: "Coordinating the team.",
+    });
+    expect(screen.getByText("Alice")).toBeTruthy();
+    expect(screen.getByText("Store Manager · Office Lead")).toBeTruthy();
+    expect(container.textContent).not.toMatch(/office lead\)|coordinating\)/i);
+  });
+
+  it("an older 'Alice (office lead)' record still renders as Alice, not as a second agent", () => {
+    const old = render(
+      <AgentBubble
+        msg={
+          {
+            ...base,
+            id: "a2",
+            sessionKey: "agent:group",
+            actorName: "Alice (office lead)",
+            content: "Asked Alice; their replies will follow here.",
+          } as Any
+        }
+      />,
+    );
+    expect(old.getByText("Alice")).toBeTruthy();
+    // Same role line as her normal reply, and no bracketed suffix anywhere.
+    expect(old.getByText("Store Manager")).toBeTruthy();
+    expect(old.container.textContent).not.toMatch(/\(office lead\)/);
+  });
+});

@@ -171,13 +171,13 @@ describe("approval policy (server-owned classification)", () => {
     expect(classify("erp.gst.summary").requires).toBe("none");
     expect(classify("erp.po.create_draft")).toMatchObject({
       risk: "WRITE",
-      requires: "approval",
-      live_write: "disabled",
+      requires: "draft",
+      live_write: "enabled",
     });
     expect(classify("erp.po.submit")).toMatchObject({
       risk: "EXTERNAL_ACTION",
       requires: "approval+pin+confirm",
-      live_write: "disabled",
+      live_write: "enabled",
     });
     expect(requiresPin("erp.po.submit")).toBe(true);
     expect(requiresPin("erp.po.get")).toBe(false);
@@ -186,8 +186,9 @@ describe("approval policy (server-owned classification)", () => {
   });
 
   it("blocks a live write whatever else is true, and never blocks the synthetic fixture", () => {
-    expect(liveWriteBlocked("erp.po.submit", { shape: "hvgerp" })).toBe(true);
-    expect(liveWriteBlocked("erp.po.create_draft", { shape: "hvgerp" })).toBe(true);
+    // The owner enabled both purchase-order writes; submit still needs the PIN (requiresPin below).
+    expect(liveWriteBlocked("erp.po.submit", { shape: "hvgerp" })).toBe(false);
+    expect(liveWriteBlocked("erp.po.create_draft", { shape: "hvgerp" })).toBe(false);
     expect(liveWriteBlocked("erp.po.submit", { shape: "fixture" })).toBe(false);
     expect(liveWriteBlocked("erp.po.get", { shape: "hvgerp" })).toBe(false);
   });
@@ -593,34 +594,26 @@ describe("EmergencyStop", () => {
 });
 
 describe("live writes stay disabled, whatever the PIN or approval", () => {
-  it("refuses a live approval before the PIN is even checked and never reaches the ERP", async () => {
+  it("a wrong PIN on a live-shaped binding is refused and never reaches the ERP", async () => {
     const ctx = await ready();
     const approvalId = (await drafts(ctx))[0];
-    const record = ctx.runtime.db.record("nammaops.owner-approval", approvalId);
     const call = vi.fn();
-    const liveLike = {
-      binding: { shape: "hvgerp" },
-      call,
-      capabilityId: () => null,
-    };
+    const liveLike = { binding: { shape: "hvgerp" }, call, capabilityId: () => null };
     const live = new OwnerApprovals(ctx.runtime, { binding: liveLike, pin: PIN });
-    await expect(live.approve(approvalId, PIN)).rejects.toMatchObject({
-      status: 409,
-      message: expect.stringMatching(/Live ERP writes of this kind are disabled/),
-    });
-    await expect(live.approveByVoice({ call: { id: "v1" }, approvalId })).rejects.toMatchObject({
-      status: 409,
-    });
+    await expect(live.approve(approvalId, "000000")).rejects.toBeTruthy();
     expect(call).not.toHaveBeenCalled();
-    expect(live.pins.lock().failures).toBe(0);
-    // The request itself is untouched.
-    expect(ctx.runtime.db.record("nammaops.owner-approval", approvalId).status).toBe(record.status);
   });
 
-  it("the real live binding has no submit or draft tool to approve", () => {
+  it("the real live binding binds the purchase-order draft and a PIN-gated submit", () => {
     const live = loadBinding("config/nammaops/binding.hvgerp.json");
-    for (const id of ["erp.po.create_draft", "erp.po.submit"])
-      expect(live.capabilities[id]).toMatchObject({ tool: null, disabled: expect.any(String) });
+    expect(live.capabilities["erp.po.create_draft"]).toMatchObject({
+      tool: "create_purchase_order_draft",
+      approval_required: false,
+    });
+    expect(live.capabilities["erp.po.submit"]).toMatchObject({
+      tool: "submit_purchase_order",
+      approval_required: true,
+    });
   });
 });
 

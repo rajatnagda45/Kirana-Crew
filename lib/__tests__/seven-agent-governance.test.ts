@@ -261,7 +261,8 @@ describe("manager orchestration and cross-department delegation", () => {
     const view = ctx.nammaops.workflows.view(out.answered.workflowId);
     const roles: string[] = view.tasks.map((t: Any) => t.role);
     expect(roles).toEqual(expect.arrayContaining(["sales", "finance"]));
-    expect(reply.actorName).toBe("Alice (coordinating)");
+    expect(reply.actorName).toBe("Alice");
+    expect(reply.actorRole).toBe("Store Manager · Office Lead");
     expect(reply.content).toMatch(/^Carol brought in/);
     // The manager holds no ERP grant and read nothing.
     for (const task of view.tasks.filter((t: Any) => t.role === "manager"))

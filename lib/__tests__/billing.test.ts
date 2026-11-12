@@ -1030,7 +1030,7 @@ describe("a lost confirmation no longer freezes a conversation", () => {
 });
 
 describe("what is enabled on the live ERP", () => {
-  it("lets only the two bill capabilities write, and keeps the purchase-order writes off", () => {
+  it("enables the bill and purchase-order writes, each draft open and each submit PIN-gated", () => {
     const live = loadBinding("config/nammaops/binding.hvgerp.json");
     expect(live.capabilities["erp.sales_invoice.create_draft"]).toMatchObject({
       tool: "create_sales_invoice_draft",
@@ -1041,14 +1041,19 @@ describe("what is enabled on the live ERP", () => {
       risk: "EXTERNAL_ACTION",
       approval_required: true,
     });
-    for (const id of ["erp.po.create_draft", "erp.po.submit"])
-      expect(live.capabilities[id]).toMatchObject({ tool: null, disabled: expect.any(String) });
+    expect(live.capabilities["erp.po.create_draft"]).toMatchObject({
+      tool: "create_purchase_order_draft",
+    });
+    expect(live.capabilities["erp.po.submit"]).toMatchObject({
+      tool: "submit_purchase_order",
+      approval_required: true,
+    });
     expect(classify("erp.sales_invoice.submit")).toMatchObject({
       requires: "approval+pin+confirm",
       live_write: "enabled",
     });
     expect(liveWriteBlocked("erp.sales_invoice.submit", { shape: "hvgerp" })).toBe(false);
     expect(liveWriteBlocked("erp.sales_invoice.create_draft", { shape: "hvgerp" })).toBe(false);
-    expect(liveWriteBlocked("erp.po.submit", { shape: "hvgerp" })).toBe(true);
+    expect(liveWriteBlocked("erp.po.submit", { shape: "hvgerp" })).toBe(false);
   });
 });

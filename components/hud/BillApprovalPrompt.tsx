@@ -7,6 +7,23 @@ type Any = Record<string, any>; // eslint-disable-line @typescript-eslint/no-exp
 const POLL_MS = 15_000;
 const DISMISSED_KEY = "kiranacrew:bill-approval-later";
 
+/** What differs between the two documents the owner can approve here. Layout and flow are shared. */
+const KINDS: Record<string, { eyebrow: string; note: string; approve: string; rejected: string }> =
+  {
+    sales_invoice: {
+      eyebrow: "Bill waiting for your approval",
+      note: "This is a draft. Nothing is billed, and stock and accounts stay unchanged, until you enter your PIN.",
+      approve: "Approve and bill",
+      rejected: "rejected, nothing billed.",
+    },
+    purchase_order: {
+      eyebrow: "Purchase order waiting for your approval",
+      note: "This is a draft purchase order. Nothing is ordered from the supplier until you enter your PIN.",
+      approve: "Approve and order",
+      rejected: "rejected, nothing ordered.",
+    },
+  };
+
 async function call<T>(path: string, body?: unknown): Promise<T> {
   const response = await fetch(`/api/nammaops${path}`, {
     method: body === undefined ? "GET" : "POST",
@@ -35,7 +52,8 @@ const saveDismissed = (ids: string[]) => {
 };
 
 /**
- * Pops up when Frank has drafted a customer bill that waits for the owner's PIN. "Approve and bill"
+ * Pops up when Frank has drafted a customer bill, or Dave a purchase order, that waits for the
+ * owner's PIN (same layout and flow for both). "Approve and bill" / "Approve and order"
  * sends the PIN to the same governed approval endpoint the KiranaCrew panel uses; "Later" hides the
  * popup for that bill and opens the KiranaCrew tab, where the bill stays until it is approved,
  * rejected or expires. The PIN is never stored or logged here.
@@ -56,9 +74,7 @@ export default function BillApprovalPrompt({ onLater }: { onLater: () => void })
   const refresh = useCallback(async () => {
     try {
       const { approvals } = await call<{ approvals: Any[] }>("/dashboard");
-      setBills(
-        (approvals ?? []).filter((row) => row.kind === "sales_invoice" && row.status === "pending"),
-      );
+      setBills((approvals ?? []).filter((row) => row.kind in KINDS && row.status === "pending"));
     } catch {
       /* the KiranaCrew tab reports connection problems; the popup just stays quiet */
     }
@@ -125,7 +141,7 @@ export default function BillApprovalPrompt({ onLater }: { onLater: () => void })
       setResult(
         action === "approve"
           ? `${bill.erp_document_name}: ${approval.status}`
-          : `${bill.erp_document_name}: rejected, nothing billed.`,
+          : `${bill.erp_document_name}: ${(KINDS[bill.kind] ?? KINDS.sales_invoice).rejected}`,
       );
       setTimeout(() => setResult(""), 8000);
       await refresh();
@@ -144,6 +160,8 @@ export default function BillApprovalPrompt({ onLater }: { onLater: () => void })
       </p>
     ) : null;
 
+  const text = KINDS[bill.kind] ?? KINDS.sales_invoice;
+  const party = bill.kind === "purchase_order" ? `from ${bill.supplier}` : `for ${bill.customer}`;
   const total = Number(bill.total);
   const money = (value: unknown) =>
     Number.isFinite(Number(value))
@@ -174,10 +192,11 @@ export default function BillApprovalPrompt({ onLater }: { onLater: () => void })
           ×
         </button>
         <p style={styles.eyebrow}>
-          Bill waiting for your approval{waiting > 1 ? ` · ${waiting} waiting` : ""}
+          {text.eyebrow}
+          {waiting > 1 ? ` · ${waiting} waiting` : ""}
         </p>
         <h2 id="bill-approval-title" style={styles.title}>
-          {bill.erp_document_name} for {bill.customer}
+          {bill.erp_document_name} {party}
         </h2>
         <ul style={styles.items}>
           {(bill.items ?? []).map((row: Any) => (
@@ -192,10 +211,7 @@ export default function BillApprovalPrompt({ onLater }: { onLater: () => void })
         <p style={styles.total}>
           Total <strong style={styles.amount}>{Number.isFinite(total) ? money(total) : ""}</strong>
         </p>
-        <p style={styles.note}>
-          This is a draft. Nothing is billed, and stock and accounts stay unchanged, until you enter
-          your PIN.
-        </p>
+        <p style={styles.note}>{text.note}</p>
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -242,7 +258,7 @@ export default function BillApprovalPrompt({ onLater }: { onLater: () => void })
               disabled={busy || !pin}
               style={{ ...styles.primary, opacity: busy || !pin ? 0.5 : 1 }}
             >
-              {busy ? "Saving…" : "Approve and bill"}
+              {busy ? "Saving…" : text.approve}
             </button>
           </div>
         </form>
