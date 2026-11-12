@@ -65,9 +65,11 @@ describe("bill approval popup", () => {
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Approve and bill" }));
     });
-    expect(posts).toEqual([
-      { path: "/api/nammaops/approvals/own_1/approve", body: { pin: "4821" } },
-    ]);
+    await waitFor(() =>
+      expect(posts).toEqual([
+        { path: "/api/nammaops/approvals/own_1/approve", body: { pin: "4821" } },
+      ]),
+    );
     await waitFor(() => expect(screen.queryByLabelText("Owner PIN")).toBeNull());
     expect(screen.getByRole("status").textContent).toContain("SINV-26-00498: submitted");
   });
