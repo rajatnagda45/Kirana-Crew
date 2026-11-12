@@ -4,27 +4,26 @@
 
 ### "Dukaan ka kaam, ab aawaz se!"
 
-**India's first voice-first autonomous AI workforce for kirana stores**
+**Voice-first multi-agent AI workforce for Indian kirana stores**
 
-Speak in Hinglish, Hindi or Kannada — seven AI agents handle the rest.
+Speak in Hinglish, Hindi or Kannada — Alice coordinates seven specialist agents that plan, call real tools, and get the work done.
 
 ---
 
-[![Gnani Prisma](https://img.shields.io/badge/Gnani_Prisma-v2.5_STT_Live-red?style=flat-square)](https://gnani.ai)
-[![Gnani Timbre](https://img.shields.io/badge/Gnani_Timbre-v2.5_TTS_Live-orange?style=flat-square)](https://gnani.ai)
-[![Gnani Evon](https://img.shields.io/badge/Gnani_Evon-v3.3_Architecture-blue?style=flat-square)](https://huggingface.co/gnani/gnani-evon-v3.3-30B-A3B)
-[![Hackathon](https://img.shields.io/badge/Great_Indian_AI_Internship_Challenge-2026-gold?style=flat-square)](https://www.gnani.ai/internship)
+[![AgentX](https://img.shields.io/badge/AgentX_Hackathon_2026-PS--07_Open_Track-brightgreen?style=flat-square)](https://hack4hack.com/hackathons/agentx-hackathon-2026-hooc)
+[![Agents](https://img.shields.io/badge/Agents-7_Specialists_%2B_1_Manager-blue?style=flat-square)](#the-seven-agent-workforce)
 [![Tests](https://img.shields.io/badge/Tests-1162_passing-brightgreen?style=flat-square)](lib/__tests__)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
 ---
 
-[The Problem](#the-real-problem) · [Gnani AI Models](#gnani-ai-models-used) · [Hinglish-First](#hinglish-first--mixed-vibes) · [Seven Agents](#the-seven-agent-ai-workforce) · [Voice Pipeline](#end-to-end-voice-pipeline) · [Architecture](#architecture) · [Demo](#demo--screenshots) · [Quick Start](#quick-start)
+[Why an Agent](#why-an-agent-not-a-chatbot) · [The Problem](#the-problem) · [Manager Workflow](#alice-the-manager-agent) · [Seven Agents](#the-seven-agent-workforce) · [Agent Workflows](#agent-task-workflows) · [Architecture](#architecture) · [Demo](#demo) · [Quick Start](#quick-start)
 
 ---
 
-🎬 **[Watch the Demo on YouTube](https://www.youtube.com/watch?v=ID-dp83yWhI)**
+🎬 **[Watch the Demo (YouTube)](https://www.youtube.com/watch?v=ID-dp83yWhI)**  
+📊 **[Pitch Deck (Google Slides)](https://docs.google.com/presentation/d/17I9xhbS3eBN0Ou_cVkNZqyfdQvEr_ORG/edit?usp=sharing)**
 
 [![Watch the KiranaCrew demo](https://img.youtube.com/vi/ID-dp83yWhI/maxresdefault.jpg)](https://www.youtube.com/watch?v=ID-dp83yWhI)
 
@@ -32,261 +31,236 @@ Speak in Hinglish, Hindi or Kannada — seven AI agents handle the rest.
 
 ---
 
-## Award Categories Targeted
+## Why an Agent, Not a Chatbot
 
-| Award                   | Why KiranaCrew qualifies                                                                                                                                                                                                          |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Mixed Vibes Award**   | Hinglish is the **default** language. The app auto-detects Roman-script Hindi+English and responds naturally in conversational Hinglish — not a translation layer, but agents that _think_ in Hinglish. Full Kannada support too. |
-| **Real Deal Award**     | Built for India's 13 million kirana stores. Real ERPNext integration, real supplier data, real purchase orders. The shopkeeper never needs to touch a keyboard.                                                                   |
-| **Jugaad Genius Award** | Seven AI specialists that coordinate, delegate, and check each other — all wired through the Model Context Protocol so each agent sees _only_ the ERP data its role permits.                                                      |
+A chatbot tells the owner "you have low stock."
 
----
+**KiranaCrew's agent does this — from a single voice command:**
 
-## The Real Problem
+1. Alice (manager) receives the request and identifies which specialists are needed
+2. Bob (inventory) calls `erp.items.list` + `erp.stock.balance` → finds 5 products below reorder level
+3. Dave (procurement) calls `erp.suppliers.list` + `erp.supplier_quotations.list` → ranks suppliers by rate and lead time
+4. Dave calls `erp.po.create_draft` → creates a purchase order in ERPNext
+5. The owner hears the recommendation, enters their PIN
+6. The order is submitted to the supplier — no typing, no ERP login, no manual steps
 
-India has **13 million kirana stores** — the backbone of a $800B retail economy — and almost every single one runs on a paper ledger and WhatsApp messages.
+**That's 5 real API tool calls, 1 human confirmation step, and autonomous multi-step planning — from one voice command.**
 
-The barriers are compounded:
-
-- **Language.** Most owners are fluent in Kannada, Hindi, or Hinglish — not the English every ERP demands.
-- **Software complexity.** ERPNext is powerful but assumes a trained accountant the typical kirana owner can't hire.
-- **No data-driven decisions.** Restocking is guesswork. Suppliers are chosen by habit.
-- **Financial blindness.** Profit is whatever's in the drawer at night — never a P&L.
-
-KiranaCrew dissolves every barrier at once: speak naturally, your AI crew does the work.
+This is the distinction PS-07 requires: the agent plans its own steps, calls real tools, and gates irreversible actions behind human confirmation.
 
 ---
 
-## Gnani AI Models Used
+## The Problem
 
-### 1. Gnani Prisma v2.5 — Speech-to-Text (Live)
+India has **13 million kirana stores** — the backbone of a $800B retail economy — almost all running on paper ledgers and WhatsApp.
 
-The shopkeeper speaks. Prisma v2.5 transcribes it — accurately — even in a noisy kirana store with market sounds, TV, and customer conversations.
+| Pain point               | Reality                                                      |
+| ------------------------ | ------------------------------------------------------------ |
+| Language                 | ERPs are English-only; owners speak Hinglish, Hindi, Kannada |
+| Stock management         | Manual counting takes 20–30 minutes per session              |
+| Supplier decisions       | Phone calls, habit, no data-driven comparison                |
+| Purchase orders          | Manual ERP data entry — most owners don't bother             |
+| P&L and finance          | "Profit = money in the drawer tonight"                       |
+| Credit tracking (udhaar) | Paper slips, frequent disputes                               |
 
-**What makes Prisma the right choice:**
+KiranaCrew gives every kirana owner a voice-operated AI crew that handles all of this — in their language.
 
-- 10+ Indian languages: Kannada (`kn-IN`), Hindi (`hi-IN`), Indian English (`en-IN`), and more
-- Native Hinglish code-mixed speech support (`indic-auto` for automatic detection)
-- Trained on 14 million hours of Indic speech data, including telephony-grade 8kHz noisy audio
-- Sub-200ms P95 streaming latency
+---
 
-**How it's integrated — `lib/server/stt.mjs`:**
+## Alice — The Manager Agent
 
-```javascript
-export function gnaniProvider({ apiKey, url = "https://api.vachana.ai/stt/v3" } = {}) {
-  return {
-    name: "gnani-prisma",
-    async transcribe({ bytes, mime, language }) {
-      const form = new FormData();
-      form.set("audio_file", new Blob([bytes], { type: mime }), "audio");
-      form.set("language_code", language); // e.g. "indic-auto" for Hinglish auto-detect
-      form.set("preferred_language", language);
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "X-API-Key-ID": apiKey }, // server-side only, never exposed to browser
-        body: form,
-        signal: AbortSignal.timeout(60_000),
-      });
-      const body = await res.json();
-      return { transcript: body.transcript, provider: "gnani-prisma", requestId: body.request_id };
-    },
-  };
-}
+Alice is `kiranacrew-manager`. She receives every request, plans which specialists to involve, delegates 1:1, waits for their results, and synthesises a single spoken answer.
+
+**Alice never touches the ERP directly.** Her job is coordination:
+
+```
+Owner: "Aaj milk ka stock check karo aur best supplier batao."
+
+Alice thinks:
+  - "stock check" → delegate to Bob (inventory)
+  - "best supplier" → delegate to Dave (procurement)
+  - Wait for both, then combine into one answer.
+
+Alice speaks: "Yeh request coordinate kar rahi hun — Bob aur Dave dono dekhenge."
 ```
 
-**Activate:**
+**Alice's coordination rules (enforced in `workforce.mjs`):**
 
-```env
-AGENT_TOWN_STT_PROVIDER=gnani
-GNANI_API_KEY=your_key_here
+- Each request goes to **exactly one specialist** (1:1 delegation — no broadcast)
+- If a request spans two domains (stock + suppliers), Alice splits it into two sequential delegations
+- Alice synthesises the final spoken response in the owner's detected language
+- If the specialist asks a clarifying question, Alice relays it without interpreting it
+
+---
+
+## The Seven-Agent Workforce
+
+Each agent has a fixed identity and a fixed set of ERP tool permissions enforced server-side by MCP governance — not prompt instructions.
+
+| Agent                    | Name      | Role                                                              | ERP Tools Allowed                                                                                |
+| ------------------------ | --------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `kiranacrew-manager`     | **Alice** | Plans, delegates, synthesises — the only agent the owner talks to | None (read-only coordination)                                                                    |
+| `kiranacrew-inventory`   | **Bob**   | Stock levels, reorder analysis, demand forecasting                | `erp.items.list` · `erp.stock.balance` · `erp.stock.ledger` · `erp.stock.movements`              |
+| `kiranacrew-sales`       | **Carol** | Sales performance, top products, customer insights, udhaar        | `erp.sales_invoices.list` · `erp.pos_invoices.list` · `erp.customers.list` · `erp.sales.history` |
+| `kiranacrew-procurement` | **Dave**  | Supplier comparison, draft purchase orders                        | `erp.suppliers.list` · `erp.supplier_quotations.list` · `erp.po.create_draft` · `erp.po.open`    |
+| `kiranacrew-finance`     | **Erin**  | P&L, receivables, udhaar (credit) tracking, GST                   | `erp.pnl` · `erp.gl` · `erp.purchase_invoices.list` · `erp.payments.summary`                     |
+| `kiranacrew-reports`     | **Grace** | Weekly/monthly business summaries                                 | All read capabilities across departments                                                         |
+| `kiranacrew-billing`     | **Frank** | Customer bills, counter totals, bill approval                     | `erp.sales_invoices.list` · `erp.pos_invoices.list` · `erp.po.create_draft`                      |
+
+**Security:** Bob cannot see supplier quotations. Erin cannot create purchase orders. Dave cannot read the P&L. These are server-side capability grants — an agent that attempts a tool call outside its grant receives a governance denial, logged in the audit trail.
+
+---
+
+## Agent Task Workflows
+
+### Workflow 1 — Stock Intelligence (Alice → Bob)
+
+```
+Owner: "Kitna stock bacha hai?"
+
+Alice → Bob: { action: "stock_check" }
+
+Bob's steps:
+  1. erp.items.list {}              → 212 products in catalogue
+  2. erp.stock.balance {}           → current bin quantities        [parallel]
+  3. analyseStock(items, bins)      → deterministic arithmetic, no model
+  4. rankForLow(items, bins)        → sort by days-of-stock remaining
+
+Bob returns:
+  { low: [ {item: "Milk 500ml", qty: 18, reorder: 20, days_left: 1.8}, ... ] }
+
+Alice speaks: "52 products check kiye; 5 items low hain. Pehle order karo:
+  Milk 500ml — 18 unit, reorder level 20, 2 din ka stock bacha..."
+```
+
+Both ERP reads (`erp.items.list` and `erp.stock.balance`) run in parallel via `Promise.all` — saves ~600ms on first response.
+
+---
+
+### Workflow 2 — Procurement (Alice → Dave)
+
+```
+Owner: "Milk ka best supplier kaun hai?"
+
+Alice → Dave: { action: "supplier_comparison", products: ["milk"] }
+
+Dave's steps:
+  1. erp.suppliers.list {}                → all registered suppliers
+  2. erp.supplier_quotations.list {}      → quoted prices per item    [parallel]
+  3. erp.item_prices.get {}               → current item prices        [parallel]
+  4. rankSuppliers(suppliers, quotations) → score: rate × lead_time × on_time_rate
+  5. erp.po.create_draft { supplier, items } → draft PO in ERPNext (pending PIN)
+
+Dave returns:
+  { supplier: "Amul Dairy", rate: ₹22/unit, delivery: "2 days", po_draft_id: "PUR-DRAFT-007" }
+
+Alice: "Amul Dairy best rate hai — ₹22/unit, 2 din delivery. Draft PO ready hai.
+       Approve karne ke liye apna PIN enter karein."
+
+Owner enters PIN → PO submitted to ERPNext.
+```
+
+The draft PO is locked with a SHA-256 fingerprint. The PIN approval has a 30-minute TTL. If the draft changes, the approval is invalidated.
+
+---
+
+### Workflow 3 — Daily Report (Alice → Grace)
+
+```
+Owner: "Aaj ki report do."
+
+Alice → Grace: { action: "daily_report", date: "2026-11-12" }
+
+Grace's steps:
+  1. erp.sales_invoices.list { date }   → today's invoices
+  2. erp.pos_invoices.list { date }     → POS transactions    [parallel]
+  3. erp.pnl { date }                   → profit & loss       [parallel]
+  4. aggregateSales(invoices, pos)      → ₹ totals, item counts, top products
+
+Grace returns:
+  { total: ₹24,800, transactions: 47, top: ["Milk 500ml", "Refined Oil"], profit: ₹3,100 }
+
+Alice speaks: "Aaj ₹24,800 ki bikri hui — 47 transactions.
+              Top product: Milk 500ml. Net profit ₹3,100."
 ```
 
 ---
 
-### 2. Gnani Timbre v2.5 — Text-to-Speech (Live)
-
-After the agents compute the answer, Timbre speaks it back in the owner's language — Hinglish, Hindi or Kannada — with correct Indian prosody, natural lakh/crore pronunciation, and 42 voice options.
-
-**What makes Timbre the right choice:**
-
-- 11 Indian language codes including `kn-IN`, `hi-IN`, and `hi-en` (Hinglish)
-- 42 voices (timbre-v2.5), 13 multilingual voices (timbre-v3.0)
-- WebSocket streaming for real-time audio (first sound in <100ms)
-- MOS 4.23 on telephony-grade 8kHz audio
-- Same `X-API-Key-ID` header as Prisma — one API key for the full voice pipeline
-
-**How it's integrated — `lib/server/tts.mjs`:**
-
-Three transport modes, all implemented:
-
-```javascript
-// REST (single request)
-export const GNANI_TTS_URL = "https://api.vachana.ai/api/v1/tts/inference";
-// SSE (chunks arrive as synthesis happens — lower perceived latency)
-export const GNANI_TTS_SSE_URL = "https://api.vachana.ai/api/v1/tts/sse";
-// WebSocket (lowest latency — used by default in production)
-export const GNANI_TTS_WS_URL = "wss://api.vachana.ai/api/v1/tts";
-
-export const GNANI_TTS_MODELS = ["timbre-v2.5", "timbre-v3.0"];
-
-// Voice options (Indian names, natural character)
-export const GNANI_TTS_VOICES = [
-  "Avinash",
-  "Shivani",
-  "Lakshmi",
-  "Kalpana",
-  "Shubham",
-  "Prakash",
-  "Devansh",
-  "Yashraj",
-  "Chetana",
-  "Vasudha",
-  "Harshad",
-  "Riyaa",
-  "Tarika",
-];
-```
-
-WebSocket streaming contract (server-side; browsers cannot set `X-API-Key-ID` on a WebSocket upgrade):
+### Workflow 4 — Finance & Udhaar (Alice → Erin)
 
 ```
-1. Connect:  wss://api.vachana.ai/api/v1/tts  (header: X-API-Key-ID)
-2. Send:     { text, voice, model, language, speed, audio_config }
-3. Receive:  { type:"audio", data: { chunk_index, audio (base64), is_final:false } }  × N
-4. Receive:  { type:"complete", data: { is_final:true } }
-```
+Owner: "Ramesh ka kitna udhaar bacha hai?"
 
-Speed is clamped to `[0.85, 1.15]` and accepts `"slow" | "medium" | "fast"` as word shortcuts.
+Alice → Erin: { action: "receivables_report", focus: "due_soon" }
 
-**Activate:**
+Erin's steps:
+  1. erp.gl { customer: "Ramesh" }       → all ledger entries
+  2. erp.payments.summary { customer }   → payment history    [parallel]
+  3. aggregateReceivables(gl, payments)  → outstanding balance + overdue days
 
-```env
-AGENT_TOWN_TTS_PROVIDER=gnani
-GNANI_API_KEY=your_key_here          # same key as STT
-GNANI_TTS_VOICE=Shivani              # any name from the list above
-GNANI_TTS_TRANSPORT=ws               # ws | sse (default sse; ws for lowest latency)
+Erin returns:
+  { customer: "Ramesh", outstanding: ₹1,450, overdue_days: 12 }
+
+Alice speaks: "Ramesh ka ₹1,450 udhaar bacha hai — 12 din se overdue."
 ```
 
 ---
 
-### 3. Gnani Evon v3.3 — Architecture Decision
+### Workflow 5 — Billing (Alice → Frank)
 
-Evon v3.3 is a 30B-parameter Mamba2-Transformer Hybrid MoE LLM — the most capable Indian-language reasoning model available, outperforming Sarvam-30B and Sarvam-105B on the MILU benchmark (78.74 macro mean, 11 Indian languages).
+```
+Owner: "Rohan ke liye bill banao — 2 kg aata aur 1 litre oil."
 
-**Why it's the right architectural choice for kirana stores:**
+Alice → Frank: { action: "prepare_bill", customer: "Rohan",
+                 lines: [{product:"aata", qty:2}, {product:"oil", qty:1}] }
 
-- 128K context window fits a full shift's inventory and sales history
-- Strong Kannada and Hindi comprehension for intent extraction from noisy voice input
-- Tool calling supported (vLLM + qwen3_coder parser) for multi-agent ERP operations
-- Apache 2.0 — open weights, production-safe license
+Frank's steps:
+  1. erp.items.list {}                       → resolve product names to item codes
+  2. erp.item_prices.get { items }           → current selling prices
+  3. erp.sales_invoices.create { customer, items, totals }  → draft invoice
 
-**Deployment note:** Evon v3.3 is open weights, not a hosted API (H100/A100 required for self-hosting). KiranaCrew's agent gateway is provider-agnostic — `createSttProvider()` / `createTtsProvider()` dispatch on environment variables. When Evon inference is available (self-hosted or via a compatible endpoint), set `AGENT_PROVIDER=openclaw` to wire it in. The current deployment uses OpenClaw's hosted gateway for agent reasoning while Prisma + Timbre handle the full voice pipeline.
+Frank returns:
+  { invoice: "SINV-2026-00512", total: ₹245, status: "pending_approval" }
+
+Alice: "Rohan ke liye ₹245 ka bill ready hai — approve karne ke liye PIN enter karein."
+```
 
 ---
 
-## Hinglish-First — Mixed Vibes
+## Human Confirmation — Where Agents Stop and Ask
 
-KiranaCrew doesn't translate Hinglish into English and back. It _speaks_ Hinglish natively.
+KiranaCrew enforces human confirmation before every irreversible action:
 
-When the owner types or says `"last एक month की report दो"` or `"aaj stock check karo"`, the system:
+| Action                            | Confirmation required                 |
+| --------------------------------- | ------------------------------------- |
+| Submit purchase order to supplier | Owner PIN (scrypt-hashed, 30-min TTL) |
+| Approve sales invoice             | Owner PIN                             |
+| Reject purchase order             | Owner PIN                             |
 
-1. Detects Roman-script Hinglish (not classified as English — that's the key insight)
-2. Sets `'hl'` as the response language (distinct from `'hi'` Devanagari Hindi)
-3. Injects a Hinglish policy into all 7 agent system prompts
-4. Returns natural conversational Hinglish — not formal translations
-
-**Language detection — `lib/server/nammaops/lang-detect.mjs`:**
-
-```javascript
-// Hinglish keywords that distinguish code-mixed Roman text from plain English
-const HINGLISH_WORDS = /\b(karo|kya|hai|nahi|aaj|kal|kitna|kitne|stock|check|report|dukaan|
-  rupaye|mahina|pichhle|saara|udhaar|bacha|maal|order|supplier|profit|loss|
-  likho|batao|dijiye|chahiye|milega|karo|karein)\b/i;
-
-export function detectLanguage(text) {
-  if (DEVANAGARI.test(text)) return "hi";   // Devanagari script → Hindi
-  if (KANNADA.test(text))    return "kn";   // Kannada script
-  if (HINGLISH_WORDS.test(text)) return "hl"; // Roman Hinglish — distinct from 'en'
-  return "en";
-}
-
-// Explicit preference always wins over auto-detection
-export function resolveResponseLang(pref, inputText = "") {
-  if (pref === "hl") return "hl";
-  if (!pref || pref === "auto") return detectLanguage(inputText);
-  return { hi: "hi", kn: "kn", en: "en" }[pref.slice(0,2)] ?? detectLanguage(inputText);
-}
-```
-
-**Agent system prompt injection — `lib/server/nammaops/developer-config.mjs`:**
-
-```javascript
-"Language: When the owner writes in Hinglish (Roman-script Hindi mixed with English) or any Hindi phrase,
-respond naturally in conversational Hinglish using Roman characters. Mix Hindi and English as an educated
-Indian kirana shopkeeper would speak. Do not use Devanagari script for Hinglish replies. Preserve product
-names, supplier names, database fields, technical terms, numbers and currency values."
-```
-
-**What Hinglish responses look like:**
-
-> _Input:_ "aaj stock check karo aur batao kya order karna hai"
->
-> _Alice:_ "Yeh request coordinate kar rahi hun. Bob aur Dave dono dekhenge."
->
-> _Bob:_ "52 products check kiye; 5 products ka stock low hai. Pehle order karo:
-> Milk 500ml — 18 unit bache, reorder level 20. Dave ne suppliers check kiye..."
->
-> _Dave:_ "Amul Dairy best rate hai ₹22/unit, delivery 2 din. Draft PO ready hai — PIN se approve karo."
-
-**UI:** Hinglish is the **default** language (not a sub-option of Hindi). The language selector shows: `Hinglish · Auto · हिंदी · English · ಕನ್ನಡ`.
-
----
-
-## The Seven-Agent AI Workforce
-
-Each agent has a fixed identity, a fixed set of ERP capabilities, and cannot exceed its role. This isn't a prompt instruction — it's enforced server-side by Phase C MCP governance.
-
-| Agent                    | Name      | Role                                                                    | ERP Access                                                                                    |
-| ------------------------ | --------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `kiranacrew-manager`     | **Alice** | Coordinates all requests; delegates to specialists; synthesises results | No direct ERP access                                                                          |
-| `kiranacrew-inventory`   | **Bob**   | Stock levels, reorder analysis, demand forecasting, expiry checks       | `erp.items.list`, `erp.stock.balance`, `erp.stock.ledger`, `erp.stock.movements`              |
-| `kiranacrew-sales`       | **Carol** | Sales performance, top products, customer insights                      | `erp.sales_invoices.list`, `erp.pos_invoices.list`, `erp.customers.list`, `erp.sales.history` |
-| `kiranacrew-procurement` | **Dave**  | Supplier comparison, purchase order drafting                            | `erp.suppliers.list`, `erp.supplier_quotations.list`, `erp.po.create_draft`, `erp.po.open`    |
-| `kiranacrew-finance`     | **Erin**  | P&L, receivables, udhaar (credit) tracking                              | `erp.pnl`, `erp.gl`, `erp.purchase_invoices.list`, `erp.payments.summary`                     |
-| `kiranacrew-reports`     | **Grace** | Weekly/monthly business reports                                         | All read capabilities across departments                                                      |
-| `kiranacrew-billing`     | **Frank** | Customer bills, counter totals, returns                                 | `erp.sales_invoices.list`, `erp.pos_invoices.list`, `erp.po.create_draft`                     |
-
-**The critical difference from a chatbot:** agents **take autonomous action**. Dave reads real supplier quotations, picks the cheapest valid supplier, and creates a draft purchase order in ERPNext — no human typing required. The shopkeeper hears the recommendation, approves with a PIN, and the order is submitted.
+No write to ERPNext ever happens without PIN verification. The PIN approval UI shows the exact draft — supplier, items, quantities, total — before the owner decides. The SHA-256 fingerprint ensures the draft shown is identical to what gets submitted.
 
 ---
 
 ## End-to-End Voice Pipeline
 
 ```
-Shopkeeper speaks:  "Aaj milk ka stock check karo aur best supplier batao."
+Owner speaks → Gnani Prisma STT → language detection → Alice → specialist agent
+            → ERP tool calls → deterministic calculations → Alice synthesises
+            → Gnani Timbre TTS → owner hears the answer
 ```
 
-| Step             | What happens                                                                           | File                                     |
-| ---------------- | -------------------------------------------------------------------------------------- | ---------------------------------------- |
-| **1. Capture**   | Browser records audio (WAV/WebM/OGG)                                                   | `lib/voice/audio.ts`                     |
-| **2. STT**       | Gnani Prisma v2.5: `indic-auto` → `"Aaj milk ka stock check karo..."`                  | `lib/server/stt.mjs · gnaniProvider`     |
-| **3. Language**  | `detectLanguage()` → `'hl'` (Hinglish, not English)                                    | `lib/server/nammaops/lang-detect.mjs`    |
-| **4. Intent**    | `parseCommand()` → `stock_check`, products: `["milk"]`                                 | `lib/server/nammaops/workflows.mjs`      |
-| **5. Delegate**  | Alice routes to Bob (inventory) + Dave (procurement)                                   | `lib/server/office-group-chat.mjs`       |
-| **6. ERP reads** | Bob: `erp.items.list` + `erp.stock.balance` under `nammaops-inventory` identity        | `lib/server/mcp-governance.mjs`          |
-| **7. Calculate** | `analyseStock()` — deterministic arithmetic, no model hallucination                    | `lib/server/nammaops/calculations.mjs`   |
-| **8. Supplier**  | Dave: `rankSuppliers()` scores by rate, validity, lead time, on-time delivery          | `lib/server/nammaops/calculations.mjs`   |
-| **9. Hinglish**  | `buildHinglishFacts(result)` → natural Hinglish fact strings                           | `lib/server/nammaops/group-business.mjs` |
-| **10. TTS**      | Gnani Timbre v2.5 WebSocket → audio streamed to browser                                | `lib/server/tts.mjs · gnaniTtsProvider`  |
-| **11. Hears**    | "Milk 500ml ka 18 unit bacha hai, reorder level 20 — low hai. Amul Dairy best rate..." | Browser                                  |
+| Step               | Technology                                                 | File                                      |
+| ------------------ | ---------------------------------------------------------- | ----------------------------------------- |
+| Audio capture      | Browser MediaRecorder (WAV/WebM)                           | `lib/voice/audio.ts`                      |
+| Speech-to-text     | Gnani Prisma v2.5 (`indic-auto` for Hinglish)              | `lib/server/stt.mjs`                      |
+| Language detection | Custom Hinglish detector (`'hl'` distinct from `'hi'`)     | `lib/server/nammaops/lang-detect.mjs`     |
+| Manager routing    | Alice delegates to one specialist                          | `lib/server/nammaops/workforce.mjs`       |
+| ERP tool calls     | MCP-governed per-agent capability grants                   | `lib/server/mcp-governance.mjs`           |
+| Calculations       | Deterministic arithmetic — numbers from ERP, not the model | `lib/server/nammaops/calculations.mjs`    |
+| Human confirmation | PIN approval, SHA-256 fingerprint, 30-min TTL              | `lib/server/nammaops/owner-approvals.mjs` |
+| Text-to-speech     | Gnani Timbre v3.0 WebSocket streaming                      | `lib/server/tts.mjs`                      |
 
-**Three rules that make KiranaCrew trustworthy:**
-
-1. **Numbers come from ERP, not the model.** Every rupee, every unit, every reorder recommendation is computed by deterministic functions over live ERPNext data. A model cannot hallucinate a stock balance.
-
-2. **Each agent sees only what its role permits.** `mcp-governance.mjs` enforces capability grants per agent identity — server-side, not prompt-based. Erin cannot read supplier quotations. Bob cannot submit purchase orders.
-
-3. **Purchase orders require the owner's PIN.** No write to ERPNext happens without PIN verification, a 30-minute TTL approval window, and a SHA-256 fingerprint confirming the draft is unchanged.
+**Key design principle:** Every rupee, every unit count, every reorder recommendation is computed by deterministic functions over live ERPNext data. The LLM synthesises the spoken response — it cannot fabricate numbers it was never given.
 
 ---
 
@@ -294,44 +268,47 @@ Shopkeeper speaks:  "Aaj milk ka stock check karo aur best supplier batao."
 
 ```mermaid
 flowchart TD
-    A["🎙️ Shopkeeper speaks\nHinglish / Hindi / Kannada"] --> B["Gnani Prisma v2.5 STT\napi.vachana.ai/stt/v3\nlanguage: indic-auto"]
-    B --> C["Language Detection\nlang-detect.mjs\n'hl' | 'hi' | 'kn' | 'en'"]
-    C --> D["Voice Router\nvoice-router.mjs\n10 business intents"]
-    D --> E["Alice — Manager Agent\nworkforce.mjs · workforce.json\ncoordinates & delegates"]
-    E --> F1["Bob — Inventory\nerp.items.list\nerp.stock.balance"]
-    E --> F2["Carol — Sales\nerp.sales_invoices.list\nerp.pos_invoices.list"]
-    E --> F3["Dave — Procurement\nerp.suppliers.list\nerp.po.create_draft"]
-    E --> F4["Erin — Finance\nerp.pnl · erp.gl"]
-    E --> F5["Grace — Reports\nweekly/monthly\nbusiness summaries"]
-    E --> F6["Frank — Billing\ncounter bills\nreturns & totals"]
-    F1 --> G["Deterministic Engine\ncalculations.mjs · forecast.mjs\nno model hallucination"]
-    F2 --> G
-    F3 --> G
-    F4 --> G
-    F5 --> G
-    F6 --> G
-    G --> H{"PIN required?\nowner-approvals.mjs"}
-    H -->|"Purchase orders"| I["PIN Verification\nSHA-256 fingerprint · 30-min TTL"]
-    H -->|"Read-only"| J["Hinglish Formatter\nbuildHinglishFacts()"]
-    I --> J
-    J --> K["Gnani Timbre v2.5 TTS\nwss://api.vachana.ai/api/v1/tts\nWebSocket streaming"]
-    K --> L["🔊 Shopkeeper hears\nnatural Hinglish/Hindi/Kannada"]
+    A["🎙️ Owner speaks\nHinglish / Hindi / Kannada"] --> B["STT\nGnani Prisma v2.5"]
+    B --> C["Language Detect\n'hl' | 'hi' | 'kn' | 'en'"]
+    C --> D["Alice — Manager Agent\nPlans · Delegates · Synthesises"]
+
+    D -->|stock query| E1["Bob — Inventory\nerp.items.list\nerp.stock.balance"]
+    D -->|sales query| E2["Carol — Sales\nerp.sales_invoices.list\nerp.customers.list"]
+    D -->|supplier/order| E3["Dave — Procurement\nerp.suppliers.list\nerp.po.create_draft"]
+    D -->|finance/udhaar| E4["Erin — Finance\nerp.pnl · erp.gl"]
+    D -->|report| E5["Grace — Reports\nAll read capabilities"]
+    D -->|billing| E6["Frank — Billing\nerp.sales_invoices.list"]
+
+    E1 --> F["Deterministic Engine\ncalculations.mjs\nNumbers from ERP only"]
+    E2 --> F
+    E3 --> F
+    E4 --> F
+    E5 --> F
+    E6 --> F
+
+    F --> G{"Irreversible action?"}
+    G -->|"PO submit / invoice"| H["PIN Verification\nSHA-256 fingerprint · 30-min TTL"]
+    G -->|"Read-only answer"| I["Alice synthesises\nHinglish / Hindi / Kannada"]
+    H --> I
+
+    I --> J["TTS\nGnani Timbre v3.0\nWebSocket streaming"]
+    J --> K["🔊 Owner hears\nnatural spoken answer"]
 ```
 
 ---
 
 ## Real-World Impact
 
-| Metric                           | Before KiranaCrew            | After                                 |
-| -------------------------------- | ---------------------------- | ------------------------------------- |
-| Time to check stock of 50+ items | 20–30 minutes (manual count) | 8 seconds (voice command)             |
-| Supplier selection for reorder   | Phone calls, 15–30 mins      | Automatic ranking by rate + lead time |
-| Purchase order creation          | Manual typing in ERP         | Voice-initiated, PIN-confirmed        |
-| Monthly P&L report               | Never (no accountant)        | On demand ("last month ki report do") |
-| Language required                | English (ERP only)           | Hinglish / Hindi / Kannada            |
-| Credit tracking (udhaar)         | Paper ledger                 | Real-time ERPNext with overdue alerts |
+| Task                         | Without KiranaCrew               | With KiranaCrew                                     |
+| ---------------------------- | -------------------------------- | --------------------------------------------------- |
+| Check stock of 200+ products | 20–30 min manual count           | 8 seconds, one voice command                        |
+| Identify what to reorder     | Guesswork, habit                 | Automatic — below reorder level + days remaining    |
+| Compare suppliers            | Phone calls, 15–30 min           | Automatic ranking by rate + lead time + reliability |
+| Create purchase order        | Manual ERP typing (most skip it) | Voice-initiated, PIN-confirmed, submitted           |
+| Monthly P&L                  | Never (no accountant)            | On demand ("last month ki report do")               |
+| Udhaar tracking              | Paper slips                      | Real-time ERPNext with overdue alerts               |
 
-A 2% reduction in stockouts across 1,000 kirana stores with ₹50L monthly turnover each = **₹1 crore/month** recovered in lost sales.
+A 2% reduction in stockouts across 1,000 kirana stores at ₹50L monthly turnover = **₹1 crore/month recovered in lost sales**.
 
 ---
 
@@ -340,22 +317,13 @@ A 2% reduction in stockouts across 1,000 kirana stores with ₹50L monthly turno
 |                                                             |                                                           |
 | :---------------------------------------------------------: | :-------------------------------------------------------: |
 |   ![Live Store](public/readme-screenshots/live-store.png)   | ![Chat & Inbox](public/readme-screenshots/chat-inbox.png) |
-|   _3D store overview — Bob, Carol, Dave, Erin live here_    |     _Store Crew — multi-agent Hinglish conversation_      |
+|         _3D store — agents visible at their desks_          |         _Alice coordinates the crew in real time_         |
 | ![AI Workforce](public/readme-screenshots/ai-workforce.png) |   ![Customers](public/readme-screenshots/customers.png)   |
-|         _Seven agents with their ERP capabilities_          |          _Customer insights and udhaar tracking_          |
+|         _Seven agents with their ERP capabilities_          |          _Udhaar tracking and customer insights_          |
 
 ---
 
 ## Quick Start
-
-### Prerequisites
-
-- Node.js ≥ 22.19.0
-- pnpm 10.20.0
-- An ERPNext / Frappe Cloud instance (or use the fixture for testing)
-- Gnani AI API key (from [gnani.ai](https://gnani.ai))
-
-### Installation
 
 ```bash
 git clone https://github.com/rajatnagda45/KiranaCrew.git
@@ -364,23 +332,22 @@ pnpm install --frozen-lockfile
 cp .env.example .env.local
 ```
 
-### Minimum `.env.local` for Gnani voice:
+**Minimum `.env.local`:**
 
 ```env
-# Gnani voice — both STT and TTS use the same API key
+# Voice (Gnani Prisma STT + Timbre TTS)
 AGENT_TOWN_STT_PROVIDER=gnani
 AGENT_TOWN_TTS_PROVIDER=gnani
 GNANI_API_KEY=your_gnani_api_key
 
-# AI gateway (OpenClaw for agent reasoning)
+# AI gateway
 AGENT_PROVIDER=openclaw
 GATEWAY_URL=ws://127.0.0.1:18789/
-GATEWAY_TOKEN=your_gateway_token
 
 # ERPNext (live store data)
 ERPNEXT_URL=https://your-site.frappe.cloud
-ERPNEXT_API_KEY=your_erpnext_api_key
-ERPNEXT_API_SECRET=your_erpnext_api_secret
+ERPNEXT_API_KEY=your_key
+ERPNEXT_API_SECRET=your_secret
 NAMMAOPS_BINDING=config/nammaops/binding.hvgerp.json
 NAMMAOPS_OWNER_PIN=your_secure_pin
 ```
@@ -390,38 +357,12 @@ pnpm dev
 # Open http://localhost:3000 → Enter the store → Speak in Hinglish
 ```
 
-For the fixture (no ERPNext needed):
+**No ERPNext? Use the fixture:**
 
 ```env
 NAMMAOPS_BINDING=config/nammaops/binding.fixture.json
 NAMMAOPS_ALLOW_FIXTURE=1
-AGENT_TOWN_STT_PROVIDER=fixture
 ```
-
----
-
-## Environment Variables
-
-| Variable                  | Purpose                                                                     |
-| ------------------------- | --------------------------------------------------------------------------- |
-| `GNANI_API_KEY`           | Gnani Prisma STT + Timbre TTS (same key, server-side only)                  |
-| `GNANI_STT_URL`           | Override STT endpoint (default: `https://api.vachana.ai/stt/v3`)            |
-| `GNANI_TTS_URL`           | Override TTS REST endpoint                                                  |
-| `GNANI_TTS_VOICE`         | Timbre voice name (e.g. `Shivani`, `Lakshmi`, `Avinash`)                    |
-| `GNANI_TTS_TRANSPORT`     | `ws` (WebSocket, lowest latency) or `sse` (default)                         |
-| `AGENT_TOWN_STT_PROVIDER` | `gnani` · `gemini` · `fixture`                                              |
-| `AGENT_TOWN_TTS_PROVIDER` | `gnani` · `gemini` · `fixture`                                              |
-| `ERPNEXT_URL`             | Frappe Cloud store URL                                                      |
-| `ERPNEXT_API_KEY`         | ERPNext API key (server-side only)                                          |
-| `ERPNEXT_API_SECRET`      | ERPNext API secret (server-side only)                                       |
-| `NAMMAOPS_BINDING`        | Binding file: `binding.hvgerp.json` (live) or `binding.fixture.json` (test) |
-| `NAMMAOPS_OWNER_PIN`      | Store owner PIN for approving purchase orders                               |
-| `NAMMAOPS_REASONING`      | `off` (deterministic) or `manager` (optional LLM summary)                   |
-| `AGENT_PROVIDER`          | `openclaw` · `nightshift` · `auggie`                                        |
-| `GATEWAY_URL`             | AI gateway WebSocket URL                                                    |
-| `GATEWAY_TOKEN`           | AI gateway auth token                                                       |
-
-Security guarantee: `GNANI_API_KEY`, `ERPNEXT_API_KEY`, and `ERPNEXT_API_SECRET` are **never sent to the browser**. All Gnani API calls are server-side only.
 
 ---
 
@@ -431,74 +372,58 @@ Security guarantee: `GNANI_API_KEY`, `ERPNEXT_API_KEY`, and `ERPNEXT_API_SECRET`
 pnpm test
 ```
 
-**1,162 tests · 105 files · all passing.**
+**1,162 tests · 127 files · all passing.**
 
-| File                                          | What it covers                                                                                                  |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `lib/__tests__/lang-detect.test.mjs`          | 51 tests: Hinglish vs English discrimination, `detectLanguage()`, `resolveResponseLang()`, all 5 language modes |
-| `lib/__tests__/nammaops.test.ts`              | Full 7-agent workflow: stock check, reorder, daily report, demand forecast, receivables, billing                |
-| `lib/__tests__/direct-chat.test.ts`           | One-to-one DM with each specialist; Hinglish response correctness                                               |
-| `lib/__tests__/voice-service.test.ts`         | Gnani Prisma provider, Gemini fallback, fixture                                                                 |
-| `lib/__tests__/voice-spoken.test.ts`          | Gnani Timbre spoken answer templates: Hinglish, Hindi, Kannada, English                                         |
-| `lib/__tests__/mcp-governance.test.ts`        | Capability registry, per-agent grants, audit trail                                                              |
-| `lib/__tests__/nammaops-forecast.test.ts`     | Demand forecast engine: 4 methods, backtesting, stockout days                                                   |
-| `lib/__tests__/voice-dictation-hook.test.tsx` | Hinglish STT language code (`indic-auto`), language selector order                                              |
+Key test files:
+
+| File                                           | What it covers                                           |
+| ---------------------------------------------- | -------------------------------------------------------- |
+| `lib/__tests__/alice-coordination.test.ts`     | Alice's delegation logic, 1:1 routing, synthesis         |
+| `lib/__tests__/seven-agent-governance.test.ts` | Per-agent capability grants, cross-agent denial          |
+| `lib/__tests__/nammaops.test.ts`               | Full workflow: stock, reorder, report, forecast, billing |
+| `lib/__tests__/dm-delegation.test.ts`          | Direct-message delegation from Alice to each specialist  |
+| `lib/__tests__/procurement-working.test.ts`    | Dave's supplier ranking and PO draft creation            |
+| `lib/__tests__/follow-up.test.ts`              | Multi-turn conversation memory across sessions           |
+| `lib/__tests__/bill-approval-prompt.test.tsx`  | PIN approval UI for invoices and purchase orders         |
+| `lib/__tests__/draft-procurement-rest.test.ts` | Full REST flow: draft PO → owner approval → submission   |
 
 ---
 
 ## Security & Governance
 
-| Control                      | Implementation                                                                                                                                         |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **MCP governance**           | Every ERP tool call goes through `CapabilityRegistry` → `Governance` → `ToolGateway`. Agents can only call tools explicitly granted to their identity. |
-| **Owner PIN approval**       | Purchase order submission requires PIN (scrypt-hashed), 30-min TTL approval, SHA-256 fingerprint of the exact draft, and EmergencyStop check.          |
-| **Read-only ERP by default** | All agents have only READ capabilities except Dave's `erp.po.create_draft` (WRITE) and the dedicated `nammaops-po-submit` principal's `erp.po.submit`. |
-| **Prompt injection fencing** | ERP tool output is wrapped in `fenceUntrusted()` before being handed to any agent.                                                                     |
-| **EmergencyStop**            | File-based stop mechanism that pauses new work without corrupting in-flight tasks.                                                                     |
-| **Credential isolation**     | `GNANI_API_KEY`, `ERPNEXT_API_KEY`, `ERPNEXT_API_SECRET` are server-side environment variables — never sent to the browser or any client.              |
-| **Audit trail**              | Every governed MCP tool call is recorded with agent identity, capability, arguments (redacted), and outcome in SQLite.                                 |
+| Control                      | Implementation                                                                                                                              |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **MCP governance**           | Every ERP tool call goes through `CapabilityRegistry` → `Governance` → `ToolGateway`. Each agent can only call tools in its explicit grant. |
+| **Owner PIN approval**       | Purchase orders and invoices require PIN (scrypt-hashed), 30-min TTL approval window, SHA-256 draft fingerprint, and EmergencyStop check.   |
+| **Read-only by default**     | All agents are read-only except Dave (`erp.po.create_draft`) and the dedicated `nammaops-po-submit` principal.                              |
+| **Prompt injection fencing** | ERP tool output is wrapped in `fenceUntrusted()` before any agent sees it.                                                                  |
+| **EmergencyStop**            | File-based stop that pauses all new work without corrupting in-flight tasks.                                                                |
+| **Credential isolation**     | `GNANI_API_KEY`, `ERPNEXT_API_KEY`, `ERPNEXT_API_SECRET` are server-side only — never sent to the browser.                                  |
+| **Audit trail**              | Every governed MCP tool call is recorded with agent identity, capability, arguments (redacted), and outcome.                                |
 
 ---
 
-## Documentation
+## Stack
 
-| Document                                                        | Contents                                                                                |
-| --------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| [Gnani Integration](docs/KIRANACREW_GNANI_INTEGRATION.md)       | Prisma + Timbre integration code, configuration checklist, example interactions         |
-| [Gnani Model Analysis](docs/KIRANACREW_GNANI_MODEL_ANALYSIS.md) | Technical deep-dive: Prisma vs alternatives, Timbre voice specs, Evon v3.3 architecture |
-| [Architecture](docs/KIRANACREW_ARCHITECTURE.md)                 | Full system architecture, component status, MCP server setup                            |
-| [Seven-Agent Workforce](docs/KIRANACREW_AGENT_WORKFORCE.md)     | Agent roles, capabilities, coordination patterns                                        |
-| [Voice Workflow](docs/KIRANACREW_VOICE_WORKFLOW.md)             | Complete voice pipeline from browser audio to Timbre TTS                                |
-| [Impact Evaluation](docs/KIRANACREW_IMPACT_EVALUATION.md)       | Real-world impact metrics for Indian kirana stores                                      |
-| [Demo Runbook](docs/KIRANACREW_DEMO_RUNBOOK.md)                 | Step-by-step demo instructions and test commands                                        |
-
----
-
-## Built With
-
-| Technology                 | Role                                                       |
-| -------------------------- | ---------------------------------------------------------- |
-| **Gnani Prisma v2.5**      | Indian-language STT — the voice of the shopkeeper          |
-| **Gnani Timbre v2.5/3.0**  | Indian-language TTS — the voice of the AI crew             |
-| **Gnani Evon v3.3**        | Indic LLM architecture (self-hosted, 128K context)         |
-| **ERPNext / Frappe Cloud** | Kirana store ERP backend                                   |
-| **Model Context Protocol** | Governed tool interface — agents only see what they should |
-| **Next.js 16 + React 19**  | Full-stack app framework                                   |
-| **TypeScript 5**           | End-to-end type safety                                     |
-| **Node.js SQLite**         | Workflow state, audit trail, message history               |
-| **Phaser 3 + Three.js**    | 2D/3D store office scene                                   |
-| **Vitest**                 | 1,162 tests across 105 files                               |
+| Technology                 | Role                                                                    |
+| -------------------------- | ----------------------------------------------------------------------- |
+| **Gnani Prisma v2.5**      | Indic STT — transcribes Hinglish, Hindi, Kannada from noisy store audio |
+| **Gnani Timbre v3.0**      | Indic TTS — speaks answers back with natural Indian prosody             |
+| **ERPNext / Frappe Cloud** | Kirana store ERP backend — real inventory, orders, finance              |
+| **Model Context Protocol** | Governed tool interface — per-agent capability enforcement              |
+| **Next.js 16 + React 19**  | Full-stack app framework                                                |
+| **Node.js SQLite**         | Workflow state, audit trail, message history                            |
+| **Phaser 3 + Three.js**    | 2D/3D store office scene                                                |
+| **Vitest**                 | 1,162 tests across 127 files                                            |
 
 ---
 
 <div align="center">
 
-### Dukaan ka kaam, aab aawaz se.
+### Dukaan ka kaam, ab aawaz se.
 
-### Speak to your store. Your AI crew handles the rest.
+**One voice command. Alice coordinates. Seven agents act. Your store runs itself.**
 
-**#GnaniAI #GreatIndianAIInternshipChallenge**
-
-Built for the [Great Indian AI Internship Challenge 2026](https://www.gnani.ai/internship) by Gnani AI.
+[AgentX Hackathon 2026 · PS-07 Open Track](https://hack4hack.com/hackathons/agentx-hackathon-2026-hooc)
 
 </div>
